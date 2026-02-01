@@ -8,6 +8,7 @@ struct HomeView: View {
     @State private var viewModel: HomeViewModel?
     @State private var showingWorkout = false
     @State private var selectedMuscle: Muscle?
+    @State private var showDemo = false
 
     var body: some View {
         NavigationStack {
@@ -27,7 +28,8 @@ struct HomeView: View {
                                 muscleStates: vm.muscleStates,
                                 onMuscleTapped: { muscle in
                                     selectedMuscle = muscle
-                                }
+                                },
+                                demoMode: showDemo
                             )
                             .frame(maxHeight: 500)
                             .padding(.horizontal)
@@ -63,6 +65,14 @@ struct HomeView: View {
                 viewModel?.loadMuscleStates()
                 viewModel?.checkActiveSession()
                 viewModel?.calculateStreak()
+
+                // 初回デモアニメーション
+                if !AppState.shared.hasSeenDemoAnimation {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        showDemo = true
+                        AppState.shared.hasSeenDemoAnimation = true
+                    }
+                }
             }
             .sheet(item: $selectedMuscle) { muscle in
                 MuscleDetailView(muscle: muscle)
@@ -124,25 +134,31 @@ private struct NeglectedWarningView: View {
     }
 }
 
-// MARK: - 凡例
+// MARK: - 凡例（3×2グリッド）
 
 private struct MuscleMapLegend: View {
     private let items: [(Color, String)] = [
-        (.mmMuscleJustWorked, "高負荷"),
-        (.mmMuscleCoral, "回復中"),
-        (.mmMuscleAmber, "回復中"),
-        (.mmMuscleMint, "回復中"),
+        (.mmMuscleCoral, "高負荷"),
+        (.mmMuscleAmber, "回復初期"),
+        (.mmMuscleYellow, "回復中"),
+        (.mmMuscleLime, "回復後期"),
         (.mmMuscleBioGreen, "ほぼ回復"),
         (.mmMuscleNeglected, "未刺激"),
     ]
 
+    private let columns = [
+        GridItem(.flexible()),
+        GridItem(.flexible()),
+        GridItem(.flexible()),
+    ]
+
     var body: some View {
-        HStack(spacing: 12) {
-            ForEach(items, id: \.1) { item in
+        LazyVGrid(columns: columns, spacing: 8) {
+            ForEach(Array(items.enumerated()), id: \.offset) { _, item in
                 HStack(spacing: 4) {
                     Circle()
                         .fill(item.0)
-                        .frame(width: 8, height: 8)
+                        .frame(width: 10, height: 10)
                     Text(item.1)
                         .font(.caption2)
                         .foregroundStyle(Color.mmTextSecondary)

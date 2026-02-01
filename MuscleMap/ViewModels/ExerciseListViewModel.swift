@@ -25,6 +25,7 @@ class ExerciseListViewModel {
 
     /// データ読み込み
     func load() {
+        exerciseStore.loadIfNeeded()
         exercises = exerciseStore.exercises
         // カテゴリ一覧を抽出（順序を保持）
         var seen = Set<String>()

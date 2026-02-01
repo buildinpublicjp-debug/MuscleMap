@@ -348,7 +348,7 @@ private struct RelatedExercisesSection: View {
         switch percentage {
         case 80...: return .mmMuscleJustWorked
         case 50..<80: return .mmMuscleAmber
-        default: return .mmMuscleMint
+        default: return .mmMuscleLime
         }
     }
 }

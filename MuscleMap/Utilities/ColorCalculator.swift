@@ -14,7 +14,7 @@ enum MuscleVisualState: Equatable {
     var color: Color {
         switch self {
         case .inactive:
-            return .clear
+            return .mmMuscleInactive
         case .recovering(let progress):
             return Self.recoveryColor(progress: progress)
         case .neglected:
@@ -26,7 +26,7 @@ enum MuscleVisualState: Equatable {
     var shouldPulse: Bool {
         switch self {
         case .recovering(let progress):
-            return progress < 0.1
+            return progress < 0.2
         case .neglected:
             return true
         default:
@@ -39,38 +39,38 @@ enum MuscleVisualState: Equatable {
         switch self {
         case .neglected(fast: true): return 0.5
         case .neglected(fast: false): return 1.5
-        case .recovering(let progress) where progress < 0.1: return 1.0
+        case .recovering(let progress) where progress < 0.2: return 1.0
         default: return 0
         }
     }
 
-    // 回復進捗に応じた色を6段階で補間
+    // 回復進捗に応じた色を5段階×20%バンドで補間
     private static func recoveryColor(progress: Double) -> Color {
         switch progress {
-        case ..<0.1:
-            return .mmMuscleJustWorked
-        case 0.1..<0.3:
-            return Color.interpolate(
-                from: .mmMuscleJustWorked, to: .mmMuscleCoral,
-                t: (progress - 0.1) / 0.2
-            )
-        case 0.3..<0.5:
+        case ..<0.2:
+            return .mmMuscleCoral
+        case 0.2..<0.4:
             return Color.interpolate(
                 from: .mmMuscleCoral, to: .mmMuscleAmber,
-                t: (progress - 0.3) / 0.2
+                t: (progress - 0.2) / 0.2
             )
-        case 0.5..<0.7:
+        case 0.4..<0.6:
             return Color.interpolate(
-                from: .mmMuscleAmber, to: .mmMuscleMint,
-                t: (progress - 0.5) / 0.2
+                from: .mmMuscleAmber, to: .mmMuscleYellow,
+                t: (progress - 0.4) / 0.2
             )
-        case 0.7..<0.9:
+        case 0.6..<0.8:
             return Color.interpolate(
-                from: .mmMuscleMint, to: .mmMuscleBioGreen,
-                t: (progress - 0.7) / 0.2
+                from: .mmMuscleYellow, to: .mmMuscleLime,
+                t: (progress - 0.6) / 0.2
+            )
+        case 0.8...:
+            return Color.interpolate(
+                from: .mmMuscleLime, to: .mmMuscleBioGreen,
+                t: min(1.0, (progress - 0.8) / 0.2)
             )
         default:
-            return .mmMuscleBioGreen.opacity(max(0.1, (1.0 - progress) * 10))
+            return .mmMuscleBioGreen
         }
     }
 }

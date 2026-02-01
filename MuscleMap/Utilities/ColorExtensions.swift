@@ -16,13 +16,18 @@ extension Color {
     static let mmAccentPrimary = Color(hex: "#00FFB3")    // バイオグリーン
     static let mmAccentSecondary = Color(hex: "#00D4FF")  // 電光ブルー
 
-    // 筋肉状態（バイオルミネッセンス6段階）
-    static let mmMuscleJustWorked = Color(hex: "#E94560")  // 深紅（回復0-10%）
-    static let mmMuscleCoral = Color(hex: "#F4845F")       // コーラル（10-30%）
-    static let mmMuscleAmber = Color(hex: "#F4A261")       // アンバー（30-50%）
-    static let mmMuscleMint = Color(hex: "#7EC8A0")        // ミント（50-70%）
-    static let mmMuscleBioGreen = Color(hex: "#00FFB3")    // バイオグリーン（70-99%）
-    static let mmMuscleNeglected = Color(hex: "#9B59B6")   // 紫（7日+未刺激）
+    // 筋肉状態（6段階 × 20%バンド）
+    static let mmMuscleCoral = Color(hex: "#FF6B6B")      // コーラル（回復0-20%）
+    static let mmMuscleAmber = Color(hex: "#FFA726")      // アンバー（20-40%）
+    static let mmMuscleYellow = Color(hex: "#FFEE58")     // イエロー（40-60%）
+    static let mmMuscleLime = Color(hex: "#C6FF00")       // ライム（60-80%）
+    static let mmMuscleBioGreen = Color(hex: "#00E676")   // バイオグリーン（80-100%）
+    static let mmMuscleInactive = Color(hex: "#2A2A2E")   // 記録なし/完全回復
+    static let mmMuscleBorder = Color(hex: "#3A3A3E")     // ボーダー色
+    static let mmMuscleNeglected = Color(hex: "#9B59B6")  // 紫（7日+未刺激）
+
+    // 旧名の互換エイリアス
+    static let mmMuscleJustWorked = mmMuscleCoral
 }
 
 // MARK: - Hex初期化

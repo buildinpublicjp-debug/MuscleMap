@@ -353,7 +353,7 @@ private struct GroupVolumeCard: View {
         case .back: return .mmAccentSecondary
         case .shoulders: return .mmMuscleAmber
         case .arms: return .mmMuscleCoral
-        case .core: return .mmMuscleMint
+        case .core: return .mmMuscleLime
         case .lowerBody: return .mmAccentPrimary
         }
     }
