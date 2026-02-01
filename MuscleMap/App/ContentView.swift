@@ -25,41 +25,13 @@ struct ContentView: View {
                 }
                 .tag(2)
 
-            // Phase 4で実装
-            HistoryPlaceholderView()
+            HistoryView()
                 .tabItem {
                     Label("履歴", systemImage: "chart.bar")
                 }
                 .tag(3)
         }
         .tint(Color.mmAccentPrimary)
-    }
-}
-
-// MARK: - 履歴プレースホルダー（Phase 4で実装）
-
-private struct HistoryPlaceholderView: View {
-    var body: some View {
-        NavigationStack {
-            ZStack {
-                Color.mmBgPrimary.ignoresSafeArea()
-
-                VStack(spacing: 16) {
-                    Image(systemName: "chart.bar")
-                        .font(.system(size: 48))
-                        .foregroundStyle(Color.mmTextSecondary)
-                    Text("履歴・統計")
-                        .font(.headline)
-                        .foregroundStyle(Color.mmTextSecondary)
-                    Text("Phase 4で実装予定")
-                        .font(.caption)
-                        .foregroundStyle(Color.mmTextSecondary.opacity(0.6))
-                }
-            }
-            .navigationTitle("履歴")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbarColorScheme(.dark, for: .navigationBar)
-        }
     }
 }
 

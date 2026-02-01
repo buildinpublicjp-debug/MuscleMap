@@ -6,6 +6,11 @@ options:
   xcodeVersion: "16.2"
   generateEmptyDirectories: true
 
+packages:
+  RevenueCat:
+    url: https://github.com/RevenueCat/purchases-ios-spm.git
+    majorVersion: 5.0.0
+
 targets:
   MuscleMap:
     type: application
@@ -18,6 +23,9 @@ targets:
       - path: Resources/exercises.json
       - path: Resources/3DModels
         optional: true
+    dependencies:
+      - package: RevenueCat
+        product: RevenueCat
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.buildinpublic.MuscleMap
