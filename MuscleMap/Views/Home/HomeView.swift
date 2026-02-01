@@ -65,7 +65,7 @@ struct HomeView: View {
                 viewModel?.calculateStreak()
             }
             .sheet(item: $selectedMuscle) { muscle in
-                MuscleDetailSheet(muscle: muscle)
+                MuscleDetailView(muscle: muscle)
             }
         }
     }
@@ -149,47 +149,6 @@ private struct MuscleMapLegend: View {
                 }
             }
         }
-    }
-}
-
-// MARK: - 筋肉詳細シート
-
-private struct MuscleDetailSheet: View {
-    let muscle: Muscle
-    @Environment(\.dismiss) private var dismiss
-
-    var body: some View {
-        NavigationStack {
-            ZStack {
-                Color.mmBgPrimary.ignoresSafeArea()
-
-                VStack(spacing: 16) {
-                    Text(muscle.japaneseName)
-                        .font(.title2.bold())
-                        .foregroundStyle(Color.mmTextPrimary)
-
-                    Text("グループ: \(muscle.group.japaneseName)")
-                        .font(.subheadline)
-                        .foregroundStyle(Color.mmTextSecondary)
-
-                    Text("基準回復時間: \(muscle.baseRecoveryHours)時間")
-                        .font(.subheadline)
-                        .foregroundStyle(Color.mmTextSecondary)
-
-                    Spacer()
-                }
-                .padding()
-            }
-            .navigationTitle(muscle.japaneseName)
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button("閉じる") { dismiss() }
-                        .foregroundStyle(Color.mmAccentPrimary)
-                }
-            }
-        }
-        .presentationDetents([.medium])
     }
 }
 

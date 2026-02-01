@@ -16,6 +16,8 @@ targets:
           - "**/.DS_Store"
     resources:
       - path: Resources/exercises.json
+      - path: Resources/3DModels
+        optional: true
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.buildinpublic.MuscleMap

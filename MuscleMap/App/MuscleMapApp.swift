@@ -7,6 +7,9 @@ struct MuscleMapApp: App {
         // エクササイズデータを起動時に読み込み
         ExerciseStore.shared.load()
 
+        // 3Dモデルの可用性を判定
+        ModelLoader.shared.evaluateModelAvailability()
+
         // TabBar外観をダークに設定
         let tabBarAppearance = UITabBarAppearance()
         tabBarAppearance.configureWithOpaqueBackground()
