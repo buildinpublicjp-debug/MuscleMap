@@ -222,6 +222,7 @@ private struct ActiveWorkoutView: View {
             .confirmationDialog("ワークアウトを終了しますか？", isPresented: $showingEndConfirm) {
                 Button("終了する") {
                     viewModel.endSession()
+                    HapticManager.workoutEnded()
                 }
                 Button("キャンセル", role: .cancel) {}
             }
@@ -299,6 +300,7 @@ private struct SetInputCard: View {
             // 記録ボタン
             Button {
                 viewModel.recordSet()
+                HapticManager.setRecorded()
             } label: {
                 Text("セットを記録")
                     .font(.headline)
@@ -323,7 +325,10 @@ private struct StepperButton: View {
     let action: () -> Void
 
     var body: some View {
-        Button(action: action) {
+        Button {
+            action()
+            HapticManager.stepperChanged()
+        } label: {
             Image(systemName: systemImage)
                 .font(.title2.bold())
                 .foregroundStyle(Color.mmAccentPrimary)

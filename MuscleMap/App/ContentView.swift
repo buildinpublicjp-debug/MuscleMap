@@ -1,8 +1,26 @@
 import SwiftUI
 
-// MARK: - メインTabView
+// MARK: - ルートビュー（オンボーディング → メインタブ）
 
 struct ContentView: View {
+    @State private var appState = AppState.shared
+
+    var body: some View {
+        if appState.hasCompletedOnboarding {
+            MainTabView()
+        } else {
+            OnboardingView {
+                withAnimation {
+                    appState.hasCompletedOnboarding = true
+                }
+            }
+        }
+    }
+}
+
+// MARK: - メインTabView
+
+private struct MainTabView: View {
     @State private var selectedTab = 0
 
     var body: some View {
@@ -30,6 +48,12 @@ struct ContentView: View {
                     Label("履歴", systemImage: "chart.bar")
                 }
                 .tag(3)
+
+            SettingsView()
+                .tabItem {
+                    Label("設定", systemImage: "gearshape")
+                }
+                .tag(4)
         }
         .tint(Color.mmAccentPrimary)
     }
