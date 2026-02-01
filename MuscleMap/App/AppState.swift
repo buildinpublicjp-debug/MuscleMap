@@ -8,20 +8,17 @@ class AppState {
     static let shared = AppState()
 
     // オンボーディング完了フラグ
-    var hasCompletedOnboarding: Bool {
-        get { UserDefaults.standard.bool(forKey: "hasCompletedOnboarding") }
-        set { UserDefaults.standard.set(newValue, forKey: "hasCompletedOnboarding") }
+    var hasCompletedOnboarding: Bool = UserDefaults.standard.bool(forKey: "hasCompletedOnboarding") {
+        didSet { UserDefaults.standard.set(hasCompletedOnboarding, forKey: "hasCompletedOnboarding") }
     }
 
     // ユーザー設定
-    var isHapticEnabled: Bool {
-        get { UserDefaults.standard.object(forKey: "isHapticEnabled") as? Bool ?? true }
-        set { UserDefaults.standard.set(newValue, forKey: "isHapticEnabled") }
+    var isHapticEnabled: Bool = (UserDefaults.standard.object(forKey: "isHapticEnabled") as? Bool) ?? true {
+        didSet { UserDefaults.standard.set(isHapticEnabled, forKey: "isHapticEnabled") }
     }
 
-    var isNotificationEnabled: Bool {
-        get { UserDefaults.standard.bool(forKey: "isNotificationEnabled") }
-        set { UserDefaults.standard.set(newValue, forKey: "isNotificationEnabled") }
+    var isNotificationEnabled: Bool = UserDefaults.standard.bool(forKey: "isNotificationEnabled") {
+        didSet { UserDefaults.standard.set(isNotificationEnabled, forKey: "isNotificationEnabled") }
     }
 
     // アプリバージョン
