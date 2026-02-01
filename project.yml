@@ -19,10 +19,8 @@ targets:
       - path: MuscleMap
         excludes:
           - "**/.DS_Store"
-    resources:
-      - path: Resources/exercises.json
-      - path: Resources/3DModels
-        optional: true
+      - path: Resources
+        buildPhase: resources
     dependencies:
       - package: RevenueCat
         product: RevenueCat
@@ -46,8 +44,8 @@ targets:
       - path: MuscleMapTests
         excludes:
           - "**/.DS_Store"
-    resources:
-      - path: Resources/exercises.json
+      - path: Resources
+        buildPhase: resources
     dependencies:
       - target: MuscleMap
     settings:
