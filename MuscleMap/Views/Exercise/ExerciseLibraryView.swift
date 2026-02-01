@@ -1,0 +1,143 @@
+import SwiftUI
+
+// MARK: - 種目辞典画面
+
+struct ExerciseLibraryView: View {
+    @State private var viewModel = ExerciseListViewModel()
+    @State private var searchText = ""
+    @State private var selectedExercise: ExerciseDefinition?
+
+    var body: some View {
+        NavigationStack {
+            ZStack {
+                Color.mmBgPrimary.ignoresSafeArea()
+
+                VStack(spacing: 0) {
+                    // カテゴリフィルター
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 8) {
+                            CategoryFilterChip(
+                                title: "すべて",
+                                isSelected: viewModel.selectedCategory == nil
+                            ) {
+                                viewModel.selectedCategory = nil
+                            }
+
+                            ForEach(viewModel.categories, id: \.self) { category in
+                                CategoryFilterChip(
+                                    title: category,
+                                    isSelected: viewModel.selectedCategory == category
+                                ) {
+                                    viewModel.selectedCategory = category
+                                }
+                            }
+                        }
+                        .padding(.horizontal)
+                        .padding(.vertical, 8)
+                    }
+
+                    // 種目数
+                    HStack {
+                        Text("\(viewModel.filteredExercises.count)種目")
+                            .font(.caption)
+                            .foregroundStyle(Color.mmTextSecondary)
+                        Spacer()
+                    }
+                    .padding(.horizontal)
+                    .padding(.bottom, 4)
+
+                    // 種目リスト
+                    List(viewModel.filteredExercises) { exercise in
+                        Button {
+                            selectedExercise = exercise
+                        } label: {
+                            ExerciseLibraryRow(exercise: exercise)
+                        }
+                        .listRowBackground(Color.mmBgSecondary)
+                    }
+                    .listStyle(.plain)
+                    .scrollContentBackground(.hidden)
+                }
+            }
+            .navigationTitle("種目辞典")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbarColorScheme(.dark, for: .navigationBar)
+            .toolbar {
+                ToolbarItem(placement: .principal) {
+                    Text("種目辞典")
+                        .font(.headline.bold())
+                        .foregroundStyle(Color.mmTextPrimary)
+                }
+            }
+            .searchable(text: $searchText, prompt: "種目を検索")
+            .onChange(of: searchText) { _, newValue in
+                viewModel.searchText = newValue
+            }
+            .onAppear {
+                viewModel.load()
+            }
+            .sheet(item: $selectedExercise) { exercise in
+                ExerciseDetailView(exercise: exercise)
+            }
+        }
+    }
+}
+
+// MARK: - カテゴリフィルターチップ
+
+private struct CategoryFilterChip: View {
+    let title: String
+    let isSelected: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Text(title)
+                .font(.caption.bold())
+                .padding(.horizontal, 12)
+                .padding(.vertical, 6)
+                .background(isSelected ? Color.mmAccentPrimary : Color.mmBgCard)
+                .foregroundStyle(isSelected ? Color.mmBgPrimary : Color.mmTextSecondary)
+                .clipShape(Capsule())
+        }
+    }
+}
+
+// MARK: - 種目行
+
+private struct ExerciseLibraryRow: View {
+    let exercise: ExerciseDefinition
+
+    var body: some View {
+        HStack {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(exercise.nameJA)
+                    .font(.subheadline.bold())
+                    .foregroundStyle(Color.mmTextPrimary)
+
+                Text(exercise.nameEN)
+                    .font(.caption)
+                    .foregroundStyle(Color.mmTextSecondary)
+
+                HStack(spacing: 12) {
+                    Label(exercise.equipment, systemImage: "dumbbell")
+                    Label(exercise.difficulty, systemImage: "chart.bar")
+                    Label(exercise.category, systemImage: "tag")
+                }
+                .font(.caption2)
+                .foregroundStyle(Color.mmTextSecondary)
+            }
+
+            Spacer()
+
+            Image(systemName: "chevron.right")
+                .font(.caption)
+                .foregroundStyle(Color.mmTextSecondary)
+        }
+        .padding(.vertical, 4)
+    }
+}
+
+#Preview {
+    ExerciseLibraryView()
+}
