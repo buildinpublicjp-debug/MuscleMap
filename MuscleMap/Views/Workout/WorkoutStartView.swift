@@ -47,7 +47,6 @@ struct WorkoutStartView: View {
                 if viewModel == nil {
                     viewModel = WorkoutViewModel(modelContext: modelContext)
                 }
-                viewModel?.startOrResumeSession()
                 loadSuggestion()
             }
             .sheet(isPresented: $showingExercisePicker) {

@@ -72,7 +72,7 @@ struct MenuSuggestionService {
         // 最大6種目に制限
         suggestedExercises = Array(suggestedExercises.prefix(6))
 
-        let reason = generateReason(group: primaryGroup, neglected: neglected)
+        let reason = generateReason(group: primaryGroup, neglected: neglected, stimulations: stimulations)
 
         return SuggestedMenu(
             primaryGroup: primaryGroup,
@@ -143,10 +143,15 @@ struct MenuSuggestionService {
     }
 
     /// 提案理由の文言を生成
-    private static func generateReason(group: MuscleGroup, neglected: Muscle?) -> String {
+    private static func generateReason(
+        group: MuscleGroup,
+        neglected: Muscle?,
+        stimulations: [Muscle: MuscleStimulation]
+    ) -> String {
         var reason = "\(group.japaneseName)が最も回復しています"
-        if let muscle = neglected {
-            reason += "。\(muscle.japaneseName)は\(RecoveryCalculator.daysSinceStimulation(Date()))日以上未刺激です"
+        if let muscle = neglected, let stim = stimulations[muscle] {
+            let days = RecoveryCalculator.daysSinceStimulation(stim.stimulationDate)
+            reason += "。\(muscle.japaneseName)は\(days)日以上未刺激です"
         }
         return reason
     }

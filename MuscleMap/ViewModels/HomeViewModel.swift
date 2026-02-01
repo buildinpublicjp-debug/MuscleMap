@@ -67,15 +67,18 @@ class HomeViewModel {
         }
 
         let calendar = Calendar.current
+        // 日付でグループ化（重複排除）
+        let uniqueDays = Set(sessions.map { calendar.startOfDay(for: $0.startDate) })
+        let sortedDays = uniqueDays.sorted(by: >)
+
         var streak = 0
         var checkDate = calendar.startOfDay(for: Date())
 
-        for session in sessions {
-            let sessionDay = calendar.startOfDay(for: session.startDate)
-            if sessionDay == checkDate {
+        for day in sortedDays {
+            if day == checkDate {
                 streak += 1
                 checkDate = calendar.date(byAdding: .day, value: -1, to: checkDate)!
-            } else if sessionDay < checkDate {
+            } else if day < checkDate {
                 break
             }
         }

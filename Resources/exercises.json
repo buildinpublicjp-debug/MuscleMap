@@ -236,7 +236,7 @@
     "equipment": "ケーブル",
     "difficulty": "初級",
     "muscleMapping": {
-      "lats": 90,
+      "lats": 100,
       "traps_middle_lower": 80,
       "erector_spinae": 30,
       "deltoid_posterior": 40,
@@ -269,7 +269,7 @@
     "muscleMapping": {
       "traps_upper": 40,
       "traps_middle_lower": 80,
-      "deltoid_posterior": 80
+      "deltoid_posterior": 100
     }
   },
   {
@@ -370,7 +370,7 @@
     "equipment": "ダンベル",
     "difficulty": "中級",
     "muscleMapping": {
-      "deltoid_anterior": 80,
+      "deltoid_anterior": 100,
       "deltoid_lateral": 80,
       "deltoid_posterior": 40,
       "triceps": 40
@@ -385,7 +385,7 @@
     "difficulty": "中級",
     "muscleMapping": {
       "traps_upper": 80,
-      "deltoid_lateral": 80,
+      "deltoid_lateral": 100,
       "biceps": 30,
       "forearms": 30
     }
@@ -434,7 +434,7 @@
     "equipment": "ダンベル",
     "difficulty": "初級",
     "muscleMapping": {
-      "biceps": 80,
+      "biceps": 100,
       "forearms": 70
     }
   },
@@ -642,7 +642,7 @@
     "muscleMapping": {
       "erector_spinae": 40,
       "deltoid_anterior": 20,
-      "rectus_abdominis": 80,
+      "rectus_abdominis": 100,
       "obliques": 60
     }
   },
@@ -707,7 +707,7 @@
     "difficulty": "中級",
     "muscleMapping": {
       "deltoid_anterior": 30,
-      "rectus_abdominis": 80,
+      "rectus_abdominis": 100,
       "quadriceps": 30,
       "hip_flexors": 70
     }
@@ -803,7 +803,7 @@
     "difficulty": "中級",
     "muscleMapping": {
       "glutes": 80,
-      "quadriceps": 90,
+      "quadriceps": 100,
       "hamstrings": 40,
       "adductors": 30,
       "hip_flexors": 30
@@ -818,7 +818,7 @@
     "difficulty": "中級",
     "muscleMapping": {
       "glutes": 80,
-      "quadriceps": 90,
+      "quadriceps": 100,
       "hamstrings": 50,
       "adductors": 30,
       "gastrocnemius": 20
@@ -833,7 +833,7 @@
     "difficulty": "初級",
     "muscleMapping": {
       "glutes": 80,
-      "quadriceps": 80,
+      "quadriceps": 100,
       "hamstrings": 40
     }
   },
@@ -935,7 +935,7 @@
       "traps_upper": 30,
       "erector_spinae": 50,
       "forearms": 40,
-      "glutes": 80,
+      "glutes": 100,
       "quadriceps": 60,
       "hamstrings": 60,
       "adductors": 80
@@ -961,7 +961,7 @@
     "difficulty": "初級",
     "muscleMapping": {
       "glutes": 70,
-      "quadriceps": 70,
+      "quadriceps": 100,
       "adductors": 80
     }
   },
@@ -1040,7 +1040,7 @@
       "triceps": 40,
       "forearms": 40,
       "glutes": 60,
-      "quadriceps": 60,
+      "quadriceps": 100,
       "hamstrings": 50,
       "gastrocnemius": 40
     }
