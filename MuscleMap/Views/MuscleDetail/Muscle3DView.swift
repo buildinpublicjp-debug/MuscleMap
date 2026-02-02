@@ -47,59 +47,115 @@ struct Muscle3DView: View {
         }
     }
 
-    // MARK: - 2Dフォールバック（強化版）
+    // MARK: - 筋肉がフロント/バックどちらにあるか判定
+
+    private var isBackMuscle: Bool {
+        let backOnly = MusclePathData.backMuscles.contains(where: { $0.muscle == muscle })
+        let frontAlso = MusclePathData.frontMuscles.contains(where: { $0.muscle == muscle })
+        // バックにあってフロントにない → バック筋肉
+        // 両方にある場合（forearms, gastrocnemius, soleus）→ フロントを優先
+        return backOnly && !frontAlso
+    }
+
+    private var muscleEntries: [(muscle: Muscle, path: (CGRect) -> Path)] {
+        isBackMuscle ? MusclePathData.backMuscles : MusclePathData.frontMuscles
+    }
+
+    // MARK: - 2Dフォールバック（ズーム版）
 
     private var fallback2DView: some View {
         ZStack {
             Color.mmBgCard
 
             GeometryReader { geo in
-                let rect = CGRect(origin: .zero, size: geo.size)
+                let fullSize = CGSize(
+                    width: geo.size.width,
+                    height: geo.size.width / 0.6 // body aspect ratio
+                )
+                let fullRect = CGRect(origin: .zero, size: fullSize)
+
+                // 対象筋肉のバウンディングボックスを取得
+                let targetBounds = muscleBoundingBox(in: fullRect)
+                // パディングを追加
+                let padding = max(targetBounds.width, targetBounds.height) * 0.4
+                let expandedBounds = targetBounds.insetBy(dx: -padding, dy: -padding)
+
+                // ビューポートにフィットするスケール
+                let scaleX = geo.size.width / expandedBounds.width
+                let scaleY = geo.size.height / expandedBounds.height
+                let scale = min(scaleX, scaleY)
+
+                // 中心合わせのオフセット
+                let offsetX = geo.size.width / 2 - expandedBounds.midX * scale
+                let offsetY = geo.size.height / 2 - expandedBounds.midY * scale
 
                 ZStack {
-                    // シルエット
-                    MusclePathData.bodyOutlineFront(in: rect)
+                    // シルエット（背景）
+                    let outline = isBackMuscle
+                        ? MusclePathData.bodyOutlineBack(in: fullRect)
+                        : MusclePathData.bodyOutlineFront(in: fullRect)
+                    outline
                         .fill(Color.mmBgSecondary.opacity(0.3))
+                    outline
+                        .stroke(Color.mmMuscleBorder.opacity(0.3), lineWidth: 0.5)
 
-                    // 対象筋肉のハイライト（フロント側）
-                    ForEach(MusclePathData.frontMuscles, id: \.muscle) { entry in
-                        entry.path(rect)
+                    // すべての筋肉を薄く表示
+                    ForEach(muscleEntries, id: \.muscle) { entry in
+                        entry.path(fullRect)
                             .fill(entry.muscle == muscle ? highlightColor : dimColor)
                             .opacity(entry.muscle == muscle ? 1.0 : 0.15)
                     }
 
-                    // 対象筋肉のハイライト（バック側で見つかる場合）
-                    ForEach(MusclePathData.backMuscles, id: \.muscle) { entry in
-                        if entry.muscle == muscle,
-                           !MusclePathData.frontMuscles.contains(where: { $0.muscle == muscle }) {
-                            // バックオンリーの筋肉：バックシルエットで表示
-                            entry.path(rect)
-                                .fill(highlightColor)
-                        }
-                    }
-
-                    // 筋肉名ラベル
-                    VStack {
-                        Spacer()
-                        HStack {
-                            Spacer()
-                            VStack(spacing: 2) {
-                                Text(muscle.japaneseName)
-                                    .font(.caption.bold())
-                                    .foregroundStyle(Color.mmTextPrimary)
-                                Text(muscle.group.japaneseName)
-                                    .font(.caption2)
-                                    .foregroundStyle(Color.mmTextSecondary)
-                            }
-                            .padding(8)
-                            .background(.ultraThinMaterial)
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
-                            .padding(12)
+                    // 対象筋肉のストローク（強調）
+                    ForEach(muscleEntries, id: \.muscle) { entry in
+                        if entry.muscle == muscle {
+                            entry.path(fullRect)
+                                .stroke(highlightColor.opacity(0.6), lineWidth: 1.5)
                         }
                     }
                 }
+                .scaleEffect(scale, anchor: .topLeading)
+                .offset(x: offsetX, y: offsetY)
+            }
+            .clipped()
+
+            // 筋肉名ラベル
+            VStack {
+                Spacer()
+                HStack {
+                    Spacer()
+                    VStack(spacing: 2) {
+                        Text(muscle.japaneseName)
+                            .font(.caption.bold())
+                            .foregroundStyle(Color.mmTextPrimary)
+                        Text(muscle.group.japaneseName)
+                            .font(.caption2)
+                            .foregroundStyle(Color.mmTextSecondary)
+                    }
+                    .padding(8)
+                    .background(.ultraThinMaterial)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .padding(12)
+                }
             }
         }
+    }
+
+    // MARK: - バウンディングボックス計算
+
+    private func muscleBoundingBox(in rect: CGRect) -> CGRect {
+        // 対象筋肉のパスからバウンディングボックスを取得
+        for entry in muscleEntries {
+            if entry.muscle == muscle {
+                let path = entry.path(rect)
+                let bounds = path.boundingRect
+                if !bounds.isEmpty {
+                    return bounds
+                }
+            }
+        }
+        // フォールバック：全体を返す
+        return rect
     }
 
     // MARK: - ローディング
