@@ -1302,6 +1302,41 @@
           "stringUnit" : { "state" : "translated", "value" : "3+ years of training" }
         }
       }
+    },
+    "機能" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Features" }
+        }
+      }
+    },
+    "筋肉マップ（2D）" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Muscle Map (2D)" }
+        }
+      }
+    },
+    "ワークアウト記録" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Workout Recording" }
+        }
+      }
+    },
+    "回復トラッキング" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Recovery Tracking" }
+        }
+      }
+    },
+    "メニュー提案" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Menu Suggestions" }
+        }
+      }
     }
   },
   "version" : "1.0"

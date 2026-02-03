@@ -21,8 +21,8 @@ struct PaywallView: View {
                         // ヘッダー
                         headerSection
 
-                        // 機能リスト
-                        featuresSection
+                        // 機能比較テーブル
+                        featureComparisonSection
 
                         // プラン選択
                         planSelectionSection
@@ -85,18 +85,39 @@ struct PaywallView: View {
         .padding(.top, 24)
     }
 
-    // MARK: - 機能リスト
+    // MARK: - 機能比較テーブル
 
-    private var featuresSection: some View {
-        VStack(spacing: 12) {
-            PremiumFeatureRow(icon: "chart.bar.fill", title: "詳細統計", description: "月間トレンド、グループ別分析")
-            PremiumFeatureRow(icon: "cube.fill", title: "3D筋肉ビュー", description: "RealityKitで部位を立体表示")
-            PremiumFeatureRow(icon: "sparkles", title: "メニュー提案+", description: "高度なメニュー最適化")
-            PremiumFeatureRow(icon: "square.and.arrow.up", title: "データエクスポート", description: "CSV形式でバックアップ")
+    private var featureComparisonSection: some View {
+        VStack(spacing: 0) {
+            // ヘッダー行
+            HStack {
+                Text("機能")
+                    .font(.caption.bold())
+                    .foregroundStyle(Color.mmTextSecondary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                Text("Free")
+                    .font(.caption.bold())
+                    .foregroundStyle(Color.mmTextSecondary)
+                    .frame(width: 52)
+                Text("Premium")
+                    .font(.caption.bold())
+                    .foregroundStyle(Color.mmAccentPrimary)
+                    .frame(width: 72)
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 10)
+            .background(Color.mmBgSecondary)
+
+            // 機能行
+            ForEach(FeatureComparison.allFeatures) { feature in
+                FeatureComparisonRow(feature: feature)
+            }
         }
-        .padding()
-        .background(Color.mmBgCard)
         .clipShape(RoundedRectangle(cornerRadius: 12))
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(Color.mmBgSecondary, lineWidth: 1)
+        )
     }
 
     // MARK: - プラン選択
@@ -106,9 +127,10 @@ struct PaywallView: View {
             PlanCard(
                 plan: .monthly,
                 isSelected: selectedPlan == .monthly,
-                price: monthlyPrice,
+                price: purchaseManager.monthlyPrice,
                 period: "月額",
-                badge: nil
+                badge: nil,
+                subtext: nil
             ) {
                 selectedPlan = .monthly
             }
@@ -116,9 +138,10 @@ struct PaywallView: View {
             PlanCard(
                 plan: .annual,
                 isSelected: selectedPlan == .annual,
-                price: annualPrice,
+                price: purchaseManager.annualPrice,
                 period: "年額",
-                badge: "おすすめ"
+                badge: "おすすめ",
+                subtext: "月あたり ¥650"
             ) {
                 selectedPlan = .annual
             }
@@ -126,9 +149,10 @@ struct PaywallView: View {
             PlanCard(
                 plan: .lifetime,
                 isSelected: selectedPlan == .lifetime,
-                price: lifetimePrice,
+                price: purchaseManager.lifetimePrice,
                 period: "買い切り",
-                badge: nil
+                badge: nil,
+                subtext: nil
             ) {
                 selectedPlan = .lifetime
             }
@@ -204,28 +228,7 @@ struct PaywallView: View {
         }
     }
 
-    // MARK: - 価格表示
-
-    private var monthlyPrice: String {
-        if let pkg = purchaseManager.monthlyPackage {
-            return pkg.localizedPriceString
-        }
-        return "¥980"
-    }
-
-    private var annualPrice: String {
-        if let pkg = purchaseManager.annualPackage {
-            return pkg.localizedPriceString
-        }
-        return "¥7,800"
-    }
-
-    private var lifetimePrice: String {
-        if let pkg = purchaseManager.lifetimePackage {
-            return pkg.localizedPriceString
-        }
-        return "¥12,000"
-    }
+    // MARK: - ボタンラベル
 
     private var purchaseButtonLabel: String {
         switch selectedPlan {
@@ -241,20 +244,9 @@ struct PaywallView: View {
         isPurchasing = true
         defer { isPurchasing = false }
 
-        let package: Package?
-        switch selectedPlan {
-        case .monthly: package = purchaseManager.monthlyPackage
-        case .annual: package = purchaseManager.annualPackage
-        case .lifetime: package = purchaseManager.lifetimePackage
-        }
-
-        guard let package else {
-            showError = true
-            return
-        }
-
-        let success = await purchaseManager.purchase(package)
+        let success = await purchaseManager.purchase(plan: selectedPlan)
         if success {
+            HapticManager.setRecorded()
             dismiss()
         } else {
             showError = true
@@ -279,34 +271,60 @@ enum PlanType {
     case lifetime
 }
 
-// MARK: - 機能行
+// MARK: - 機能比較データ
 
-private struct PremiumFeatureRow: View {
+private struct FeatureComparison: Identifiable {
+    let id = UUID()
+    let name: String
     let icon: String
-    let title: String
-    let description: String
+    let freeAccess: Bool
+    let premiumAccess: Bool
+
+    static let allFeatures: [FeatureComparison] = [
+        FeatureComparison(name: String(localized: "筋肉マップ（2D）"), icon: "figure.stand", freeAccess: true, premiumAccess: true),
+        FeatureComparison(name: String(localized: "ワークアウト記録"), icon: "dumbbell", freeAccess: true, premiumAccess: true),
+        FeatureComparison(name: String(localized: "回復トラッキング"), icon: "heart.text.clipboard", freeAccess: true, premiumAccess: true),
+        FeatureComparison(name: String(localized: "メニュー提案"), icon: "sparkles", freeAccess: true, premiumAccess: true),
+        FeatureComparison(name: String(localized: "詳細統計"), icon: "chart.bar.fill", freeAccess: false, premiumAccess: true),
+        FeatureComparison(name: String(localized: "3D筋肉ビュー"), icon: "cube.fill", freeAccess: false, premiumAccess: true),
+        FeatureComparison(name: String(localized: "メニュー提案+"), icon: "wand.and.stars", freeAccess: false, premiumAccess: true),
+        FeatureComparison(name: String(localized: "データエクスポート"), icon: "square.and.arrow.up", freeAccess: false, premiumAccess: true),
+    ]
+}
+
+// MARK: - 機能比較行
+
+private struct FeatureComparisonRow: View {
+    let feature: FeatureComparison
 
     var body: some View {
-        HStack(spacing: 12) {
-            Image(systemName: icon)
-                .font(.body)
-                .foregroundStyle(Color.mmAccentPrimary)
-                .frame(width: 28)
-
-            VStack(alignment: .leading, spacing: 2) {
-                Text(title)
-                    .font(.subheadline.bold())
-                    .foregroundStyle(Color.mmTextPrimary)
-                Text(description)
+        HStack {
+            HStack(spacing: 8) {
+                Image(systemName: feature.icon)
                     .font(.caption)
                     .foregroundStyle(Color.mmTextSecondary)
+                    .frame(width: 20)
+                Text(feature.name)
+                    .font(.caption)
+                    .foregroundStyle(Color.mmTextPrimary)
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
 
-            Spacer()
+            // Free
+            Image(systemName: feature.freeAccess ? "checkmark" : "minus")
+                .font(.caption.bold())
+                .foregroundStyle(feature.freeAccess ? Color.mmAccentPrimary : Color.mmTextSecondary.opacity(0.3))
+                .frame(width: 52)
 
-            Image(systemName: "checkmark.circle.fill")
+            // Premium
+            Image(systemName: "checkmark")
+                .font(.caption.bold())
                 .foregroundStyle(Color.mmAccentPrimary)
+                .frame(width: 72)
         }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 10)
+        .background(Color.mmBgCard)
     }
 }
 
@@ -318,6 +336,7 @@ private struct PlanCard: View {
     let price: String
     let period: String
     let badge: String?
+    let subtext: String?
     let onTap: () -> Void
 
     var body: some View {
@@ -339,8 +358,8 @@ private struct PlanCard: View {
                         }
                     }
 
-                    if plan == .annual {
-                        Text("月あたり ¥650")
+                    if let subtext {
+                        Text(subtext)
                             .font(.caption2)
                             .foregroundStyle(Color.mmAccentPrimary)
                     }
