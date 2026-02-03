@@ -17,7 +17,7 @@ struct PaywallView: View {
                 Color.mmBgPrimary.ignoresSafeArea()
 
                 ScrollView {
-                    VStack(spacing: 32) {
+                    VStack(spacing: 24) {
                         // ヘッダー
                         headerSection
 
@@ -33,8 +33,8 @@ struct PaywallView: View {
                         // リストア + 利用規約
                         footerSection
                     }
-                    .padding()
-                    .padding(.bottom, 32)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 24)
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
@@ -62,16 +62,10 @@ struct PaywallView: View {
     // MARK: - ヘッダー
 
     private var headerSection: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: 8) {
             Image(systemName: "crown.fill")
-                .font(.system(size: 48))
-                .foregroundStyle(
-                    LinearGradient(
-                        colors: [Color.mmAccentPrimary, Color.mmAccentSecondary],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
+                .font(.system(size: 40))
+                .foregroundStyle(Color.mmAccentPrimary)
 
             Text("MuscleMap Premium")
                 .font(.title2.bold())
@@ -82,7 +76,7 @@ struct PaywallView: View {
                 .foregroundStyle(Color.mmTextSecondary)
                 .multilineTextAlignment(.center)
         }
-        .padding(.top, 24)
+        .padding(.top, 16)
     }
 
     // MARK: - 機能比較テーブル
@@ -105,7 +99,7 @@ struct PaywallView: View {
                     .frame(width: 72)
             }
             .padding(.horizontal, 16)
-            .padding(.vertical, 10)
+            .padding(.vertical, 8)
             .background(Color.mmBgSecondary)
 
             // 機能行
@@ -123,7 +117,7 @@ struct PaywallView: View {
     // MARK: - プラン選択
 
     private var planSelectionSection: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: 8) {
             PlanCard(
                 plan: .monthly,
                 isSelected: selectedPlan == .monthly,
@@ -157,6 +151,7 @@ struct PaywallView: View {
                 selectedPlan = .lifetime
             }
         }
+        .animation(.easeInOut(duration: 0.2), value: selectedPlan)
     }
 
     // MARK: - 購入ボタン
@@ -188,7 +183,7 @@ struct PaywallView: View {
     // MARK: - フッター
 
     private var footerSection: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: 8) {
             Button {
                 Task {
                     await restore()
@@ -205,14 +200,14 @@ struct PaywallView: View {
                 } label: {
                     Text("利用規約")
                         .font(.caption2)
-                        .foregroundStyle(Color.mmTextSecondary.opacity(0.6))
+                        .foregroundStyle(Color.mmTextSecondary.opacity(0.5))
                 }
                 Button {
                     // プライバシーポリシー（外部リンク）
                 } label: {
                     Text("プライバシーポリシー")
                         .font(.caption2)
-                        .foregroundStyle(Color.mmTextSecondary.opacity(0.6))
+                        .foregroundStyle(Color.mmTextSecondary.opacity(0.5))
                 }
             }
 
@@ -323,7 +318,7 @@ private struct FeatureComparisonRow: View {
                 .frame(width: 72)
         }
         .padding(.horizontal, 16)
-        .padding(.vertical, 10)
+        .padding(.vertical, 8)
         .background(Color.mmBgCard)
     }
 }
@@ -371,10 +366,10 @@ private struct PlanCard: View {
                     .font(.title3.bold())
                     .foregroundStyle(Color.mmTextPrimary)
             }
-            .padding()
+            .padding(16)
             .background(
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(Color.mmBgCard)
+                    .fill(isSelected ? Color.mmAccentPrimary.opacity(0.08) : Color.mmBgCard)
                     .overlay(
                         RoundedRectangle(cornerRadius: 12)
                             .stroke(

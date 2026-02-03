@@ -65,20 +65,19 @@ struct OnboardingView: View {
                 // ページインジケーター
                 HStack(spacing: 8) {
                     ForEach(0..<totalPages, id: \.self) { index in
-                        Circle()
+                        Capsule()
                             .fill(index == currentPage ? Color.mmAccentPrimary : Color.mmTextSecondary.opacity(0.3))
-                            .frame(width: 8, height: 8)
-                            .scaleEffect(index == currentPage ? 1.2 : 1.0)
-                            .animation(.spring(response: 0.3), value: currentPage)
+                            .frame(width: index == currentPage ? 24 : 8, height: 8)
+                            .animation(.spring(response: 0.3, dampingFraction: 0.7), value: currentPage)
                     }
                 }
-                .padding(.bottom, 32)
+                .padding(.bottom, 24)
 
                 // ボタン
                 Button {
                     HapticManager.lightTap()
                     if currentPage < totalPages - 1 {
-                        withAnimation {
+                        withAnimation(.easeInOut(duration: 0.3)) {
                             currentPage += 1
                         }
                     } else {
@@ -89,16 +88,16 @@ struct OnboardingView: View {
                         .font(.headline)
                         .foregroundStyle(Color.mmBgPrimary)
                         .frame(maxWidth: .infinity)
-                        .frame(height: 56)
+                        .frame(height: 48)
                         .background(Color.mmAccentPrimary)
-                        .clipShape(RoundedRectangle(cornerRadius: 16))
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
-                .padding(.horizontal, 32)
+                .padding(.horizontal, 24)
 
                 // スキップ（イントロのみ）
                 if currentPage < 3 {
                     Button {
-                        withAnimation {
+                        withAnimation(.easeInOut(duration: 0.3)) {
                             currentPage = 3
                         }
                     } label: {
@@ -106,10 +105,10 @@ struct OnboardingView: View {
                             .font(.subheadline)
                             .foregroundStyle(Color.mmTextSecondary)
                     }
-                    .padding(.top, 12)
+                    .padding(.top, 8)
                 }
 
-                Spacer().frame(height: 32)
+                Spacer().frame(height: 24)
             }
         }
     }
@@ -150,46 +149,34 @@ private struct OnboardingPageView: View {
     let page: OnboardingPage
 
     var body: some View {
-        VStack(spacing: 24) {
+        VStack(spacing: 16) {
             Spacer()
 
             ZStack {
                 Circle()
-                    .fill(
-                        LinearGradient(
-                            colors: page.iconColors,
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        ).opacity(0.15)
-                    )
-                    .frame(width: 120, height: 120)
+                    .fill(page.iconColors.first?.opacity(0.1) ?? Color.mmAccentPrimary.opacity(0.1))
+                    .frame(width: 96, height: 96)
 
                 Image(systemName: page.icon)
-                    .font(.system(size: 48))
-                    .foregroundStyle(
-                        LinearGradient(
-                            colors: page.iconColors,
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
+                    .font(.system(size: 40))
+                    .foregroundStyle(page.iconColors.first ?? Color.mmAccentPrimary)
             }
 
             Text(page.title)
-                .font(.title.bold())
+                .font(.title2.bold())
                 .foregroundStyle(Color.mmTextPrimary)
                 .multilineTextAlignment(.center)
 
             Text(page.subtitle)
-                .font(.body)
+                .font(.subheadline)
                 .foregroundStyle(Color.mmAccentPrimary)
                 .multilineTextAlignment(.center)
 
             Text(page.detail)
-                .font(.subheadline)
+                .font(.footnote)
                 .foregroundStyle(Color.mmTextSecondary)
                 .multilineTextAlignment(.center)
-                .padding(.horizontal, 32)
+                .padding(.horizontal, 24)
 
             Spacer()
             Spacer()
@@ -204,7 +191,7 @@ private struct GoalSelectionPage: View {
     @Binding var selectedGoal: TrainingGoal
 
     var body: some View {
-        VStack(spacing: 24) {
+        VStack(spacing: 16) {
             Spacer()
 
             Text("トレーニングの目標は？")
@@ -216,7 +203,7 @@ private struct GoalSelectionPage: View {
                 .font(.subheadline)
                 .foregroundStyle(Color.mmTextSecondary)
 
-            VStack(spacing: 12) {
+            VStack(spacing: 8) {
                 ForEach(TrainingGoal.allCases) { goal in
                     GoalOptionRow(
                         goal: goal,
@@ -228,6 +215,7 @@ private struct GoalSelectionPage: View {
                 }
             }
             .padding(.horizontal, 24)
+            .animation(.easeInOut(duration: 0.2), value: selectedGoal)
 
             Spacer()
             Spacer()
@@ -265,10 +253,10 @@ private struct GoalOptionRow: View {
                 Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
                     .foregroundStyle(isSelected ? Color.mmAccentPrimary : Color.mmTextSecondary.opacity(0.3))
             }
-            .padding()
+            .padding(16)
             .background(
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(Color.mmBgCard)
+                    .fill(isSelected ? Color.mmAccentPrimary.opacity(0.08) : Color.mmBgCard)
                     .overlay(
                         RoundedRectangle(cornerRadius: 12)
                             .stroke(
@@ -288,7 +276,7 @@ private struct ExperienceLevelPage: View {
     @Binding var selectedLevel: ExperienceLevel
 
     var body: some View {
-        VStack(spacing: 24) {
+        VStack(spacing: 16) {
             Spacer()
 
             Text("あなたについて教えてください")
@@ -305,7 +293,7 @@ private struct ExperienceLevelPage: View {
                 TextField("", text: $nickname, prompt: Text("ニックネーム").foregroundStyle(Color.mmTextSecondary.opacity(0.5)))
                     .font(.body)
                     .foregroundStyle(Color.mmTextPrimary)
-                    .padding()
+                    .padding(16)
                     .background(Color.mmBgCard)
                     .clipShape(RoundedRectangle(cornerRadius: 12))
             }
@@ -318,7 +306,7 @@ private struct ExperienceLevelPage: View {
                     .foregroundStyle(Color.mmTextSecondary)
                     .padding(.horizontal, 24)
 
-                VStack(spacing: 12) {
+                VStack(spacing: 8) {
                     ForEach(ExperienceLevel.allCases) { level in
                         LevelOptionRow(
                             level: level,
@@ -330,6 +318,7 @@ private struct ExperienceLevelPage: View {
                     }
                 }
                 .padding(.horizontal, 24)
+                .animation(.easeInOut(duration: 0.2), value: selectedLevel)
             }
 
             Spacer()
@@ -368,10 +357,10 @@ private struct LevelOptionRow: View {
                 Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
                     .foregroundStyle(isSelected ? Color.mmAccentPrimary : Color.mmTextSecondary.opacity(0.3))
             }
-            .padding()
+            .padding(16)
             .background(
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(Color.mmBgCard)
+                    .fill(isSelected ? Color.mmAccentPrimary.opacity(0.08) : Color.mmBgCard)
                     .overlay(
                         RoundedRectangle(cornerRadius: 12)
                             .stroke(
