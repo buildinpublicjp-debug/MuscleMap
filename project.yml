@@ -24,6 +24,12 @@ targets:
     dependencies:
       - package: RevenueCat
         product: RevenueCat
+      - target: MuscleMapWidgetExtension
+    entitlements:
+      path: MuscleMap/MuscleMap.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.com.buildinpublic.MuscleMap
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.buildinpublic.MuscleMap
@@ -36,6 +42,33 @@ targets:
         INFOPLIST_KEY_UILaunchScreen_Generation: true
         INFOPLIST_KEY_UISupportedInterfaceOrientations: "UIInterfaceOrientationPortrait"
         INFOPLIST_KEY_CFBundleDisplayName: "MuscleMap"
+
+  MuscleMapWidgetExtension:
+    type: app-extension
+    platform: iOS
+    product: MuscleMapWidgetExtension
+    sources:
+      - path: MuscleMapWidget
+        excludes:
+          - "**/.DS_Store"
+          - "**/Info.plist"
+    entitlements:
+      path: MuscleMapWidget/MuscleMapWidgetExtension.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.com.buildinpublic.MuscleMap
+    info:
+      path: MuscleMapWidget/Info.plist
+      properties:
+        CFBundleDisplayName: "MuscleMap Widget"
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.buildinpublic.MuscleMap.widget
+        MARKETING_VERSION: "1.0.0"
+        CURRENT_PROJECT_VERSION: "1"
+        SWIFT_VERSION: "5.9"
 
   MuscleMapTests:
     type: bundle.unit-test

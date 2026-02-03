@@ -1,5 +1,6 @@
 import Foundation
 import SwiftData
+import WidgetKit
 
 // MARK: - ホーム画面ViewModel
 
@@ -51,6 +52,24 @@ class HomeViewModel {
 
         muscleStates = states
         neglectedMuscles = neglected
+
+        // ウィジェットデータを更新
+        updateWidgetData(stimulations: stimulations)
+    }
+
+    /// ウィジェット用データを書き込み & タイムラインリロード
+    private func updateWidgetData(stimulations: [Muscle: MuscleStimulation]) {
+        let menu = MenuSuggestionService.suggestTodayMenu(
+            stimulations: stimulations,
+            exerciseStore: ExerciseStore.shared
+        )
+        WidgetDataProvider.updateWidgetData(
+            muscleStates: muscleStates,
+            streakDays: streakDays,
+            suggestedGroup: menu.primaryGroup,
+            suggestedReason: menu.reason
+        )
+        WidgetCenter.shared.reloadAllTimelines()
     }
 
     /// 進行中セッションをチェック
