@@ -19,6 +19,10 @@ class ExerciseListViewModel {
         didSet { applyFilters() }
     }
 
+    var showFavoritesOnly: Bool = false {
+        didSet { applyFilters() }
+    }
+
     init() {
         self.exerciseStore = ExerciseStore.shared
     }
@@ -40,6 +44,12 @@ class ExerciseListViewModel {
     /// フィルター適用
     private func applyFilters() {
         var result = exercises
+
+        // お気に入りフィルター
+        if showFavoritesOnly {
+            let favIds = FavoritesManager.shared.favoriteIds
+            result = result.filter { favIds.contains($0.id) }
+        }
 
         // カテゴリフィルター
         if let category = selectedCategory {

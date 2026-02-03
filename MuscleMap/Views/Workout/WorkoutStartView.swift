@@ -201,7 +201,12 @@ private struct ActiveWorkoutView: View {
 
                     // 記録済みセット一覧
                     if !viewModel.exerciseSets.isEmpty {
-                        RecordedSetsView(exerciseSets: viewModel.exerciseSets)
+                        RecordedSetsView(
+                            exerciseSets: viewModel.exerciseSets,
+                            onDeleteSet: { set in
+                                viewModel.deleteSet(set)
+                            }
+                        )
                     }
                 }
                 .padding(.vertical)
@@ -234,6 +239,11 @@ private struct ActiveWorkoutView: View {
 private struct SetInputCard: View {
     @Bindable var viewModel: WorkoutViewModel
     let exercise: ExerciseDefinition
+    @State private var useAdditionalWeight = false
+
+    private var isBodyweight: Bool {
+        exercise.equipment == "自重"
+    }
 
     var body: some View {
         VStack(spacing: 16) {
@@ -244,9 +254,15 @@ private struct SetInputCard: View {
 
             // 前回記録
             if let lastW = viewModel.lastWeight, let lastR = viewModel.lastReps {
-                Text("前回: \(lastW, specifier: "%.1f")kg × \(lastR)回")
-                    .font(.caption)
-                    .foregroundStyle(Color.mmTextSecondary)
+                if isBodyweight && lastW == 0 {
+                    Text("前回: \(lastR)回")
+                        .font(.caption)
+                        .foregroundStyle(Color.mmTextSecondary)
+                } else {
+                    Text("前回: \(lastW, specifier: "%.1f")kg × \(lastR)回")
+                        .font(.caption)
+                        .foregroundStyle(Color.mmTextSecondary)
+                }
             }
 
             // セット番号
@@ -254,24 +270,54 @@ private struct SetInputCard: View {
                 .font(.subheadline.bold())
                 .foregroundStyle(Color.mmAccentSecondary)
 
-            // 重量入力
-            HStack(spacing: 16) {
-                StepperButton(systemImage: "minus") {
-                    viewModel.adjustWeight(by: -2.5)
-                }
-
-                VStack(spacing: 2) {
-                    Text("\(viewModel.currentWeight, specifier: "%.1f")")
-                        .font(.system(size: 36, weight: .bold, design: .monospaced))
-                        .foregroundStyle(Color.mmTextPrimary)
-                    Text("kg")
-                        .font(.caption)
+            // 自重種目の場合
+            if isBodyweight {
+                // 自重ラベル
+                if !useAdditionalWeight {
+                    Text("自重")
+                        .font(.title3.bold())
                         .foregroundStyle(Color.mmTextSecondary)
+                        .padding(.vertical, 8)
                 }
-                .frame(minWidth: 100)
 
-                StepperButton(systemImage: "plus") {
-                    viewModel.adjustWeight(by: 2.5)
+                // 加重トグル
+                Toggle(isOn: $useAdditionalWeight) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "scalemass")
+                        Text("加重する")
+                    }
+                    .font(.caption)
+                    .foregroundStyle(Color.mmTextSecondary)
+                }
+                .tint(Color.mmAccentPrimary)
+                .padding(.horizontal, 8)
+                .onChange(of: useAdditionalWeight) { _, newValue in
+                    if !newValue {
+                        viewModel.currentWeight = 0
+                    }
+                }
+            }
+
+            // 重量入力（通常種目 or 加重時）
+            if !isBodyweight || useAdditionalWeight {
+                HStack(spacing: 16) {
+                    StepperButton(systemImage: "minus") {
+                        viewModel.adjustWeight(by: -2.5)
+                    }
+
+                    VStack(spacing: 2) {
+                        Text("\(viewModel.currentWeight, specifier: "%.1f")")
+                            .font(.system(size: 36, weight: .bold, design: .monospaced))
+                            .foregroundStyle(Color.mmTextPrimary)
+                        Text(isBodyweight ? "kg (加重)" : "kg")
+                            .font(.caption)
+                            .foregroundStyle(Color.mmTextSecondary)
+                    }
+                    .frame(minWidth: 100)
+
+                    StepperButton(systemImage: "plus") {
+                        viewModel.adjustWeight(by: 2.5)
+                    }
                 }
             }
 
@@ -342,6 +388,7 @@ private struct StepperButton: View {
 
 private struct RecordedSetsView: View {
     let exerciseSets: [(exercise: ExerciseDefinition, sets: [WorkoutSet])]
+    let onDeleteSet: (WorkoutSet) -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -362,9 +409,22 @@ private struct RecordedSetsView: View {
                                 .font(.caption)
                                 .foregroundStyle(Color.mmTextSecondary)
                             Spacer()
-                            Text("\(set.weight, specifier: "%.1f")kg × \(set.reps)回")
-                                .font(.caption.monospaced())
-                                .foregroundStyle(Color.mmTextPrimary)
+                            if entry.exercise.equipment == "自重" && set.weight == 0 {
+                                Text("\(set.reps)回")
+                                    .font(.caption.monospaced())
+                                    .foregroundStyle(Color.mmTextPrimary)
+                            } else {
+                                Text("\(set.weight, specifier: "%.1f")kg × \(set.reps)回")
+                                    .font(.caption.monospaced())
+                                    .foregroundStyle(Color.mmTextPrimary)
+                            }
+                            Button {
+                                onDeleteSet(set)
+                            } label: {
+                                Image(systemName: "xmark.circle.fill")
+                                    .font(.caption)
+                                    .foregroundStyle(Color.mmTextSecondary.opacity(0.5))
+                            }
                         }
                     }
                 }

@@ -5,6 +5,7 @@ import SwiftUI
 struct ExerciseDetailView: View {
     let exercise: ExerciseDefinition
     @Environment(\.dismiss) private var dismiss
+    @ObservedObject private var favorites = FavoritesManager.shared
 
     var body: some View {
         NavigationStack {
@@ -29,6 +30,44 @@ struct ExerciseDetailView: View {
                             InfoTag(icon: "dumbbell", text: exercise.equipment)
                             InfoTag(icon: "chart.bar", text: exercise.difficulty)
                             InfoTag(icon: "tag", text: exercise.category)
+                        }
+
+                        // 説明・フォームポイント
+                        if let info = ExerciseDescriptions.info(for: exercise.id) {
+                            VStack(alignment: .leading, spacing: 12) {
+                                Text("説明")
+                                    .font(.headline)
+                                    .foregroundStyle(Color.mmTextPrimary)
+
+                                Text(info.description)
+                                    .font(.subheadline)
+                                    .foregroundStyle(Color.mmTextSecondary)
+                                    .fixedSize(horizontal: false, vertical: true)
+
+                                if !info.formTips.isEmpty {
+                                    Text("フォームのポイント")
+                                        .font(.subheadline.bold())
+                                        .foregroundStyle(Color.mmTextPrimary)
+                                        .padding(.top, 4)
+
+                                    VStack(alignment: .leading, spacing: 8) {
+                                        ForEach(Array(info.formTips.enumerated()), id: \.offset) { _, tip in
+                                            HStack(alignment: .top, spacing: 8) {
+                                                Image(systemName: "checkmark.circle.fill")
+                                                    .font(.caption)
+                                                    .foregroundStyle(Color.mmAccentPrimary)
+                                                    .padding(.top, 2)
+                                                Text(tip)
+                                                    .font(.subheadline)
+                                                    .foregroundStyle(Color.mmTextSecondary)
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            .padding()
+                            .background(Color.mmBgCard)
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
                         }
 
                         // 筋肉マップ
@@ -70,6 +109,15 @@ struct ExerciseDetailView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbarColorScheme(.dark, for: .navigationBar)
             .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button {
+                        favorites.toggle(exercise.id)
+                        HapticManager.lightTap()
+                    } label: {
+                        Image(systemName: favorites.isFavorite(exercise.id) ? "star.fill" : "star")
+                            .foregroundStyle(favorites.isFavorite(exercise.id) ? Color.yellow : Color.mmTextSecondary)
+                    }
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("閉じる") { dismiss() }
                         .foregroundStyle(Color.mmAccentPrimary)

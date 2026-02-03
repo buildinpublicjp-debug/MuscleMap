@@ -7,6 +7,7 @@ struct ExercisePickerView: View {
 
     @Environment(\.dismiss) private var dismiss
     @State private var viewModel = ExerciseListViewModel()
+    @ObservedObject private var favorites = FavoritesManager.shared
     @State private var searchText = ""
 
     var body: some View {
@@ -18,18 +19,31 @@ struct ExercisePickerView: View {
                     // カテゴリフィルター
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 8) {
+                            // お気に入りフィルター
+                            CategoryChip(
+                                title: "★ お気に入り",
+                                isSelected: viewModel.showFavoritesOnly
+                            ) {
+                                viewModel.showFavoritesOnly.toggle()
+                                if viewModel.showFavoritesOnly {
+                                    viewModel.selectedCategory = nil
+                                }
+                            }
+
                             CategoryChip(
                                 title: "すべて",
-                                isSelected: viewModel.selectedCategory == nil
+                                isSelected: viewModel.selectedCategory == nil && !viewModel.showFavoritesOnly
                             ) {
+                                viewModel.showFavoritesOnly = false
                                 viewModel.selectedCategory = nil
                             }
 
                             ForEach(viewModel.categories, id: \.self) { category in
                                 CategoryChip(
                                     title: category,
-                                    isSelected: viewModel.selectedCategory == category
+                                    isSelected: viewModel.selectedCategory == category && !viewModel.showFavoritesOnly
                                 ) {
+                                    viewModel.showFavoritesOnly = false
                                     viewModel.selectedCategory = category
                                 }
                             }

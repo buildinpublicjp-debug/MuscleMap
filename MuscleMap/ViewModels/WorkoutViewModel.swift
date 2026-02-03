@@ -120,6 +120,32 @@ class WorkoutViewModel {
         currentReps = max(1, currentReps + delta)
     }
 
+    /// セットを削除
+    func deleteSet(_ workoutSet: WorkoutSet) {
+        let exerciseId = workoutSet.exerciseId
+        workoutRepo.deleteSet(workoutSet)
+
+        // セット番号を振り直し
+        if let session = activeSession {
+            let remaining = workoutRepo.fetchSets(in: session, exerciseId: exerciseId)
+            for (index, set) in remaining.enumerated() {
+                set.setNumber = index + 1
+            }
+
+            // 現在選択中の種目なら次のセット番号を更新
+            if selectedExercise?.id == exerciseId {
+                currentSetNumber = remaining.count + 1
+            }
+
+            // 筋肉刺激を再計算
+            if let exercise = exerciseStore.exercise(for: exerciseId) {
+                updateMuscleStimulations(exercise: exercise, session: session)
+            }
+        }
+
+        refreshExerciseSets()
+    }
+
     // MARK: 内部
 
     /// セッション内の全セットを種目ごとにグループ化
