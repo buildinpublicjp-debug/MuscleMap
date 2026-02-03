@@ -48,12 +48,22 @@ class WorkoutViewModel {
         }
     }
 
-    /// セッションを終了
+    /// セッションを終了（記録を保存）
     func endSession() {
         guard let session = activeSession else { return }
         workoutRepo.endSession(session)
         activeSession = nil
         exerciseSets = []
+    }
+
+    /// セッションを破棄（記録と筋肉刺激を削除）
+    func discardSession() {
+        guard let session = activeSession else { return }
+        muscleStateRepo.deleteStimulations(sessionId: session.id)
+        workoutRepo.discardSession(session)
+        activeSession = nil
+        exerciseSets = []
+        selectedExercise = nil
     }
 
     // MARK: エクササイズ選択

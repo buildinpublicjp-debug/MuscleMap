@@ -75,12 +75,27 @@ private struct WorkoutIdleView: View {
     let onStart: () -> Void
     let onSelectExercise: (ExerciseDefinition) -> Void
 
+    @ObservedObject private var favorites = FavoritesManager.shared
+
+    private var favoriteExercises: [ExerciseDefinition] {
+        let store = ExerciseStore.shared
+        return favorites.favoriteIds.compactMap { store.exercise(for: $0) }
+    }
+
     var body: some View {
         ScrollView {
             VStack(spacing: 24) {
                 // 今日の提案
                 if let menu = suggestedMenu, !menu.exercises.isEmpty {
                     SuggestedMenuCard(menu: menu, onSelectExercise: onSelectExercise)
+                }
+
+                // お気に入り種目
+                if !favoriteExercises.isEmpty {
+                    FavoriteExercisesSection(
+                        exercises: favoriteExercises,
+                        onSelect: onSelectExercise
+                    )
                 }
 
                 // 開始ボタン
@@ -103,26 +118,121 @@ private struct WorkoutIdleView: View {
     }
 }
 
+// MARK: - お気に入り種目セクション
+
+private struct FavoriteExercisesSection: View {
+    let exercises: [ExerciseDefinition]
+    let onSelect: (ExerciseDefinition) -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Image(systemName: "star.fill")
+                    .foregroundStyle(Color.yellow)
+                Text("お気に入り種目")
+                    .font(.headline)
+                    .foregroundStyle(Color.mmTextPrimary)
+            }
+            .padding(.horizontal)
+
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 12) {
+                    ForEach(exercises) { exercise in
+                        Button {
+                            onSelect(exercise)
+                        } label: {
+                            VStack(alignment: .leading, spacing: 6) {
+                                Text(exercise.nameJA)
+                                    .font(.subheadline.bold())
+                                    .foregroundStyle(Color.mmTextPrimary)
+                                    .lineLimit(1)
+
+                                HStack(spacing: 4) {
+                                    Image(systemName: "dumbbell")
+                                    Text(exercise.equipment)
+                                }
+                                .font(.caption2)
+                                .foregroundStyle(Color.mmTextSecondary)
+
+                                if let primary = exercise.primaryMuscle {
+                                    Text(primary.japaneseName)
+                                        .font(.caption2)
+                                        .padding(.horizontal, 6)
+                                        .padding(.vertical, 2)
+                                        .background(Color.mmAccentPrimary.opacity(0.15))
+                                        .foregroundStyle(Color.mmAccentPrimary)
+                                        .clipShape(Capsule())
+                                }
+                            }
+                            .frame(width: 140, alignment: .leading)
+                            .padding(12)
+                            .background(Color.mmBgCard)
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                        }
+                    }
+                }
+                .padding(.horizontal)
+            }
+        }
+    }
+}
+
 // MARK: - 提案メニューカード
 
 private struct SuggestedMenuCard: View {
     let menu: SuggestedMenu
     let onSelectExercise: (ExerciseDefinition) -> Void
 
+    /// 推奨筋肉群のマッピングを生成
+    private var groupMuscleMapping: [String: Int] {
+        var mapping: [String: Int] = [:]
+        for muscle in menu.primaryGroup.muscles {
+            mapping[muscle.rawValue] = 80
+        }
+        // ペアグループの筋肉も低めに追加
+        let paired = MenuSuggestionService.pairedGroups(for: menu.primaryGroup)
+        for group in paired where group != menu.primaryGroup {
+            for muscle in group.muscles {
+                if mapping[muscle.rawValue] == nil {
+                    mapping[muscle.rawValue] = 40
+                }
+            }
+        }
+        return mapping
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            // ヘッダー
-            HStack {
-                Image(systemName: "sparkles")
-                    .foregroundStyle(Color.mmAccentPrimary)
-                Text("今日のおすすめ: \(menu.primaryGroup.japaneseName)")
-                    .font(.headline)
-                    .foregroundStyle(Color.mmTextPrimary)
+            // ヘッダー + ミニボディマップ
+            HStack(alignment: .top, spacing: 12) {
+                // ミニボディマップ
+                ExerciseMuscleMapView(muscleMapping: groupMuscleMapping)
+                    .frame(width: 100, height: 160)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+
+                // テキスト情報
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack {
+                        Image(systemName: "sparkles")
+                            .foregroundStyle(Color.mmAccentPrimary)
+                        Text("今日のおすすめ")
+                            .font(.headline)
+                            .foregroundStyle(Color.mmTextPrimary)
+                    }
+
+                    Text(menu.primaryGroup.japaneseName)
+                        .font(.title3.bold())
+                        .foregroundStyle(Color.mmAccentPrimary)
+
+                    Text(menu.reason)
+                        .font(.caption)
+                        .foregroundStyle(Color.mmTextSecondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
             }
 
-            Text(menu.reason)
-                .font(.caption)
-                .foregroundStyle(Color.mmTextSecondary)
+            Divider()
+                .overlay(Color.mmBgSecondary)
 
             // 種目リスト
             ForEach(menu.exercises) { exercise in
@@ -223,10 +333,13 @@ private struct ActiveWorkoutView: View {
                     .frame(height: 60)
                     .background(Color.mmAccentPrimary)
             }
-            .confirmationDialog("ワークアウトを終了しますか？", isPresented: $showingEndConfirm) {
-                Button("終了する") {
+            .confirmationDialog("ワークアウトを終了しますか？", isPresented: $showingEndConfirm, titleVisibility: .visible) {
+                Button("記録を保存して終了") {
                     viewModel.endSession()
                     HapticManager.workoutEnded()
+                }
+                Button("記録を破棄して終了", role: .destructive) {
+                    viewModel.discardSession()
                 }
                 Button("キャンセル", role: .cancel) {}
             }
@@ -269,6 +382,27 @@ private struct SetInputCard: View {
             Text("セット \(viewModel.currentSetNumber)")
                 .font(.subheadline.bold())
                 .foregroundStyle(Color.mmAccentSecondary)
+
+            // 重量の提案チップ
+            if let lastW = viewModel.lastWeight, lastW > 0, !isBodyweight {
+                let suggested = lastW + 2.5
+                Button {
+                    viewModel.currentWeight = suggested
+                    HapticManager.lightTap()
+                } label: {
+                    HStack(spacing: 4) {
+                        Image(systemName: "arrow.up.circle.fill")
+                            .font(.caption)
+                        Text("前回\(lastW, specifier: "%.1f")kg → \(suggested, specifier: "%.1f")kgに挑戦？")
+                            .font(.caption)
+                    }
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(Color.mmAccentPrimary.opacity(0.15))
+                    .foregroundStyle(Color.mmAccentPrimary)
+                    .clipShape(Capsule())
+                }
+            }
 
             // 自重種目の場合
             if isBodyweight {

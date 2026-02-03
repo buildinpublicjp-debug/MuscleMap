@@ -70,6 +70,30 @@ struct ExerciseDetailView: View {
                             .clipShape(RoundedRectangle(cornerRadius: 12))
                         }
 
+                        // 動画で見る
+                        Button {
+                            let query = "\(exercise.nameJA) やり方 フォーム"
+                                .addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+                            if let url = URL(string: "https://www.youtube.com/results?search_query=\(query)") {
+                                UIApplication.shared.open(url)
+                            }
+                        } label: {
+                            HStack {
+                                Image(systemName: "play.rectangle.fill")
+                                    .foregroundStyle(.red)
+                                Text("動画で見る")
+                                    .font(.subheadline.bold())
+                                    .foregroundStyle(Color.mmTextPrimary)
+                                Spacer()
+                                Image(systemName: "arrow.up.right")
+                                    .font(.caption)
+                                    .foregroundStyle(Color.mmTextSecondary)
+                            }
+                            .padding()
+                            .background(Color.mmBgCard)
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                        }
+
                         // 筋肉マップ
                         VStack(alignment: .leading, spacing: 12) {
                             Text("対象筋肉")

@@ -90,4 +90,13 @@ class WorkoutRepository {
         modelContext.delete(workoutSet)
         try? modelContext.save()
     }
+
+    /// セッションとその全セットを削除（破棄）
+    func discardSession(_ session: WorkoutSession) {
+        for set in session.sets {
+            modelContext.delete(set)
+        }
+        modelContext.delete(session)
+        try? modelContext.save()
+    }
 }

@@ -78,4 +78,17 @@ class MuscleStateRepository {
         }
         try? modelContext.save()
     }
+
+    /// 指定セッションの刺激記録を全削除
+    func deleteStimulations(sessionId: UUID) {
+        let descriptor = FetchDescriptor<MuscleStimulation>(
+            predicate: #Predicate { $0.sessionId == sessionId }
+        )
+        if let stimulations = try? modelContext.fetch(descriptor) {
+            for stim in stimulations {
+                modelContext.delete(stim)
+            }
+            try? modelContext.save()
+        }
+    }
 }

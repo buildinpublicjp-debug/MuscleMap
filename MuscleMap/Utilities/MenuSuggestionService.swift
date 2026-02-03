@@ -26,7 +26,7 @@ struct MenuSuggestionService {
         }
 
         // 3. ペアリング
-        let pairedGroups = pairGroups(primary: primaryGroup)
+        let pairedGroups = pairedGroups(for: primaryGroup)
 
         // 4. 各グループの主要種目を選出
         var suggestedExercises: [SuggestedExercise] = []
@@ -116,7 +116,7 @@ struct MenuSuggestionService {
     }
 
     /// ペアリング
-    private static func pairGroups(primary: MuscleGroup) -> [MuscleGroup] {
+    static func pairedGroups(for primary: MuscleGroup) -> [MuscleGroup] {
         switch primary {
         case .chest:     return [.chest, .arms]       // 胸+三頭
         case .back:      return [.back, .arms]        // 背中+二頭
