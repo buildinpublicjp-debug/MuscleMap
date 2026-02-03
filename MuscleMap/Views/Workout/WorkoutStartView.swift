@@ -390,6 +390,9 @@ private struct RecordedSetsView: View {
     let exerciseSets: [(exercise: ExerciseDefinition, sets: [WorkoutSet])]
     let onDeleteSet: (WorkoutSet) -> Void
 
+    @State private var setToDelete: WorkoutSet?
+    @State private var showingDeleteConfirm = false
+
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("記録済み")
@@ -398,40 +401,64 @@ private struct RecordedSetsView: View {
                 .padding(.horizontal)
 
             ForEach(exerciseSets, id: \.exercise.id) { entry in
-                VStack(alignment: .leading, spacing: 6) {
+                VStack(alignment: .leading, spacing: 0) {
                     Text(entry.exercise.nameJA)
                         .font(.subheadline.bold())
                         .foregroundStyle(Color.mmTextPrimary)
+                        .padding(.horizontal)
+                        .padding(.top, 12)
+                        .padding(.bottom, 4)
 
-                    ForEach(entry.sets, id: \.id) { set in
-                        HStack {
-                            Text("セット\(set.setNumber)")
-                                .font(.caption)
-                                .foregroundStyle(Color.mmTextSecondary)
-                            Spacer()
-                            if entry.exercise.equipment == "自重" && set.weight == 0 {
-                                Text("\(set.reps)回")
-                                    .font(.caption.monospaced())
-                                    .foregroundStyle(Color.mmTextPrimary)
-                            } else {
-                                Text("\(set.weight, specifier: "%.1f")kg × \(set.reps)回")
-                                    .font(.caption.monospaced())
-                                    .foregroundStyle(Color.mmTextPrimary)
-                            }
-                            Button {
-                                onDeleteSet(set)
-                            } label: {
-                                Image(systemName: "xmark.circle.fill")
+                    List {
+                        ForEach(entry.sets, id: \.id) { set in
+                            HStack {
+                                Text("セット\(set.setNumber)")
                                     .font(.caption)
-                                    .foregroundStyle(Color.mmTextSecondary.opacity(0.5))
+                                    .foregroundStyle(Color.mmTextSecondary)
+                                Spacer()
+                                if entry.exercise.equipment == "自重" && set.weight == 0 {
+                                    Text("\(set.reps)回")
+                                        .font(.caption.monospaced())
+                                        .foregroundStyle(Color.mmTextPrimary)
+                                } else {
+                                    Text("\(set.weight, specifier: "%.1f")kg × \(set.reps)回")
+                                        .font(.caption.monospaced())
+                                        .foregroundStyle(Color.mmTextPrimary)
+                                }
+                            }
+                            .listRowBackground(Color.mmBgCard)
+                            .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                                Button(role: .destructive) {
+                                    setToDelete = set
+                                    showingDeleteConfirm = true
+                                } label: {
+                                    Label("削除", systemImage: "trash")
+                                }
                             }
                         }
                     }
+                    .listStyle(.plain)
+                    .scrollContentBackground(.hidden)
+                    .frame(height: CGFloat(entry.sets.count) * 44)
                 }
-                .padding()
                 .background(Color.mmBgCard)
                 .clipShape(RoundedRectangle(cornerRadius: 12))
                 .padding(.horizontal)
+            }
+        }
+        .confirmationDialog(
+            "このセットを削除しますか？",
+            isPresented: $showingDeleteConfirm,
+            titleVisibility: .visible
+        ) {
+            Button("削除する", role: .destructive) {
+                if let set = setToDelete {
+                    onDeleteSet(set)
+                    setToDelete = nil
+                }
+            }
+            Button("キャンセル", role: .cancel) {
+                setToDelete = nil
             }
         }
     }

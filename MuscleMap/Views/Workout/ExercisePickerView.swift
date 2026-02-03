@@ -52,17 +52,21 @@ struct ExercisePickerView: View {
                         .padding(.vertical, 8)
                     }
 
-                    // 種目リスト
-                    List(viewModel.filteredExercises) { exercise in
-                        Button {
-                            onSelect(exercise)
-                        } label: {
-                            ExerciseRow(exercise: exercise)
+                    // 種目リスト or EmptyState
+                    if viewModel.showFavoritesOnly && viewModel.filteredExercises.isEmpty {
+                        FavoritesEmptyState()
+                    } else {
+                        List(viewModel.filteredExercises) { exercise in
+                            Button {
+                                onSelect(exercise)
+                            } label: {
+                                ExerciseRow(exercise: exercise)
+                            }
+                            .listRowBackground(Color.mmBgSecondary)
                         }
-                        .listRowBackground(Color.mmBgSecondary)
+                        .listStyle(.plain)
+                        .scrollContentBackground(.hidden)
                     }
-                    .listStyle(.plain)
-                    .scrollContentBackground(.hidden)
                 }
             }
             .navigationTitle("種目を選択")
@@ -82,6 +86,28 @@ struct ExercisePickerView: View {
                 viewModel.load()
             }
         }
+    }
+}
+
+// MARK: - お気に入りEmptyState
+
+private struct FavoritesEmptyState: View {
+    var body: some View {
+        VStack(spacing: 16) {
+            Spacer()
+            Image(systemName: "star.slash")
+                .font(.system(size: 48))
+                .foregroundStyle(Color.mmTextSecondary.opacity(0.5))
+            Text("お気に入りがありません")
+                .font(.headline)
+                .foregroundStyle(Color.mmTextPrimary)
+            Text("種目詳細画面の☆ボタンで\nお気に入りに追加できます")
+                .font(.subheadline)
+                .foregroundStyle(Color.mmTextSecondary)
+                .multilineTextAlignment(.center)
+            Spacer()
+        }
+        .frame(maxWidth: .infinity)
     }
 }
 
