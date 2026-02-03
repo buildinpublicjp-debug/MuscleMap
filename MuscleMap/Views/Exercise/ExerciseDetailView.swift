@@ -31,9 +31,21 @@ struct ExerciseDetailView: View {
                             InfoTag(icon: "tag", text: exercise.category)
                         }
 
-                        // ターゲット筋肉
+                        // 筋肉マップ
                         VStack(alignment: .leading, spacing: 12) {
-                            Text("ターゲット筋肉")
+                            Text("対象筋肉")
+                                .font(.headline)
+                                .foregroundStyle(Color.mmTextPrimary)
+
+                            ExerciseMuscleMapView(muscleMapping: exercise.muscleMapping)
+                                .frame(height: 320)
+                                .background(Color.mmBgCard)
+                                .clipShape(RoundedRectangle(cornerRadius: 12))
+                        }
+
+                        // ターゲット筋肉（リスト）
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text("刺激度")
                                 .font(.headline)
                                 .foregroundStyle(Color.mmTextPrimary)
 
@@ -42,7 +54,7 @@ struct ExerciseDetailView: View {
                                 .sorted { $0.value > $1.value }
 
                             ForEach(sorted, id: \.key) { muscleId, percentage in
-                                if let muscle = Muscle(rawValue: muscleId) {
+                                if let muscle = Muscle(rawValue: muscleId) ?? Muscle(snakeCase: muscleId) {
                                     MuscleStimulationBar(
                                         muscle: muscle,
                                         percentage: percentage
@@ -129,6 +141,22 @@ private struct MuscleStimulationBar: View {
         case 50..<80: return .mmMuscleAmber
         default: return .mmMuscleLime
         }
+    }
+}
+
+// MARK: - Muscle Extension for snake_case support
+
+extension Muscle {
+    init?(snakeCase: String) {
+        // snake_case → camelCase
+        let parts = snakeCase.split(separator: "_")
+        guard !parts.isEmpty else { return nil }
+        
+        let camelCase = parts.enumerated().map { index, part in
+            index == 0 ? String(part) : part.capitalized
+        }.joined()
+        
+        self.init(rawValue: camelCase)
     }
 }
 
