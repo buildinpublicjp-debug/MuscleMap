@@ -170,6 +170,20 @@ struct SettingsView: View {
             }
             .listRowBackground(Color.mmBgCard)
 
+            // 画像から取り込み
+            NavigationLink {
+                ImageImportView()
+            } label: {
+                HStack(spacing: 12) {
+                    Image(systemName: "photo.badge.plus")
+                        .foregroundStyle(Color.mmAccentPrimary)
+                    Text("画像から取り込み")
+                        .font(.subheadline)
+                        .foregroundStyle(Color.mmTextPrimary)
+                }
+            }
+            .listRowBackground(Color.mmBgCard)
+
             // データエクスポート（将来実装）
             HStack(spacing: 12) {
                 Image(systemName: "square.and.arrow.up")
