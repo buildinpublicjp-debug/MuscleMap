@@ -135,6 +135,55 @@ struct SettingsView: View {
 
     private var dataSection: some View {
         Section {
+            // Obsidian連携
+            NavigationLink {
+                ObsidianSettingsView()
+            } label: {
+                HStack(spacing: 12) {
+                    Image(systemName: "link")
+                        .foregroundStyle(Color.mmAccentPrimary)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Obsidian連携")
+                            .font(.subheadline)
+                            .foregroundStyle(Color.mmTextPrimary)
+                        if ObsidianSyncManager.shared.isConnected {
+                            Text("接続済み")
+                                .font(.caption)
+                                .foregroundStyle(Color.mmAccentPrimary)
+                        }
+                    }
+                }
+            }
+            .listRowBackground(Color.mmBgCard)
+
+            // CSVインポート
+            NavigationLink {
+                CSVImportView()
+            } label: {
+                HStack(spacing: 12) {
+                    Image(systemName: "square.and.arrow.down")
+                        .foregroundStyle(Color.mmAccentPrimary)
+                    Text("CSVインポート")
+                        .font(.subheadline)
+                        .foregroundStyle(Color.mmTextPrimary)
+                }
+            }
+            .listRowBackground(Color.mmBgCard)
+
+            // データエクスポート（将来実装）
+            HStack(spacing: 12) {
+                Image(systemName: "square.and.arrow.up")
+                    .foregroundStyle(Color.mmTextSecondary.opacity(0.5))
+                Text("データエクスポート")
+                    .font(.subheadline)
+                    .foregroundStyle(Color.mmTextSecondary.opacity(0.5))
+                Spacer()
+                Text("準備中")
+                    .font(.caption)
+                    .foregroundStyle(Color.mmTextSecondary.opacity(0.5))
+            }
+            .listRowBackground(Color.mmBgCard)
+
             // エクササイズ情報
             HStack(spacing: 12) {
                 Image(systemName: "dumbbell")
