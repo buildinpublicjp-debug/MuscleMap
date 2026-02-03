@@ -229,9 +229,9 @@ struct PaywallView: View {
 
     private var purchaseButtonLabel: String {
         switch selectedPlan {
-        case .monthly: return "月額プランで始める"
-        case .annual: return "年額プランで始める（おすすめ）"
-        case .lifetime: return "買い切りプランで購入"
+        case .monthly: return String(localized: "月額プランで始める")
+        case .annual: return String(localized: "年額プランで始める（おすすめ）")
+        case .lifetime: return String(localized: "買い切りプランで購入")
         }
     }
 

@@ -1,0 +1,1168 @@
+{
+  "sourceLanguage" : "ja",
+  "strings" : {
+    "MuscleMap" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "MuscleMap" }
+        }
+      }
+    },
+    "ワークアウト" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Workout" }
+        }
+      }
+    },
+    "自由にトレーニング開始" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Start Free Training" }
+        }
+      }
+    },
+    "種目を追加" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Add Exercise" }
+        }
+      }
+    },
+    "ワークアウト終了" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "End Workout" }
+        }
+      }
+    },
+    "ワークアウトを終了しますか？" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "End this workout?" }
+        }
+      }
+    },
+    "記録を保存して終了" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Save & End" }
+        }
+      }
+    },
+    "記録を破棄して終了" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Discard & End" }
+        }
+      }
+    },
+    "キャンセル" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Cancel" }
+        }
+      }
+    },
+    "今日のおすすめ" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Today's Recommendation" }
+        }
+      }
+    },
+    "未刺激" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Neglected" }
+        }
+      }
+    },
+    "★ お気に入り種目" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "★ Favorites" }
+        }
+      }
+    },
+    "セットを記録" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Record Set" }
+        }
+      }
+    },
+    "自重" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Bodyweight" }
+        }
+      }
+    },
+    "加重する" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Add Weight" }
+        }
+      }
+    },
+    "kg" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "kg" }
+        }
+      }
+    },
+    "kg (加重)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "kg (added)" }
+        }
+      }
+    },
+    "回" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "reps" }
+        }
+      }
+    },
+    "記録済み" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Recorded" }
+        }
+      }
+    },
+    "削除" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Delete" }
+        }
+      }
+    },
+    "このセットを削除しますか？" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Delete this set?" }
+        }
+      }
+    },
+    "削除する" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Delete" }
+        }
+      }
+    },
+    "種目を選択" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Select Exercise" }
+        }
+      }
+    },
+    "種目を検索" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Search exercises" }
+        }
+      }
+    },
+    "★ お気に入り" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "★ Favorites" }
+        }
+      }
+    },
+    "すべて" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "All" }
+        }
+      }
+    },
+    "お気に入りがありません" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "No Favorites" }
+        }
+      }
+    },
+    "種目詳細画面の☆ボタンで\nお気に入りに追加できます" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Tap the ☆ button in exercise details\nto add favorites" }
+        }
+      }
+    },
+    "閉じる" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Close" }
+        }
+      }
+    },
+    "説明" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Description" }
+        }
+      }
+    },
+    "フォームのポイント" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Form Tips" }
+        }
+      }
+    },
+    "動画で見る" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Watch Video" }
+        }
+      }
+    },
+    "対象筋肉" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Target Muscles" }
+        }
+      }
+    },
+    "刺激度" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Stimulation" }
+        }
+      }
+    },
+    "種目辞典" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Exercise Library" }
+        }
+      }
+    },
+    "履歴" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "History" }
+        }
+      }
+    },
+    "週間" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Weekly" }
+        }
+      }
+    },
+    "月間" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Monthly" }
+        }
+      }
+    },
+    "今週のサマリー" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "This Week's Summary" }
+        }
+      }
+    },
+    "今月のサマリー" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "This Month's Summary" }
+        }
+      }
+    },
+    "セッション" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Sessions" }
+        }
+      }
+    },
+    "セット数" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Sets" }
+        }
+      }
+    },
+    "総ボリューム" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Total Volume" }
+        }
+      }
+    },
+    "トレ日数" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Training Days" }
+        }
+      }
+    },
+    "部位カバー率" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Muscle Coverage" }
+        }
+      }
+    },
+    "日別ボリューム（14日間）" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Daily Volume (14 days)" }
+        }
+      }
+    },
+    "データなし" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "No Data" }
+        }
+      }
+    },
+    "部位別セット数（今週）" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Sets by Muscle Group (This Week)" }
+        }
+      }
+    },
+    "よく行う種目 Top5" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Top 5 Exercises" }
+        }
+      }
+    },
+    "セッション履歴" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Session History" }
+        }
+      }
+    },
+    "まだセッションがありません" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "No sessions yet" }
+        }
+      }
+    },
+    "進行中" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "In Progress" }
+        }
+      }
+    },
+    "設定" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Settings" }
+        }
+      }
+    },
+    "復元結果" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Restore Result" }
+        }
+      }
+    },
+    "OK" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "OK" }
+        }
+      }
+    },
+    "Premium" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Premium" }
+        }
+      }
+    },
+    "全機能がアンロックされています" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "All features unlocked" }
+        }
+      }
+    },
+    "Premiumにアップグレード" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Upgrade to Premium" }
+        }
+      }
+    },
+    "全機能をアンロック" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Unlock all features" }
+        }
+      }
+    },
+    "購入を復元" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Restore Purchases" }
+        }
+      }
+    },
+    "プレミアム" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Premium" }
+        }
+      }
+    },
+    "触覚フィードバック" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Haptic Feedback" }
+        }
+      }
+    },
+    "アプリ設定" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "App Settings" }
+        }
+      }
+    },
+    "登録種目数" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Registered Exercises" }
+        }
+      }
+    },
+    "追跡筋肉数" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Tracked Muscles" }
+        }
+      }
+    },
+    "データ" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Data" }
+        }
+      }
+    },
+    "バージョン" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Version" }
+        }
+      }
+    },
+    "アプリ情報" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "App Info" }
+        }
+      }
+    },
+    "MuscleMap — 筋肉の状態が見える。だから、迷わない。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "MuscleMap — See your muscles. Train with confidence." }
+        }
+      }
+    },
+    "前面" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Front" }
+        }
+      }
+    },
+    "背面" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Back" }
+        }
+      }
+    },
+    "背面を見る" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "View Back" }
+        }
+      }
+    },
+    "前面を見る" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "View Front" }
+        }
+      }
+    },
+    "未刺激の部位" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Neglected Muscles" }
+        }
+      }
+    },
+    "高負荷" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "High Load" }
+        }
+      }
+    },
+    "回復初期" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Early Recovery" }
+        }
+      }
+    },
+    "回復中" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Recovering" }
+        }
+      }
+    },
+    "回復後期" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Late Recovery" }
+        }
+      }
+    },
+    "ほぼ回復" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Nearly Recovered" }
+        }
+      }
+    },
+    "高 (80%+)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "High (80%+)" }
+        }
+      }
+    },
+    "中 (50-79%)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Mid (50-79%)" }
+        }
+      }
+    },
+    "低 (1-49%)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Low (1-49%)" }
+        }
+      }
+    },
+    "基本情報" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Basic Info" }
+        }
+      }
+    },
+    "関連種目（刺激度%順）" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Related Exercises (by stimulation %)" }
+        }
+      }
+    },
+    "直近の記録" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Recent Records" }
+        }
+      }
+    },
+    "回復完了" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Fully Recovered" }
+        }
+      }
+    },
+    "高負荷 — 休息が必要" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "High Load — Rest needed" }
+        }
+      }
+    },
+    "完全回復 — トレーニング可能" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Fully Recovered — Ready to train" }
+        }
+      }
+    },
+    "未刺激 — 7日以上" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Neglected — 7+ days" }
+        }
+      }
+    },
+    "未刺激 — 14日以上" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Neglected — 14+ days" }
+        }
+      }
+    },
+    "最終刺激" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Last Trained" }
+        }
+      }
+    },
+    "回復予定" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Recovery ETA" }
+        }
+      }
+    },
+    "グループ" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Group" }
+        }
+      }
+    },
+    "基準回復" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Base Recovery" }
+        }
+      }
+    },
+    "サイズ" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Size" }
+        }
+      }
+    },
+    "時間" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "hours" }
+        }
+      }
+    },
+    "大筋群" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Large" }
+        }
+      }
+    },
+    "中筋群" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Medium" }
+        }
+      }
+    },
+    "小筋群" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Small" }
+        }
+      }
+    },
+    "筋肉の状態が見える" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "See Your Muscle Status" }
+        }
+      }
+    },
+    "21の筋肉の回復状態を\nリアルタイムで可視化" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Visualize recovery status\nof 21 muscles in real-time" }
+        }
+      }
+    },
+    "トレーニング後の筋肉は色で回復度を表示。\n赤→緑へのグラデーションで一目瞭然。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Post-workout muscles show recovery with color.\nRed→Green gradient at a glance." }
+        }
+      }
+    },
+    "迷わないメニュー提案" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Smart Menu Suggestions" }
+        }
+      }
+    },
+    "回復データから\n今日のベストメニューを自動提案" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Auto-suggest today's best menu\nfrom recovery data" }
+        }
+      }
+    },
+    "ジムで開いた瞬間にスタートできる。\n未刺激の部位も見逃しません。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Start the moment you open at the gym.\nNever miss neglected muscles." }
+        }
+      }
+    },
+    "成長を記録・分析" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Track & Analyze Growth" }
+        }
+      }
+    },
+    "80種目のEMGベース刺激マッピングで\n科学的なトレーニング管理" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Scientific training management with\n80 EMG-based exercise mappings" }
+        }
+      }
+    },
+    "セット数・ボリューム・部位カバー率を\nチャートで確認。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Check sets, volume & muscle coverage\nwith charts." }
+        }
+      }
+    },
+    "次へ" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Next" }
+        }
+      }
+    },
+    "始める" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Get Started" }
+        }
+      }
+    },
+    "スキップ" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Skip" }
+        }
+      }
+    },
+    "購入エラー" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Purchase Error" }
+        }
+      }
+    },
+    "購入を完了できませんでした。しばらく後にお試しください。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Purchase could not be completed. Please try again later." }
+        }
+      }
+    },
+    "MuscleMap Premium" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "MuscleMap Premium" }
+        }
+      }
+    },
+    "全機能をアンロックして\nトレーニングを最適化" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Unlock all features\nand optimize your training" }
+        }
+      }
+    },
+    "詳細統計" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Detailed Stats" }
+        }
+      }
+    },
+    "月間トレンド、グループ別分析" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Monthly trends, group analysis" }
+        }
+      }
+    },
+    "3D筋肉ビュー" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "3D Muscle View" }
+        }
+      }
+    },
+    "RealityKitで部位を立体表示" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "3D display with RealityKit" }
+        }
+      }
+    },
+    "メニュー提案+" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Menu Suggest+" }
+        }
+      }
+    },
+    "高度なメニュー最適化" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Advanced menu optimization" }
+        }
+      }
+    },
+    "データエクスポート" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Data Export" }
+        }
+      }
+    },
+    "CSV形式でバックアップ" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Backup in CSV format" }
+        }
+      }
+    },
+    "月額" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Monthly" }
+        }
+      }
+    },
+    "年額" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Yearly" }
+        }
+      }
+    },
+    "おすすめ" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Best Value" }
+        }
+      }
+    },
+    "買い切り" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Lifetime" }
+        }
+      }
+    },
+    "月あたり ¥650" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "¥650/month" }
+        }
+      }
+    },
+    "利用規約" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Terms of Use" }
+        }
+      }
+    },
+    "プライバシーポリシー" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Privacy Policy" }
+        }
+      }
+    },
+    "月額プランで始める" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Start Monthly Plan" }
+        }
+      }
+    },
+    "年額プランで始める（おすすめ）" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Start Annual Plan (Best Value)" }
+        }
+      }
+    },
+    "買い切りプランで購入" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Purchase Lifetime Plan" }
+        }
+      }
+    },
+    "7日間の無料トライアル後、¥980/月で自動更新" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Auto-renews at ¥980/mo after 7-day free trial" }
+        }
+      }
+    },
+    "14日間の無料トライアル後、¥7,800/年で自動更新" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Auto-renews at ¥7,800/yr after 14-day free trial" }
+        }
+      }
+    },
+    "大胸筋上部" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Upper Chest" }
+        }
+      }
+    },
+    "大胸筋下部" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Lower Chest" }
+        }
+      }
+    },
+    "広背筋" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Lats" }
+        }
+      }
+    },
+    "僧帽筋上部" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Upper Traps" }
+        }
+      }
+    },
+    "僧帽筋中部・下部" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Mid/Lower Traps" }
+        }
+      }
+    },
+    "脊柱起立筋" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Erector Spinae" }
+        }
+      }
+    },
+    "三角筋前部" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Front Delts" }
+        }
+      }
+    },
+    "三角筋中部" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Side Delts" }
+        }
+      }
+    },
+    "三角筋後部" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Rear Delts" }
+        }
+      }
+    },
+    "上腕二頭筋" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Biceps" }
+        }
+      }
+    },
+    "上腕三頭筋" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Triceps" }
+        }
+      }
+    },
+    "前腕筋群" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Forearms" }
+        }
+      }
+    },
+    "腹直筋" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Abs" }
+        }
+      }
+    },
+    "腹斜筋" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Obliques" }
+        }
+      }
+    },
+    "臀筋群" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Glutes" }
+        }
+      }
+    },
+    "大腿四頭筋" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Quads" }
+        }
+      }
+    },
+    "ハムストリングス" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Hamstrings" }
+        }
+      }
+    },
+    "内転筋群" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Adductors" }
+        }
+      }
+    },
+    "腸腰筋" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Hip Flexors" }
+        }
+      }
+    },
+    "腓腹筋" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Calves" }
+        }
+      }
+    },
+    "ヒラメ筋" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Soleus" }
+        }
+      }
+    },
+    "胸" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Chest" }
+        }
+      }
+    },
+    "背中" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Back" }
+        }
+      }
+    },
+    "肩" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Shoulders" }
+        }
+      }
+    },
+    "腕" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Arms" }
+        }
+      }
+    },
+    "体幹" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Core" }
+        }
+      }
+    },
+    "下半身" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Lower Body" }
+        }
+      }
+    },
+    "購入が復元されました。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Purchases have been restored." }
+        }
+      }
+    },
+    "復元できる購入が見つかりませんでした。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "No purchases found to restore." }
+        }
+      }
+    },
+    "%lld種目" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "%lld exercises" }
+        }
+      }
+    },
+    "%lld部位" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "%lld muscles" }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

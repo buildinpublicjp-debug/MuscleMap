@@ -89,8 +89,8 @@ struct SettingsView: View {
                     Task {
                         let success = await purchaseManager.restorePurchases()
                         restoreMessage = success
-                            ? "購入が復元されました。"
-                            : "復元できる購入が見つかりませんでした。"
+                            ? String(localized: "購入が復元されました。")
+                            : String(localized: "復元できる購入が見つかりませんでした。")
                         showingRestoreAlert = true
                     }
                 } label: {

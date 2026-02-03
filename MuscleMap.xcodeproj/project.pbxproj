@@ -25,6 +25,7 @@
 		70F5FA46B8F7F9CBDC1617AF /* ColorExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6E1885660D1D955C88C496C /* ColorExtensions.swift */; };
 		76241706AA8DE99609DFF879 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6685BDAE783FAC76CA211DC3 /* ContentView.swift */; };
 		763D578A9944920FDE1357C4 /* MuscleDetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 738EF1DB3A50EA9C3CB89D68 /* MuscleDetailViewModel.swift */; };
+		7E1CE27E0D10E8DA49AE9751 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = E23422ECC0DDBFE11BAD25A4 /* Localizable.xcstrings */; };
 		7E3C09EC3460040859630DA1 /* ModelLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB8FC4CC2B04B8D324DD7100 /* ModelLoader.swift */; };
 		7F242B9D40CD2865B3B96CFD /* MuscleMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBAB10D6B486880EC3819BFF /* MuscleMapView.swift */; };
 		90375684DC26B54E8CBBDF6F /* Muscle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DCDB1B0B9F16FF2EB0762C3 /* Muscle.swift */; };
@@ -104,6 +105,7 @@
 		BF5C6313CCA5C93FA15D5153 /* HapticManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticManager.swift; sourceTree = "<group>"; };
 		C775B710D458A8600002BACD /* ExerciseDefinition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseDefinition.swift; sourceTree = "<group>"; };
 		C975A916E9A16C00A07248A3 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		E23422ECC0DDBFE11BAD25A4 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		E6E1885660D1D955C88C496C /* ColorExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorExtensions.swift; sourceTree = "<group>"; };
 		E75A1388B2C55CA9AA59D915 /* MenuSuggestionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuSuggestionService.swift; sourceTree = "<group>"; };
 		E800074C8D53A0356F8230BF /* ExerciseStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseStore.swift; sourceTree = "<group>"; };
@@ -186,6 +188,7 @@
 		6298B100612E9B2C5D6216E6 /* MuscleMap */ = {
 			isa = PBXGroup;
 			children = (
+				E23422ECC0DDBFE11BAD25A4 /* Localizable.xcstrings */,
 				FC6E470EB9D3BBF1018E22A5 /* App */,
 				C3C8841A8DF3D74C69E2C4E0 /* Data */,
 				BDD5EE65675A64A598EEEE8C /* Models */,
@@ -425,6 +428,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7E1CE27E0D10E8DA49AE9751 /* Localizable.xcstrings in Resources */,
 				5E36AADEF8689212B83BF6FC /* exercises.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
