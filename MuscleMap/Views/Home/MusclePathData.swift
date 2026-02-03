@@ -1068,52 +1068,63 @@ enum MusclePathData {
 
     static func bodyOutlineFront(in rect: CGRect) -> Path {
         Path { p in
-            // 頭
+            // 頭（大きめ、全身の約1/8）
             p.addEllipse(in: CGRect(
-                x: rect.minX + rect.width * 0.43,
-                y: rect.minY + rect.height * 0.020,
-                width: rect.width * 0.14,
-                height: rect.height * 0.085
+                x: rect.minX + rect.width * 0.385,
+                y: rect.minY + rect.height * 0.005,
+                width: rect.width * 0.23,
+                height: rect.height * 0.12
             ))
-            // 首
-            p.move(to: pt(0.47, 0.105, rect))
-            p.addLine(to: pt(0.53, 0.105, rect))
-            p.addLine(to: pt(0.54, 0.160, rect))
-            p.addLine(to: pt(0.46, 0.160, rect))
+            // 首（短く自然な幅）
+            p.move(to: pt(0.465, 0.118, rect))
+            p.addLine(to: pt(0.535, 0.118, rect))
+            p.addQuadCurve(to: pt(0.545, 0.148, rect), control: pt(0.540, 0.133, rect))
+            p.addLine(to: pt(0.455, 0.148, rect))
+            p.addQuadCurve(to: pt(0.465, 0.118, rect), control: pt(0.460, 0.133, rect))
             p.closeSubpath()
             // 胴体
-            p.move(to: pt(0.30, 0.190, rect))
-            p.addQuadCurve(to: pt(0.50, 0.180, rect), control: pt(0.40, 0.175, rect))
-            p.addQuadCurve(to: pt(0.70, 0.190, rect), control: pt(0.60, 0.175, rect))
+            p.move(to: pt(0.29, 0.185, rect))
+            p.addQuadCurve(to: pt(0.50, 0.176, rect), control: pt(0.39, 0.170, rect))
+            p.addQuadCurve(to: pt(0.71, 0.185, rect), control: pt(0.61, 0.170, rect))
             p.addLine(to: pt(0.62, 0.450, rect))
             p.addQuadCurve(to: pt(0.50, 0.460, rect), control: pt(0.56, 0.460, rect))
             p.addQuadCurve(to: pt(0.38, 0.450, rect), control: pt(0.44, 0.460, rect))
             p.closeSubpath()
             // 左腕
-            p.move(to: pt(0.30, 0.195, rect))
-            p.addQuadCurve(to: pt(0.24, 0.345, rect), control: pt(0.24, 0.265, rect))
-            p.addLine(to: pt(0.22, 0.445, rect))
-            p.addLine(to: pt(0.28, 0.445, rect))
+            p.move(to: pt(0.29, 0.190, rect))
+            p.addQuadCurve(to: pt(0.23, 0.345, rect), control: pt(0.23, 0.265, rect))
+            p.addLine(to: pt(0.21, 0.445, rect))
+            p.addLine(to: pt(0.27, 0.445, rect))
             p.addQuadCurve(to: pt(0.34, 0.260, rect), control: pt(0.32, 0.345, rect))
             p.closeSubpath()
             // 右腕
-            p.move(to: pt(0.70, 0.195, rect))
-            p.addQuadCurve(to: pt(0.76, 0.345, rect), control: pt(0.76, 0.265, rect))
-            p.addLine(to: pt(0.78, 0.445, rect))
-            p.addLine(to: pt(0.72, 0.445, rect))
+            p.move(to: pt(0.71, 0.190, rect))
+            p.addQuadCurve(to: pt(0.77, 0.345, rect), control: pt(0.77, 0.265, rect))
+            p.addLine(to: pt(0.79, 0.445, rect))
+            p.addLine(to: pt(0.73, 0.445, rect))
             p.addQuadCurve(to: pt(0.66, 0.260, rect), control: pt(0.68, 0.345, rect))
             p.closeSubpath()
-            // 左脚
+            // 左脚（ふくらはぎ〜足首まで延長）
             p.move(to: pt(0.39, 0.455, rect))
             p.addLine(to: pt(0.50, 0.460, rect))
-            p.addLine(to: pt(0.49, 0.870, rect))
-            p.addLine(to: pt(0.39, 0.870, rect))
+            p.addQuadCurve(to: pt(0.485, 0.730, rect), control: pt(0.492, 0.595, rect))
+            p.addQuadCurve(to: pt(0.475, 0.870, rect), control: pt(0.490, 0.800, rect))
+            p.addQuadCurve(to: pt(0.460, 0.955, rect), control: pt(0.470, 0.920, rect))
+            p.addLine(to: pt(0.420, 0.955, rect))
+            p.addQuadCurve(to: pt(0.395, 0.870, rect), control: pt(0.405, 0.920, rect))
+            p.addQuadCurve(to: pt(0.385, 0.730, rect), control: pt(0.385, 0.800, rect))
+            p.addQuadCurve(to: pt(0.39, 0.455, rect), control: pt(0.383, 0.595, rect))
             p.closeSubpath()
-            // 右脚
+            // 右脚（ふくらはぎ〜足首まで延長）
             p.move(to: pt(0.61, 0.455, rect))
             p.addLine(to: pt(0.50, 0.460, rect))
-            p.addLine(to: pt(0.51, 0.870, rect))
-            p.addLine(to: pt(0.61, 0.870, rect))
+            p.addQuadCurve(to: pt(0.515, 0.730, rect), control: pt(0.508, 0.595, rect))
+            p.addQuadCurve(to: pt(0.525, 0.870, rect), control: pt(0.510, 0.800, rect))
+            p.addQuadCurve(to: pt(0.540, 0.955, rect), control: pt(0.530, 0.920, rect))
+            p.addLine(to: pt(0.580, 0.955, rect))
+            p.addQuadCurve(to: pt(0.605, 0.870, rect), control: pt(0.595, 0.920, rect))
+            p.addQuadCurve(to: pt(0.615, 0.730, rect), control: pt(0.615, 0.800, rect))
+            p.addQuadCurve(to: pt(0.61, 0.455, rect), control: pt(0.617, 0.595, rect))
             p.closeSubpath()
         }
     }
