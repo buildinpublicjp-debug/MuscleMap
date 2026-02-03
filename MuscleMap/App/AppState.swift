@@ -21,6 +21,11 @@ class AppState {
         didSet { UserDefaults.standard.set(isNotificationEnabled, forKey: "isNotificationEnabled") }
     }
 
+    // ユーザープロフィール
+    var userProfile: UserProfile = UserProfile.load() {
+        didSet { userProfile.save() }
+    }
+
     // 初回デモアニメーション表示済みフラグ
     var hasSeenDemoAnimation: Bool = UserDefaults.standard.bool(forKey: "hasSeenDemoAnimation") {
         didSet { UserDefaults.standard.set(hasSeenDemoAnimation, forKey: "hasSeenDemoAnimation") }

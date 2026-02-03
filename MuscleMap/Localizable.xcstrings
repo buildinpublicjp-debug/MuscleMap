@@ -1162,6 +1162,146 @@
           "stringUnit" : { "state" : "translated", "value" : "%lld muscles" }
         }
       }
+    },
+    "トレーニングの目標は？" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "What's your training goal?" }
+        }
+      }
+    },
+    "あなたに合ったメニューを提案します" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "We'll suggest menus tailored for you" }
+        }
+      }
+    },
+    "筋肥大" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Muscle Growth" }
+        }
+      }
+    },
+    "筋力アップ" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Strength" }
+        }
+      }
+    },
+    "ダイエット" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Weight Loss" }
+        }
+      }
+    },
+    "健康維持" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Health" }
+        }
+      }
+    },
+    "筋肉を大きくしたい" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Build bigger muscles" }
+        }
+      }
+    },
+    "重い重量を扱えるようになりたい" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Lift heavier weights" }
+        }
+      }
+    },
+    "体脂肪を落としたい" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Reduce body fat" }
+        }
+      }
+    },
+    "健康的な体を維持したい" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Maintain a healthy body" }
+        }
+      }
+    },
+    "あなたについて教えてください" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Tell us about yourself" }
+        }
+      }
+    },
+    "ニックネーム（任意）" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Nickname (optional)" }
+        }
+      }
+    },
+    "ニックネーム" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Nickname" }
+        }
+      }
+    },
+    "トレーニング経験" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Training Experience" }
+        }
+      }
+    },
+    "初心者" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Beginner" }
+        }
+      }
+    },
+    "中級者" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Intermediate" }
+        }
+      }
+    },
+    "上級者" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Advanced" }
+        }
+      }
+    },
+    "トレーニング歴1年未満" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Less than 1 year of training" }
+        }
+      }
+    },
+    "トレーニング歴1〜3年" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "1-3 years of training" }
+        }
+      }
+    },
+    "トレーニング歴3年以上" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "3+ years of training" }
+        }
+      }
     }
   },
   "version" : "1.0"
