@@ -217,63 +217,30 @@ private struct FavoriteExercisesSection: View {
     }
 }
 
-// MARK: - 提案メニューカード
+// MARK: - 提案メニューカード（シンプル版）
 
 private struct SuggestedMenuCard: View {
     let menu: SuggestedMenu
     let onSelectExercise: (ExerciseDefinition) -> Void
     private var localization: LocalizationManager { LocalizationManager.shared }
 
-    /// 推奨筋肉群のマッピングを生成
-    private var groupMuscleMapping: [String: Int] {
-        var mapping: [String: Int] = [:]
-        for muscle in menu.primaryGroup.muscles {
-            mapping[muscle.rawValue] = 80
-        }
-        // ペアグループの筋肉も低めに追加
-        let paired = MenuSuggestionService.pairedGroups(for: menu.primaryGroup)
-        for group in paired where group != menu.primaryGroup {
-            for muscle in group.muscles {
-                if mapping[muscle.rawValue] == nil {
-                    mapping[muscle.rawValue] = 40
-                }
-            }
-        }
-        return mapping
-    }
-
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            // ヘッダー + ミニボディマップ
-            HStack(alignment: .top, spacing: 12) {
-                // ミニボディマップ
-                ExerciseMuscleMapView(muscleMapping: groupMuscleMapping)
-                    .frame(width: 100, height: 160)
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-
-                // テキスト情報
-                VStack(alignment: .leading, spacing: 8) {
-                    HStack {
-                        Image(systemName: "sparkles")
-                            .foregroundStyle(Color.mmAccentPrimary)
-                        Text(L10n.todayRecommendation)
-                            .font(.headline)
-                            .foregroundStyle(Color.mmTextPrimary)
-                    }
-
-                    Text(localization.currentLanguage == .japanese ? menu.primaryGroup.japaneseName : menu.primaryGroup.englishName)
-                        .font(.title3.bold())
-                        .foregroundStyle(Color.mmAccentPrimary)
-
-                    Text(menu.reason)
-                        .font(.caption)
-                        .foregroundStyle(Color.mmTextSecondary)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
+        VStack(alignment: .leading, spacing: 12) {
+            // ヘッダー
+            HStack {
+                Image(systemName: "sparkles")
+                    .foregroundStyle(Color.mmAccentPrimary)
+                Text(L10n.todayRecommendation)
+                    .font(.subheadline.bold())
+                    .foregroundStyle(Color.mmTextPrimary)
+                Text(localization.currentLanguage == .japanese ? menu.primaryGroup.japaneseName : menu.primaryGroup.englishName)
+                    .font(.subheadline.bold())
+                    .foregroundStyle(Color.mmAccentPrimary)
             }
 
-            Divider()
-                .overlay(Color.mmBgSecondary)
+            Text(menu.reason)
+                .font(.caption)
+                .foregroundStyle(Color.mmTextSecondary)
 
             // 種目リスト
             ForEach(menu.exercises) { exercise in
@@ -281,32 +248,21 @@ private struct SuggestedMenuCard: View {
                     onSelectExercise(exercise.definition)
                 } label: {
                     HStack {
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(localization.currentLanguage == .japanese ? exercise.definition.nameJA : exercise.definition.nameEN)
-                                .font(.subheadline)
-                                .foregroundStyle(Color.mmTextPrimary)
-                            Text(L10n.setsReps(exercise.suggestedSets, exercise.suggestedReps))
-                                .font(.caption)
-                                .foregroundStyle(Color.mmTextSecondary)
-                        }
+                        Text(localization.currentLanguage == .japanese ? exercise.definition.nameJA : exercise.definition.nameEN)
+                            .font(.subheadline)
+                            .foregroundStyle(Color.mmTextPrimary)
 
                         Spacer()
 
-                        if exercise.isNeglectedFix {
-                            Text(L10n.neglected)
-                                .font(.caption2)
-                                .padding(.horizontal, 6)
-                                .padding(.vertical, 2)
-                                .background(Color.mmMuscleNeglected.opacity(0.2))
-                                .foregroundStyle(Color.mmMuscleNeglected)
-                                .clipShape(Capsule())
-                        }
+                        Text(L10n.setsReps(exercise.suggestedSets, exercise.suggestedReps))
+                            .font(.caption)
+                            .foregroundStyle(Color.mmTextSecondary)
 
                         Image(systemName: "chevron.right")
                             .font(.caption)
                             .foregroundStyle(Color.mmTextSecondary)
                     }
-                    .padding(.vertical, 4)
+                    .padding(.vertical, 6)
                 }
             }
         }

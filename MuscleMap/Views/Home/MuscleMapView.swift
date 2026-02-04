@@ -15,7 +15,7 @@ struct MuscleMapView: View {
         VStack(spacing: 8) {
             // 切り替えラベル
             HStack {
-                Text(showingFront ? "前面" : "背面")
+                Text(showingFront ? L10n.front : L10n.back)
                     .font(.caption.bold())
                     .foregroundStyle(Color.mmTextSecondary)
                 Spacer()
@@ -26,7 +26,7 @@ struct MuscleMapView: View {
                 } label: {
                     HStack(spacing: 4) {
                         Image(systemName: "arrow.left.arrow.right")
-                        Text(showingFront ? "背面を見る" : "前面を見る")
+                        Text(showingFront ? L10n.viewBack : L10n.viewFront)
                     }
                     .font(.caption2)
                     .foregroundStyle(Color.mmAccentSecondary)

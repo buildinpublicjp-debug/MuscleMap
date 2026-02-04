@@ -429,4 +429,13 @@ enum L10n {
     static var followAppLanguage: String { loc("アプリの言語に合わせる", "Follow App Language") }
     static var searchInJapanese: String { loc("日本語で検索", "Search in Japanese") }
     static var searchInEnglish: String { loc("英語で検索", "Search in English") }
+
+    // MARK: - メニュー提案理由
+    static var letsStartTraining: String { loc("トレーニングを始めましょう", "Let's start training") }
+    static func groupMostRecovered(_ groupName: String) -> String {
+        loc("\(groupName)が最も回復しています", "\(groupName) is most recovered")
+    }
+    static func muscleNeglectedDays(_ muscleName: String, _ days: Int) -> String {
+        loc("。\(muscleName)は\(days)日以上未刺激です", ". \(muscleName) hasn't been trained for \(days)+ days")
+    }
 }

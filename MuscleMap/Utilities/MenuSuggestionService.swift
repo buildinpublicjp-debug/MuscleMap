@@ -19,7 +19,7 @@ struct MenuSuggestionService {
             .first?.key else {
             return SuggestedMenu(
                 primaryGroup: .chest,
-                reason: "トレーニングを始めましょう",
+                reason: L10n.letsStartTraining,
                 exercises: [],
                 neglectedWarning: nil
             )
@@ -143,15 +143,20 @@ struct MenuSuggestionService {
     }
 
     /// 提案理由の文言を生成
+    @MainActor
     private static func generateReason(
         group: MuscleGroup,
         neglected: Muscle?,
         stimulations: [Muscle: MuscleStimulation]
     ) -> String {
-        var reason = "\(group.japaneseName)が最も回復しています"
+        let localization = LocalizationManager.shared
+        let groupName = localization.currentLanguage == .japanese ? group.japaneseName : group.englishName
+        var reason = L10n.groupMostRecovered(groupName)
+
         if let muscle = neglected, let stim = stimulations[muscle] {
             let days = RecoveryCalculator.daysSinceStimulation(stim.stimulationDate)
-            reason += "。\(muscle.japaneseName)は\(days)日以上未刺激です"
+            let muscleName = localization.currentLanguage == .japanese ? muscle.japaneseName : muscle.englishName
+            reason += L10n.muscleNeglectedDays(muscleName, days)
         }
         return reason
     }
