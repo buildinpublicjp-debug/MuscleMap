@@ -7,7 +7,6 @@ struct WorkoutStartView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var viewModel: WorkoutViewModel?
     @State private var showingExercisePicker = false
-    @State private var suggestedMenu: SuggestedMenu?
     @State private var muscleStates: [Muscle: MuscleVisualState] = [:]
 
     var body: some View {
@@ -22,7 +21,6 @@ struct WorkoutStartView: View {
                     } else {
                         // セッション未開始
                         WorkoutIdleView(
-                            suggestedMenu: suggestedMenu,
                             muscleStates: muscleStates,
                             onStart: {
                                 vm.startOrResumeSession()
@@ -49,7 +47,7 @@ struct WorkoutStartView: View {
                 if viewModel == nil {
                     viewModel = WorkoutViewModel(modelContext: modelContext)
                 }
-                loadSuggestion()
+                loadMuscleStates()
             }
             .sheet(isPresented: $showingExercisePicker) {
                 ExercisePickerView { exercise in
@@ -60,14 +58,10 @@ struct WorkoutStartView: View {
         }
     }
 
-    private func loadSuggestion() {
+    private func loadMuscleStates() {
         let repo = MuscleStateRepository(modelContext: modelContext)
-        let stims = repo.fetchLatestStimulations()
-        suggestedMenu = MenuSuggestionService.suggestTodayMenu(
-            stimulations: stims,
-            exerciseStore: ExerciseStore.shared
-        )
-        loadMuscleStates(from: stims)
+        let stimulations = repo.fetchLatestStimulations()
+        loadMuscleStates(from: stimulations)
     }
 
     private func loadMuscleStates(from stimulations: [Muscle: MuscleStimulation]) {
@@ -103,12 +97,13 @@ struct WorkoutStartView: View {
 // MARK: - セッション未開始
 
 private struct WorkoutIdleView: View {
-    let suggestedMenu: SuggestedMenu?
     let muscleStates: [Muscle: MuscleVisualState]
     let onStart: () -> Void
     let onSelectExercise: (ExerciseDefinition) -> Void
 
     @ObservedObject private var favorites = FavoritesManager.shared
+    @State private var selectedMuscle: Muscle?
+    @State private var showMuscleExercises = false
     private var localization: LocalizationManager { LocalizationManager.shared }
 
     private var favoriteExercises: [ExerciseDefinition] {
@@ -117,42 +112,54 @@ private struct WorkoutIdleView: View {
     }
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: 16) {
-                // 大きな筋肉マップ（画面の40-50%）
-                MuscleMapView(muscleStates: muscleStates)
-                    .frame(height: UIScreen.main.bounds.height * 0.40)
+        VStack(spacing: 0) {
+            ScrollView {
+                VStack(spacing: 16) {
+                    // 筋肉マップ（タップで種目選択）
+                    MuscleMapView(
+                        muscleStates: muscleStates,
+                        onMuscleTapped: { muscle in
+                            selectedMuscle = muscle
+                            showMuscleExercises = true
+                        }
+                    )
+                    .frame(height: UIScreen.main.bounds.height * 0.45)
                     .padding(.horizontal)
 
-                // 今日の提案
-                if let menu = suggestedMenu, !menu.exercises.isEmpty {
-                    SuggestedMenuCard(menu: menu, onSelectExercise: onSelectExercise)
-                }
-
-                // お気に入り種目
-                if !favoriteExercises.isEmpty {
-                    FavoriteExercisesSection(
-                        exercises: favoriteExercises,
-                        onSelect: onSelectExercise
-                    )
-                }
-
-                // 開始ボタン
-                Button(action: onStart) {
-                    HStack {
-                        Image(systemName: "figure.strengthtraining.traditional")
-                        Text(L10n.startFreeWorkout)
+                    // お気に入り種目
+                    if !favoriteExercises.isEmpty {
+                        FavoriteExercisesSection(
+                            exercises: favoriteExercises,
+                            onSelect: onSelectExercise
+                        )
                     }
-                    .font(.headline)
-                    .foregroundStyle(.white)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 60)
-                    .background(Color.mmAccentPrimary)
-                    .clipShape(RoundedRectangle(cornerRadius: 16))
                 }
-                .padding(.horizontal)
+                .padding(.vertical)
             }
-            .padding(.vertical)
+
+            // 開始ボタン（固定）
+            Button(action: onStart) {
+                HStack {
+                    Image(systemName: "figure.strengthtraining.traditional")
+                    Text(L10n.startFreeWorkout)
+                }
+                .font(.headline)
+                .foregroundStyle(.white)
+                .frame(maxWidth: .infinity)
+                .frame(height: 60)
+                .background(Color.mmAccentPrimary)
+                .clipShape(RoundedRectangle(cornerRadius: 16))
+            }
+            .padding(.horizontal)
+            .padding(.bottom, 8)
+        }
+        .sheet(isPresented: $showMuscleExercises) {
+            if let muscle = selectedMuscle {
+                MuscleExercisePickerSheet(muscle: muscle) { exercise in
+                    onSelectExercise(exercise)
+                    showMuscleExercises = false
+                }
+            }
         }
     }
 }
@@ -189,13 +196,13 @@ private struct FavoriteExercisesSection: View {
 
                                 HStack(spacing: 4) {
                                     Image(systemName: "dumbbell")
-                                    Text(exercise.equipment)
+                                    Text(exercise.localizedEquipment)
                                 }
                                 .font(.caption2)
                                 .foregroundStyle(Color.mmTextSecondary)
 
                                 if let primary = exercise.primaryMuscle {
-                                    Text(localization.currentLanguage == .japanese ? primary.japaneseName : primary.englishName)
+                                    Text(primary.localizedName)
                                         .font(.caption2)
                                         .padding(.horizontal, 6)
                                         .padding(.vertical, 2)
@@ -217,59 +224,90 @@ private struct FavoriteExercisesSection: View {
     }
 }
 
-// MARK: - 提案メニューカード（シンプル版）
+// MARK: - 筋肉タップ時の種目選択シート
 
-private struct SuggestedMenuCard: View {
-    let menu: SuggestedMenu
-    let onSelectExercise: (ExerciseDefinition) -> Void
+private struct MuscleExercisePickerSheet: View {
+    let muscle: Muscle
+    let onSelect: (ExerciseDefinition) -> Void
+    @Environment(\.dismiss) private var dismiss
     private var localization: LocalizationManager { LocalizationManager.shared }
 
+    private var relatedExercises: [ExerciseDefinition] {
+        ExerciseStore.shared.exercises(targeting: muscle)
+    }
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            // ヘッダー
-            HStack {
-                Image(systemName: "sparkles")
-                    .foregroundStyle(Color.mmAccentPrimary)
-                Text(L10n.todayRecommendation)
-                    .font(.subheadline.bold())
-                    .foregroundStyle(Color.mmTextPrimary)
-                Text(localization.currentLanguage == .japanese ? menu.primaryGroup.japaneseName : menu.primaryGroup.englishName)
-                    .font(.subheadline.bold())
-                    .foregroundStyle(Color.mmAccentPrimary)
-            }
+        NavigationStack {
+            ZStack {
+                Color.mmBgPrimary.ignoresSafeArea()
 
-            Text(menu.reason)
-                .font(.caption)
-                .foregroundStyle(Color.mmTextSecondary)
-
-            // 種目リスト
-            ForEach(menu.exercises) { exercise in
-                Button {
-                    onSelectExercise(exercise.definition)
-                } label: {
-                    HStack {
-                        Text(localization.currentLanguage == .japanese ? exercise.definition.nameJA : exercise.definition.nameEN)
-                            .font(.subheadline)
-                            .foregroundStyle(Color.mmTextPrimary)
-
-                        Spacer()
-
-                        Text(L10n.setsReps(exercise.suggestedSets, exercise.suggestedReps))
-                            .font(.caption)
-                            .foregroundStyle(Color.mmTextSecondary)
-
-                        Image(systemName: "chevron.right")
-                            .font(.caption)
+                if relatedExercises.isEmpty {
+                    VStack(spacing: 12) {
+                        Image(systemName: "dumbbell")
+                            .font(.system(size: 48))
+                            .foregroundStyle(Color.mmTextSecondary.opacity(0.5))
+                        Text(L10n.noData)
+                            .font(.headline)
                             .foregroundStyle(Color.mmTextSecondary)
                     }
-                    .padding(.vertical, 6)
+                } else {
+                    List(relatedExercises) { exercise in
+                        Button {
+                            onSelect(exercise)
+                        } label: {
+                            HStack {
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(localization.currentLanguage == .japanese ? exercise.nameJA : exercise.nameEN)
+                                        .font(.subheadline.bold())
+                                        .foregroundStyle(Color.mmTextPrimary)
+
+                                    HStack(spacing: 8) {
+                                        Label(exercise.localizedEquipment, systemImage: "dumbbell")
+                                        Label(exercise.localizedDifficulty, systemImage: "chart.bar")
+                                    }
+                                    .font(.caption2)
+                                    .foregroundStyle(Color.mmTextSecondary)
+                                }
+
+                                Spacer()
+
+                                // 刺激度%
+                                let percentage = exercise.stimulationPercentage(for: muscle)
+                                Text("\(percentage)%")
+                                    .font(.subheadline.monospaced().bold())
+                                    .foregroundStyle(stimulationColor(percentage))
+
+                                Image(systemName: "chevron.right")
+                                    .font(.caption)
+                                    .foregroundStyle(Color.mmTextSecondary)
+                            }
+                            .padding(.vertical, 4)
+                        }
+                        .listRowBackground(Color.mmBgCard)
+                    }
+                    .listStyle(.plain)
+                    .scrollContentBackground(.hidden)
+                }
+            }
+            .navigationTitle(muscle.localizedName)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbarColorScheme(.dark, for: .navigationBar)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button(L10n.close) { dismiss() }
+                        .foregroundStyle(Color.mmAccentPrimary)
                 }
             }
         }
-        .padding()
-        .background(Color.mmBgCard)
-        .clipShape(RoundedRectangle(cornerRadius: 16))
-        .padding(.horizontal)
+        .presentationDetents([.medium, .large])
+    }
+
+    private func stimulationColor(_ percentage: Int) -> Color {
+        switch percentage {
+        case 80...: return .mmMuscleJustWorked
+        case 50..<80: return .mmMuscleAmber
+        default: return .mmMuscleLime
+        }
     }
 }
 
