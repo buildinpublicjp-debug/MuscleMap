@@ -402,11 +402,17 @@ private struct ActiveWorkoutView: View {
 private struct SetInputCard: View {
     @Bindable var viewModel: WorkoutViewModel
     let exercise: ExerciseDefinition
+    @Environment(\.modelContext) private var modelContext
     @State private var useAdditionalWeight = false
+    @State private var showPRAchieved = false
     private var localization: LocalizationManager { LocalizationManager.shared }
 
     private var isBodyweight: Bool {
         exercise.equipment == "自重" || exercise.equipment == "Bodyweight"
+    }
+
+    private var prWeight: Double? {
+        PRManager.shared.getWeightPR(exerciseId: exercise.id, context: modelContext)
     }
 
     var body: some View {
@@ -424,6 +430,18 @@ private struct SetInputCard: View {
                         .foregroundStyle(Color.mmTextSecondary)
                 } else {
                     Text(L10n.previousRecord(lastW, lastR))
+                        .font(.caption)
+                        .foregroundStyle(Color.mmTextSecondary)
+                }
+            }
+
+            // PR表示（前回記録と違う場合のみ）
+            if let pr = prWeight, pr != viewModel.lastWeight, !isBodyweight {
+                HStack(spacing: 4) {
+                    Image(systemName: "trophy.fill")
+                        .font(.caption2)
+                        .foregroundStyle(.yellow)
+                    Text("PR: \(pr, specifier: "%.1f")kg")
                         .font(.caption)
                         .foregroundStyle(Color.mmTextSecondary)
                 }
@@ -529,8 +547,24 @@ private struct SetInputCard: View {
 
             // 記録ボタン
             Button {
+                // PR判定（記録前に）
+                let isNewPR = !isBodyweight && PRManager.shared.checkIsWeightPR(
+                    exerciseId: exercise.id,
+                    weight: viewModel.currentWeight,
+                    context: modelContext
+                )
+
                 viewModel.recordSet()
-                HapticManager.setRecorded()
+
+                if isNewPR {
+                    HapticManager.prAchieved()
+                    showPRAchieved = true
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+                        showPRAchieved = false
+                    }
+                } else {
+                    HapticManager.setRecorded()
+                }
             } label: {
                 Text(L10n.recordSet)
                     .font(.headline)
@@ -545,6 +579,31 @@ private struct SetInputCard: View {
         .background(Color.mmBgCard)
         .clipShape(RoundedRectangle(cornerRadius: 16))
         .padding(.horizontal)
+        .overlay {
+            if showPRAchieved {
+                PRAchievedOverlay()
+                    .transition(.scale.combined(with: .opacity))
+            }
+        }
+        .animation(.spring(duration: 0.3), value: showPRAchieved)
+    }
+}
+
+// MARK: - PR達成オーバーレイ
+
+private struct PRAchievedOverlay: View {
+    var body: some View {
+        VStack(spacing: 8) {
+            Image(systemName: "trophy.fill")
+                .font(.system(size: 48))
+                .foregroundStyle(.yellow)
+            Text("PR!")
+                .font(.title.bold())
+                .foregroundStyle(.yellow)
+        }
+        .padding(32)
+        .background(.ultraThinMaterial)
+        .clipShape(RoundedRectangle(cornerRadius: 20))
     }
 }
 
@@ -670,6 +729,7 @@ private struct WeightStepperButton: View {
 private struct RecordedSetsView: View {
     let exerciseSets: [(exercise: ExerciseDefinition, sets: [WorkoutSet])]
     let onDeleteSet: (WorkoutSet) -> Void
+    @Environment(\.modelContext) private var modelContext
     private var localization: LocalizationManager { LocalizationManager.shared }
 
     @State private var setToDelete: WorkoutSet?
@@ -679,6 +739,12 @@ private struct RecordedSetsView: View {
         let formatter = DateFormatter()
         formatter.dateFormat = "HH:mm"
         return formatter
+    }
+
+    private func isPR(_ set: WorkoutSet, exercise: ExerciseDefinition) -> Bool {
+        // 自重種目は除外
+        guard exercise.equipment != "自重" && exercise.equipment != "Bodyweight" else { return false }
+        return PRManager.shared.checkIsPR(set: set, context: modelContext)
     }
 
     var body: some View {
@@ -712,6 +778,12 @@ private struct RecordedSetsView: View {
                                     Text(L10n.weightReps(set.weight, set.reps))
                                         .font(.caption.monospaced())
                                         .foregroundStyle(Color.mmTextPrimary)
+                                }
+                                // PRマーク
+                                if isPR(set, exercise: entry.exercise) {
+                                    Image(systemName: "trophy.fill")
+                                        .font(.caption2)
+                                        .foregroundStyle(.yellow)
                                 }
                                 Text(timeFormatter.string(from: set.completedAt))
                                     .font(.caption2)

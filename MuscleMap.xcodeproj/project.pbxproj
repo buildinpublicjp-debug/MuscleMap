@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 63;
+	objectVersion = 77;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -19,6 +19,7 @@
 		1AA94FF61CC9E6126D159F9F /* CSVImportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C301C32BCB89E6F1B5349A6 /* CSVImportView.swift */; };
 		1B78DB667BFDD3E8AAB15FA6 /* PurchaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E62C3348AF8D24E0BA19F31 /* PurchaseManager.swift */; };
 		210539EBA932CACE31A3BC98 /* HistoryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BE171442748D8639DE3CD7C /* HistoryViewModel.swift */; };
+		27CCE1A0C36AF12548F03030 /* PRManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B1A8DF0A725B9698B3EF81A /* PRManager.swift */; };
 		2B6CBAF613691D5E5D7C5450 /* RecoveryCalculatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 300D254EBBCA6CC21F07DD9B /* RecoveryCalculatorTests.swift */; };
 		31E876C2E3253AC0F79BAF5A /* UserProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8A4C5A76D596FFBABB6E47D /* UserProfile.swift */; };
 		329A3AFB2F0294F140FFCC0C /* ExerciseDefinition.swift in Sources */ = {isa = PBXBuildFile; fileRef = C775B710D458A8600002BACD /* ExerciseDefinition.swift */; };
@@ -118,13 +119,14 @@
 		0ADE5F383177BBB6409F7D61 /* RecentExercisesManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentExercisesManager.swift; sourceTree = "<group>"; };
 		0BE68481B1986B8E34B2034B /* ExerciseMuscleMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseMuscleMapView.swift; sourceTree = "<group>"; };
 		0C736DECFDE0A06C7CA97F4E /* MuscleStimulation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MuscleStimulation.swift; sourceTree = "<group>"; };
-		115F934EE7680215C2F165C1 /* MuscleMapWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = MuscleMapWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		115F934EE7680215C2F165C1 /* MuscleMapWidgetExtension.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = MuscleMapWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		15716239666A23DA22D539B5 /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
 		181666C4D2D2CA1B1AE60F29 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		1D4AC14E973BEC3D403032D7 /* WidgetMusclePathData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetMusclePathData.swift; sourceTree = "<group>"; };
 		25DC4C0963E665A4F3D621EA /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
 		281B4D0C19399AF581AAEC00 /* CSVParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CSVParser.swift; sourceTree = "<group>"; };
 		2B00A2B4E368518F02FC2485 /* ExercisePickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExercisePickerView.swift; sourceTree = "<group>"; };
+		2B1A8DF0A725B9698B3EF81A /* PRManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PRManager.swift; sourceTree = "<group>"; };
 		2D178E2488593ED7271BFB64 /* MuscleMapTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = MuscleMapTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		2E62C3348AF8D24E0BA19F31 /* PurchaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PurchaseManager.swift; sourceTree = "<group>"; };
 		300D254EBBCA6CC21F07DD9B /* RecoveryCalculatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecoveryCalculatorTests.swift; sourceTree = "<group>"; };
@@ -138,7 +140,7 @@
 		3F61D31BBAC55B5215E6A2B8 /* ExerciseStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseStoreTests.swift; sourceTree = "<group>"; };
 		3FF01BFBC85F09E4AC3175C4 /* MuscleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MuscleTests.swift; sourceTree = "<group>"; };
 		40B76814AFC279384771D580 /* MuscleMapWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MuscleMapWidget.swift; sourceTree = "<group>"; };
-		42E895571E0BA26A49A45A33 /* MuscleMap.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MuscleMap.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		42E895571E0BA26A49A45A33 /* MuscleMap.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = MuscleMap.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		467C46635C48C115FF535C56 /* Muscle3DView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Muscle3DView.swift; sourceTree = "<group>"; };
 		49396567D4FF1B05B7DCE11D /* MarkdownParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownParserTests.swift; sourceTree = "<group>"; };
 		4F79F9EB62B60C3520F659A0 /* ObsidianSyncManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObsidianSyncManager.swift; sourceTree = "<group>"; };
@@ -373,6 +375,7 @@
 			children = (
 				E800074C8D53A0356F8230BF /* ExerciseStore.swift */,
 				F3934B8352158E0A999B4FCC /* MuscleStateRepository.swift */,
+				2B1A8DF0A725B9698B3EF81A /* PRManager.swift */,
 				36B9C0C525A22F0F0298F099 /* WorkoutRepository.swift */,
 			);
 			path = Repositories;
@@ -544,6 +547,7 @@
 			packageReferences = (
 				C338FCD0C51B2BF5FE217F91 /* XCRemoteSwiftPackageReference "purchases-ios-spm" */,
 			);
+			preferredProjectObjectVersion = 77;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -623,6 +627,7 @@
 				E4600BF28A7E837121E7944F /* ObsidianSettingsView.swift in Sources */,
 				A0EE0C5B81D710A0A04A6E91 /* ObsidianSyncManager.swift in Sources */,
 				DF796617F303D8007A723F6F /* OnboardingView.swift in Sources */,
+				27CCE1A0C36AF12548F03030 /* PRManager.swift in Sources */,
 				61DFE674FC9B8C0150AE7A36 /* PaywallView.swift in Sources */,
 				1B78DB667BFDD3E8AAB15FA6 /* PurchaseManager.swift in Sources */,
 				1A8C4925B1A20E8513EF6D40 /* RecentExercisesManager.swift in Sources */,
@@ -748,7 +753,6 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = MuscleMapWidget/MuscleMapWidgetExtension.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = CSQ9X74Y5Z;
 				INFOPLIST_FILE = MuscleMapWidget/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -770,7 +774,6 @@
 				CODE_SIGN_ENTITLEMENTS = MuscleMap/MuscleMap.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = CSQ9X74Y5Z;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_GENERATION_ENABLED = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = MuscleMap;
@@ -812,7 +815,6 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = MuscleMapWidget/MuscleMapWidgetExtension.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = CSQ9X74Y5Z;
 				INFOPLIST_FILE = MuscleMapWidget/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -834,7 +836,6 @@
 				CODE_SIGN_ENTITLEMENTS = MuscleMap/MuscleMap.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = CSQ9X74Y5Z;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_GENERATION_ENABLED = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = MuscleMap;

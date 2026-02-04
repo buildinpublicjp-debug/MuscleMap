@@ -1,12 +1,18 @@
 import SwiftUI
+import SwiftData
 
 // MARK: - 種目詳細ビュー
 
 struct ExerciseDetailView: View {
     let exercise: ExerciseDefinition
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var modelContext
     @ObservedObject private var favorites = FavoritesManager.shared
     private var localization: LocalizationManager { LocalizationManager.shared }
+
+    private var prWeight: Double? {
+        PRManager.shared.getWeightPR(exerciseId: exercise.id, context: modelContext)
+    }
 
     var body: some View {
         NavigationStack {
@@ -31,6 +37,9 @@ struct ExerciseDetailView: View {
                             InfoTag(icon: "dumbbell", text: exercise.localizedEquipment)
                             InfoTag(icon: "chart.bar", text: exercise.localizedDifficulty)
                             InfoTag(icon: "tag", text: exercise.localizedCategory)
+                            if let pr = prWeight {
+                                InfoTag(icon: "trophy.fill", text: String(format: "%.1f kg", pr), highlight: true)
+                            }
                         }
 
                         // 動画で見る
@@ -118,17 +127,19 @@ struct ExerciseDetailView: View {
 private struct InfoTag: View {
     let icon: String
     let text: String
+    var highlight: Bool = false
 
     var body: some View {
         HStack(spacing: 4) {
             Image(systemName: icon)
+                .foregroundStyle(highlight ? .yellow : Color.mmTextSecondary)
             Text(text)
         }
         .font(.caption)
         .padding(.horizontal, 10)
         .padding(.vertical, 6)
         .background(Color.mmBgCard)
-        .foregroundStyle(Color.mmTextSecondary)
+        .foregroundStyle(highlight ? .yellow : Color.mmTextSecondary)
         .clipShape(Capsule())
     }
 }
