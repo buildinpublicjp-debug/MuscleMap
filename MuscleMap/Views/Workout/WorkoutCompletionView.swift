@@ -32,12 +32,41 @@ struct WorkoutCompletionView: View {
         return L10n.minutes(minutes)
     }
 
-    private var exerciseNames: [String] {
-        let ids = Set(session.sets.map(\.exerciseId))
-        return ids.compactMap { id -> String? in
-            guard let exercise = ExerciseStore.shared.exercise(for: id) else { return nil }
-            return localization.currentLanguage == .japanese ? exercise.nameJA : exercise.nameEN
+    /// 実施した種目リスト（重複除去、順番保持）
+    private var exercisesDone: [ExerciseDefinition] {
+        var seen = Set<String>()
+        var result: [ExerciseDefinition] = []
+        for set in session.sets {
+            if !seen.contains(set.exerciseId),
+               let exercise = ExerciseStore.shared.exercise(for: set.exerciseId) {
+                seen.insert(set.exerciseId)
+                result.append(exercise)
+            }
         }
+        return result
+    }
+
+    /// 刺激した筋肉のマッピング（筋肉ID → 最大刺激度%）
+    private var stimulatedMuscleMapping: [String: Int] {
+        var muscleIntensity: [String: Int] = [:]
+
+        for set in session.sets {
+            guard let exercise = ExerciseStore.shared.exercise(for: set.exerciseId) else { continue }
+            for (muscleId, percentage) in exercise.muscleMapping {
+                muscleIntensity[muscleId] = max(muscleIntensity[muscleId] ?? 0, percentage)
+            }
+        }
+
+        return muscleIntensity
+    }
+
+    private func setsCount(for exerciseId: String) -> Int {
+        session.sets.filter { $0.exerciseId == exerciseId }.count
+    }
+
+    /// 種目名リスト（シェア用）
+    private var exerciseNames: [String] {
+        exercisesDone.map { localization.currentLanguage == .japanese ? $0.nameJA : $0.nameEN }
     }
 
     var body: some View {
@@ -58,7 +87,10 @@ struct WorkoutCompletionView: View {
                 // 統計カード
                 statsCard
 
-                // 種目リスト
+                // 刺激した筋肉
+                stimulatedMusclesSection
+
+                // 種目リスト（セット数付き）
                 exerciseList
 
                 Spacer()
@@ -107,23 +139,55 @@ struct WorkoutCompletionView: View {
         .clipShape(RoundedRectangle(cornerRadius: 16))
     }
 
+    // MARK: - 刺激した筋肉セクション
+
+    private var stimulatedMusclesSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text(L10n.stimulatedMuscles)
+                .font(.headline)
+                .foregroundStyle(Color.mmTextPrimary)
+
+            HStack(spacing: 16) {
+                // 前面
+                MiniMuscleMapView(
+                    muscleMapping: stimulatedMuscleMapping,
+                    showFront: true
+                )
+                .frame(height: 160)
+
+                // 背面
+                MiniMuscleMapView(
+                    muscleMapping: stimulatedMuscleMapping,
+                    showFront: false
+                )
+                .frame(height: 160)
+            }
+        }
+        .padding()
+        .background(Color.mmBgCard)
+        .clipShape(RoundedRectangle(cornerRadius: 16))
+    }
+
     // MARK: - 種目リスト
 
     private var exerciseList: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(L10n.todaysWorkout)
+            Text(L10n.exercisesDone)
                 .font(.headline)
                 .foregroundStyle(Color.mmTextPrimary)
 
-            ForEach(exerciseNames, id: \.self) { name in
+            ForEach(exercisesDone) { exercise in
                 HStack(spacing: 8) {
                     Image(systemName: "checkmark")
                         .font(.caption)
                         .foregroundStyle(Color.mmAccentPrimary)
-                    Text(name)
+                    Text(localization.currentLanguage == .japanese ? exercise.nameJA : exercise.nameEN)
                         .font(.subheadline)
                         .foregroundStyle(Color.mmTextSecondary)
                     Spacer()
+                    Text(L10n.setsLabel(setsCount(for: exercise.id)))
+                        .font(.caption.monospaced())
+                        .foregroundStyle(Color.mmAccentPrimary)
                 }
             }
         }
