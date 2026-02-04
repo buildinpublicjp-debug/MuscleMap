@@ -350,6 +350,7 @@ struct SettingsView: View {
 
 // MARK: - Bindable for AppState (non-@Observable stored properties)
 
+@MainActor
 private struct Bindable {
     let appState: AppState
 

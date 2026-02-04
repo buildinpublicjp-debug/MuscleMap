@@ -42,9 +42,13 @@ class ImportDataConverter {
     private let modelContext: ModelContext
     private let exerciseStore: ExerciseStore
 
-    init(modelContext: ModelContext, exerciseStore: ExerciseStore = .shared) {
+    init(modelContext: ModelContext, exerciseStore: ExerciseStore) {
         self.modelContext = modelContext
         self.exerciseStore = exerciseStore
+    }
+
+    convenience init(modelContext: ModelContext) {
+        self.init(modelContext: modelContext, exerciseStore: .shared)
     }
 
     /// インポートのプレビューを生成（実際のインポートは行わない）

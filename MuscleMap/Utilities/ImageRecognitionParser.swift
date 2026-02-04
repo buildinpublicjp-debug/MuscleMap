@@ -122,7 +122,7 @@ struct ImageRecognitionParser {
 
                 // 同じ種目が既にあれば追加、なければ新規作成
                 if let index = currentExercises.firstIndex(where: { $0.name == exerciseName }) {
-                    var exercise = currentExercises[index]
+                    let exercise = currentExercises[index]
                     var sets = exercise.sets
                     sets.append(contentsOf: setInfo.sets)
                     currentExercises[index] = ParsedExercise(name: exerciseName, sets: sets)

@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 77;
+	objectVersion = 63;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -118,7 +118,7 @@
 		0ADE5F383177BBB6409F7D61 /* RecentExercisesManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentExercisesManager.swift; sourceTree = "<group>"; };
 		0BE68481B1986B8E34B2034B /* ExerciseMuscleMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseMuscleMapView.swift; sourceTree = "<group>"; };
 		0C736DECFDE0A06C7CA97F4E /* MuscleStimulation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MuscleStimulation.swift; sourceTree = "<group>"; };
-		115F934EE7680215C2F165C1 /* MuscleMapWidgetExtension.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = MuscleMapWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		115F934EE7680215C2F165C1 /* MuscleMapWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = MuscleMapWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		15716239666A23DA22D539B5 /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
 		181666C4D2D2CA1B1AE60F29 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		1D4AC14E973BEC3D403032D7 /* WidgetMusclePathData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetMusclePathData.swift; sourceTree = "<group>"; };
@@ -138,7 +138,7 @@
 		3F61D31BBAC55B5215E6A2B8 /* ExerciseStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseStoreTests.swift; sourceTree = "<group>"; };
 		3FF01BFBC85F09E4AC3175C4 /* MuscleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MuscleTests.swift; sourceTree = "<group>"; };
 		40B76814AFC279384771D580 /* MuscleMapWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MuscleMapWidget.swift; sourceTree = "<group>"; };
-		42E895571E0BA26A49A45A33 /* MuscleMap.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = MuscleMap.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		42E895571E0BA26A49A45A33 /* MuscleMap.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MuscleMap.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		467C46635C48C115FF535C56 /* Muscle3DView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Muscle3DView.swift; sourceTree = "<group>"; };
 		49396567D4FF1B05B7DCE11D /* MarkdownParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownParserTests.swift; sourceTree = "<group>"; };
 		4F79F9EB62B60C3520F659A0 /* ObsidianSyncManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObsidianSyncManager.swift; sourceTree = "<group>"; };
@@ -544,7 +544,6 @@
 			packageReferences = (
 				C338FCD0C51B2BF5FE217F91 /* XCRemoteSwiftPackageReference "purchases-ios-spm" */,
 			);
-			preferredProjectObjectVersion = 77;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -749,6 +748,7 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = MuscleMapWidget/MuscleMapWidgetExtension.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = CSQ9X74Y5Z;
 				INFOPLIST_FILE = MuscleMapWidget/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -770,6 +770,7 @@
 				CODE_SIGN_ENTITLEMENTS = MuscleMap/MuscleMap.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = CSQ9X74Y5Z;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_GENERATION_ENABLED = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = MuscleMap;
@@ -811,6 +812,7 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = MuscleMapWidget/MuscleMapWidgetExtension.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = CSQ9X74Y5Z;
 				INFOPLIST_FILE = MuscleMapWidget/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -832,6 +834,7 @@
 				CODE_SIGN_ENTITLEMENTS = MuscleMap/MuscleMap.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = CSQ9X74Y5Z;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_GENERATION_ENABLED = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = MuscleMap;

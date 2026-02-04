@@ -613,9 +613,11 @@ private struct WeightStepperButton: View {
     }
 
     private func startLongPressTimer() {
-        longPressTimer = Timer.scheduledTimer(withTimeInterval: 0.15, repeats: true) { _ in
-            onLongPress()
-            HapticManager.lightTap()
+        longPressTimer = Timer.scheduledTimer(withTimeInterval: 0.15, repeats: true) { [onLongPress] _ in
+            Task { @MainActor in
+                onLongPress()
+                HapticManager.lightTap()
+            }
         }
     }
 
