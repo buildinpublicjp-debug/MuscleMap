@@ -1068,19 +1068,13 @@ enum MusclePathData {
 
     static func bodyOutlineFront(in rect: CGRect) -> Path {
         Path { p in
-            // 頭（大きめ、全身の約1/8）
-            p.addEllipse(in: CGRect(
-                x: rect.minX + rect.width * 0.385,
-                y: rect.minY + rect.height * 0.005,
-                width: rect.width * 0.23,
-                height: rect.height * 0.12
-            ))
-            // 首（短く自然な幅）
-            p.move(to: pt(0.465, 0.118, rect))
-            p.addLine(to: pt(0.535, 0.118, rect))
-            p.addQuadCurve(to: pt(0.545, 0.148, rect), control: pt(0.540, 0.133, rect))
+            // 首上部（頭を削除し、首から始まる）
+            // 自然な首の曲線で終端
+            p.move(to: pt(0.44, 0.125, rect))
+            p.addQuadCurve(to: pt(0.50, 0.118, rect), control: pt(0.47, 0.115, rect))
+            p.addQuadCurve(to: pt(0.56, 0.125, rect), control: pt(0.53, 0.115, rect))
+            p.addLine(to: pt(0.545, 0.148, rect))
             p.addLine(to: pt(0.455, 0.148, rect))
-            p.addQuadCurve(to: pt(0.465, 0.118, rect), control: pt(0.460, 0.133, rect))
             p.closeSubpath()
             // 胴体
             p.move(to: pt(0.29, 0.185, rect))

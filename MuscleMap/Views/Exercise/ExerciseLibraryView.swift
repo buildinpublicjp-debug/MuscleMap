@@ -6,6 +6,7 @@ struct ExerciseLibraryView: View {
     @State private var viewModel = ExerciseListViewModel()
     @State private var searchText = ""
     @State private var selectedExercise: ExerciseDefinition?
+    private var localization: LocalizationManager { LocalizationManager.shared }
 
     var body: some View {
         NavigationStack {
@@ -17,7 +18,7 @@ struct ExerciseLibraryView: View {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 8) {
                             CategoryFilterChip(
-                                title: "すべて",
+                                title: L10n.all,
                                 isSelected: viewModel.selectedCategory == nil
                             ) {
                                 viewModel.selectedCategory = nil
@@ -38,7 +39,7 @@ struct ExerciseLibraryView: View {
 
                     // 種目数
                     HStack {
-                        Text("\(viewModel.filteredExercises.count)種目")
+                        Text(L10n.exerciseCountLabel(viewModel.filteredExercises.count))
                             .font(.caption)
                             .foregroundStyle(Color.mmTextSecondary)
                         Spacer()
@@ -59,17 +60,17 @@ struct ExerciseLibraryView: View {
                     .scrollContentBackground(.hidden)
                 }
             }
-            .navigationTitle("種目辞典")
+            .navigationTitle(L10n.exerciseLibrary)
             .navigationBarTitleDisplayMode(.inline)
             .toolbarColorScheme(.dark, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .principal) {
-                    Text("種目辞典")
+                    Text(L10n.exerciseLibrary)
                         .font(.headline.bold())
                         .foregroundStyle(Color.mmTextPrimary)
                 }
             }
-            .searchable(text: $searchText, prompt: "種目を検索")
+            .searchable(text: $searchText, prompt: L10n.searchExercises)
             .onChange(of: searchText) { _, newValue in
                 viewModel.searchText = newValue
             }
@@ -107,15 +108,16 @@ private struct CategoryFilterChip: View {
 
 private struct ExerciseLibraryRow: View {
     let exercise: ExerciseDefinition
+    private var localization: LocalizationManager { LocalizationManager.shared }
 
     var body: some View {
         HStack {
             VStack(alignment: .leading, spacing: 4) {
-                Text(exercise.nameJA)
+                Text(localization.currentLanguage == .japanese ? exercise.nameJA : exercise.nameEN)
                     .font(.subheadline.bold())
                     .foregroundStyle(Color.mmTextPrimary)
 
-                Text(exercise.nameEN)
+                Text(localization.currentLanguage == .japanese ? exercise.nameEN : exercise.nameJA)
                     .font(.caption)
                     .foregroundStyle(Color.mmTextSecondary)
 

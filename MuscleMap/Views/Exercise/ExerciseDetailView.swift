@@ -6,6 +6,7 @@ struct ExerciseDetailView: View {
     let exercise: ExerciseDefinition
     @Environment(\.dismiss) private var dismiss
     @ObservedObject private var favorites = FavoritesManager.shared
+    private var localization: LocalizationManager { LocalizationManager.shared }
 
     var body: some View {
         NavigationStack {
@@ -16,11 +17,11 @@ struct ExerciseDetailView: View {
                     VStack(alignment: .leading, spacing: 24) {
                         // ヘッダー
                         VStack(alignment: .leading, spacing: 8) {
-                            Text(exercise.nameJA)
+                            Text(localization.currentLanguage == .japanese ? exercise.nameJA : exercise.nameEN)
                                 .font(.title2.bold())
                                 .foregroundStyle(Color.mmTextPrimary)
 
-                            Text(exercise.nameEN)
+                            Text(localization.currentLanguage == .japanese ? exercise.nameEN : exercise.nameJA)
                                 .font(.subheadline)
                                 .foregroundStyle(Color.mmTextSecondary)
                         }
@@ -32,56 +33,16 @@ struct ExerciseDetailView: View {
                             InfoTag(icon: "tag", text: exercise.category)
                         }
 
-                        // 説明・フォームポイント
-                        if let info = ExerciseDescriptions.info(for: exercise.id) {
-                            VStack(alignment: .leading, spacing: 12) {
-                                Text("説明")
-                                    .font(.headline)
-                                    .foregroundStyle(Color.mmTextPrimary)
-
-                                Text(info.description)
-                                    .font(.subheadline)
-                                    .foregroundStyle(Color.mmTextSecondary)
-                                    .fixedSize(horizontal: false, vertical: true)
-
-                                if !info.formTips.isEmpty {
-                                    Text("フォームのポイント")
-                                        .font(.subheadline.bold())
-                                        .foregroundStyle(Color.mmTextPrimary)
-                                        .padding(.top, 4)
-
-                                    VStack(alignment: .leading, spacing: 8) {
-                                        ForEach(Array(info.formTips.enumerated()), id: \.offset) { _, tip in
-                                            HStack(alignment: .top, spacing: 8) {
-                                                Image(systemName: "checkmark.circle.fill")
-                                                    .font(.caption)
-                                                    .foregroundStyle(Color.mmAccentPrimary)
-                                                    .padding(.top, 2)
-                                                Text(tip)
-                                                    .font(.subheadline)
-                                                    .foregroundStyle(Color.mmTextSecondary)
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            .padding()
-                            .background(Color.mmBgCard)
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
-                        }
-
                         // 動画で見る
                         Button {
-                            let query = "\(exercise.nameJA) やり方 フォーム"
-                                .addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
-                            if let url = URL(string: "https://www.youtube.com/results?search_query=\(query)") {
+                            if let url = YouTubeSearchHelper.searchURL(for: exercise) {
                                 UIApplication.shared.open(url)
                             }
                         } label: {
                             HStack {
                                 Image(systemName: "play.rectangle.fill")
                                     .foregroundStyle(.red)
-                                Text("動画で見る")
+                                Text(L10n.watchVideo)
                                     .font(.subheadline.bold())
                                     .foregroundStyle(Color.mmTextPrimary)
                                 Spacer()
@@ -96,7 +57,7 @@ struct ExerciseDetailView: View {
 
                         // 筋肉マップ
                         VStack(alignment: .leading, spacing: 12) {
-                            Text("対象筋肉")
+                            Text(L10n.targetMuscles)
                                 .font(.headline)
                                 .foregroundStyle(Color.mmTextPrimary)
 
@@ -108,7 +69,7 @@ struct ExerciseDetailView: View {
 
                         // ターゲット筋肉（リスト）
                         VStack(alignment: .leading, spacing: 12) {
-                            Text("刺激度")
+                            Text(L10n.stimulationLevel)
                                 .font(.headline)
                                 .foregroundStyle(Color.mmTextPrimary)
 
@@ -129,7 +90,7 @@ struct ExerciseDetailView: View {
                     .padding()
                 }
             }
-            .navigationTitle(exercise.nameJA)
+            .navigationTitle(localization.currentLanguage == .japanese ? exercise.nameJA : exercise.nameEN)
             .navigationBarTitleDisplayMode(.inline)
             .toolbarColorScheme(.dark, for: .navigationBar)
             .toolbar {
@@ -143,7 +104,7 @@ struct ExerciseDetailView: View {
                     }
                 }
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("閉じる") { dismiss() }
+                    Button(L10n.close) { dismiss() }
                         .foregroundStyle(Color.mmAccentPrimary)
                 }
             }
@@ -177,10 +138,11 @@ private struct InfoTag: View {
 private struct MuscleStimulationBar: View {
     let muscle: Muscle
     let percentage: Int
+    private var localization: LocalizationManager { LocalizationManager.shared }
 
     var body: some View {
         HStack(spacing: 12) {
-            Text(muscle.japaneseName)
+            Text(localization.currentLanguage == .japanese ? muscle.japaneseName : muscle.englishName)
                 .font(.subheadline)
                 .foregroundStyle(Color.mmTextPrimary)
                 .frame(width: 100, alignment: .leading)
@@ -223,11 +185,11 @@ extension Muscle {
         // snake_case → camelCase
         let parts = snakeCase.split(separator: "_")
         guard !parts.isEmpty else { return nil }
-        
+
         let camelCase = parts.enumerated().map { index, part in
             index == 0 ? String(part) : part.capitalized
         }.joined()
-        
+
         self.init(rawValue: camelCase)
     }
 }

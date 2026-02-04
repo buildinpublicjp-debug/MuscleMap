@@ -90,7 +90,7 @@ private struct StreakBadge: View {
         HStack(spacing: 8) {
             Image(systemName: "flame.fill")
                 .foregroundStyle(.orange)
-            Text("\(days)日連続")
+            Text(L10n.dayStreak(days))
                 .font(.subheadline.bold())
                 .foregroundStyle(Color.mmTextPrimary)
         }
@@ -106,19 +106,21 @@ private struct StreakBadge: View {
 private struct NeglectedWarningView: View {
     let muscles: [Muscle]
 
+    private var localization: LocalizationManager { LocalizationManager.shared }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 6) {
                 Image(systemName: "exclamationmark.triangle.fill")
                     .foregroundStyle(Color.mmMuscleNeglected)
-                Text("未刺激の部位")
+                Text(L10n.neglectedMuscles)
                     .font(.subheadline.bold())
                     .foregroundStyle(Color.mmTextPrimary)
             }
 
             FlowLayout(spacing: 8) {
                 ForEach(muscles) { muscle in
-                    Text(muscle.japaneseName)
+                    Text(localization.currentLanguage == .japanese ? muscle.japaneseName : muscle.englishName)
                         .font(.caption)
                         .padding(.horizontal, 10)
                         .padding(.vertical, 4)
@@ -137,14 +139,16 @@ private struct NeglectedWarningView: View {
 // MARK: - 凡例（3×2グリッド）
 
 private struct MuscleMapLegend: View {
-    private let items: [(Color, String)] = [
-        (.mmMuscleCoral, "高負荷"),
-        (.mmMuscleAmber, "回復初期"),
-        (.mmMuscleYellow, "回復中"),
-        (.mmMuscleLime, "回復後期"),
-        (.mmMuscleBioGreen, "ほぼ回復"),
-        (.mmMuscleNeglected, "未刺激"),
-    ]
+    private var items: [(Color, String)] {
+        [
+            (.mmMuscleCoral, L10n.highLoad),
+            (.mmMuscleAmber, L10n.earlyRecovery),
+            (.mmMuscleYellow, L10n.midRecovery),
+            (.mmMuscleLime, L10n.lateRecovery),
+            (.mmMuscleBioGreen, L10n.almostRecovered),
+            (.mmMuscleNeglected, L10n.notStimulated),
+        ]
+    }
 
     private let columns = [
         GridItem(.flexible()),

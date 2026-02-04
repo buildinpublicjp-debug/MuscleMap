@@ -8,6 +8,7 @@ struct WorkoutStartView: View {
     @State private var viewModel: WorkoutViewModel?
     @State private var showingExercisePicker = false
     @State private var suggestedMenu: SuggestedMenu?
+    @State private var muscleStates: [Muscle: MuscleVisualState] = [:]
 
     var body: some View {
         NavigationStack {
@@ -22,6 +23,7 @@ struct WorkoutStartView: View {
                         // セッション未開始
                         WorkoutIdleView(
                             suggestedMenu: suggestedMenu,
+                            muscleStates: muscleStates,
                             onStart: {
                                 vm.startOrResumeSession()
                             },
@@ -33,12 +35,12 @@ struct WorkoutStartView: View {
                     }
                 }
             }
-            .navigationTitle("ワークアウト")
+            .navigationTitle(L10n.workout)
             .navigationBarTitleDisplayMode(.inline)
             .toolbarColorScheme(.dark, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .principal) {
-                    Text("ワークアウト")
+                    Text(L10n.workout)
                         .font(.headline.bold())
                         .foregroundStyle(Color.mmTextPrimary)
                 }
@@ -65,6 +67,36 @@ struct WorkoutStartView: View {
             stimulations: stims,
             exerciseStore: ExerciseStore.shared
         )
+        loadMuscleStates(from: stims)
+    }
+
+    private func loadMuscleStates(from stimulations: [Muscle: MuscleStimulation]) {
+        var states: [Muscle: MuscleVisualState] = [:]
+
+        for muscle in Muscle.allCases {
+            if let stim = stimulations[muscle] {
+                let status = RecoveryCalculator.recoveryStatus(
+                    stimulationDate: stim.stimulationDate,
+                    muscle: muscle,
+                    totalSets: stim.totalSets
+                )
+
+                switch status {
+                case .recovering(let progress):
+                    states[muscle] = .recovering(progress: progress)
+                case .fullyRecovered:
+                    states[muscle] = .inactive
+                case .neglected:
+                    states[muscle] = .neglected(fast: false)
+                case .neglectedSevere:
+                    states[muscle] = .neglected(fast: true)
+                }
+            } else {
+                states[muscle] = .inactive
+            }
+        }
+
+        muscleStates = states
     }
 }
 
@@ -72,10 +104,12 @@ struct WorkoutStartView: View {
 
 private struct WorkoutIdleView: View {
     let suggestedMenu: SuggestedMenu?
+    let muscleStates: [Muscle: MuscleVisualState]
     let onStart: () -> Void
     let onSelectExercise: (ExerciseDefinition) -> Void
 
     @ObservedObject private var favorites = FavoritesManager.shared
+    private var localization: LocalizationManager { LocalizationManager.shared }
 
     private var favoriteExercises: [ExerciseDefinition] {
         let store = ExerciseStore.shared
@@ -84,7 +118,12 @@ private struct WorkoutIdleView: View {
 
     var body: some View {
         ScrollView {
-            VStack(spacing: 24) {
+            VStack(spacing: 16) {
+                // 大きな筋肉マップ（画面の40-50%）
+                MuscleMapView(muscleStates: muscleStates)
+                    .frame(height: UIScreen.main.bounds.height * 0.40)
+                    .padding(.horizontal)
+
                 // 今日の提案
                 if let menu = suggestedMenu, !menu.exercises.isEmpty {
                     SuggestedMenuCard(menu: menu, onSelectExercise: onSelectExercise)
@@ -102,7 +141,7 @@ private struct WorkoutIdleView: View {
                 Button(action: onStart) {
                     HStack {
                         Image(systemName: "figure.strengthtraining.traditional")
-                        Text("自由にトレーニング開始")
+                        Text(L10n.startFreeWorkout)
                     }
                     .font(.headline)
                     .foregroundStyle(.white)
@@ -123,13 +162,14 @@ private struct WorkoutIdleView: View {
 private struct FavoriteExercisesSection: View {
     let exercises: [ExerciseDefinition]
     let onSelect: (ExerciseDefinition) -> Void
+    private var localization: LocalizationManager { LocalizationManager.shared }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Image(systemName: "star.fill")
                     .foregroundStyle(Color.yellow)
-                Text("お気に入り種目")
+                Text(L10n.favoriteExercises)
                     .font(.headline)
                     .foregroundStyle(Color.mmTextPrimary)
             }
@@ -142,7 +182,7 @@ private struct FavoriteExercisesSection: View {
                             onSelect(exercise)
                         } label: {
                             VStack(alignment: .leading, spacing: 6) {
-                                Text(exercise.nameJA)
+                                Text(localization.currentLanguage == .japanese ? exercise.nameJA : exercise.nameEN)
                                     .font(.subheadline.bold())
                                     .foregroundStyle(Color.mmTextPrimary)
                                     .lineLimit(1)
@@ -155,7 +195,7 @@ private struct FavoriteExercisesSection: View {
                                 .foregroundStyle(Color.mmTextSecondary)
 
                                 if let primary = exercise.primaryMuscle {
-                                    Text(primary.japaneseName)
+                                    Text(localization.currentLanguage == .japanese ? primary.japaneseName : primary.englishName)
                                         .font(.caption2)
                                         .padding(.horizontal, 6)
                                         .padding(.vertical, 2)
@@ -182,6 +222,7 @@ private struct FavoriteExercisesSection: View {
 private struct SuggestedMenuCard: View {
     let menu: SuggestedMenu
     let onSelectExercise: (ExerciseDefinition) -> Void
+    private var localization: LocalizationManager { LocalizationManager.shared }
 
     /// 推奨筋肉群のマッピングを生成
     private var groupMuscleMapping: [String: Int] {
@@ -215,12 +256,12 @@ private struct SuggestedMenuCard: View {
                     HStack {
                         Image(systemName: "sparkles")
                             .foregroundStyle(Color.mmAccentPrimary)
-                        Text("今日のおすすめ")
+                        Text(L10n.todayRecommendation)
                             .font(.headline)
                             .foregroundStyle(Color.mmTextPrimary)
                     }
 
-                    Text(menu.primaryGroup.japaneseName)
+                    Text(localization.currentLanguage == .japanese ? menu.primaryGroup.japaneseName : menu.primaryGroup.englishName)
                         .font(.title3.bold())
                         .foregroundStyle(Color.mmAccentPrimary)
 
@@ -241,10 +282,10 @@ private struct SuggestedMenuCard: View {
                 } label: {
                     HStack {
                         VStack(alignment: .leading, spacing: 2) {
-                            Text(exercise.definition.nameJA)
+                            Text(localization.currentLanguage == .japanese ? exercise.definition.nameJA : exercise.definition.nameEN)
                                 .font(.subheadline)
                                 .foregroundStyle(Color.mmTextPrimary)
-                            Text("\(exercise.suggestedSets)セット × \(exercise.suggestedReps)レップ")
+                            Text(L10n.setsReps(exercise.suggestedSets, exercise.suggestedReps))
                                 .font(.caption)
                                 .foregroundStyle(Color.mmTextSecondary)
                         }
@@ -252,7 +293,7 @@ private struct SuggestedMenuCard: View {
                         Spacer()
 
                         if exercise.isNeglectedFix {
-                            Text("未刺激")
+                            Text(L10n.neglected)
                                 .font(.caption2)
                                 .padding(.horizontal, 6)
                                 .padding(.vertical, 2)
@@ -298,7 +339,7 @@ private struct ActiveWorkoutView: View {
                     } label: {
                         HStack {
                             Image(systemName: "plus.circle.fill")
-                            Text("種目を追加")
+                            Text(L10n.addExercise)
                         }
                         .font(.subheadline.bold())
                         .foregroundStyle(Color.mmAccentPrimary)
@@ -326,22 +367,22 @@ private struct ActiveWorkoutView: View {
             Button {
                 showingEndConfirm = true
             } label: {
-                Text("ワークアウト終了")
+                Text(L10n.endWorkout)
                     .font(.headline)
                     .foregroundStyle(Color.mmBgPrimary)
                     .frame(maxWidth: .infinity)
                     .frame(height: 60)
                     .background(Color.mmAccentPrimary)
             }
-            .confirmationDialog("ワークアウトを終了しますか？", isPresented: $showingEndConfirm, titleVisibility: .visible) {
-                Button("記録を保存して終了") {
+            .confirmationDialog(L10n.endWorkoutConfirm, isPresented: $showingEndConfirm, titleVisibility: .visible) {
+                Button(L10n.saveAndEnd) {
                     viewModel.endSession()
                     HapticManager.workoutEnded()
                 }
-                Button("記録を破棄して終了", role: .destructive) {
+                Button(L10n.discardAndEnd, role: .destructive) {
                     viewModel.discardSession()
                 }
-                Button("キャンセル", role: .cancel) {}
+                Button(L10n.cancel, role: .cancel) {}
             }
         }
     }
@@ -353,33 +394,34 @@ private struct SetInputCard: View {
     @Bindable var viewModel: WorkoutViewModel
     let exercise: ExerciseDefinition
     @State private var useAdditionalWeight = false
+    private var localization: LocalizationManager { LocalizationManager.shared }
 
     private var isBodyweight: Bool {
-        exercise.equipment == "自重"
+        exercise.equipment == "自重" || exercise.equipment == "Bodyweight"
     }
 
     var body: some View {
         VStack(spacing: 16) {
             // 種目名
-            Text(exercise.nameJA)
+            Text(localization.currentLanguage == .japanese ? exercise.nameJA : exercise.nameEN)
                 .font(.headline)
                 .foregroundStyle(Color.mmTextPrimary)
 
             // 前回記録
             if let lastW = viewModel.lastWeight, let lastR = viewModel.lastReps {
                 if isBodyweight && lastW == 0 {
-                    Text("前回: \(lastR)回")
+                    Text(L10n.previousRepsOnly(lastR))
                         .font(.caption)
                         .foregroundStyle(Color.mmTextSecondary)
                 } else {
-                    Text("前回: \(lastW, specifier: "%.1f")kg × \(lastR)回")
+                    Text(L10n.previousRecord(lastW, lastR))
                         .font(.caption)
                         .foregroundStyle(Color.mmTextSecondary)
                 }
             }
 
             // セット番号
-            Text("セット \(viewModel.currentSetNumber)")
+            Text(L10n.setNumber(viewModel.currentSetNumber))
                 .font(.subheadline.bold())
                 .foregroundStyle(Color.mmAccentSecondary)
 
@@ -393,7 +435,7 @@ private struct SetInputCard: View {
                     HStack(spacing: 4) {
                         Image(systemName: "arrow.up.circle.fill")
                             .font(.caption)
-                        Text("前回\(lastW, specifier: "%.1f")kg → \(suggested, specifier: "%.1f")kgに挑戦？")
+                        Text(L10n.tryHeavier(lastW, suggested))
                             .font(.caption)
                     }
                     .padding(.horizontal, 12)
@@ -408,7 +450,7 @@ private struct SetInputCard: View {
             if isBodyweight {
                 // 自重ラベル
                 if !useAdditionalWeight {
-                    Text("自重")
+                    Text(L10n.bodyweight)
                         .font(.title3.bold())
                         .foregroundStyle(Color.mmTextSecondary)
                         .padding(.vertical, 8)
@@ -418,7 +460,7 @@ private struct SetInputCard: View {
                 Toggle(isOn: $useAdditionalWeight) {
                     HStack(spacing: 4) {
                         Image(systemName: "scalemass")
-                        Text("加重する")
+                        Text(L10n.addWeight)
                     }
                     .font(.caption)
                     .foregroundStyle(Color.mmTextSecondary)
@@ -443,7 +485,7 @@ private struct SetInputCard: View {
                         Text("\(viewModel.currentWeight, specifier: "%.1f")")
                             .font(.system(size: 36, weight: .bold, design: .monospaced))
                             .foregroundStyle(Color.mmTextPrimary)
-                        Text(isBodyweight ? "kg (加重)" : "kg")
+                        Text(isBodyweight ? L10n.kgAdditional : L10n.kg)
                             .font(.caption)
                             .foregroundStyle(Color.mmTextSecondary)
                     }
@@ -465,7 +507,7 @@ private struct SetInputCard: View {
                     Text("\(viewModel.currentReps)")
                         .font(.system(size: 36, weight: .bold, design: .monospaced))
                         .foregroundStyle(Color.mmTextPrimary)
-                    Text("回")
+                    Text(L10n.reps)
                         .font(.caption)
                         .foregroundStyle(Color.mmTextSecondary)
                 }
@@ -481,7 +523,7 @@ private struct SetInputCard: View {
                 viewModel.recordSet()
                 HapticManager.setRecorded()
             } label: {
-                Text("セットを記録")
+                Text(L10n.recordSet)
                     .font(.headline)
                     .foregroundStyle(Color.mmBgPrimary)
                     .frame(maxWidth: .infinity)
@@ -523,20 +565,21 @@ private struct StepperButton: View {
 private struct RecordedSetsView: View {
     let exerciseSets: [(exercise: ExerciseDefinition, sets: [WorkoutSet])]
     let onDeleteSet: (WorkoutSet) -> Void
+    private var localization: LocalizationManager { LocalizationManager.shared }
 
     @State private var setToDelete: WorkoutSet?
     @State private var showingDeleteConfirm = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("記録済み")
+            Text(L10n.recorded)
                 .font(.subheadline.bold())
                 .foregroundStyle(Color.mmTextSecondary)
                 .padding(.horizontal)
 
             ForEach(exerciseSets, id: \.exercise.id) { entry in
                 VStack(alignment: .leading, spacing: 0) {
-                    Text(entry.exercise.nameJA)
+                    Text(localization.currentLanguage == .japanese ? entry.exercise.nameJA : entry.exercise.nameEN)
                         .font(.subheadline.bold())
                         .foregroundStyle(Color.mmTextPrimary)
                         .padding(.horizontal)
@@ -546,16 +589,16 @@ private struct RecordedSetsView: View {
                     List {
                         ForEach(entry.sets, id: \.id) { set in
                             HStack {
-                                Text("セット\(set.setNumber)")
+                                Text(L10n.setNumber(set.setNumber))
                                     .font(.caption)
                                     .foregroundStyle(Color.mmTextSecondary)
                                 Spacer()
-                                if entry.exercise.equipment == "自重" && set.weight == 0 {
-                                    Text("\(set.reps)回")
+                                if (entry.exercise.equipment == "自重" || entry.exercise.equipment == "Bodyweight") && set.weight == 0 {
+                                    Text(L10n.repsOnly(set.reps))
                                         .font(.caption.monospaced())
                                         .foregroundStyle(Color.mmTextPrimary)
                                 } else {
-                                    Text("\(set.weight, specifier: "%.1f")kg × \(set.reps)回")
+                                    Text(L10n.weightReps(set.weight, set.reps))
                                         .font(.caption.monospaced())
                                         .foregroundStyle(Color.mmTextPrimary)
                                 }
@@ -566,7 +609,7 @@ private struct RecordedSetsView: View {
                                     setToDelete = set
                                     showingDeleteConfirm = true
                                 } label: {
-                                    Label("削除", systemImage: "trash")
+                                    Label(L10n.delete, systemImage: "trash")
                                 }
                             }
                         }
@@ -581,17 +624,17 @@ private struct RecordedSetsView: View {
             }
         }
         .confirmationDialog(
-            "このセットを削除しますか？",
+            L10n.deleteSetConfirm,
             isPresented: $showingDeleteConfirm,
             titleVisibility: .visible
         ) {
-            Button("削除する", role: .destructive) {
+            Button(L10n.delete, role: .destructive) {
                 if let set = setToDelete {
                     onDeleteSet(set)
                     setToDelete = nil
                 }
             }
-            Button("キャンセル", role: .cancel) {
+            Button(L10n.cancel, role: .cancel) {
                 setToDelete = nil
             }
         }

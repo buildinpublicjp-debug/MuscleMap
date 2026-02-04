@@ -33,35 +33,65 @@ enum Muscle: String, CaseIterable, Codable, Identifiable {
 
     var id: String { rawValue }
 
-    // ローカライズ名
-    var localizedName: String {
+    // 日本語名
+    var japaneseName: String {
         switch self {
-        case .chestUpper: return String(localized: "大胸筋上部")
-        case .chestLower: return String(localized: "大胸筋下部")
-        case .lats: return String(localized: "広背筋")
-        case .trapsUpper: return String(localized: "僧帽筋上部")
-        case .trapsMiddleLower: return String(localized: "僧帽筋中部・下部")
-        case .erectorSpinae: return String(localized: "脊柱起立筋")
-        case .deltoidAnterior: return String(localized: "三角筋前部")
-        case .deltoidLateral: return String(localized: "三角筋中部")
-        case .deltoidPosterior: return String(localized: "三角筋後部")
-        case .biceps: return String(localized: "上腕二頭筋")
-        case .triceps: return String(localized: "上腕三頭筋")
-        case .forearms: return String(localized: "前腕筋群")
-        case .rectusAbdominis: return String(localized: "腹直筋")
-        case .obliques: return String(localized: "腹斜筋")
-        case .glutes: return String(localized: "臀筋群")
-        case .quadriceps: return String(localized: "大腿四頭筋")
-        case .hamstrings: return String(localized: "ハムストリングス")
-        case .adductors: return String(localized: "内転筋群")
-        case .hipFlexors: return String(localized: "腸腰筋")
-        case .gastrocnemius: return String(localized: "腓腹筋")
-        case .soleus: return String(localized: "ヒラメ筋")
+        case .chestUpper: return "大胸筋上部"
+        case .chestLower: return "大胸筋下部"
+        case .lats: return "広背筋"
+        case .trapsUpper: return "僧帽筋上部"
+        case .trapsMiddleLower: return "僧帽筋中部・下部"
+        case .erectorSpinae: return "脊柱起立筋"
+        case .deltoidAnterior: return "三角筋前部"
+        case .deltoidLateral: return "三角筋中部"
+        case .deltoidPosterior: return "三角筋後部"
+        case .biceps: return "上腕二頭筋"
+        case .triceps: return "上腕三頭筋"
+        case .forearms: return "前腕筋群"
+        case .rectusAbdominis: return "腹直筋"
+        case .obliques: return "腹斜筋"
+        case .glutes: return "臀筋群"
+        case .quadriceps: return "大腿四頭筋"
+        case .hamstrings: return "ハムストリングス"
+        case .adductors: return "内転筋群"
+        case .hipFlexors: return "腸腰筋"
+        case .gastrocnemius: return "腓腹筋"
+        case .soleus: return "ヒラメ筋"
         }
     }
 
-    /// 後方互換エイリアス
-    var japaneseName: String { localizedName }
+    // 英語名
+    var englishName: String {
+        switch self {
+        case .chestUpper: return "Upper Chest"
+        case .chestLower: return "Lower Chest"
+        case .lats: return "Latissimus Dorsi"
+        case .trapsUpper: return "Upper Traps"
+        case .trapsMiddleLower: return "Mid/Lower Traps"
+        case .erectorSpinae: return "Erector Spinae"
+        case .deltoidAnterior: return "Front Delts"
+        case .deltoidLateral: return "Side Delts"
+        case .deltoidPosterior: return "Rear Delts"
+        case .biceps: return "Biceps"
+        case .triceps: return "Triceps"
+        case .forearms: return "Forearms"
+        case .rectusAbdominis: return "Rectus Abdominis"
+        case .obliques: return "Obliques"
+        case .glutes: return "Glutes"
+        case .quadriceps: return "Quadriceps"
+        case .hamstrings: return "Hamstrings"
+        case .adductors: return "Adductors"
+        case .hipFlexors: return "Hip Flexors"
+        case .gastrocnemius: return "Gastrocnemius"
+        case .soleus: return "Soleus"
+        }
+    }
+
+    /// ローカライズ名（現在の言語設定に応じて返す）
+    @MainActor
+    var localizedName: String {
+        LocalizationManager.shared.currentLanguage == .japanese ? japaneseName : englishName
+    }
 
     // 所属グループ
     var group: MuscleGroup {
@@ -114,19 +144,35 @@ enum MuscleGroup: String, CaseIterable, Codable, Identifiable {
 
     var id: String { rawValue }
 
-    var localizedName: String {
+    // 日本語名
+    var japaneseName: String {
         switch self {
-        case .chest: return String(localized: "胸")
-        case .back: return String(localized: "背中")
-        case .shoulders: return String(localized: "肩")
-        case .arms: return String(localized: "腕")
-        case .core: return String(localized: "体幹")
-        case .lowerBody: return String(localized: "下半身")
+        case .chest: return "胸"
+        case .back: return "背中"
+        case .shoulders: return "肩"
+        case .arms: return "腕"
+        case .core: return "体幹"
+        case .lowerBody: return "下半身"
         }
     }
 
-    /// 後方互換エイリアス
-    var japaneseName: String { localizedName }
+    // 英語名
+    var englishName: String {
+        switch self {
+        case .chest: return "Chest"
+        case .back: return "Back"
+        case .shoulders: return "Shoulders"
+        case .arms: return "Arms"
+        case .core: return "Core"
+        case .lowerBody: return "Lower Body"
+        }
+    }
+
+    /// ローカライズ名（現在の言語設定に応じて返す）
+    @MainActor
+    var localizedName: String {
+        LocalizationManager.shared.currentLanguage == .japanese ? japaneseName : englishName
+    }
 
     /// このグループに属する筋肉一覧
     var muscles: [Muscle] {

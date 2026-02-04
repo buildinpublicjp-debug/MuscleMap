@@ -1,0 +1,432 @@
+import Foundation
+import SwiftUI
+
+// MARK: - 言語設定
+
+enum AppLanguage: String, CaseIterable, Codable {
+    case japanese = "ja"
+    case english = "en"
+
+    var displayName: String {
+        switch self {
+        case .japanese: return "日本語"
+        case .english: return "English"
+        }
+    }
+
+    var locale: Locale {
+        Locale(identifier: rawValue)
+    }
+}
+
+// MARK: - LocalizationManager
+
+@MainActor
+@Observable
+class LocalizationManager {
+    static let shared = LocalizationManager()
+
+    private let languageKey = "appLanguage"
+
+    var currentLanguage: AppLanguage {
+        didSet {
+            UserDefaults.standard.set(currentLanguage.rawValue, forKey: languageKey)
+            NotificationCenter.default.post(name: .languageDidChange, object: nil)
+        }
+    }
+
+    private init() {
+        if let savedLanguage = UserDefaults.standard.string(forKey: languageKey),
+           let language = AppLanguage(rawValue: savedLanguage) {
+            self.currentLanguage = language
+        } else {
+            let preferredLanguage = Locale.preferredLanguages.first ?? "en"
+            self.currentLanguage = preferredLanguage.hasPrefix("ja") ? .japanese : .english
+        }
+    }
+
+    /// ヘルパー: 言語に応じた文字列を返す
+    static func localized(_ ja: String, en: String) -> String {
+        shared.currentLanguage == .japanese ? ja : en
+    }
+}
+
+// MARK: - Notification
+
+extension Notification.Name {
+    static let languageDidChange = Notification.Name("languageDidChange")
+}
+
+// MARK: - YouTube検索言語設定
+
+enum YouTubeSearchLanguage: String, CaseIterable, Codable {
+    case japanese = "ja"
+    case english = "en"
+    case auto = "auto"
+
+    @MainActor
+    var displayName: String {
+        switch self {
+        case .japanese: return L10n.searchInJapanese
+        case .english: return L10n.searchInEnglish
+        case .auto: return L10n.followAppLanguage
+        }
+    }
+
+    /// 実際の検索言語を解決する
+    @MainActor
+    func resolvedLanguage() -> String {
+        switch self {
+        case .japanese: return "ja"
+        case .english: return "en"
+        case .auto:
+            return LocalizationManager.shared.currentLanguage.rawValue
+        }
+    }
+}
+
+// MARK: - YouTube URL生成
+
+@MainActor
+struct YouTubeSearchHelper {
+    static var searchLanguage: YouTubeSearchLanguage {
+        let raw = UserDefaults.standard.string(forKey: "youtubeSearchLanguage") ?? "auto"
+        return YouTubeSearchLanguage(rawValue: raw) ?? .auto
+    }
+
+    static func searchURL(for exercise: ExerciseDefinition) -> URL? {
+        let language = searchLanguage.resolvedLanguage()
+        let query: String
+
+        if language == "ja" {
+            query = "\(exercise.nameJA) フォーム"
+        } else {
+            query = "\(exercise.nameEN) form"
+        }
+
+        guard let encoded = query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else {
+            return nil
+        }
+        return URL(string: "https://www.youtube.com/results?search_query=\(encoded)")
+    }
+}
+
+// MARK: - Localized Strings
+
+/// アプリ全体で使用するローカライズ文字列
+@MainActor
+enum L10n {
+    // ヘルパー関数
+    private static func loc(_ ja: String, _ en: String) -> String {
+        LocalizationManager.localized(ja, en: en)
+    }
+
+    // MARK: - 共通
+    static var cancel: String { loc("キャンセル", "Cancel") }
+    static var ok: String { loc("OK", "OK") }
+    static var close: String { loc("閉じる", "Close") }
+    static var delete: String { loc("削除", "Delete") }
+    static var save: String { loc("保存", "Save") }
+    static var next: String { loc("次へ", "Next") }
+    static var start: String { loc("始める", "Start") }
+    static var skip: String { loc("スキップ", "Skip") }
+    static var done: String { loc("完了", "Done") }
+    static var edit: String { loc("編集", "Edit") }
+    static var add: String { loc("追加", "Add") }
+    static var confirm: String { loc("確認", "Confirm") }
+    static var error: String { loc("エラー", "Error") }
+    static var noData: String { loc("データなし", "No data") }
+
+    // MARK: - タブ
+    static var home: String { loc("ホーム", "Home") }
+    static var workout: String { loc("ワークアウト", "Workout") }
+    static var exerciseLibrary: String { loc("種目辞典", "Exercise Library") }
+    static var history: String { loc("履歴", "History") }
+    static var settings: String { loc("設定", "Settings") }
+
+    // MARK: - ホーム画面
+    static func dayStreak(_ days: Int) -> String {
+        loc("\(days)日連続", "\(days) day streak")
+    }
+    static var neglectedMuscles: String { loc("未刺激の部位", "Neglected Muscles") }
+
+    // 凡例
+    static var highLoad: String { loc("高負荷", "High Load") }
+    static var earlyRecovery: String { loc("回復初期", "Early Recovery") }
+    static var midRecovery: String { loc("回復中", "Recovering") }
+    static var lateRecovery: String { loc("回復後期", "Late Recovery") }
+    static var almostRecovered: String { loc("ほぼ回復", "Almost Recovered") }
+    static var notStimulated: String { loc("未刺激", "Not Stimulated") }
+
+    // 筋肉マップ
+    static var front: String { loc("前面", "Front") }
+    static var back: String { loc("背面", "Back") }
+    static var viewBack: String { loc("背面を見る", "View Back") }
+    static var viewFront: String { loc("前面を見る", "View Front") }
+
+    // MARK: - ワークアウト画面
+    static var todayRecommendation: String { loc("今日のおすすめ", "Today's Recommendation") }
+    static var favorites: String { loc("お気に入り", "Favorites") }
+    static var favoriteExercises: String { loc("お気に入り種目", "Favorite Exercises") }
+    static var startFreeWorkout: String { loc("自由にトレーニング開始", "Start Free Workout") }
+    static var addExercise: String { loc("種目を追加", "Add Exercise") }
+    static var endWorkout: String { loc("ワークアウト終了", "End Workout") }
+    static var recordSet: String { loc("セットを記録", "Record Set") }
+    static var recorded: String { loc("記録済み", "Recorded") }
+    static var neglected: String { loc("未刺激", "Neglected") }
+
+    static func setNumber(_ n: Int) -> String {
+        loc("セット \(n)", "Set \(n)")
+    }
+    static func setsReps(_ sets: Int, _ reps: Int) -> String {
+        loc("\(sets)セット × \(reps)レップ", "\(sets) sets × \(reps) reps")
+    }
+    static func previousRecord(_ weight: Double, _ reps: Int) -> String {
+        loc("前回: \(String(format: "%.1f", weight))kg × \(reps)回",
+            "Previous: \(String(format: "%.1f", weight))kg × \(reps) reps")
+    }
+    static func previousRepsOnly(_ reps: Int) -> String {
+        loc("前回: \(reps)回", "Previous: \(reps) reps")
+    }
+    static func weightReps(_ weight: Double, _ reps: Int) -> String {
+        loc("\(String(format: "%.1f", weight))kg × \(reps)回",
+            "\(String(format: "%.1f", weight))kg × \(reps) reps")
+    }
+    static func repsOnly(_ reps: Int) -> String {
+        loc("\(reps)回", "\(reps) reps")
+    }
+
+    // 自重・加重
+    static var bodyweight: String { loc("自重", "Bodyweight") }
+    static var addWeight: String { loc("加重する", "Add Weight") }
+    static var kgAdditional: String { loc("kg (加重)", "kg (added)") }
+    static var kg: String { loc("kg", "kg") }
+    static var reps: String { loc("回", "reps") }
+
+    static func tryHeavier(_ current: Double, _ suggested: Double) -> String {
+        loc("前回\(String(format: "%.1f", current))kg → \(String(format: "%.1f", suggested))kgに挑戦？",
+            "Try \(String(format: "%.1f", suggested))kg? (was \(String(format: "%.1f", current))kg)")
+    }
+
+    // 確認ダイアログ
+    static var endWorkoutConfirm: String { loc("ワークアウトを終了しますか？", "End workout?") }
+    static var saveAndEnd: String { loc("記録を保存して終了", "Save and End") }
+    static var discardAndEnd: String { loc("記録を破棄して終了", "Discard and End") }
+    static var deleteSetConfirm: String { loc("このセットを削除しますか？", "Delete this set?") }
+
+    // MARK: - 種目選択・種目辞典
+    static var selectExercise: String { loc("種目を選択", "Select Exercise") }
+    static var all: String { loc("すべて", "All") }
+    static var searchExercises: String { loc("種目を検索", "Search exercises") }
+    static var noFavorites: String { loc("お気に入りがありません", "No favorites") }
+    static var addFavoritesHint: String {
+        loc("種目詳細画面の☆ボタンで\nお気に入りに追加できます",
+            "Tap the ☆ button in exercise detail\nto add favorites")
+    }
+    static func exerciseCountLabel(_ count: Int) -> String {
+        loc("\(count)種目", "\(count) exercises")
+    }
+
+    // 種目リスト バッジ
+    static var recommended: String { loc("おすすめ", "Recommended") }
+    static var recovering: String { loc("回復中", "Recovering") }
+    static var partiallyRecovering: String { loc("一部回復中", "Partially Recovering") }
+    static var restSuggested: String { loc("休息推奨", "Rest Suggested") }
+
+    // MARK: - 種目詳細
+    static var description: String { loc("説明", "Description") }
+    static var formTips: String { loc("フォームのポイント", "Form Tips") }
+    static var watchVideo: String { loc("動画で見る", "Watch Video") }
+    static var targetMuscles: String { loc("対象筋肉", "Target Muscles") }
+    static var stimulationLevel: String { loc("刺激度", "Stimulation Level") }
+
+    // MARK: - 履歴・統計画面
+    static var weekly: String { loc("週間", "Weekly") }
+    static var monthly: String { loc("月間", "Monthly") }
+    static var thisWeekSummary: String { loc("今週のサマリー", "This Week's Summary") }
+    static var thisMonthSummary: String { loc("今月のサマリー", "This Month's Summary") }
+    static var sessions: String { loc("セッション", "Sessions") }
+    static var totalSets: String { loc("セット数", "Total Sets") }
+    static var totalVolume: String { loc("総ボリューム", "Total Volume") }
+    static var trainingDays: String { loc("トレ日数", "Training Days") }
+    static var groupCoverage: String { loc("部位カバー率", "Group Coverage") }
+    static var dailyVolume14Days: String { loc("日別ボリューム（14日間）", "Daily Volume (14 days)") }
+    static var groupSetsThisWeek: String { loc("部位別セット数（今週）", "Sets by Group (This Week)") }
+    static var topExercises: String { loc("よく行う種目 Top5", "Top 5 Exercises") }
+    static var sessionHistory: String { loc("セッション履歴", "Session History") }
+    static var noSessionsYet: String { loc("まだセッションがありません", "No sessions yet") }
+    static var inProgress: String { loc("進行中", "In Progress") }
+    static func minutes(_ min: Int) -> String { loc("\(min)分", "\(min) min") }
+    static var andMore: String { loc("他", "more") }
+    static func setsLabel(_ count: Int) -> String { loc("\(count)セット", "\(count) sets") }
+
+    // MARK: - 部位詳細画面
+    static var highLoadRestNeeded: String { loc("高負荷 — 休息が必要", "High Load — Rest Needed") }
+    static var fullyRecoveredTrainable: String { loc("完全回復 — トレーニング可能", "Fully Recovered — Ready to Train") }
+    static var neglected7Days: String { loc("未刺激 — 7日以上", "Not Stimulated — 7+ days") }
+    static var neglected14Days: String { loc("未刺激 — 14日以上", "Not Stimulated — 14+ days") }
+    static func remainingTime(_ hours: Int, _ mins: Int) -> String {
+        if hours >= 24 {
+            let days = hours / 24
+            let h = hours % 24
+            return loc("残り\(days)日\(h)時間", "\(days)d \(h)h remaining")
+        }
+        return loc("残り\(hours)時間", "\(hours)h remaining")
+    }
+    static var recoveryComplete: String { loc("回復完了", "Fully Recovered") }
+    static var lastStimulation: String { loc("最終刺激", "Last Stimulation") }
+    static var setCount: String { loc("セット数", "Set Count") }
+    static var estimatedRecovery: String { loc("回復予定", "Est. Recovery") }
+    static var basicInfo: String { loc("基本情報", "Basic Info") }
+    static var muscleGroup: String { loc("グループ", "Group") }
+    static var baseRecovery: String { loc("基準回復", "Base Recovery") }
+    static var size: String { loc("サイズ", "Size") }
+    static var largeMuscle: String { loc("大筋群", "Large") }
+    static var mediumMuscle: String { loc("中筋群", "Medium") }
+    static var smallMuscle: String { loc("小筋群", "Small") }
+    static var relatedExercises: String { loc("関連種目（刺激度%順）", "Related Exercises (by %)") }
+    static var recentRecords: String { loc("直近の記録", "Recent Records") }
+    static func hoursUnit(_ h: Int) -> String { loc("\(h)時間", "\(h) hours") }
+
+    // MARK: - 設定画面
+    static var premium: String { loc("プレミアム", "Premium") }
+    static var premiumUnlocked: String { loc("全機能がアンロックされています", "All features unlocked") }
+    static var upgradeToPremium: String { loc("Premiumにアップグレード", "Upgrade to Premium") }
+    static var unlockAllFeatures: String { loc("全機能をアンロック", "Unlock all features") }
+    static var restorePurchases: String { loc("購入を復元", "Restore Purchases") }
+    static var restoreResult: String { loc("復元結果", "Restore Result") }
+    static var purchaseRestored: String { loc("購入が復元されました。", "Purchase restored.") }
+    static var noPurchaseFound: String { loc("復元できる購入が見つかりませんでした。", "No purchase found to restore.") }
+    static var appSettings: String { loc("アプリ設定", "App Settings") }
+    static var hapticFeedback: String { loc("触覚フィードバック", "Haptic Feedback") }
+    static var language: String { loc("言語", "Language") }
+    static var data: String { loc("データ", "Data") }
+    static var obsidianSync: String { loc("Obsidian連携", "Obsidian Sync") }
+    static var connected: String { loc("接続済み", "Connected") }
+    static var csvImport: String { loc("CSVインポート", "CSV Import") }
+    static var imageImport: String { loc("画像から取り込み", "Import from Image") }
+    static var dataExport: String { loc("データエクスポート", "Data Export") }
+    static var comingSoon: String { loc("準備中", "Coming Soon") }
+    static var registeredExercises: String { loc("登録種目数", "Registered Exercises") }
+    static var trackedMuscles: String { loc("追跡筋肉数", "Tracked Muscles") }
+    static func exerciseCount(_ count: Int) -> String {
+        loc("\(count)種目", "\(count) exercises")
+    }
+    static func muscleCount(_ count: Int) -> String {
+        loc("\(count)部位", "\(count) muscles")
+    }
+    static var appInfo: String { loc("アプリ情報", "App Info") }
+    static var version: String { loc("バージョン", "Version") }
+    static var tagline: String {
+        loc("MuscleMap — 筋肉の状態が見える。だから、迷わない。",
+            "MuscleMap — See your muscles. Train smarter.")
+    }
+    static var privacyPolicy: String { loc("プライバシーポリシー", "Privacy Policy") }
+    static var termsOfService: String { loc("利用規約", "Terms of Service") }
+
+    // MARK: - オンボーディング
+    static var onboardingTitle1: String { loc("筋肉の状態が見える", "See Your Muscle Status") }
+    static var onboardingSubtitle1: String {
+        loc("21の筋肉の回復状態を\nリアルタイムで可視化",
+            "Visualize recovery status of\n21 muscles in real-time")
+    }
+    static var onboardingDetail1: String {
+        loc("トレーニング後の筋肉は色で回復度を表示。\n赤→緑へのグラデーションで一目瞭然。",
+            "Post-workout muscles show recovery with colors.\nRed to green gradient at a glance.")
+    }
+    static var onboardingTitle2: String { loc("迷わないメニュー提案", "Smart Menu Suggestions") }
+    static var onboardingSubtitle2: String {
+        loc("回復データから\n今日のベストメニューを自動提案",
+            "Auto-suggest today's best menu\nfrom recovery data")
+    }
+    static var onboardingDetail2: String {
+        loc("ジムで開いた瞬間にスタートできる。\n未刺激の部位も見逃しません。",
+            "Start the moment you open at the gym.\nNever miss neglected muscles.")
+    }
+    static var onboardingTitle3: String { loc("成長を記録・分析", "Track & Analyze Growth") }
+    static var onboardingSubtitle3: String {
+        loc("80種目のEMGベース刺激マッピングで\n科学的なトレーニング管理",
+            "Scientific training with\nEMG-based mapping for 80 exercises")
+    }
+    static var onboardingDetail3: String {
+        loc("セット数・ボリューム・部位カバー率を\nチャートで確認。",
+            "View sets, volume, and coverage\nin charts.")
+    }
+    static var trainingGoalQuestion: String { loc("トレーニングの目標は？", "What's your training goal?") }
+    static var goalSuggestionHint: String { loc("あなたに合ったメニューを提案します", "We'll suggest menus tailored for you") }
+    static var aboutYouQuestion: String { loc("あなたについて教えてください", "Tell us about yourself") }
+    static var nicknameOptional: String { loc("ニックネーム（任意）", "Nickname (optional)") }
+    static var nickname: String { loc("ニックネーム", "Nickname") }
+    static var trainingExperience: String { loc("トレーニング経験", "Training Experience") }
+
+    // MARK: - ペイウォール
+    static var muscleMaplPremium: String { loc("MuscleMap Premium", "MuscleMap Premium") }
+    static var unlockAndOptimize: String {
+        loc("全機能をアンロックして\nトレーニングを最適化",
+            "Unlock all features\nand optimize your training")
+    }
+    static var features: String { loc("機能", "Features") }
+    static var free: String { loc("Free", "Free") }
+    static var premiumLabel: String { loc("Premium", "Premium") }
+    static var monthlyPlan: String { loc("月額", "Monthly") }
+    static var annualPlan: String { loc("年額", "Annual") }
+    static var lifetimePlan: String { loc("買い切り", "Lifetime") }
+    static var recommendedBadge: String { loc("おすすめ", "Recommended") }
+    static var perMonthPrice: String { loc("月あたり ¥650", "¥650/month") }
+    static var startMonthlyPlan: String { loc("月額プランで始める", "Start Monthly Plan") }
+    static var startAnnualPlan: String { loc("年額プランで始める（おすすめ）", "Start Annual Plan (Recommended)") }
+    static var purchaseLifetime: String { loc("買い切りプランで購入", "Purchase Lifetime") }
+    static var purchaseError: String { loc("購入エラー", "Purchase Error") }
+    static var purchaseErrorMessage: String {
+        loc("購入を完了できませんでした。しばらく後にお試しください。",
+            "Could not complete purchase. Please try again later.")
+    }
+    static var monthlyTrialNote: String {
+        loc("7日間の無料トライアル後、¥980/月で自動更新",
+            "7-day free trial, then ¥980/month auto-renews")
+    }
+    static var annualTrialNote: String {
+        loc("14日間の無料トライアル後、¥7,800/年で自動更新",
+            "14-day free trial, then ¥7,800/year auto-renews")
+    }
+
+    // ペイウォール機能名
+    static var featureMuscleMap2D: String { loc("筋肉マップ（2D）", "Muscle Map (2D)") }
+    static var featureWorkoutRecord: String { loc("ワークアウト記録", "Workout Recording") }
+    static var featureRecoveryTracking: String { loc("回復トラッキング", "Recovery Tracking") }
+    static var featureMenuSuggestion: String { loc("メニュー提案", "Menu Suggestions") }
+    static var featureDetailedStats: String { loc("詳細統計", "Detailed Statistics") }
+    static var feature3DView: String { loc("3D筋肉ビュー", "3D Muscle View") }
+    static var featureMenuSuggestionPlus: String { loc("メニュー提案+", "Menu Suggestions+") }
+    static var featureDataExport: String { loc("データエクスポート", "Data Export") }
+
+    // MARK: - 部位名（カテゴリ）
+    static var categoryChest: String { loc("胸", "Chest") }
+    static var categoryBack: String { loc("背中", "Back") }
+    static var categoryShoulders: String { loc("肩", "Shoulders") }
+    static var categoryArmsBiceps: String { loc("腕（二頭）", "Arms (Biceps)") }
+    static var categoryArmsTriceps: String { loc("腕（三頭）", "Arms (Triceps)") }
+    static var categoryLegs: String { loc("脚", "Legs") }
+    static var categoryCore: String { loc("腹", "Core") }
+    static var categoryArms: String { loc("腕", "Arms") }
+    static var categoryLowerBody: String { loc("下半身", "Lower Body") }
+
+    // MARK: - 器具名
+    static var equipmentBarbell: String { loc("バーベル", "Barbell") }
+    static var equipmentDumbbell: String { loc("ダンベル", "Dumbbell") }
+    static var equipmentCable: String { loc("ケーブル", "Cable") }
+    static var equipmentMachine: String { loc("マシン", "Machine") }
+    static var equipmentBodyweight: String { loc("自重", "Bodyweight") }
+
+    // MARK: - 難易度
+    static var difficultyBeginner: String { loc("初級", "Beginner") }
+    static var difficultyIntermediate: String { loc("中級", "Intermediate") }
+    static var difficultyAdvanced: String { loc("上級", "Advanced") }
+
+    // MARK: - YouTube検索
+    static var youtubeSearch: String { loc("YouTube検索", "YouTube Search") }
+    static var searchLanguage: String { loc("検索言語", "Search Language") }
+    static var followAppLanguage: String { loc("アプリの言語に合わせる", "Follow App Language") }
+    static var searchInJapanese: String { loc("日本語で検索", "Search in Japanese") }
+    static var searchInEnglish: String { loc("英語で検索", "Search in English") }
+}

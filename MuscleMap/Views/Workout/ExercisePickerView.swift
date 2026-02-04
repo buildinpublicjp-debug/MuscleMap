@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftData
 
 // MARK: - 種目選択ビュー（シート表示）
 
@@ -6,9 +7,11 @@ struct ExercisePickerView: View {
     let onSelect: (ExerciseDefinition) -> Void
 
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var modelContext
     @State private var viewModel = ExerciseListViewModel()
     @ObservedObject private var favorites = FavoritesManager.shared
     @State private var searchText = ""
+    @State private var muscleStates: [Muscle: MuscleStimulation] = [:]
 
     var body: some View {
         NavigationStack {
@@ -21,7 +24,7 @@ struct ExercisePickerView: View {
                         HStack(spacing: 8) {
                             // お気に入りフィルター
                             CategoryChip(
-                                title: "★ お気に入り",
+                                title: "★ \(L10n.favorites)",
                                 isSelected: viewModel.showFavoritesOnly
                             ) {
                                 viewModel.showFavoritesOnly.toggle()
@@ -31,7 +34,7 @@ struct ExercisePickerView: View {
                             }
 
                             CategoryChip(
-                                title: "すべて",
+                                title: L10n.all,
                                 isSelected: viewModel.selectedCategory == nil && !viewModel.showFavoritesOnly
                             ) {
                                 viewModel.showFavoritesOnly = false
@@ -60,7 +63,10 @@ struct ExercisePickerView: View {
                             Button {
                                 onSelect(exercise)
                             } label: {
-                                ExerciseRow(exercise: exercise)
+                                EnhancedExerciseRow(
+                                    exercise: exercise,
+                                    muscleStates: muscleStates
+                                )
                             }
                             .listRowBackground(Color.mmBgSecondary)
                         }
@@ -69,23 +75,29 @@ struct ExercisePickerView: View {
                     }
                 }
             }
-            .navigationTitle("種目を選択")
+            .navigationTitle(L10n.selectExercise)
             .navigationBarTitleDisplayMode(.inline)
             .toolbarColorScheme(.dark, for: .navigationBar)
-            .searchable(text: $searchText, prompt: "種目を検索")
+            .searchable(text: $searchText, prompt: L10n.searchExercises)
             .onChange(of: searchText) { _, newValue in
                 viewModel.searchText = newValue
             }
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("閉じる") { dismiss() }
+                    Button(L10n.close) { dismiss() }
                         .foregroundStyle(Color.mmAccentPrimary)
                 }
             }
             .onAppear {
                 viewModel.load()
+                loadMuscleStates()
             }
         }
+    }
+
+    private func loadMuscleStates() {
+        let repo = MuscleStateRepository(modelContext: modelContext)
+        muscleStates = repo.fetchLatestStimulations()
     }
 }
 
@@ -98,10 +110,10 @@ private struct FavoritesEmptyState: View {
             Image(systemName: "star.slash")
                 .font(.system(size: 48))
                 .foregroundStyle(Color.mmTextSecondary.opacity(0.5))
-            Text("お気に入りがありません")
+            Text(L10n.noFavorites)
                 .font(.headline)
                 .foregroundStyle(Color.mmTextPrimary)
-            Text("種目詳細画面の☆ボタンで\nお気に入りに追加できます")
+            Text(L10n.addFavoritesHint)
                 .font(.subheadline)
                 .foregroundStyle(Color.mmTextSecondary)
                 .multilineTextAlignment(.center)
@@ -131,15 +143,16 @@ private struct CategoryChip: View {
     }
 }
 
-// MARK: - 種目行
+// MARK: - 種目行（シンプル版）
 
 struct ExerciseRow: View {
     let exercise: ExerciseDefinition
+    private var localization: LocalizationManager { LocalizationManager.shared }
 
     var body: some View {
         HStack {
             VStack(alignment: .leading, spacing: 4) {
-                Text(exercise.nameJA)
+                Text(localization.currentLanguage == .japanese ? exercise.nameJA : exercise.nameEN)
                     .font(.subheadline)
                     .foregroundStyle(Color.mmTextPrimary)
 
@@ -155,7 +168,7 @@ struct ExerciseRow: View {
 
             // ターゲット筋肉タグ
             if let primary = exercise.primaryMuscle {
-                Text(primary.japaneseName)
+                Text(localization.currentLanguage == .japanese ? primary.japaneseName : primary.englishName)
                     .font(.caption2)
                     .padding(.horizontal, 6)
                     .padding(.vertical, 2)
@@ -168,6 +181,90 @@ struct ExerciseRow: View {
     }
 }
 
+// MARK: - 種目行（リッチ版：ミニマップ + 適合性バッジ付き）
+
+struct EnhancedExerciseRow: View {
+    let exercise: ExerciseDefinition
+    let muscleStates: [Muscle: MuscleStimulation]
+    private var localization: LocalizationManager { LocalizationManager.shared }
+
+    private var compatibility: ExerciseCompatibility {
+        ExerciseCompatibilityCalculator.calculate(
+            exercise: exercise,
+            muscleStates: muscleStates
+        )
+    }
+
+    private var exerciseName: String {
+        localization.currentLanguage == .japanese ? exercise.nameJA : exercise.nameEN
+    }
+
+    private var secondaryName: String {
+        localization.currentLanguage == .japanese ? exercise.nameEN : exercise.nameJA
+    }
+
+    var body: some View {
+        HStack(spacing: 12) {
+            // ミニ筋肉マップ
+            MiniMuscleMapView(muscleMapping: exercise.muscleMapping)
+                .frame(width: 44, height: 70)
+                .background(Color.mmBgCard)
+                .clipShape(RoundedRectangle(cornerRadius: 6))
+
+            // 種目情報
+            VStack(alignment: .leading, spacing: 4) {
+                // 種目名（メイン）
+                Text(exerciseName)
+                    .font(.subheadline.bold())
+                    .foregroundStyle(Color.mmTextPrimary)
+                    .lineLimit(1)
+
+                // 種目名（サブ）
+                Text(secondaryName)
+                    .font(.caption2)
+                    .foregroundStyle(Color.mmTextSecondary)
+                    .lineLimit(1)
+
+                // メタ情報
+                HStack(spacing: 8) {
+                    Label(exercise.equipment, systemImage: "dumbbell")
+                    Label(exercise.difficulty, systemImage: "chart.bar")
+                    if let primary = exercise.primaryMuscle {
+                        Text(localization.currentLanguage == .japanese ? primary.japaneseName : primary.englishName)
+                    }
+                }
+                .font(.caption2)
+                .foregroundStyle(Color.mmTextSecondary)
+
+                // 適合性バッジ
+                if let badge = compatibility.badge {
+                    HStack(spacing: 4) {
+                        if compatibility == .recommended {
+                            Image(systemName: "star.fill")
+                                .font(.caption2)
+                        }
+                        Text(badge.text)
+                            .font(.caption2.bold())
+                    }
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 3)
+                    .background(badge.color.opacity(0.15))
+                    .foregroundStyle(badge.color)
+                    .clipShape(Capsule())
+                }
+            }
+
+            Spacer()
+
+            Image(systemName: "chevron.right")
+                .font(.caption)
+                .foregroundStyle(Color.mmTextSecondary)
+        }
+        .padding(.vertical, 6)
+    }
+}
+
 #Preview {
     ExercisePickerView { _ in }
+        .modelContainer(for: [MuscleStimulation.self], inMemory: true)
 }

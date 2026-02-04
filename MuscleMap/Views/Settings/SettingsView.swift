@@ -5,9 +5,11 @@ import SwiftUI
 struct SettingsView: View {
     @State private var appState = AppState.shared
     @State private var purchaseManager = PurchaseManager.shared
+    @State private var localization = LocalizationManager.shared
     @State private var showingPaywall = false
     @State private var showingRestoreAlert = false
     @State private var restoreMessage = ""
+    @AppStorage("youtubeSearchLanguage") private var youtubeSearchLanguage: String = "auto"
 
     var body: some View {
         NavigationStack {
@@ -30,14 +32,14 @@ struct SettingsView: View {
                 .scrollContentBackground(.hidden)
                 .listStyle(.insetGrouped)
             }
-            .navigationTitle("設定")
+            .navigationTitle(L10n.settings)
             .navigationBarTitleDisplayMode(.inline)
             .toolbarColorScheme(.dark, for: .navigationBar)
             .sheet(isPresented: $showingPaywall) {
                 PaywallView()
             }
-            .alert("復元結果", isPresented: $showingRestoreAlert) {
-                Button("OK") {}
+            .alert(L10n.restoreResult, isPresented: $showingRestoreAlert) {
+                Button(L10n.ok) {}
             } message: {
                 Text(restoreMessage)
             }
@@ -53,10 +55,10 @@ struct SettingsView: View {
                     Image(systemName: "crown.fill")
                         .foregroundStyle(Color.mmAccentPrimary)
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("Premium")
+                        Text(L10n.premium)
                             .font(.subheadline.bold())
                             .foregroundStyle(Color.mmTextPrimary)
-                        Text("全機能がアンロックされています")
+                        Text(L10n.premiumUnlocked)
                             .font(.caption)
                             .foregroundStyle(Color.mmAccentPrimary)
                     }
@@ -70,10 +72,10 @@ struct SettingsView: View {
                         Image(systemName: "crown")
                             .foregroundStyle(Color.mmAccentPrimary)
                         VStack(alignment: .leading, spacing: 2) {
-                            Text("Premiumにアップグレード")
+                            Text(L10n.upgradeToPremium)
                                 .font(.subheadline.bold())
                                 .foregroundStyle(Color.mmTextPrimary)
-                            Text("全機能をアンロック")
+                            Text(L10n.unlockAllFeatures)
                                 .font(.caption)
                                 .foregroundStyle(Color.mmTextSecondary)
                         }
@@ -88,16 +90,14 @@ struct SettingsView: View {
                 Button {
                     Task {
                         let success = await purchaseManager.restorePurchases()
-                        restoreMessage = success
-                            ? String(localized: "購入が復元されました。")
-                            : String(localized: "復元できる購入が見つかりませんでした。")
+                        restoreMessage = success ? L10n.purchaseRestored : L10n.noPurchaseFound
                         showingRestoreAlert = true
                     }
                 } label: {
                     HStack(spacing: 12) {
                         Image(systemName: "arrow.clockwise")
                             .foregroundStyle(Color.mmTextSecondary)
-                        Text("購入を復元")
+                        Text(L10n.restorePurchases)
                             .font(.subheadline)
                             .foregroundStyle(Color.mmTextPrimary)
                     }
@@ -105,7 +105,7 @@ struct SettingsView: View {
                 .listRowBackground(Color.mmBgCard)
             }
         } header: {
-            Text("プレミアム")
+            Text(L10n.premium)
                 .foregroundStyle(Color.mmTextSecondary)
         }
     }
@@ -114,19 +114,55 @@ struct SettingsView: View {
 
     private var appSettingsSection: some View {
         Section {
+            // 言語設定
+            HStack(spacing: 12) {
+                Image(systemName: "globe")
+                    .foregroundStyle(Color.mmAccentPrimary)
+                Text(L10n.language)
+                    .font(.subheadline)
+                    .foregroundStyle(Color.mmTextPrimary)
+                Spacer()
+                Picker("", selection: $localization.currentLanguage) {
+                    ForEach(AppLanguage.allCases, id: \.self) { language in
+                        Text(language.displayName).tag(language)
+                    }
+                }
+                .pickerStyle(.menu)
+                .tint(Color.mmAccentPrimary)
+            }
+            .listRowBackground(Color.mmBgCard)
+
             Toggle(isOn: Bindable(appState).isHapticEnabled) {
                 HStack(spacing: 12) {
                     Image(systemName: "hand.tap")
                         .foregroundStyle(Color.mmTextSecondary)
-                    Text("触覚フィードバック")
+                    Text(L10n.hapticFeedback)
                         .font(.subheadline)
                         .foregroundStyle(Color.mmTextPrimary)
                 }
             }
             .tint(Color.mmAccentPrimary)
             .listRowBackground(Color.mmBgCard)
+
+            // YouTube検索言語設定
+            HStack(spacing: 12) {
+                Image(systemName: "play.rectangle.fill")
+                    .foregroundStyle(.red)
+                Text(L10n.searchLanguage)
+                    .font(.subheadline)
+                    .foregroundStyle(Color.mmTextPrimary)
+                Spacer()
+                Picker("", selection: $youtubeSearchLanguage) {
+                    ForEach(YouTubeSearchLanguage.allCases, id: \.rawValue) { language in
+                        Text(language.displayName).tag(language.rawValue)
+                    }
+                }
+                .pickerStyle(.menu)
+                .tint(Color.mmAccentPrimary)
+            }
+            .listRowBackground(Color.mmBgCard)
         } header: {
-            Text("アプリ設定")
+            Text(L10n.appSettings)
                 .foregroundStyle(Color.mmTextSecondary)
         }
     }
@@ -143,11 +179,11 @@ struct SettingsView: View {
                     Image(systemName: "link")
                         .foregroundStyle(Color.mmAccentPrimary)
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("Obsidian連携")
+                        Text(L10n.obsidianSync)
                             .font(.subheadline)
                             .foregroundStyle(Color.mmTextPrimary)
                         if ObsidianSyncManager.shared.isConnected {
-                            Text("接続済み")
+                            Text(L10n.connected)
                                 .font(.caption)
                                 .foregroundStyle(Color.mmAccentPrimary)
                         }
@@ -163,7 +199,7 @@ struct SettingsView: View {
                 HStack(spacing: 12) {
                     Image(systemName: "square.and.arrow.down")
                         .foregroundStyle(Color.mmAccentPrimary)
-                    Text("CSVインポート")
+                    Text(L10n.csvImport)
                         .font(.subheadline)
                         .foregroundStyle(Color.mmTextPrimary)
                 }
@@ -177,7 +213,7 @@ struct SettingsView: View {
                 HStack(spacing: 12) {
                     Image(systemName: "photo.badge.plus")
                         .foregroundStyle(Color.mmAccentPrimary)
-                    Text("画像から取り込み")
+                    Text(L10n.imageImport)
                         .font(.subheadline)
                         .foregroundStyle(Color.mmTextPrimary)
                 }
@@ -188,11 +224,11 @@ struct SettingsView: View {
             HStack(spacing: 12) {
                 Image(systemName: "square.and.arrow.up")
                     .foregroundStyle(Color.mmTextSecondary.opacity(0.5))
-                Text("データエクスポート")
+                Text(L10n.dataExport)
                     .font(.subheadline)
                     .foregroundStyle(Color.mmTextSecondary.opacity(0.5))
                 Spacer()
-                Text("準備中")
+                Text(L10n.comingSoon)
                     .font(.caption)
                     .foregroundStyle(Color.mmTextSecondary.opacity(0.5))
             }
@@ -202,11 +238,11 @@ struct SettingsView: View {
             HStack(spacing: 12) {
                 Image(systemName: "dumbbell")
                     .foregroundStyle(Color.mmTextSecondary)
-                Text("登録種目数")
+                Text(L10n.registeredExercises)
                     .font(.subheadline)
                     .foregroundStyle(Color.mmTextPrimary)
                 Spacer()
-                Text("\(ExerciseStore.shared.exercises.count)種目")
+                Text(L10n.exerciseCount(ExerciseStore.shared.exercises.count))
                     .font(.subheadline)
                     .foregroundStyle(Color.mmTextSecondary)
             }
@@ -216,17 +252,17 @@ struct SettingsView: View {
             HStack(spacing: 12) {
                 Image(systemName: "figure.stand")
                     .foregroundStyle(Color.mmTextSecondary)
-                Text("追跡筋肉数")
+                Text(L10n.trackedMuscles)
                     .font(.subheadline)
                     .foregroundStyle(Color.mmTextPrimary)
                 Spacer()
-                Text("\(Muscle.allCases.count)部位")
+                Text(L10n.muscleCount(Muscle.allCases.count))
                     .font(.subheadline)
                     .foregroundStyle(Color.mmTextSecondary)
             }
             .listRowBackground(Color.mmBgCard)
         } header: {
-            Text("データ")
+            Text(L10n.data)
                 .foregroundStyle(Color.mmTextSecondary)
         }
     }
@@ -238,7 +274,7 @@ struct SettingsView: View {
             HStack(spacing: 12) {
                 Image(systemName: "info.circle")
                     .foregroundStyle(Color.mmTextSecondary)
-                Text("バージョン")
+                Text(L10n.version)
                     .font(.subheadline)
                     .foregroundStyle(Color.mmTextPrimary)
                 Spacer()
@@ -248,10 +284,10 @@ struct SettingsView: View {
             }
             .listRowBackground(Color.mmBgCard)
         } header: {
-            Text("アプリ情報")
+            Text(L10n.appInfo)
                 .foregroundStyle(Color.mmTextSecondary)
         } footer: {
-            Text("MuscleMap — 筋肉の状態が見える。だから、迷わない。")
+            Text(L10n.tagline)
                 .font(.caption2)
                 .foregroundStyle(Color.mmTextSecondary.opacity(0.5))
                 .frame(maxWidth: .infinity)

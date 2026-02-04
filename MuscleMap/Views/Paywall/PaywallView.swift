@@ -48,10 +48,10 @@ struct PaywallView: View {
                     }
                 }
             }
-            .alert("購入エラー", isPresented: $showError) {
-                Button("OK") {}
+            .alert(L10n.purchaseError, isPresented: $showError) {
+                Button(L10n.ok) {}
             } message: {
-                Text("購入を完了できませんでした。しばらく後にお試しください。")
+                Text(L10n.purchaseErrorMessage)
             }
             .task {
                 await purchaseManager.fetchOfferings()
@@ -67,11 +67,11 @@ struct PaywallView: View {
                 .font(.system(size: 40))
                 .foregroundStyle(Color.mmAccentPrimary)
 
-            Text("MuscleMap Premium")
+            Text(L10n.muscleMaplPremium)
                 .font(.title2.bold())
                 .foregroundStyle(Color.mmTextPrimary)
 
-            Text("全機能をアンロックして\nトレーニングを最適化")
+            Text(L10n.unlockAndOptimize)
                 .font(.subheadline)
                 .foregroundStyle(Color.mmTextSecondary)
                 .multilineTextAlignment(.center)
@@ -85,15 +85,15 @@ struct PaywallView: View {
         VStack(spacing: 0) {
             // ヘッダー行
             HStack {
-                Text("機能")
+                Text(L10n.features)
                     .font(.caption.bold())
                     .foregroundStyle(Color.mmTextSecondary)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                Text("Free")
+                Text(L10n.free)
                     .font(.caption.bold())
                     .foregroundStyle(Color.mmTextSecondary)
                     .frame(width: 52)
-                Text("Premium")
+                Text(L10n.premiumLabel)
                     .font(.caption.bold())
                     .foregroundStyle(Color.mmAccentPrimary)
                     .frame(width: 72)
@@ -122,7 +122,7 @@ struct PaywallView: View {
                 plan: .monthly,
                 isSelected: selectedPlan == .monthly,
                 price: purchaseManager.monthlyPrice,
-                period: "月額",
+                period: L10n.monthlyPlan,
                 badge: nil,
                 subtext: nil
             ) {
@@ -133,9 +133,9 @@ struct PaywallView: View {
                 plan: .annual,
                 isSelected: selectedPlan == .annual,
                 price: purchaseManager.annualPrice,
-                period: "年額",
-                badge: "おすすめ",
-                subtext: "月あたり ¥650"
+                period: L10n.annualPlan,
+                badge: L10n.recommendedBadge,
+                subtext: L10n.perMonthPrice
             ) {
                 selectedPlan = .annual
             }
@@ -144,7 +144,7 @@ struct PaywallView: View {
                 plan: .lifetime,
                 isSelected: selectedPlan == .lifetime,
                 price: purchaseManager.lifetimePrice,
-                period: "買い切り",
+                period: L10n.lifetimePlan,
                 badge: nil,
                 subtext: nil
             ) {
@@ -189,7 +189,7 @@ struct PaywallView: View {
                     await restore()
                 }
             } label: {
-                Text("購入を復元")
+                Text(L10n.restorePurchases)
                     .font(.caption)
                     .foregroundStyle(Color.mmTextSecondary)
             }
@@ -198,25 +198,25 @@ struct PaywallView: View {
                 Button {
                     // 利用規約（外部リンク）
                 } label: {
-                    Text("利用規約")
+                    Text(L10n.termsOfService)
                         .font(.caption2)
                         .foregroundStyle(Color.mmTextSecondary.opacity(0.5))
                 }
                 Button {
                     // プライバシーポリシー（外部リンク）
                 } label: {
-                    Text("プライバシーポリシー")
+                    Text(L10n.privacyPolicy)
                         .font(.caption2)
                         .foregroundStyle(Color.mmTextSecondary.opacity(0.5))
                 }
             }
 
             if selectedPlan == .monthly {
-                Text("7日間の無料トライアル後、¥980/月で自動更新")
+                Text(L10n.monthlyTrialNote)
                     .font(.caption2)
                     .foregroundStyle(Color.mmTextSecondary.opacity(0.5))
             } else if selectedPlan == .annual {
-                Text("14日間の無料トライアル後、¥7,800/年で自動更新")
+                Text(L10n.annualTrialNote)
                     .font(.caption2)
                     .foregroundStyle(Color.mmTextSecondary.opacity(0.5))
             }
@@ -227,9 +227,9 @@ struct PaywallView: View {
 
     private var purchaseButtonLabel: String {
         switch selectedPlan {
-        case .monthly: return String(localized: "月額プランで始める")
-        case .annual: return String(localized: "年額プランで始める（おすすめ）")
-        case .lifetime: return String(localized: "買い切りプランで購入")
+        case .monthly: return L10n.startMonthlyPlan
+        case .annual: return L10n.startAnnualPlan
+        case .lifetime: return L10n.purchaseLifetime
         }
     }
 
@@ -275,16 +275,18 @@ private struct FeatureComparison: Identifiable {
     let freeAccess: Bool
     let premiumAccess: Bool
 
-    static let allFeatures: [FeatureComparison] = [
-        FeatureComparison(name: String(localized: "筋肉マップ（2D）"), icon: "figure.stand", freeAccess: true, premiumAccess: true),
-        FeatureComparison(name: String(localized: "ワークアウト記録"), icon: "dumbbell", freeAccess: true, premiumAccess: true),
-        FeatureComparison(name: String(localized: "回復トラッキング"), icon: "heart.text.clipboard", freeAccess: true, premiumAccess: true),
-        FeatureComparison(name: String(localized: "メニュー提案"), icon: "sparkles", freeAccess: true, premiumAccess: true),
-        FeatureComparison(name: String(localized: "詳細統計"), icon: "chart.bar.fill", freeAccess: false, premiumAccess: true),
-        FeatureComparison(name: String(localized: "3D筋肉ビュー"), icon: "cube.fill", freeAccess: false, premiumAccess: true),
-        FeatureComparison(name: String(localized: "メニュー提案+"), icon: "wand.and.stars", freeAccess: false, premiumAccess: true),
-        FeatureComparison(name: String(localized: "データエクスポート"), icon: "square.and.arrow.up", freeAccess: false, premiumAccess: true),
-    ]
+    @MainActor static var allFeatures: [FeatureComparison] {
+        [
+            FeatureComparison(name: L10n.featureMuscleMap2D, icon: "figure.stand", freeAccess: true, premiumAccess: true),
+            FeatureComparison(name: L10n.featureWorkoutRecord, icon: "dumbbell", freeAccess: true, premiumAccess: true),
+            FeatureComparison(name: L10n.featureRecoveryTracking, icon: "heart.text.clipboard", freeAccess: true, premiumAccess: true),
+            FeatureComparison(name: L10n.featureMenuSuggestion, icon: "sparkles", freeAccess: true, premiumAccess: true),
+            FeatureComparison(name: L10n.featureDetailedStats, icon: "chart.bar.fill", freeAccess: false, premiumAccess: true),
+            FeatureComparison(name: L10n.feature3DView, icon: "cube.fill", freeAccess: false, premiumAccess: true),
+            FeatureComparison(name: L10n.featureMenuSuggestionPlus, icon: "wand.and.stars", freeAccess: false, premiumAccess: true),
+            FeatureComparison(name: L10n.featureDataExport, icon: "square.and.arrow.up", freeAccess: false, premiumAccess: true),
+        ]
+    }
 }
 
 // MARK: - 機能比較行

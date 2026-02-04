@@ -46,7 +46,7 @@ struct HistoryView: View {
                     }
                 }
             }
-            .navigationTitle("履歴")
+            .navigationTitle(L10n.history)
             .navigationBarTitleDisplayMode(.inline)
             .toolbarColorScheme(.dark, for: .navigationBar)
             .toolbar {
@@ -105,10 +105,10 @@ enum StatPeriod: String, CaseIterable, Identifiable {
 
     var id: String { rawValue }
 
-    var label: String {
+    @MainActor var label: String {
         switch self {
-        case .weekly: return "週間"
-        case .monthly: return "月間"
+        case .weekly: return L10n.weekly
+        case .monthly: return L10n.monthly
         }
     }
 }
@@ -121,17 +121,17 @@ private struct WeeklySummaryCard: View {
     var body: some View {
         VStack(spacing: 16) {
             HStack {
-                Text("今週のサマリー")
+                Text(L10n.thisWeekSummary)
                     .font(.headline)
                     .foregroundStyle(Color.mmTextPrimary)
                 Spacer()
             }
 
             HStack(spacing: 0) {
-                StatItem(value: "\(stats.sessionCount)", label: "セッション", icon: "figure.strengthtraining.traditional")
-                StatItem(value: "\(stats.totalSets)", label: "セット数", icon: "number")
-                StatItem(value: formatVolume(stats.totalVolume), label: "総ボリューム", icon: "scalemass")
-                StatItem(value: "\(stats.trainingDays)", label: "トレ日数", icon: "calendar")
+                StatItem(value: "\(stats.sessionCount)", label: L10n.sessions, icon: "figure.strengthtraining.traditional")
+                StatItem(value: "\(stats.totalSets)", label: L10n.totalSets, icon: "number")
+                StatItem(value: formatVolume(stats.totalVolume), label: L10n.totalVolume, icon: "scalemass")
+                StatItem(value: "\(stats.trainingDays)", label: L10n.trainingDays, icon: "calendar")
             }
 
             // グループカバー率
@@ -139,7 +139,7 @@ private struct WeeklySummaryCard: View {
                 Image(systemName: "figure.stand")
                     .foregroundStyle(Color.mmAccentPrimary)
                     .font(.caption)
-                Text("部位カバー率")
+                Text(L10n.groupCoverage)
                     .font(.caption)
                     .foregroundStyle(Color.mmTextSecondary)
                 Spacer()
@@ -180,17 +180,17 @@ private struct MonthlySummaryCard: View {
     var body: some View {
         VStack(spacing: 16) {
             HStack {
-                Text("今月のサマリー")
+                Text(L10n.thisMonthSummary)
                     .font(.headline)
                     .foregroundStyle(Color.mmTextPrimary)
                 Spacer()
             }
 
             HStack(spacing: 0) {
-                StatItem(value: "\(stats.sessionCount)", label: "セッション", icon: "figure.strengthtraining.traditional")
-                StatItem(value: "\(stats.totalSets)", label: "セット数", icon: "number")
-                StatItem(value: formatVolume(stats.totalVolume), label: "総ボリューム", icon: "scalemass")
-                StatItem(value: "\(stats.trainingDays)", label: "トレ日数", icon: "calendar")
+                StatItem(value: "\(stats.sessionCount)", label: L10n.sessions, icon: "figure.strengthtraining.traditional")
+                StatItem(value: "\(stats.totalSets)", label: L10n.totalSets, icon: "number")
+                StatItem(value: formatVolume(stats.totalVolume), label: L10n.totalVolume, icon: "scalemass")
+                StatItem(value: "\(stats.trainingDays)", label: L10n.trainingDays, icon: "calendar")
             }
         }
         .padding()
@@ -231,7 +231,7 @@ private struct VolumeChartCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("日別ボリューム（14日間）")
+            Text(L10n.dailyVolume14Days)
                 .font(.headline)
                 .foregroundStyle(Color.mmTextPrimary)
 
@@ -240,8 +240,8 @@ private struct VolumeChartCard: View {
             } else {
                 Chart(data) { item in
                     BarMark(
-                        x: .value("日付", item.date, unit: .day),
-                        y: .value("ボリューム", item.volume)
+                        x: .value("Date", item.date, unit: .day),
+                        y: .value("Volume", item.volume)
                     )
                     .foregroundStyle(
                         item.volume > 0
@@ -251,13 +251,13 @@ private struct VolumeChartCard: View {
                     .cornerRadius(4)
                 }
                 .chartXAxis {
-                    AxisMarks(values: .stride(by: .day, count: 2)) { value in
+                    AxisMarks(values: .stride(by: .day, count: 2)) { _ in
                         AxisValueLabel(format: .dateTime.day())
                             .foregroundStyle(Color.mmTextSecondary)
                     }
                 }
                 .chartYAxis {
-                    AxisMarks { value in
+                    AxisMarks { _ in
                         AxisValueLabel()
                             .foregroundStyle(Color.mmTextSecondary)
                         AxisGridLine()
@@ -277,7 +277,7 @@ private struct VolumeChartCard: View {
             Image(systemName: "chart.bar")
                 .font(.title2)
                 .foregroundStyle(Color.mmTextSecondary.opacity(0.5))
-            Text("データなし")
+            Text(L10n.noData)
                 .font(.caption)
                 .foregroundStyle(Color.mmTextSecondary.opacity(0.5))
         }
@@ -290,6 +290,7 @@ private struct VolumeChartCard: View {
 
 private struct GroupVolumeCard: View {
     let volume: [MuscleGroup: Int]
+    private var localization: LocalizationManager { LocalizationManager.shared }
 
     private var sortedGroups: [(group: MuscleGroup, sets: Int)] {
         MuscleGroup.allCases.map { group in
@@ -303,14 +304,14 @@ private struct GroupVolumeCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("部位別セット数（今週）")
+            Text(L10n.groupSetsThisWeek)
                 .font(.headline)
                 .foregroundStyle(Color.mmTextPrimary)
 
             VStack(spacing: 8) {
                 ForEach(sortedGroups, id: \.group) { item in
                     HStack(spacing: 8) {
-                        Text(item.group.japaneseName)
+                        Text(localization.currentLanguage == .japanese ? item.group.japaneseName : item.group.englishName)
                             .font(.caption)
                             .foregroundStyle(Color.mmTextSecondary)
                             .frame(width: 48, alignment: .trailing)
@@ -363,10 +364,11 @@ private struct GroupVolumeCard: View {
 
 private struct TopExercisesCard: View {
     let exercises: [(exercise: ExerciseDefinition, count: Int)]
+    private var localization: LocalizationManager { LocalizationManager.shared }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("よく行う種目 Top5")
+            Text(L10n.topExercises)
                 .font(.headline)
                 .foregroundStyle(Color.mmTextPrimary)
 
@@ -378,7 +380,7 @@ private struct TopExercisesCard: View {
                         .frame(width: 20)
 
                     VStack(alignment: .leading, spacing: 2) {
-                        Text(item.exercise.nameJA)
+                        Text(localization.currentLanguage == .japanese ? item.exercise.nameJA : item.exercise.nameEN)
                             .font(.subheadline)
                             .foregroundStyle(Color.mmTextPrimary)
                         Text(item.exercise.category)
@@ -388,7 +390,7 @@ private struct TopExercisesCard: View {
 
                     Spacer()
 
-                    Text("\(item.count)セット")
+                    Text(L10n.setsLabel(item.count))
                         .font(.caption.bold())
                         .foregroundStyle(Color.mmTextSecondary)
                 }
@@ -413,7 +415,7 @@ private struct SessionHistorySection: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("セッション履歴")
+            Text(L10n.sessionHistory)
                 .font(.headline)
                 .foregroundStyle(Color.mmTextPrimary)
 
@@ -422,7 +424,7 @@ private struct SessionHistorySection: View {
                     Image(systemName: "tray")
                         .font(.title2)
                         .foregroundStyle(Color.mmTextSecondary.opacity(0.5))
-                    Text("まだセッションがありません")
+                    Text(L10n.noSessionsYet)
                         .font(.caption)
                         .foregroundStyle(Color.mmTextSecondary.opacity(0.5))
                 }
@@ -444,11 +446,16 @@ private struct SessionHistorySection: View {
 
 private struct SessionRowView: View {
     let session: WorkoutSession
+    private var localization: LocalizationManager { LocalizationManager.shared }
 
     private var exerciseNames: String {
         let ids = Set(session.sets.map(\.exerciseId))
-        let names = ids.compactMap { ExerciseStore.shared.exercise(for: $0)?.nameJA }
-        return names.prefix(3).joined(separator: "、") + (names.count > 3 ? " 他" : "")
+        let names = ids.compactMap { id -> String? in
+            guard let exercise = ExerciseStore.shared.exercise(for: id) else { return nil }
+            return localization.currentLanguage == .japanese ? exercise.nameJA : exercise.nameEN
+        }
+        let displayNames = names.prefix(3).joined(separator: ", ")
+        return names.count > 3 ? "\(displayNames) \(L10n.andMore)" : displayNames
     }
 
     private var totalVolume: Double {
@@ -456,10 +463,10 @@ private struct SessionRowView: View {
     }
 
     private var duration: String {
-        guard let end = session.endDate else { return "進行中" }
+        guard let end = session.endDate else { return L10n.inProgress }
         let interval = end.timeIntervalSince(session.startDate)
         let minutes = Int(interval / 60)
-        return "\(minutes)分"
+        return L10n.minutes(minutes)
     }
 
     var body: some View {
@@ -480,7 +487,7 @@ private struct SessionRowView: View {
                 .lineLimit(1)
 
             HStack(spacing: 16) {
-                Label("\(session.sets.count)セット", systemImage: "number")
+                Label(L10n.setsLabel(session.sets.count), systemImage: "number")
                     .font(.caption2)
                     .foregroundStyle(Color.mmTextSecondary)
                 Label(formatVolume(totalVolume), systemImage: "scalemass")

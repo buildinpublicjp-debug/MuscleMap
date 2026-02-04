@@ -9,6 +9,7 @@ struct MuscleDetailView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
     @State private var viewModel: MuscleDetailViewModel?
+    private var localization: LocalizationManager { LocalizationManager.shared }
 
     var body: some View {
         NavigationStack {
@@ -52,12 +53,12 @@ struct MuscleDetailView: View {
                     }
                 }
             }
-            .navigationTitle(muscle.japaneseName)
+            .navigationTitle(localization.currentLanguage == .japanese ? muscle.japaneseName : muscle.englishName)
             .navigationBarTitleDisplayMode(.inline)
             .toolbarColorScheme(.dark, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("閉じる") { dismiss() }
+                    Button(L10n.close) { dismiss() }
                         .foregroundStyle(Color.mmAccentPrimary)
                 }
             }
@@ -75,6 +76,7 @@ struct MuscleDetailView: View {
 
 private struct RecoveryStatusCard: View {
     let viewModel: MuscleDetailViewModel
+    private var localization: LocalizationManager { LocalizationManager.shared }
 
     var body: some View {
         VStack(spacing: 16) {
@@ -110,11 +112,11 @@ private struct RecoveryStatusCard: View {
                     Spacer()
 
                     if let remaining = viewModel.remainingHours {
-                        Text("残り\(formatHours(remaining))")
+                        Text(formatRemainingTime(remaining))
                             .font(.caption)
                             .foregroundStyle(Color.mmTextSecondary)
                     } else {
-                        Text("回復完了")
+                        Text(L10n.recoveryComplete)
                             .font(.caption)
                             .foregroundStyle(Color.mmMuscleBioGreen)
                     }
@@ -125,21 +127,21 @@ private struct RecoveryStatusCard: View {
             HStack(spacing: 24) {
                 if let date = viewModel.lastStimulationDate {
                     DetailItem(
-                        label: "最終刺激",
+                        label: L10n.lastStimulation,
                         value: formatDate(date)
                     )
                 }
 
                 if viewModel.lastTotalSets > 0 {
                     DetailItem(
-                        label: "セット数",
-                        value: "\(viewModel.lastTotalSets)セット"
+                        label: L10n.setCount,
+                        value: L10n.setsLabel(viewModel.lastTotalSets)
                     )
                 }
 
                 if let recoveryDate = viewModel.estimatedRecoveryDate {
                     DetailItem(
-                        label: "回復予定",
+                        label: L10n.estimatedRecovery,
                         value: formatDate(recoveryDate)
                     )
                 }
@@ -173,15 +175,15 @@ private struct RecoveryStatusCard: View {
     private var statusText: String {
         switch viewModel.recoveryStatus {
         case .recovering(let progress):
-            if progress < 0.3 { return "高負荷 — 休息が必要" }
-            if progress < 0.7 { return "回復中" }
-            return "ほぼ回復"
+            if progress < 0.3 { return L10n.highLoadRestNeeded }
+            if progress < 0.7 { return L10n.recovering }
+            return L10n.almostRecovered
         case .fullyRecovered:
-            return "完全回復 — トレーニング可能"
+            return L10n.fullyRecoveredTrainable
         case .neglected:
-            return "未刺激 — 7日以上"
+            return L10n.neglected7Days
         case .neglectedSevere:
-            return "未刺激 — 14日以上"
+            return L10n.neglected14Days
         }
     }
 
@@ -191,16 +193,25 @@ private struct RecoveryStatusCard: View {
             : viewModel.recoveryStatus.visualState.color
     }
 
-    private func formatHours(_ hours: Double) -> String {
-        if hours >= 24 {
-            return "\(Int(hours / 24))日\(Int(hours.truncatingRemainder(dividingBy: 24)))時間"
+    private func formatRemainingTime(_ hours: Double) -> String {
+        let h = Int(hours)
+        if h >= 24 {
+            let days = h / 24
+            let remainingHours = h % 24
+            return localization.currentLanguage == .japanese
+                ? "残り\(days)日\(remainingHours)時間"
+                : "\(days)d \(remainingHours)h remaining"
         }
-        return "\(Int(hours))時間"
+        return localization.currentLanguage == .japanese
+            ? "残り\(h)時間"
+            : "\(h)h remaining"
     }
 
     private func formatDate(_ date: Date) -> String {
         let formatter = RelativeDateTimeFormatter()
-        formatter.locale = Locale(identifier: "ja_JP")
+        formatter.locale = localization.currentLanguage == .japanese
+            ? Locale(identifier: "ja_JP")
+            : Locale(identifier: "en_US")
         formatter.unitsStyle = .short
         return formatter.localizedString(for: date, relativeTo: Date())
     }
@@ -228,29 +239,30 @@ private struct DetailItem: View {
 
 private struct MuscleInfoCard: View {
     let muscle: Muscle
+    private var localization: LocalizationManager { LocalizationManager.shared }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("基本情報")
+            Text(L10n.basicInfo)
                 .font(.headline)
                 .foregroundStyle(Color.mmTextPrimary)
 
             HStack(spacing: 16) {
                 InfoBlock(
                     icon: "figure.stand",
-                    label: "グループ",
-                    value: muscle.group.japaneseName
+                    label: L10n.muscleGroup,
+                    value: localization.currentLanguage == .japanese ? muscle.group.japaneseName : muscle.group.englishName
                 )
 
                 InfoBlock(
                     icon: "clock",
-                    label: "基準回復",
-                    value: "\(muscle.baseRecoveryHours)時間"
+                    label: L10n.baseRecovery,
+                    value: L10n.hoursUnit(muscle.baseRecoveryHours)
                 )
 
                 InfoBlock(
                     icon: "scalemass",
-                    label: "サイズ",
+                    label: L10n.size,
                     value: muscleSizeLabel
                 )
             }
@@ -262,9 +274,9 @@ private struct MuscleInfoCard: View {
 
     private var muscleSizeLabel: String {
         switch muscle.baseRecoveryHours {
-        case 72: return "大筋群"
-        case 48: return "中筋群"
-        default: return "小筋群"
+        case 72: return L10n.largeMuscle
+        case 48: return L10n.mediumMuscle
+        default: return L10n.smallMuscle
         }
     }
 }
@@ -298,10 +310,11 @@ private struct RelatedExercisesSection: View {
     let muscle: Muscle
     let exercises: [ExerciseDefinition]
     @State private var selectedExercise: ExerciseDefinition?
+    private var localization: LocalizationManager { LocalizationManager.shared }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("関連種目（刺激度%順）")
+            Text(L10n.relatedExercises)
                 .font(.headline)
                 .foregroundStyle(Color.mmTextPrimary)
                 .padding(.horizontal)
@@ -312,7 +325,7 @@ private struct RelatedExercisesSection: View {
                 } label: {
                     HStack {
                         VStack(alignment: .leading, spacing: 2) {
-                            Text(exercise.nameJA)
+                            Text(localization.currentLanguage == .japanese ? exercise.nameJA : exercise.nameEN)
                                 .font(.subheadline)
                                 .foregroundStyle(Color.mmTextPrimary)
                             Text(exercise.equipment)
@@ -357,24 +370,25 @@ private struct RelatedExercisesSection: View {
 
 private struct RecentHistorySection: View {
     let recentSets: [(exercise: ExerciseDefinition, set: WorkoutSet)]
+    private var localization: LocalizationManager { LocalizationManager.shared }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("直近の記録")
+            Text(L10n.recentRecords)
                 .font(.headline)
                 .foregroundStyle(Color.mmTextPrimary)
                 .padding(.horizontal)
 
             ForEach(recentSets.prefix(10), id: \.set.id) { entry in
                 HStack {
-                    Text(entry.exercise.nameJA)
+                    Text(localization.currentLanguage == .japanese ? entry.exercise.nameJA : entry.exercise.nameEN)
                         .font(.caption)
                         .foregroundStyle(Color.mmTextPrimary)
                         .lineLimit(1)
 
                     Spacer()
 
-                    Text("\(entry.set.weight, specifier: "%.1f")kg × \(entry.set.reps)回")
+                    Text(L10n.weightReps(entry.set.weight, entry.set.reps))
                         .font(.caption.monospaced())
                         .foregroundStyle(Color.mmAccentPrimary)
 
@@ -395,7 +409,9 @@ private struct RecentHistorySection: View {
 
     private func formatDate(_ date: Date) -> String {
         let formatter = RelativeDateTimeFormatter()
-        formatter.locale = Locale(identifier: "ja_JP")
+        formatter.locale = localization.currentLanguage == .japanese
+            ? Locale(identifier: "ja_JP")
+            : Locale(identifier: "en_US")
         formatter.unitsStyle = .abbreviated
         return formatter.localizedString(for: date, relativeTo: Date())
     }

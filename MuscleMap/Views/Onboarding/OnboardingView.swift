@@ -11,29 +11,31 @@ struct OnboardingView: View {
 
     private let totalPages = 5
 
-    private let introPages: [OnboardingPage] = [
-        OnboardingPage(
-            icon: "figure.stand",
-            iconColors: [Color.mmAccentPrimary, Color.mmAccentSecondary],
-            title: "筋肉の状態が見える",
-            subtitle: "21の筋肉の回復状態を\nリアルタイムで可視化",
-            detail: "トレーニング後の筋肉は色で回復度を表示。\n赤→緑へのグラデーションで一目瞭然。"
-        ),
-        OnboardingPage(
-            icon: "sparkles",
-            iconColors: [Color.mmMuscleAmber, Color.mmMuscleCoral],
-            title: "迷わないメニュー提案",
-            subtitle: "回復データから\n今日のベストメニューを自動提案",
-            detail: "ジムで開いた瞬間にスタートできる。\n未刺激の部位も見逃しません。"
-        ),
-        OnboardingPage(
-            icon: "chart.bar.fill",
-            iconColors: [Color.mmAccentSecondary, Color.mmAccentPrimary],
-            title: "成長を記録・分析",
-            subtitle: "80種目のEMGベース刺激マッピングで\n科学的なトレーニング管理",
-            detail: "セット数・ボリューム・部位カバー率を\nチャートで確認。"
-        ),
-    ]
+    private var introPages: [OnboardingPage] {
+        [
+            OnboardingPage(
+                icon: "figure.stand",
+                iconColors: [Color.mmAccentPrimary, Color.mmAccentSecondary],
+                title: L10n.onboardingTitle1,
+                subtitle: L10n.onboardingSubtitle1,
+                detail: L10n.onboardingDetail1
+            ),
+            OnboardingPage(
+                icon: "sparkles",
+                iconColors: [Color.mmMuscleAmber, Color.mmMuscleCoral],
+                title: L10n.onboardingTitle2,
+                subtitle: L10n.onboardingSubtitle2,
+                detail: L10n.onboardingDetail2
+            ),
+            OnboardingPage(
+                icon: "chart.bar.fill",
+                iconColors: [Color.mmAccentSecondary, Color.mmAccentPrimary],
+                title: L10n.onboardingTitle3,
+                subtitle: L10n.onboardingSubtitle3,
+                detail: L10n.onboardingDetail3
+            ),
+        ]
+    }
 
     var body: some View {
         ZStack {
@@ -101,7 +103,7 @@ struct OnboardingView: View {
                             currentPage = 3
                         }
                     } label: {
-                        Text("スキップ")
+                        Text(L10n.skip)
                             .font(.subheadline)
                             .foregroundStyle(Color.mmTextSecondary)
                     }
@@ -115,9 +117,8 @@ struct OnboardingView: View {
 
     private var buttonLabel: String {
         switch currentPage {
-        case 0...2: return String(localized: "次へ")
-        case 3: return String(localized: "次へ")
-        default: return String(localized: "始める")
+        case 0...3: return L10n.next
+        default: return L10n.start
         }
     }
 
@@ -194,12 +195,12 @@ private struct GoalSelectionPage: View {
         VStack(spacing: 16) {
             Spacer()
 
-            Text("トレーニングの目標は？")
+            Text(L10n.trainingGoalQuestion)
                 .font(.title2.bold())
                 .foregroundStyle(Color.mmTextPrimary)
                 .multilineTextAlignment(.center)
 
-            Text("あなたに合ったメニューを提案します")
+            Text(L10n.goalSuggestionHint)
                 .font(.subheadline)
                 .foregroundStyle(Color.mmTextSecondary)
 
@@ -279,18 +280,18 @@ private struct ExperienceLevelPage: View {
         VStack(spacing: 16) {
             Spacer()
 
-            Text("あなたについて教えてください")
+            Text(L10n.aboutYouQuestion)
                 .font(.title2.bold())
                 .foregroundStyle(Color.mmTextPrimary)
                 .multilineTextAlignment(.center)
 
             // ニックネーム入力
             VStack(alignment: .leading, spacing: 8) {
-                Text("ニックネーム（任意）")
+                Text(L10n.nicknameOptional)
                     .font(.caption)
                     .foregroundStyle(Color.mmTextSecondary)
 
-                TextField("", text: $nickname, prompt: Text("ニックネーム").foregroundStyle(Color.mmTextSecondary.opacity(0.5)))
+                TextField("", text: $nickname, prompt: Text(L10n.nickname).foregroundStyle(Color.mmTextSecondary.opacity(0.5)))
                     .font(.body)
                     .foregroundStyle(Color.mmTextPrimary)
                     .padding(16)
@@ -301,7 +302,7 @@ private struct ExperienceLevelPage: View {
 
             // 経験レベル
             VStack(alignment: .leading, spacing: 8) {
-                Text("トレーニング経験")
+                Text(L10n.trainingExperience)
                     .font(.caption)
                     .foregroundStyle(Color.mmTextSecondary)
                     .padding(.horizontal, 24)
