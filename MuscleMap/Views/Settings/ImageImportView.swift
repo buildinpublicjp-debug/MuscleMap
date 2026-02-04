@@ -14,11 +14,14 @@ struct ImageImportView: View {
     @State private var importState: ImageImportState = .idle
     @State private var recognizedData: RecognizedWorkoutData?
     @State private var preview: ImportPreview?
+    @State private var useAIRecognition: Bool = true
+    @AppStorage("claudeAPIKey") private var claudeAPIKey: String = ""
 
     enum ImageImportState: Equatable {
         case idle
         case loading
         case recognizing
+        case recognizingAI
         case previewing
         case importing
         case success(ImportResult)
@@ -87,7 +90,7 @@ struct ImageImportView: View {
                             .foregroundStyle(Color.mmTextSecondary)
                     }
                     Spacer()
-                    if importState == .loading || importState == .recognizing {
+                    if importState == .loading || importState == .recognizing || importState == .recognizingAI {
                         ProgressView()
                             .tint(Color.mmAccentPrimary)
                     } else {
@@ -107,8 +110,47 @@ struct ImageImportView: View {
                         .scaledToFit()
                         .frame(maxHeight: 200)
                         .clipShape(RoundedRectangle(cornerRadius: 8))
+
+                    // 認識中のステータス表示
+                    if importState == .recognizingAI {
+                        HStack(spacing: 6) {
+                            ProgressView()
+                                .scaleEffect(0.8)
+                            Text(L10n.aiRecognizing)
+                                .font(.caption)
+                                .foregroundStyle(Color.mmAccentSecondary)
+                        }
+                    } else if importState == .recognizing {
+                        HStack(spacing: 6) {
+                            ProgressView()
+                                .scaleEffect(0.8)
+                            Text(L10n.ocrRecognizing)
+                                .font(.caption)
+                                .foregroundStyle(Color.mmTextSecondary)
+                        }
+                    }
                 }
                 .frame(maxWidth: .infinity)
+                .listRowBackground(Color.mmBgCard)
+            }
+
+            // AI認識トグル（APIキーがある場合のみ）
+            if !claudeAPIKey.isEmpty {
+                Toggle(isOn: $useAIRecognition) {
+                    HStack(spacing: 12) {
+                        Image(systemName: "brain")
+                            .foregroundStyle(Color.mmAccentSecondary)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(L10n.aiRecognition)
+                                .font(.subheadline)
+                                .foregroundStyle(Color.mmTextPrimary)
+                            Text("Claude API")
+                                .font(.caption2)
+                                .foregroundStyle(Color.mmTextSecondary)
+                        }
+                    }
+                }
+                .tint(Color.mmAccentPrimary)
                 .listRowBackground(Color.mmBgCard)
             }
         } header: {
@@ -360,9 +402,15 @@ struct ImageImportView: View {
             Text("ヘルプ")
                 .foregroundStyle(Color.mmTextSecondary)
         } footer: {
-            Text("iOS Vision Frameworkを使用してテキストを認識します")
-                .font(.caption2)
-                .foregroundStyle(Color.mmTextSecondary.opacity(0.5))
+            if !claudeAPIKey.isEmpty && useAIRecognition {
+                Text("Claude AI (Haiku) を使用して高精度認識")
+                    .font(.caption2)
+                    .foregroundStyle(Color.mmAccentSecondary.opacity(0.7))
+            } else {
+                Text("iOS Vision Frameworkを使用してテキストを認識します")
+                    .font(.caption2)
+                    .foregroundStyle(Color.mmTextSecondary.opacity(0.5))
+            }
         }
     }
 
@@ -383,14 +431,43 @@ struct ImageImportView: View {
             }
 
             selectedImage = image
-            importState = .recognizing
 
-            // テキスト認識を実行
-            let text = try await ImageRecognitionParser.extractText(from: image)
-            let workouts = ImageRecognitionParser.parseText(text)
+            var workouts: [ParsedWorkout] = []
+            var rawText = ""
+
+            // AI認識を使用するかどうか
+            if useAIRecognition && !claudeAPIKey.isEmpty {
+                importState = .recognizingAI
+
+                do {
+                    // JPEG形式で圧縮してAPI呼び出し
+                    guard let jpegData = image.jpegData(compressionQuality: 0.8) else {
+                        throw ClaudeAPIError.invalidResponse
+                    }
+
+                    workouts = try await ClaudeAPIService.parseWorkoutImage(
+                        imageData: jpegData,
+                        apiKey: claudeAPIKey
+                    )
+                    rawText = "AI認識結果: \(workouts.count)件のワークアウトを検出"
+
+                } catch {
+                    // AI認識が失敗した場合はOCRにフォールバック
+                    importState = .recognizing
+                    rawText = try await ImageRecognitionParser.extractText(from: image)
+                    workouts = ImageRecognitionParser.parseText(rawText)
+                    rawText = "[OCRフォールバック]\n" + rawText
+                }
+            } else {
+                importState = .recognizing
+
+                // 従来のOCR認識
+                rawText = try await ImageRecognitionParser.extractText(from: image)
+                workouts = ImageRecognitionParser.parseText(rawText)
+            }
 
             recognizedData = RecognizedWorkoutData(
-                rawText: text,
+                rawText: rawText,
                 workouts: workouts,
                 confidence: workouts.isEmpty ? 0 : 0.8
             )

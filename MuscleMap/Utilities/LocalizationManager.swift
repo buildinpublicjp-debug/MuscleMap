@@ -438,4 +438,29 @@ enum L10n {
     static func muscleNeglectedDays(_ muscleName: String, _ days: Int) -> String {
         loc("。\(muscleName)は\(days)日以上未刺激です", ". \(muscleName) hasn't been trained for \(days)+ days")
     }
+
+    // MARK: - オンボーディング（シンプル版）
+    static var getStarted: String { loc("はじめる", "Get Started") }
+    static var onboardingTagline1: String { loc("鍛えた筋肉が光る。", "Your trained muscles glow.") }
+    static var onboardingTagline2: String { loc("回復状態が一目でわかる。", "See recovery at a glance.") }
+    static var selectLanguage: String { loc("言語を選択", "Select Language") }
+
+    // MARK: - AI画像認識
+    static var aiRecognition: String { loc("AI認識（高精度）", "AI Recognition (High Accuracy)") }
+    static var claudeAPIKey: String { loc("Claude APIキー", "Claude API Key") }
+    static var enterAPIKey: String { loc("APIキーを入力", "Enter API Key") }
+    static var apiKeyHint: String {
+        loc("Anthropic ConsoleでAPIキーを取得してください",
+            "Get your API key from Anthropic Console")
+    }
+    static var recognitionMethod: String { loc("認識方法", "Recognition Method") }
+    static var onDeviceOCR: String { loc("端末内OCR", "On-device OCR") }
+    static var aiPowered: String { loc("AI認識", "AI Powered") }
+    static var aiRecognizing: String { loc("AI解析中...", "AI analyzing...") }
+    static var ocrRecognizing: String { loc("OCR解析中...", "OCR analyzing...") }
+    static var apiKeyRequired: String { loc("APIキーが必要です", "API key required") }
+    static var setAPIKeyInSettings: String {
+        loc("設定画面でClaude APIキーを入力してください",
+            "Please enter Claude API key in Settings")
+    }
 }

@@ -10,6 +10,8 @@ struct SettingsView: View {
     @State private var showingRestoreAlert = false
     @State private var restoreMessage = ""
     @AppStorage("youtubeSearchLanguage") private var youtubeSearchLanguage: String = "auto"
+    @AppStorage("claudeAPIKey") private var claudeAPIKey: String = ""
+    @State private var showingAPIKey = false
 
     var body: some View {
         NavigationStack {
@@ -159,6 +161,56 @@ struct SettingsView: View {
                 }
                 .pickerStyle(.menu)
                 .tint(Color.mmAccentPrimary)
+            }
+            .listRowBackground(Color.mmBgCard)
+
+            // Claude API Key
+            VStack(alignment: .leading, spacing: 8) {
+                HStack(spacing: 12) {
+                    Image(systemName: "brain")
+                        .foregroundStyle(Color.mmAccentSecondary)
+                    Text(L10n.claudeAPIKey)
+                        .font(.subheadline)
+                        .foregroundStyle(Color.mmTextPrimary)
+                    Spacer()
+                    Button {
+                        showingAPIKey.toggle()
+                    } label: {
+                        Image(systemName: showingAPIKey ? "eye.slash" : "eye")
+                            .font(.caption)
+                            .foregroundStyle(Color.mmTextSecondary)
+                    }
+                }
+                HStack {
+                    if showingAPIKey {
+                        TextField(L10n.enterAPIKey, text: $claudeAPIKey)
+                            .font(.caption)
+                            .foregroundStyle(Color.mmTextPrimary)
+                            .autocapitalization(.none)
+                            .textContentType(.password)
+                    } else {
+                        SecureField(L10n.enterAPIKey, text: $claudeAPIKey)
+                            .font(.caption)
+                            .foregroundStyle(Color.mmTextPrimary)
+                    }
+                }
+                .padding(8)
+                .background(Color.mmBgSecondary)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+
+                if claudeAPIKey.isEmpty {
+                    Text(L10n.apiKeyHint)
+                        .font(.caption2)
+                        .foregroundStyle(Color.mmTextSecondary)
+                } else {
+                    HStack(spacing: 4) {
+                        Image(systemName: "checkmark.circle.fill")
+                            .foregroundStyle(Color.mmAccentPrimary)
+                        Text(L10n.aiRecognition)
+                            .foregroundStyle(Color.mmAccentPrimary)
+                    }
+                    .font(.caption2)
+                }
             }
             .listRowBackground(Color.mmBgCard)
         } header: {
