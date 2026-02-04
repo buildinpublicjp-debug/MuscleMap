@@ -1074,5 +1074,167 @@
       "glutes": 100,
       "hamstrings": 80
     }
+  },
+  {
+    "id": "machine_incline_press",
+    "nameEN": "Machine Incline Press",
+    "nameJA": "インクラインチェストプレス（マシン）",
+    "category": "胸",
+    "equipment": "マシン",
+    "difficulty": "初級",
+    "muscleMapping": {
+      "chest_upper": 100,
+      "chest_lower": 50,
+      "deltoid_anterior": 60,
+      "triceps": 40
+    }
+  },
+  {
+    "id": "machine_row",
+    "nameEN": "Machine Row",
+    "nameJA": "ローイングマシン",
+    "category": "背中",
+    "equipment": "マシン",
+    "difficulty": "初級",
+    "muscleMapping": {
+      "lats": 100,
+      "traps_middle_lower": 70,
+      "deltoid_posterior": 40,
+      "biceps": 50
+    }
+  },
+  {
+    "id": "assisted_pull_up",
+    "nameEN": "Assisted Pull Up",
+    "nameJA": "アシストプルアップ（マシン）",
+    "category": "背中",
+    "equipment": "マシン",
+    "difficulty": "初級",
+    "muscleMapping": {
+      "lats": 100,
+      "traps_middle_lower": 40,
+      "biceps": 60,
+      "forearms": 30
+    }
+  },
+  {
+    "id": "machine_shoulder_press",
+    "nameEN": "Machine Shoulder Press",
+    "nameJA": "ショルダープレス（マシン）",
+    "category": "肩",
+    "equipment": "マシン",
+    "difficulty": "初級",
+    "muscleMapping": {
+      "deltoid_anterior": 100,
+      "deltoid_lateral": 60,
+      "triceps": 40
+    }
+  },
+  {
+    "id": "machine_lateral_raise",
+    "nameEN": "Machine Lateral Raise",
+    "nameJA": "サイドレイズ（マシン）",
+    "category": "肩",
+    "equipment": "マシン",
+    "difficulty": "初級",
+    "muscleMapping": {
+      "deltoid_lateral": 100,
+      "traps_upper": 20
+    }
+  },
+  {
+    "id": "machine_rear_delt",
+    "nameEN": "Machine Rear Delt Fly",
+    "nameJA": "リアデルト（マシン）",
+    "category": "肩",
+    "equipment": "マシン",
+    "difficulty": "初級",
+    "muscleMapping": {
+      "deltoid_posterior": 100,
+      "traps_middle_lower": 50
+    }
+  },
+  {
+    "id": "machine_bicep_curl",
+    "nameEN": "Machine Bicep Curl",
+    "nameJA": "アームカール（マシン）",
+    "category": "腕（二頭）",
+    "equipment": "マシン",
+    "difficulty": "初級",
+    "muscleMapping": {
+      "biceps": 100,
+      "forearms": 30
+    }
+  },
+  {
+    "id": "machine_tricep_extension",
+    "nameEN": "Machine Tricep Extension",
+    "nameJA": "トライセプスエクステンション（マシン）",
+    "category": "腕（三頭）",
+    "equipment": "マシン",
+    "difficulty": "初級",
+    "muscleMapping": {
+      "triceps": 100
+    }
+  },
+  {
+    "id": "machine_crunch",
+    "nameEN": "Machine Crunch",
+    "nameJA": "アブドミナルクランチ（マシン）",
+    "category": "体幹",
+    "equipment": "マシン",
+    "difficulty": "初級",
+    "muscleMapping": {
+      "rectus_abdominis": 100,
+      "obliques": 30
+    }
+  },
+  {
+    "id": "torso_rotation",
+    "nameEN": "Torso Rotation Machine",
+    "nameJA": "トルソーローテーション",
+    "category": "体幹",
+    "equipment": "マシン",
+    "difficulty": "初級",
+    "muscleMapping": {
+      "obliques": 100,
+      "rectus_abdominis": 40
+    }
+  },
+  {
+    "id": "hip_abductor",
+    "nameEN": "Hip Abductor Machine",
+    "nameJA": "アブダクターマシン（外転）",
+    "category": "下半身",
+    "equipment": "マシン",
+    "difficulty": "初級",
+    "muscleMapping": {
+      "glutes": 100
+    }
+  },
+  {
+    "id": "glute_drive",
+    "nameEN": "Glute Drive Machine",
+    "nameJA": "グルートドライブ（マシン）",
+    "category": "下半身",
+    "equipment": "マシン",
+    "difficulty": "初級",
+    "muscleMapping": {
+      "glutes": 100,
+      "hamstrings": 50
+    }
+  },
+  {
+    "id": "smith_squat",
+    "nameEN": "Smith Machine Squat",
+    "nameJA": "スミスマシンスクワット",
+    "category": "下半身",
+    "equipment": "マシン",
+    "difficulty": "中級",
+    "muscleMapping": {
+      "quadriceps": 100,
+      "glutes": 70,
+      "hamstrings": 40
+    }
   }
 ]
