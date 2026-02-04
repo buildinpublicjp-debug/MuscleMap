@@ -45,7 +45,11 @@ class MuscleStateRepository {
     /// 刺激記録を保存
     func saveStimulation(_ stimulation: MuscleStimulation) {
         modelContext.insert(stimulation)
-        try? modelContext.save()
+        do {
+            try modelContext.save()
+        } catch {
+            print("[MuscleStateRepository] Failed to save stimulation: \(error)")
+        }
     }
 
     /// 既存の刺激記録を更新（同日・同筋肉・同セッション）
@@ -76,7 +80,11 @@ class MuscleStateRepository {
             )
             modelContext.insert(stim)
         }
-        try? modelContext.save()
+        do {
+            try modelContext.save()
+        } catch {
+            print("[MuscleStateRepository] Failed to upsert stimulation: \(error)")
+        }
     }
 
     /// 指定セッションの刺激記録を全削除
@@ -84,11 +92,14 @@ class MuscleStateRepository {
         let descriptor = FetchDescriptor<MuscleStimulation>(
             predicate: #Predicate { $0.sessionId == sessionId }
         )
-        if let stimulations = try? modelContext.fetch(descriptor) {
+        do {
+            let stimulations = try modelContext.fetch(descriptor)
             for stim in stimulations {
                 modelContext.delete(stim)
             }
-            try? modelContext.save()
+            try modelContext.save()
+        } catch {
+            print("[MuscleStateRepository] Failed to delete stimulations: \(error)")
         }
     }
 }

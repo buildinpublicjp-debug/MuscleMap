@@ -35,8 +35,8 @@ struct Muscle3DView: View {
         ZStack {
             if isLoading {
                 loadingView
-            } else if entity != nil {
-                RealityKitContainer(entity: entity!, highlightColor: visualState.color)
+            } else if let entity = entity {
+                RealityKitContainer(entity: entity, highlightColor: visualState.color)
             } else {
                 fallback2DView
             }

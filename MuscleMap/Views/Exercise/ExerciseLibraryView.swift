@@ -104,14 +104,21 @@ private struct CategoryFilterChip: View {
     }
 }
 
-// MARK: - 種目行
+// MARK: - 種目行（リッチUI）
 
 private struct ExerciseLibraryRow: View {
     let exercise: ExerciseDefinition
     private var localization: LocalizationManager { LocalizationManager.shared }
 
     var body: some View {
-        HStack {
+        HStack(spacing: 12) {
+            // ミニ筋肉マップ（ターゲット筋肉をハイライト）
+            MiniMuscleMapView(muscleMapping: exercise.muscleMapping)
+                .frame(width: 50, height: 70)
+                .background(Color.mmBgCard.opacity(0.5))
+                .clipShape(RoundedRectangle(cornerRadius: 6))
+
+            // 種目情報
             VStack(alignment: .leading, spacing: 4) {
                 Text(localization.currentLanguage == .japanese ? exercise.nameJA : exercise.nameEN)
                     .font(.subheadline.bold())
@@ -121,13 +128,11 @@ private struct ExerciseLibraryRow: View {
                     .font(.caption)
                     .foregroundStyle(Color.mmTextSecondary)
 
-                HStack(spacing: 12) {
-                    Label(exercise.equipment, systemImage: "dumbbell")
-                    Label(exercise.difficulty, systemImage: "chart.bar")
-                    Label(exercise.category, systemImage: "tag")
+                // 器具と難易度のタグ（カテゴリは上部フィルターで選択可能なので省略）
+                HStack(spacing: 8) {
+                    ExerciseTag(text: exercise.equipment, icon: "dumbbell")
+                    ExerciseTag(text: exercise.difficulty, icon: "chart.bar")
                 }
-                .font(.caption2)
-                .foregroundStyle(Color.mmTextSecondary)
             }
 
             Spacer()
@@ -136,7 +141,27 @@ private struct ExerciseLibraryRow: View {
                 .font(.caption)
                 .foregroundStyle(Color.mmTextSecondary)
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, 6)
+    }
+}
+
+// MARK: - 種目タグ
+
+private struct ExerciseTag: View {
+    let text: String
+    let icon: String
+
+    var body: some View {
+        HStack(spacing: 3) {
+            Image(systemName: icon)
+            Text(text)
+        }
+        .font(.caption2)
+        .foregroundStyle(Color.mmTextSecondary)
+        .padding(.horizontal, 6)
+        .padding(.vertical, 2)
+        .background(Color.mmBgCard)
+        .clipShape(Capsule())
     }
 }
 

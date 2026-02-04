@@ -26,14 +26,22 @@ class WorkoutRepository {
     func startSession() -> WorkoutSession {
         let session = WorkoutSession()
         modelContext.insert(session)
-        try? modelContext.save()
+        do {
+            try modelContext.save()
+        } catch {
+            print("[WorkoutRepository] Failed to start session: \(error)")
+        }
         return session
     }
 
     /// セッションを終了
     func endSession(_ session: WorkoutSession) {
         session.endDate = Date()
-        try? modelContext.save()
+        do {
+            try modelContext.save()
+        } catch {
+            print("[WorkoutRepository] Failed to end session: \(error)")
+        }
     }
 
     /// 直近のセッション一覧（日付降順）
@@ -65,7 +73,11 @@ class WorkoutRepository {
         )
         modelContext.insert(workoutSet)
         session.sets.append(workoutSet)
-        try? modelContext.save()
+        do {
+            try modelContext.save()
+        } catch {
+            print("[WorkoutRepository] Failed to add set: \(error)")
+        }
         return workoutSet
     }
 
@@ -88,7 +100,11 @@ class WorkoutRepository {
     /// セットを削除
     func deleteSet(_ workoutSet: WorkoutSet) {
         modelContext.delete(workoutSet)
-        try? modelContext.save()
+        do {
+            try modelContext.save()
+        } catch {
+            print("[WorkoutRepository] Failed to delete set: \(error)")
+        }
     }
 
     /// セッションとその全セットを削除（破棄）
@@ -97,6 +113,10 @@ class WorkoutRepository {
             modelContext.delete(set)
         }
         modelContext.delete(session)
-        try? modelContext.save()
+        do {
+            try modelContext.save()
+        } catch {
+            print("[WorkoutRepository] Failed to discard session: \(error)")
+        }
     }
 }

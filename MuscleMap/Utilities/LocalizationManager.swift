@@ -444,6 +444,40 @@ enum L10n {
     static var onboardingTagline1: String { loc("鍛えた筋肉が光る。", "Your trained muscles glow.") }
     static var onboardingTagline2: String { loc("回復状態が一目でわかる。", "See recovery at a glance.") }
     static var selectLanguage: String { loc("言語を選択", "Select Language") }
+    // 言語名（ネイティブ表記で固定）
+    static var languageJapanese: String { "日本語" }
+    static var languageEnglish: String { "English" }
+
+    // MARK: - CSVインポート
+    static var selectCSVFile: String { loc("CSVファイルを選択", "Select CSV File") }
+    static var strongHevyFormat: String { loc("Strong/Hevy形式に対応", "Supports Strong/Hevy format") }
+    static var fileSelection: String { loc("ファイル選択", "File Selection") }
+    static var workoutCount: String { loc("ワークアウト数", "Workout Count") }
+    static var unregisteredExercises: String { loc("未登録の種目", "Unregistered Exercises") }
+    static var potentialDuplicates: String { loc("重複の可能性", "Potential Duplicates") }
+    static var preview: String { loc("プレビュー", "Preview") }
+    static var executeImport: String { loc("インポート実行", "Execute Import") }
+    static var importComplete: String { loc("インポート完了", "Import Complete") }
+    static var result: String { loc("結果", "Result") }
+    static var supportedFormat: String { loc("対応フォーマット", "Supported Format") }
+    static var help: String { loc("ヘルプ", "Help") }
+    static var noAccessPermission: String { loc("ファイルへのアクセス権限がありません", "No permission to access file") }
+    static var noWorkoutDataFound: String {
+        loc("ワークアウトデータが見つかりませんでした。フォーマットを確認してください。",
+            "No workout data found. Please check the format.")
+    }
+
+    // MARK: - Obsidian連携
+    static var obsidianIntegration: String { loc("Obsidian連携", "Obsidian Integration") }
+    static var connectionStatus: String { loc("接続状態", "Connection Status") }
+    static var selectVaultFolder: String { loc("Vaultフォルダを選択", "Select Vault Folder") }
+    static var loadObsidianData: String { loc("Obsidianのワークアウトデータを読み込みます", "Load workout data from Obsidian") }
+    static var disconnect: String { loc("接続を解除", "Disconnect") }
+    static var disconnectConfirm: String { loc("Obsidian Vaultとの接続を解除しますか？", "Disconnect from Obsidian Vault?") }
+    static var syncNow: String { loc("今すぐ同期", "Sync Now") }
+    static var lastSync: String { loc("最終同期", "Last Sync") }
+    static var sync: String { loc("同期", "Sync") }
+    static var readOnlyNote: String { loc("Obsidianへの書き込みは行いません（読み取り専用）", "Read-only (no write to Obsidian)") }
 
     // MARK: - AI画像認識
     static var aiRecognition: String { loc("AI認識（高精度）", "AI Recognition (High Accuracy)") }

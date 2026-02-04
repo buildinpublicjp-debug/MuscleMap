@@ -75,25 +75,19 @@ struct MiniMuscleMapView: View {
         return 0
     }
 
-    // MARK: - 刺激度に応じた色
+    // MARK: - 刺激度に応じた色（緑のハイライト）
 
     private func colorFor(stimulation: Int) -> Color {
         guard stimulation > 0 else {
             return Color.clear
         }
 
-        let opacity = 0.4 + (Double(stimulation) / 100.0) * 0.6
-
-        switch stimulation {
-        case 80...:
-            return Color.mmMuscleJustWorked.opacity(opacity)
-        case 50..<80:
-            return Color.mmMuscleAmber.opacity(opacity)
-        case 20..<50:
-            return Color.mmMuscleLime.opacity(opacity)
-        default:
-            return Color.mmMuscleLime.opacity(0.5)
-        }
+        // 刺激度に応じた緑の濃さ
+        // 100% → opacity 1.0（濃い緑）
+        // 50%  → opacity 0.5
+        // 20%  → opacity 0.3（最低値）
+        let opacity = max(0.3, Double(stimulation) / 100.0)
+        return Color.mmAccentPrimary.opacity(opacity)
     }
 }
 

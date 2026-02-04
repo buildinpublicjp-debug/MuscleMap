@@ -6,7 +6,6 @@ struct OnboardingView: View {
     var onComplete: () -> Void
 
     @State private var currentPage = 0
-    @State private var localization = LocalizationManager.shared
 
     var body: some View {
         ZStack {
@@ -62,7 +61,7 @@ private struct LanguageSelectionPage: View {
                     HapticManager.lightTap()
                     onLanguageSelected()
                 } label: {
-                    Text("日本語")
+                    Text(L10n.languageJapanese)
                         .font(.headline)
                         .foregroundStyle(Color.mmTextPrimary)
                         .frame(maxWidth: .infinity)
@@ -80,7 +79,7 @@ private struct LanguageSelectionPage: View {
                     HapticManager.lightTap()
                     onLanguageSelected()
                 } label: {
-                    Text("English")
+                    Text(L10n.languageEnglish)
                         .font(.headline)
                         .foregroundStyle(Color.mmTextPrimary)
                         .frame(maxWidth: .infinity)
