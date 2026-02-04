@@ -38,13 +38,21 @@ struct MiniMuscleMapView: View {
             let rect = CGRect(origin: .zero, size: geo.size)
 
             ZStack {
-                // シルエット（背景）
+                // シルエット（背景）- 人型が認識しやすいように
                 if shouldShowFront {
                     MusclePathData.bodyOutlineFront(in: rect)
-                        .fill(Color.mmBgSecondary.opacity(0.3))
+                        .fill(Color.mmBgSecondary.opacity(0.5))
+                        .overlay {
+                            MusclePathData.bodyOutlineFront(in: rect)
+                                .stroke(Color.mmMuscleBorder.opacity(0.4), lineWidth: 0.5)
+                        }
                 } else {
                     MusclePathData.bodyOutlineBack(in: rect)
-                        .fill(Color.mmBgSecondary.opacity(0.3))
+                        .fill(Color.mmBgSecondary.opacity(0.5))
+                        .overlay {
+                            MusclePathData.bodyOutlineBack(in: rect)
+                                .stroke(Color.mmMuscleBorder.opacity(0.4), lineWidth: 0.5)
+                        }
                 }
 
                 // 筋肉パス

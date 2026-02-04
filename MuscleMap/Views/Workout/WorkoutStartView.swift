@@ -279,6 +279,8 @@ private struct ActiveWorkoutView: View {
     @Bindable var viewModel: WorkoutViewModel
     @Binding var showingExercisePicker: Bool
     @State private var showingEndConfirm = false
+    @State private var completedSession: WorkoutSession?
+    @State private var showingCompletionView = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -332,13 +334,26 @@ private struct ActiveWorkoutView: View {
             }
             .confirmationDialog(L10n.endWorkoutConfirm, isPresented: $showingEndConfirm, titleVisibility: .visible) {
                 Button(L10n.saveAndEnd) {
-                    viewModel.endSession()
-                    HapticManager.workoutEnded()
+                    // セッションを保存して完了画面を表示
+                    if let session = viewModel.activeSession {
+                        completedSession = session
+                        viewModel.endSession()
+                        HapticManager.workoutEnded()
+                        showingCompletionView = true
+                    }
                 }
                 Button(L10n.discardAndEnd, role: .destructive) {
                     viewModel.discardSession()
                 }
                 Button(L10n.cancel, role: .cancel) {}
+            }
+            .fullScreenCover(isPresented: $showingCompletionView) {
+                if let session = completedSession {
+                    WorkoutCompletionView(session: session) {
+                        showingCompletionView = false
+                        completedSession = nil
+                    }
+                }
             }
         }
     }
@@ -433,22 +448,22 @@ private struct SetInputCard: View {
             // 重量入力（通常種目 or 加重時）
             if !isBodyweight || useAdditionalWeight {
                 HStack(spacing: 16) {
-                    StepperButton(systemImage: "minus") {
+                    WeightStepperButton(systemImage: "minus") {
                         viewModel.adjustWeight(by: -2.5)
+                    } onLongPress: {
+                        viewModel.adjustWeight(by: -0.25)
                     }
 
-                    VStack(spacing: 2) {
-                        Text("\(viewModel.currentWeight, specifier: "%.1f")")
-                            .font(.system(size: 36, weight: .bold, design: .monospaced))
-                            .foregroundStyle(Color.mmTextPrimary)
-                        Text(isBodyweight ? L10n.kgAdditional : L10n.kg)
-                            .font(.caption)
-                            .foregroundStyle(Color.mmTextSecondary)
-                    }
+                    WeightInputView(
+                        weight: $viewModel.currentWeight,
+                        label: isBodyweight ? L10n.kgAdditional : L10n.kg
+                    )
                     .frame(minWidth: 100)
 
-                    StepperButton(systemImage: "plus") {
+                    WeightStepperButton(systemImage: "plus") {
                         viewModel.adjustWeight(by: 2.5)
+                    } onLongPress: {
+                        viewModel.adjustWeight(by: 0.25)
                     }
                 }
             }
@@ -516,6 +531,100 @@ private struct StepperButton: View {
     }
 }
 
+// MARK: - 重量入力ビュー（タップで直接入力可能）
+
+private struct WeightInputView: View {
+    @Binding var weight: Double
+    let label: String
+
+    @State private var isEditing = false
+    @State private var inputText = ""
+    @FocusState private var isFocused: Bool
+
+    var body: some View {
+        VStack(spacing: 2) {
+            if isEditing {
+                TextField("", text: $inputText)
+                    .font(.system(size: 36, weight: .bold, design: .monospaced))
+                    .foregroundStyle(Color.mmTextPrimary)
+                    .multilineTextAlignment(.center)
+                    .keyboardType(.decimalPad)
+                    .focused($isFocused)
+                    .onSubmit { finishEditing() }
+                    .onChange(of: isFocused) { _, focused in
+                        if !focused { finishEditing() }
+                    }
+            } else {
+                Text("\(weight, specifier: "%.2f")")
+                    .font(.system(size: 36, weight: .bold, design: .monospaced))
+                    .foregroundStyle(Color.mmTextPrimary)
+                    .onTapGesture {
+                        inputText = String(format: "%.2f", weight)
+                        isEditing = true
+                        isFocused = true
+                        HapticManager.lightTap()
+                    }
+            }
+            Text(label)
+                .font(.caption)
+                .foregroundStyle(Color.mmTextSecondary)
+        }
+    }
+
+    private func finishEditing() {
+        if let newWeight = Double(inputText.replacingOccurrences(of: ",", with: ".")) {
+            weight = max(0, newWeight)
+        }
+        isEditing = false
+    }
+}
+
+// MARK: - 重量用+/-ボタン（長押しで0.25kg刻み）
+
+private struct WeightStepperButton: View {
+    let systemImage: String
+    let onTap: () -> Void
+    let onLongPress: () -> Void
+
+    @State private var isLongPressing = false
+    @State private var longPressTimer: Timer?
+
+    var body: some View {
+        Image(systemName: systemImage)
+            .font(.title2.bold())
+            .foregroundStyle(Color.mmAccentPrimary)
+            .frame(width: 60, height: 60)
+            .background(Color.mmBgSecondary)
+            .clipShape(Circle())
+            .scaleEffect(isLongPressing ? 0.95 : 1.0)
+            .animation(.easeInOut(duration: 0.1), value: isLongPressing)
+            .onTapGesture {
+                onTap()
+                HapticManager.stepperChanged()
+            }
+            .onLongPressGesture(minimumDuration: 0.3, pressing: { pressing in
+                isLongPressing = pressing
+                if pressing {
+                    startLongPressTimer()
+                } else {
+                    stopLongPressTimer()
+                }
+            }, perform: {})
+    }
+
+    private func startLongPressTimer() {
+        longPressTimer = Timer.scheduledTimer(withTimeInterval: 0.15, repeats: true) { _ in
+            onLongPress()
+            HapticManager.lightTap()
+        }
+    }
+
+    private func stopLongPressTimer() {
+        longPressTimer?.invalidate()
+        longPressTimer = nil
+    }
+}
+
 // MARK: - 記録済みセット一覧
 
 private struct RecordedSetsView: View {
@@ -525,6 +634,12 @@ private struct RecordedSetsView: View {
 
     @State private var setToDelete: WorkoutSet?
     @State private var showingDeleteConfirm = false
+
+    private var timeFormatter: DateFormatter {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "HH:mm"
+        return formatter
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -558,6 +673,10 @@ private struct RecordedSetsView: View {
                                         .font(.caption.monospaced())
                                         .foregroundStyle(Color.mmTextPrimary)
                                 }
+                                Text(timeFormatter.string(from: set.completedAt))
+                                    .font(.caption2)
+                                    .foregroundStyle(Color.mmTextSecondary.opacity(0.6))
+                                    .padding(.leading, 8)
                             }
                             .listRowBackground(Color.mmBgCard)
                             .swipeActions(edge: .trailing, allowsFullSwipe: false) {

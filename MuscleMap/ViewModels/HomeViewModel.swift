@@ -57,19 +57,9 @@ class HomeViewModel {
         updateWidgetData(stimulations: stimulations)
     }
 
-    /// ウィジェット用データを書き込み & タイムラインリロード
+    /// ウィジェット用データを書き込み
     private func updateWidgetData(stimulations: [Muscle: MuscleStimulation]) {
-        let menu = MenuSuggestionService.suggestTodayMenu(
-            stimulations: stimulations,
-            exerciseStore: ExerciseStore.shared
-        )
-        WidgetDataProvider.updateWidgetData(
-            muscleStates: muscleStates,
-            streakDays: streakDays,
-            suggestedGroup: menu.primaryGroup,
-            suggestedReason: menu.reason
-        )
-        WidgetCenter.shared.reloadAllTimelines()
+        WidgetDataProvider.updateWidgetData(muscleStates: muscleStates)
     }
 
     /// 進行中セッションをチェック

@@ -9,6 +9,7 @@ struct HistoryView: View {
     @State private var viewModel: HistoryViewModel?
     @State private var selectedPeriod: StatPeriod = .weekly
     @State private var showingPaywall = false
+    @State private var selectedCalendarDate: Date?
 
     var body: some View {
         NavigationStack {
@@ -20,6 +21,16 @@ struct HistoryView: View {
                         VStack(spacing: 24) {
                             // 期間セレクター
                             periodPicker
+
+                            // 月間カレンダー（月表示時のみ）
+                            if selectedPeriod == .monthly {
+                                MonthlyCalendarView(
+                                    selectedDate: $selectedCalendarDate,
+                                    workoutDates: vm.workoutDates
+                                ) { date in
+                                    // カレンダー日付タップ時のアクション
+                                }
+                            }
 
                             // サマリーカード
                             if selectedPeriod == .weekly {

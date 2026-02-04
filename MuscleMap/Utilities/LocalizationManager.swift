@@ -479,6 +479,14 @@ enum L10n {
     static var sync: String { loc("同期", "Sync") }
     static var readOnlyNote: String { loc("Obsidianへの書き込みは行いません（読み取り専用）", "Read-only (no write to Obsidian)") }
 
+    // MARK: - ワークアウト完了画面
+    static var workoutComplete: String { loc("ワークアウト完了！", "Workout Complete!") }
+    static var share: String { loc("シェア", "Share") }
+    static var todaysWorkout: String { loc("今日のワークアウト", "Today's Workout") }
+    static var exercises: String { loc("種目", "Exercises") }
+    static var sets: String { loc("セット", "Sets") }
+    static var time: String { loc("時間", "Time") }
+
     // MARK: - AI画像認識
     static var aiRecognition: String { loc("AI認識（高精度）", "AI Recognition (High Accuracy)") }
     static var claudeAPIKey: String { loc("Claude APIキー", "Claude API Key") }

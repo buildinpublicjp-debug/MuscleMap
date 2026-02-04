@@ -135,6 +135,20 @@
     }
   },
   {
+    "id": "machine_chest_press",
+    "nameEN": "Machine Chest Press",
+    "nameJA": "チェストプレス（マシン）",
+    "category": "胸",
+    "equipment": "マシン",
+    "difficulty": "初級",
+    "muscleMapping": {
+      "chest_upper": 70,
+      "chest_lower": 100,
+      "deltoid_anterior": 50,
+      "triceps": 40
+    }
+  },
+  {
     "id": "deadlift",
     "nameEN": "Deadlift",
     "nameJA": "デッドリフト",

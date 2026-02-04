@@ -1,34 +1,63 @@
 import WidgetKit
 import SwiftUI
 
-// MARK: - タイムラインエントリ
+// MARK: - タイムラインエントリ（簡素化版）
 
 struct MuscleMapEntry: TimelineEntry {
     let date: Date
-    let streakDays: Int
-    let suggestedGroup: String
-    let suggestedReason: String
-    let groupStates: [String: GroupState]
+    let muscleStates: [String: MuscleState]
 
-    struct GroupState {
-        let color: Color
-        let isNeglected: Bool
+    struct MuscleState {
+        let progress: Double      // 0.0-1.0
+        let stateType: StateType
+
+        enum StateType {
+            case inactive
+            case recovering
+            case neglected
+            case neglectedSevere
+        }
+
+        var color: Color {
+            switch stateType {
+            case .inactive:
+                return .mmMuscleInactive
+            case .recovering:
+                return recoveryColor(progress: progress)
+            case .neglected, .neglectedSevere:
+                return .mmMuscleNeglected
+            }
+        }
+
+        private func recoveryColor(progress: Double) -> Color {
+            switch progress {
+            case ..<0.2:
+                return .mmMuscleCoral
+            case 0.2..<0.4:
+                return .mmMuscleAmber
+            case 0.4..<0.6:
+                return .mmMuscleYellow
+            case 0.6..<0.8:
+                return .mmMuscleLime
+            default:
+                return .mmMuscleBioGreen
+            }
+        }
     }
 
-    static let placeholder = MuscleMapEntry(
-        date: Date(),
-        streakDays: 3,
-        suggestedGroup: "chest",
-        suggestedReason: "胸が最も回復しています",
-        groupStates: [
-            "chest": GroupState(color: .mmMuscleBioGreen, isNeglected: false),
-            "back": GroupState(color: .mmMuscleAmber, isNeglected: false),
-            "shoulders": GroupState(color: .mmMuscleLime, isNeglected: false),
-            "arms": GroupState(color: .mmMuscleYellow, isNeglected: false),
-            "core": GroupState(color: .mmMuscleInactive, isNeglected: false),
-            "lowerBody": GroupState(color: .mmMuscleCoral, isNeglected: false),
-        ]
-    )
+    static let placeholder: MuscleMapEntry = {
+        var states: [String: MuscleState] = [:]
+        // プレースホルダー用のサンプルデータ
+        states["chest_upper"] = MuscleState(progress: 0.3, stateType: .recovering)
+        states["chest_lower"] = MuscleState(progress: 0.3, stateType: .recovering)
+        states["lats"] = MuscleState(progress: 0.7, stateType: .recovering)
+        states["traps_upper"] = MuscleState(progress: 0.5, stateType: .recovering)
+        states["deltoid_anterior"] = MuscleState(progress: 0.6, stateType: .recovering)
+        states["biceps"] = MuscleState(progress: 0.4, stateType: .recovering)
+        states["quadriceps"] = MuscleState(progress: 0.9, stateType: .recovering)
+        states["glutes"] = MuscleState(progress: 0.8, stateType: .recovering)
+        return MuscleMapEntry(date: Date(), muscleStates: states)
+    }()
 }
 
 // MARK: - タイムラインプロバイダ
@@ -44,7 +73,7 @@ struct MuscleMapTimelineProvider: TimelineProvider {
 
     func getTimeline(in context: Context, completion: @escaping (Timeline<MuscleMapEntry>) -> Void) {
         let entry = createEntry()
-        // 15分ごとに更新（回復は時間経過で変わるため）
+        // 15分ごとに更新
         let nextUpdate = Calendar.current.date(byAdding: .minute, value: 15, to: Date())!
         let timeline = Timeline(entries: [entry], policy: .after(nextUpdate))
         completion(timeline)
@@ -55,79 +84,31 @@ struct MuscleMapTimelineProvider: TimelineProvider {
             return .placeholder
         }
 
-        let groupStates = buildGroupStates(from: data)
+        var states: [String: MuscleMapEntry.MuscleState] = [:]
 
-        return MuscleMapEntry(
-            date: Date(),
-            streakDays: data.streakDays,
-            suggestedGroup: data.suggestedGroup,
-            suggestedReason: data.suggestedReason,
-            groupStates: groupStates
-        )
-    }
-
-    private func buildGroupStates(from data: WidgetMuscleData) -> [String: MuscleMapEntry.GroupState] {
-        // グループごとの筋肉マッピング
-        let groupMuscles: [String: [String]] = [
-            "chest": ["chest_upper", "chest_lower"],
-            "back": ["lats", "traps_upper", "traps_middle_lower", "erector_spinae"],
-            "shoulders": ["deltoid_anterior", "deltoid_lateral", "deltoid_posterior"],
-            "arms": ["biceps", "triceps", "forearms"],
-            "core": ["rectus_abdominis", "obliques"],
-            "lowerBody": ["glutes", "quadriceps", "hamstrings", "adductors", "hip_flexors", "gastrocnemius", "soleus"],
-        ]
-
-        var result: [String: MuscleMapEntry.GroupState] = [:]
-
-        for (group, muscles) in groupMuscles {
-            var worstProgress: Double = 1.0
-            var hasNeglected = false
-
-            for muscleId in muscles {
-                if let snapshot = data.muscleStates[muscleId] {
-                    switch snapshot.state {
-                    case .recovering:
-                        worstProgress = min(worstProgress, snapshot.progress)
-                    case .neglected, .neglectedSevere:
-                        hasNeglected = true
-                    case .inactive:
-                        break
-                    }
-                }
+        for (muscleId, snapshot) in data.muscleStates {
+            let stateType: MuscleMapEntry.MuscleState.StateType
+            switch snapshot.state {
+            case .inactive:
+                stateType = .inactive
+            case .recovering:
+                stateType = .recovering
+            case .neglected:
+                stateType = .neglected
+            case .neglectedSevere:
+                stateType = .neglectedSevere
             }
-
-            let color: Color
-            if hasNeglected {
-                color = .mmMuscleNeglected
-            } else if worstProgress < 1.0 {
-                color = recoveryColor(progress: worstProgress)
-            } else {
-                color = .mmMuscleInactive
-            }
-
-            result[group] = MuscleMapEntry.GroupState(color: color, isNeglected: hasNeglected)
+            states[muscleId] = MuscleMapEntry.MuscleState(
+                progress: snapshot.progress,
+                stateType: stateType
+            )
         }
 
-        return result
-    }
-
-    private func recoveryColor(progress: Double) -> Color {
-        switch progress {
-        case ..<0.2:
-            return .mmMuscleCoral
-        case 0.2..<0.4:
-            return .mmMuscleAmber
-        case 0.4..<0.6:
-            return .mmMuscleYellow
-        case 0.6..<0.8:
-            return .mmMuscleLime
-        default:
-            return .mmMuscleBioGreen
-        }
+        return MuscleMapEntry(date: Date(), muscleStates: states)
     }
 }
 
-// MARK: - ウィジェットデータ読み込み（Widget Extension用）
+// MARK: - ウィジェットデータ読み込み
 
 enum WidgetDataReader {
     static let suiteName = "group.com.buildinpublic.MuscleMap"
@@ -143,130 +124,165 @@ enum WidgetDataReader {
     }
 }
 
-// MARK: - Smallウィジェットビュー
+// MARK: - Smallウィジェットビュー（前面のみ）
 
 struct SmallWidgetView: View {
     let entry: MuscleMapEntry
 
     var body: some View {
-        VStack(spacing: 8) {
-            // ミニ筋肉マップ（6グループ × カラードット）
-            MiniMuscleMap(groupStates: entry.groupStates)
+        VStack(spacing: 4) {
+            // 筋肉マップ（前面のみ）
+            WidgetMuscleMapView(muscleStates: entry.muscleStates, showFront: true)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-            Spacer(minLength: 0)
-
-            // ストリーク
-            HStack(spacing: 4) {
-                Image(systemName: "flame.fill")
-                    .font(.caption2)
-                    .foregroundStyle(entry.streakDays > 0 ? Color.mmAccentPrimary : Color.mmTextSecondary)
-                Text("\(entry.streakDays)日連続")
-                    .font(.caption2.bold())
-                    .foregroundStyle(Color.mmTextPrimary)
-            }
+            // アプリ名
+            Text("MuscleMap")
+                .font(.caption2.bold())
+                .foregroundStyle(Color.mmAccentPrimary.opacity(0.7))
         }
-        .padding(12)
+        .padding(8)
         .containerBackground(Color.mmBgPrimary, for: .widget)
     }
 }
 
-// MARK: - Mediumウィジェットビュー
+// MARK: - Mediumウィジェットビュー（前面 + 背面）
 
 struct MediumWidgetView: View {
     let entry: MuscleMapEntry
 
-    private var groupLocalizedName: String {
-        switch entry.suggestedGroup {
-        case "chest": return String(localized: "胸")
-        case "back": return String(localized: "背中")
-        case "shoulders": return String(localized: "肩")
-        case "arms": return String(localized: "腕")
-        case "core": return String(localized: "体幹")
-        case "lowerBody": return String(localized: "下半身")
-        default: return entry.suggestedGroup
+    var body: some View {
+        VStack(spacing: 4) {
+            HStack(spacing: 12) {
+                // 前面
+                WidgetMuscleMapView(muscleStates: entry.muscleStates, showFront: true)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+                // 背面
+                WidgetMuscleMapView(muscleStates: entry.muscleStates, showFront: false)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
+
+            // アプリ名
+            Text("MuscleMap")
+                .font(.caption2.bold())
+                .foregroundStyle(Color.mmAccentPrimary.opacity(0.7))
         }
+        .padding(8)
+        .containerBackground(Color.mmBgPrimary, for: .widget)
     }
+}
+
+// MARK: - Largeウィジェットビュー（前面 + 背面 + 凡例）
+
+struct LargeWidgetView: View {
+    let entry: MuscleMapEntry
 
     var body: some View {
-        HStack(spacing: 16) {
-            // 左: ミニ筋肉マップ
-            VStack(spacing: 8) {
-                MiniMuscleMap(groupStates: entry.groupStates)
+        VStack(spacing: 8) {
+            // アプリ名
+            Text("MuscleMap")
+                .font(.headline.bold())
+                .foregroundStyle(Color.mmAccentPrimary)
 
-                HStack(spacing: 4) {
-                    Image(systemName: "flame.fill")
+            // 筋肉マップ
+            HStack(spacing: 16) {
+                // 前面
+                VStack(spacing: 4) {
+                    WidgetMuscleMapView(muscleStates: entry.muscleStates, showFront: true)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    Text("Front")
                         .font(.caption2)
-                        .foregroundStyle(entry.streakDays > 0 ? Color.mmAccentPrimary : Color.mmTextSecondary)
-                    Text("\(entry.streakDays)日")
-                        .font(.caption2.bold())
-                        .foregroundStyle(Color.mmTextPrimary)
-                }
-            }
-            .frame(maxWidth: .infinity)
-
-            // 右: 今日のおすすめ
-            VStack(alignment: .leading, spacing: 8) {
-                Text("今日のおすすめ")
-                    .font(.caption2)
-                    .foregroundStyle(Color.mmTextSecondary)
-
-                HStack(spacing: 4) {
-                    Image(systemName: "sparkles")
-                        .font(.caption)
-                        .foregroundStyle(Color.mmAccentPrimary)
-                    Text(groupLocalizedName)
-                        .font(.subheadline.bold())
-                        .foregroundStyle(Color.mmTextPrimary)
+                        .foregroundStyle(Color.mmTextSecondary)
                 }
 
-                Text(entry.suggestedReason)
-                    .font(.caption2)
-                    .foregroundStyle(Color.mmTextSecondary)
-                    .lineLimit(2)
-
-                Spacer(minLength: 0)
+                // 背面
+                VStack(spacing: 4) {
+                    WidgetMuscleMapView(muscleStates: entry.muscleStates, showFront: false)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    Text("Back")
+                        .font(.caption2)
+                        .foregroundStyle(Color.mmTextSecondary)
+                }
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 8)
+
+            // 凡例
+            HStack(spacing: 16) {
+                LegendItem(color: .mmMuscleCoral, text: "High Load")
+                LegendItem(color: .mmMuscleAmber, text: "Recovering")
+                LegendItem(color: .mmMuscleBioGreen, text: "Ready")
+            }
+            .padding(.top, 4)
         }
         .padding(12)
         .containerBackground(Color.mmBgPrimary, for: .widget)
     }
 }
 
-// MARK: - ミニ筋肉マップ（6グループのカラードット配置）
+// MARK: - 凡例アイテム
 
-struct MiniMuscleMap: View {
-    let groupStates: [String: MuscleMapEntry.GroupState]
+private struct LegendItem: View {
+    let color: Color
+    let text: String
 
     var body: some View {
-        // 人体シルエット風の配置
-        // 上から: 肩、胸+背中、腕、体幹、下半身
-        VStack(spacing: 4) {
-            // 肩
-            groupDot("shoulders")
-
-            // 胸 + 背中
-            HStack(spacing: 8) {
-                groupDot("chest")
-                groupDot("back")
-            }
-
-            // 腕 + 体幹
-            HStack(spacing: 8) {
-                groupDot("arms")
-                groupDot("core")
-            }
-
-            // 下半身
-            groupDot("lowerBody")
+        HStack(spacing: 4) {
+            Circle()
+                .fill(color)
+                .frame(width: 8, height: 8)
+            Text(text)
+                .font(.caption2)
+                .foregroundStyle(Color.mmTextSecondary)
         }
     }
+}
 
-    private func groupDot(_ group: String) -> some View {
-        let state = groupStates[group]
-        return RoundedRectangle(cornerRadius: 4)
-            .fill(state?.color ?? Color.mmMuscleInactive)
-            .frame(width: 28, height: 16)
+// MARK: - ウィジェット用筋肉マップビュー
+
+struct WidgetMuscleMapView: View {
+    let muscleStates: [String: MuscleMapEntry.MuscleState]
+    let showFront: Bool
+
+    var body: some View {
+        GeometryReader { geo in
+            let rect = CGRect(origin: .zero, size: geo.size)
+
+            ZStack {
+                // シルエット（背景）
+                if showFront {
+                    MusclePathData.bodyOutlineFront(in: rect)
+                        .fill(Color.mmBgSecondary.opacity(0.5))
+                        .overlay {
+                            MusclePathData.bodyOutlineFront(in: rect)
+                                .stroke(Color.mmMuscleBorder.opacity(0.4), lineWidth: 0.5)
+                        }
+                } else {
+                    MusclePathData.bodyOutlineBack(in: rect)
+                        .fill(Color.mmBgSecondary.opacity(0.5))
+                        .overlay {
+                            MusclePathData.bodyOutlineBack(in: rect)
+                                .stroke(Color.mmMuscleBorder.opacity(0.4), lineWidth: 0.5)
+                        }
+                }
+
+                // 筋肉パス
+                let muscles = showFront
+                    ? MusclePathData.frontMuscles
+                    : MusclePathData.backMuscles
+
+                ForEach(muscles, id: \.muscle) { entry in
+                    let state = muscleStates[entry.muscle.rawValue]
+                    let color = state?.color ?? Color.mmMuscleInactive
+
+                    entry.path(rect)
+                        .fill(color)
+                        .overlay {
+                            entry.path(rect)
+                                .stroke(Color.mmMuscleBorder.opacity(0.3), lineWidth: 0.3)
+                        }
+                }
+            }
+        }
     }
 }
 
@@ -278,13 +294,14 @@ extension Color {
     static let mmTextPrimary = Color.white
     static let mmTextSecondary = Color(hex: "#9E9E9E")
     static let mmAccentPrimary = Color(hex: "#00FFB3")
-    static let mmMuscleCoral = Color(hex: "#FF6B6B")
-    static let mmMuscleAmber = Color(hex: "#FFA726")
-    static let mmMuscleYellow = Color(hex: "#FFEE58")
-    static let mmMuscleLime = Color(hex: "#C6FF00")
-    static let mmMuscleBioGreen = Color(hex: "#00E676")
-    static let mmMuscleInactive = Color(hex: "#2A2A2E")
-    static let mmMuscleNeglected = Color(hex: "#9B59B6")
+    static let mmMuscleCoral = Color(hex: "#FF6B6B")       // 高負荷（0-20%）
+    static let mmMuscleAmber = Color(hex: "#FFA94D")       // 回復初期（20-40%）
+    static let mmMuscleYellow = Color(hex: "#FFD93D")      // 回復中（40-60%）
+    static let mmMuscleLime = Color(hex: "#A8E06C")        // 回復後期（60-80%）
+    static let mmMuscleBioGreen = Color(hex: "#4ADE80")    // ほぼ回復（80%+）
+    static let mmMuscleInactive = Color(hex: "#2A2A2E")    // 未刺激（暗いグレー）
+    static let mmMuscleNeglected = Color(hex: "#9B59B6")   // 長期未刺激
+    static let mmMuscleBorder = Color(hex: "#3A3A3E")
 
     init(hex: String) {
         let hex = hex.trimmingCharacters(in: CharacterSet(charactersIn: "#"))
@@ -307,8 +324,8 @@ struct MuscleMapWidget: Widget {
             WidgetEntryView(entry: entry)
         }
         .configurationDisplayName("MuscleMap")
-        .description("筋肉の回復状態と今日のおすすめを表示")
-        .supportedFamilies([.systemSmall, .systemMedium])
+        .description("筋肉の回復状態を表示")
+        .supportedFamilies([.systemSmall, .systemMedium, .systemLarge])
     }
 }
 
@@ -324,6 +341,8 @@ struct WidgetEntryView: View {
             SmallWidgetView(entry: entry)
         case .systemMedium:
             MediumWidgetView(entry: entry)
+        case .systemLarge:
+            LargeWidgetView(entry: entry)
         default:
             SmallWidgetView(entry: entry)
         }
@@ -339,6 +358,12 @@ struct WidgetEntryView: View {
 }
 
 #Preview("Medium", as: .systemMedium) {
+    MuscleMapWidget()
+} timeline: {
+    MuscleMapEntry.placeholder
+}
+
+#Preview("Large", as: .systemLarge) {
     MuscleMapWidget()
 } timeline: {
     MuscleMapEntry.placeholder

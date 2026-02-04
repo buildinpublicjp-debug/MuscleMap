@@ -153,6 +153,17 @@ class HistoryViewModel {
         return groups
     }
 
+    /// ワークアウトした日付のセット（カレンダー表示用）
+    var workoutDates: Set<DateComponents> {
+        let calendar = Calendar.current
+        var dates = Set<DateComponents>()
+        for session in sessions {
+            let components = calendar.dateComponents([.year, .month, .day], from: session.startDate)
+            dates.insert(components)
+        }
+        return dates
+    }
+
     /// 日ごとのボリュームデータ（チャート用、直近14日）
     var dailyVolumeData: [DailyVolume] {
         let calendar = Calendar.current
