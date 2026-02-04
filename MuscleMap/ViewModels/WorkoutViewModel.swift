@@ -72,6 +72,9 @@ class WorkoutViewModel {
     func selectExercise(_ exercise: ExerciseDefinition) {
         selectedExercise = exercise
 
+        // 使用履歴に記録
+        RecentExercisesManager.shared.recordUsage(exercise.id)
+
         // 前回記録を取得
         if let lastRecord = workoutRepo.fetchLastRecord(exerciseId: exercise.id) {
             currentWeight = lastRecord.weight

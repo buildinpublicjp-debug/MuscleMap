@@ -10,6 +10,7 @@ struct ExercisePickerView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var viewModel = ExerciseListViewModel()
     @ObservedObject private var favorites = FavoritesManager.shared
+    @ObservedObject private var recentManager = RecentExercisesManager.shared
     @State private var searchText = ""
     @State private var muscleStates: [Muscle: MuscleStimulation] = [:]
 
@@ -19,60 +20,11 @@ struct ExercisePickerView: View {
                 Color.mmBgPrimary.ignoresSafeArea()
 
                 VStack(spacing: 0) {
-                    // カテゴリフィルター
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 8) {
-                            // お気に入りフィルター
-                            CategoryChip(
-                                title: "★ \(L10n.favorites)",
-                                isSelected: viewModel.showFavoritesOnly
-                            ) {
-                                viewModel.showFavoritesOnly.toggle()
-                                if viewModel.showFavoritesOnly {
-                                    viewModel.selectedCategory = nil
-                                }
-                            }
-
-                            CategoryChip(
-                                title: L10n.all,
-                                isSelected: viewModel.selectedCategory == nil && !viewModel.showFavoritesOnly
-                            ) {
-                                viewModel.showFavoritesOnly = false
-                                viewModel.selectedCategory = nil
-                            }
-
-                            ForEach(viewModel.categories, id: \.self) { category in
-                                CategoryChip(
-                                    title: category,
-                                    isSelected: viewModel.selectedCategory == category && !viewModel.showFavoritesOnly
-                                ) {
-                                    viewModel.showFavoritesOnly = false
-                                    viewModel.selectedCategory = category
-                                }
-                            }
-                        }
-                        .padding(.horizontal)
-                        .padding(.vertical, 8)
-                    }
+                    // フィルターチップ
+                    filterChipsSection
 
                     // 種目リスト or EmptyState
-                    if viewModel.showFavoritesOnly && viewModel.filteredExercises.isEmpty {
-                        FavoritesEmptyState()
-                    } else {
-                        List(viewModel.filteredExercises) { exercise in
-                            Button {
-                                onSelect(exercise)
-                            } label: {
-                                EnhancedExerciseRow(
-                                    exercise: exercise,
-                                    muscleStates: muscleStates
-                                )
-                            }
-                            .listRowBackground(Color.mmBgSecondary)
-                        }
-                        .listStyle(.plain)
-                        .scrollContentBackground(.hidden)
-                    }
+                    contentSection
                 }
             }
             .navigationTitle(L10n.selectExercise)
@@ -95,9 +47,146 @@ struct ExercisePickerView: View {
         }
     }
 
+    // MARK: - フィルターチップセクション
+
+    private var filterChipsSection: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                // 最近使った種目フィルター（最優先）
+                FilterChip(
+                    title: "⏱ \(L10n.recent)",
+                    isSelected: viewModel.showRecentOnly
+                ) {
+                    viewModel.showRecentOnly.toggle()
+                    if viewModel.showRecentOnly {
+                        viewModel.showFavoritesOnly = false
+                        viewModel.selectedCategory = nil
+                        viewModel.selectedEquipment = nil
+                    }
+                }
+
+                // お気に入りフィルター
+                FilterChip(
+                    title: "★ \(L10n.favorites)",
+                    isSelected: viewModel.showFavoritesOnly
+                ) {
+                    viewModel.showFavoritesOnly.toggle()
+                    if viewModel.showFavoritesOnly {
+                        viewModel.showRecentOnly = false
+                        viewModel.selectedCategory = nil
+                        viewModel.selectedEquipment = nil
+                    }
+                }
+
+                // すべて
+                FilterChip(
+                    title: L10n.all,
+                    isSelected: !viewModel.showRecentOnly && !viewModel.showFavoritesOnly && viewModel.selectedCategory == nil && viewModel.selectedEquipment == nil
+                ) {
+                    viewModel.clearAllFilters()
+                }
+
+                // カテゴリフィルター
+                ForEach(viewModel.categories, id: \.self) { category in
+                    FilterChip(
+                        title: L10n.localizedCategory(category),
+                        isSelected: viewModel.selectedCategory == category
+                    ) {
+                        viewModel.showRecentOnly = false
+                        viewModel.showFavoritesOnly = false
+                        viewModel.selectedEquipment = nil
+                        viewModel.selectedCategory = category
+                    }
+                }
+
+                // 器具フィルター
+                ForEach(viewModel.equipmentList, id: \.self) { equipment in
+                    FilterChip(
+                        title: L10n.localizedEquipment(equipment),
+                        isSelected: viewModel.selectedEquipment == equipment
+                    ) {
+                        viewModel.showRecentOnly = false
+                        viewModel.showFavoritesOnly = false
+                        viewModel.selectedCategory = nil
+                        viewModel.selectedEquipment = equipment
+                    }
+                }
+            }
+            .padding(.horizontal)
+            .padding(.vertical, 8)
+        }
+    }
+
+    // MARK: - コンテンツセクション
+
+    @ViewBuilder
+    private var contentSection: some View {
+        if viewModel.showRecentOnly && viewModel.filteredExercises.isEmpty {
+            RecentEmptyState()
+        } else if viewModel.showFavoritesOnly && viewModel.filteredExercises.isEmpty {
+            FavoritesEmptyState()
+        } else {
+            List(viewModel.filteredExercises) { exercise in
+                Button {
+                    onSelect(exercise)
+                } label: {
+                    EnhancedExerciseRow(
+                        exercise: exercise,
+                        muscleStates: muscleStates
+                    )
+                }
+                .listRowBackground(Color.mmBgSecondary)
+            }
+            .listStyle(.plain)
+            .scrollContentBackground(.hidden)
+        }
+    }
+
     private func loadMuscleStates() {
         let repo = MuscleStateRepository(modelContext: modelContext)
         muscleStates = repo.fetchLatestStimulations()
+    }
+}
+
+// MARK: - フィルターチップ
+
+private struct FilterChip: View {
+    let title: String
+    let isSelected: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Text(title)
+                .font(.caption.bold())
+                .padding(.horizontal, 12)
+                .padding(.vertical, 6)
+                .background(isSelected ? Color.mmAccentPrimary : Color.mmBgCard)
+                .foregroundStyle(isSelected ? Color.mmBgPrimary : Color.mmTextSecondary)
+                .clipShape(Capsule())
+        }
+    }
+}
+
+// MARK: - 最近使った種目EmptyState
+
+private struct RecentEmptyState: View {
+    var body: some View {
+        VStack(spacing: 16) {
+            Spacer()
+            Image(systemName: "clock.arrow.circlepath")
+                .font(.system(size: 48))
+                .foregroundStyle(Color.mmTextSecondary.opacity(0.5))
+            Text(L10n.noRecentExercises)
+                .font(.headline)
+                .foregroundStyle(Color.mmTextPrimary)
+            Text(L10n.recentExercisesHint)
+                .font(.subheadline)
+                .foregroundStyle(Color.mmTextSecondary)
+                .multilineTextAlignment(.center)
+            Spacer()
+        }
+        .frame(maxWidth: .infinity)
     }
 }
 
@@ -123,26 +212,6 @@ private struct FavoritesEmptyState: View {
     }
 }
 
-// MARK: - カテゴリチップ
-
-private struct CategoryChip: View {
-    let title: String
-    let isSelected: Bool
-    let action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            Text(title)
-                .font(.caption.bold())
-                .padding(.horizontal, 12)
-                .padding(.vertical, 6)
-                .background(isSelected ? Color.mmAccentPrimary : Color.mmBgCard)
-                .foregroundStyle(isSelected ? Color.mmBgPrimary : Color.mmTextSecondary)
-                .clipShape(Capsule())
-        }
-    }
-}
-
 // MARK: - 種目行（シンプル版）
 
 struct ExerciseRow: View {
@@ -157,8 +226,8 @@ struct ExerciseRow: View {
                     .foregroundStyle(Color.mmTextPrimary)
 
                 HStack(spacing: 8) {
-                    Label(exercise.equipment, systemImage: "dumbbell")
-                    Label(exercise.difficulty, systemImage: "chart.bar")
+                    Label(exercise.localizedEquipment, systemImage: "dumbbell")
+                    Label(exercise.localizedDifficulty, systemImage: "chart.bar")
                 }
                 .font(.caption2)
                 .foregroundStyle(Color.mmTextSecondary)
@@ -227,8 +296,8 @@ struct EnhancedExerciseRow: View {
 
                 // メタ情報
                 HStack(spacing: 8) {
-                    Label(exercise.equipment, systemImage: "dumbbell")
-                    Label(exercise.difficulty, systemImage: "chart.bar")
+                    Label(exercise.localizedEquipment, systemImage: "dumbbell")
+                    Label(exercise.localizedDifficulty, systemImage: "chart.bar")
                     if let primary = exercise.primaryMuscle {
                         Text(localization.currentLanguage == .japanese ? primary.japaneseName : primary.englishName)
                     }

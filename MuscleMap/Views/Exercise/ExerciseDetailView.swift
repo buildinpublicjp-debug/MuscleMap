@@ -28,9 +28,9 @@ struct ExerciseDetailView: View {
 
                         // 基本情報
                         HStack(spacing: 16) {
-                            InfoTag(icon: "dumbbell", text: exercise.equipment)
-                            InfoTag(icon: "chart.bar", text: exercise.difficulty)
-                            InfoTag(icon: "tag", text: exercise.category)
+                            InfoTag(icon: "dumbbell", text: exercise.localizedEquipment)
+                            InfoTag(icon: "chart.bar", text: exercise.localizedDifficulty)
+                            InfoTag(icon: "tag", text: exercise.localizedCategory)
                         }
 
                         // 動画で見る

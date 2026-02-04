@@ -217,11 +217,18 @@ enum L10n {
     // MARK: - 種目選択・種目辞典
     static var selectExercise: String { loc("種目を選択", "Select Exercise") }
     static var all: String { loc("すべて", "All") }
+    static var recent: String { loc("最近", "Recent") }
+    static var equipment: String { loc("器具", "Equipment") }
     static var searchExercises: String { loc("種目を検索", "Search exercises") }
     static var noFavorites: String { loc("お気に入りがありません", "No favorites") }
     static var addFavoritesHint: String {
         loc("種目詳細画面の☆ボタンで\nお気に入りに追加できます",
             "Tap the ☆ button in exercise detail\nto add favorites")
+    }
+    static var noRecentExercises: String { loc("最近使った種目がありません", "No recent exercises") }
+    static var recentExercisesHint: String {
+        loc("ワークアウトで種目を記録すると\nここに表示されます",
+            "Exercises you use in workouts\nwill appear here")
     }
     static func exerciseCountLabel(_ count: Int) -> String {
         loc("\(count)種目", "\(count) exercises")
@@ -504,5 +511,54 @@ enum L10n {
     static var setAPIKeyInSettings: String {
         loc("設定画面でClaude APIキーを入力してください",
             "Please enter Claude API key in Settings")
+    }
+
+    // MARK: - 追加カテゴリ・器具
+    static var categoryArmsForearms: String { loc("腕（前腕）", "Arms (Forearms)") }
+    static var categoryFullBody: String { loc("全身", "Full Body") }
+    static var equipmentKettlebell: String { loc("ケトルベル", "Kettlebell") }
+    static var equipmentTool: String { loc("器具", "Equipment") }
+
+    // MARK: - 翻訳ヘルパー（JSON日本語キー → ローカライズ表示）
+
+    /// カテゴリ名を翻訳
+    static func localizedCategory(_ jaKey: String) -> String {
+        switch jaKey {
+        case "胸": return categoryChest
+        case "背中": return categoryBack
+        case "肩": return categoryShoulders
+        case "腕（二頭）": return categoryArmsBiceps
+        case "腕（三頭）": return categoryArmsTriceps
+        case "腕（前腕）": return categoryArmsForearms
+        case "腕": return categoryArms
+        case "体幹": return categoryCore
+        case "下半身": return categoryLowerBody
+        case "全身": return categoryFullBody
+        default: return jaKey
+        }
+    }
+
+    /// 器具名を翻訳
+    static func localizedEquipment(_ jaKey: String) -> String {
+        switch jaKey {
+        case "バーベル": return equipmentBarbell
+        case "ダンベル": return equipmentDumbbell
+        case "ケーブル": return equipmentCable
+        case "マシン": return equipmentMachine
+        case "自重": return equipmentBodyweight
+        case "ケトルベル": return equipmentKettlebell
+        case "器具": return equipmentTool
+        default: return jaKey
+        }
+    }
+
+    /// 難易度を翻訳
+    static func localizedDifficulty(_ jaKey: String) -> String {
+        switch jaKey {
+        case "初級": return difficultyBeginner
+        case "中級": return difficultyIntermediate
+        case "上級": return difficultyAdvanced
+        default: return jaKey
+        }
     }
 }

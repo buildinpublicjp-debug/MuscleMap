@@ -30,3 +30,22 @@ struct ExerciseDefinition: Codable, Identifiable, Hashable {
         muscleMapping[muscle.rawValue] ?? 0
     }
 }
+
+// MARK: - ローカライズ済みプロパティ
+
+extension ExerciseDefinition {
+    /// ローカライズされたカテゴリ名
+    @MainActor var localizedCategory: String {
+        L10n.localizedCategory(category)
+    }
+
+    /// ローカライズされた器具名
+    @MainActor var localizedEquipment: String {
+        L10n.localizedEquipment(equipment)
+    }
+
+    /// ローカライズされた難易度
+    @MainActor var localizedDifficulty: String {
+        L10n.localizedDifficulty(difficulty)
+    }
+}
