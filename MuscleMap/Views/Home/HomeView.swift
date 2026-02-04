@@ -106,8 +106,6 @@ private struct StreakBadge: View {
 private struct NeglectedWarningView: View {
     let muscles: [Muscle]
 
-    private var localization: LocalizationManager { LocalizationManager.shared }
-
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 6) {
@@ -120,7 +118,7 @@ private struct NeglectedWarningView: View {
 
             FlowLayout(spacing: 8) {
                 ForEach(muscles) { muscle in
-                    Text(localization.currentLanguage == .japanese ? muscle.japaneseName : muscle.englishName)
+                    Text(muscle.localizedName)
                         .font(.caption)
                         .padding(.horizontal, 10)
                         .padding(.vertical, 4)

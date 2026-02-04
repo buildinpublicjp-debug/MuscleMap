@@ -130,18 +130,9 @@ struct SmallWidgetView: View {
     let entry: MuscleMapEntry
 
     var body: some View {
-        VStack(spacing: 4) {
-            // 筋肉マップ（前面のみ）
-            WidgetMuscleMapView(muscleStates: entry.muscleStates, showFront: true)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-
-            // アプリ名
-            Text("MuscleMap")
-                .font(.caption2.bold())
-                .foregroundStyle(Color.mmAccentPrimary.opacity(0.7))
-        }
-        .padding(8)
-        .containerBackground(Color.mmBgPrimary, for: .widget)
+        WidgetMuscleMapView(muscleStates: entry.muscleStates, showFront: true)
+            .padding(6)
+            .containerBackground(Color.mmBgPrimary, for: .widget)
     }
 }
 
@@ -151,89 +142,27 @@ struct MediumWidgetView: View {
     let entry: MuscleMapEntry
 
     var body: some View {
-        VStack(spacing: 4) {
-            HStack(spacing: 12) {
-                // 前面
-                WidgetMuscleMapView(muscleStates: entry.muscleStates, showFront: true)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-
-                // 背面
-                WidgetMuscleMapView(muscleStates: entry.muscleStates, showFront: false)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            }
-
-            // アプリ名
-            Text("MuscleMap")
-                .font(.caption2.bold())
-                .foregroundStyle(Color.mmAccentPrimary.opacity(0.7))
+        HStack(spacing: 12) {
+            WidgetMuscleMapView(muscleStates: entry.muscleStates, showFront: true)
+            WidgetMuscleMapView(muscleStates: entry.muscleStates, showFront: false)
         }
-        .padding(8)
+        .padding(10)
         .containerBackground(Color.mmBgPrimary, for: .widget)
     }
 }
 
-// MARK: - Largeウィジェットビュー（前面 + 背面 + 凡例）
+// MARK: - Largeウィジェットビュー（前面 + 背面）
 
 struct LargeWidgetView: View {
     let entry: MuscleMapEntry
 
     var body: some View {
-        VStack(spacing: 8) {
-            // アプリ名
-            Text("MuscleMap")
-                .font(.headline.bold())
-                .foregroundStyle(Color.mmAccentPrimary)
-
-            // 筋肉マップ
-            HStack(spacing: 16) {
-                // 前面
-                VStack(spacing: 4) {
-                    WidgetMuscleMapView(muscleStates: entry.muscleStates, showFront: true)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    Text("Front")
-                        .font(.caption2)
-                        .foregroundStyle(Color.mmTextSecondary)
-                }
-
-                // 背面
-                VStack(spacing: 4) {
-                    WidgetMuscleMapView(muscleStates: entry.muscleStates, showFront: false)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    Text("Back")
-                        .font(.caption2)
-                        .foregroundStyle(Color.mmTextSecondary)
-                }
-            }
-            .padding(.horizontal, 8)
-
-            // 凡例
-            HStack(spacing: 16) {
-                LegendItem(color: .mmMuscleCoral, text: "High Load")
-                LegendItem(color: .mmMuscleAmber, text: "Recovering")
-                LegendItem(color: .mmMuscleBioGreen, text: "Ready")
-            }
-            .padding(.top, 4)
+        HStack(spacing: 20) {
+            WidgetMuscleMapView(muscleStates: entry.muscleStates, showFront: true)
+            WidgetMuscleMapView(muscleStates: entry.muscleStates, showFront: false)
         }
-        .padding(12)
+        .padding(16)
         .containerBackground(Color.mmBgPrimary, for: .widget)
-    }
-}
-
-// MARK: - 凡例アイテム
-
-private struct LegendItem: View {
-    let color: Color
-    let text: String
-
-    var body: some View {
-        HStack(spacing: 4) {
-            Circle()
-                .fill(color)
-                .frame(width: 8, height: 8)
-            Text(text)
-                .font(.caption2)
-                .foregroundStyle(Color.mmTextSecondary)
-        }
     }
 }
 

@@ -251,7 +251,7 @@ private struct MuscleInfoCard: View {
                 InfoBlock(
                     icon: "figure.stand",
                     label: L10n.muscleGroup,
-                    value: localization.currentLanguage == .japanese ? muscle.group.japaneseName : muscle.group.englishName
+                    value: muscle.group.localizedName
                 )
 
                 InfoBlock(
@@ -328,7 +328,7 @@ private struct RelatedExercisesSection: View {
                             Text(localization.currentLanguage == .japanese ? exercise.nameJA : exercise.nameEN)
                                 .font(.subheadline)
                                 .foregroundStyle(Color.mmTextPrimary)
-                            Text(exercise.equipment)
+                            Text(exercise.localizedEquipment)
                                 .font(.caption2)
                                 .foregroundStyle(Color.mmTextSecondary)
                         }

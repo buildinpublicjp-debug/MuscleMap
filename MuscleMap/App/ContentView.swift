@@ -27,31 +27,31 @@ private struct MainTabView: View {
         TabView(selection: $selectedTab) {
             HomeView()
                 .tabItem {
-                    Label("ホーム", systemImage: "figure.stand")
+                    Label(L10n.home, systemImage: "figure.stand")
                 }
                 .tag(0)
 
             WorkoutStartView()
                 .tabItem {
-                    Label("ワークアウト", systemImage: "figure.strengthtraining.traditional")
+                    Label(L10n.workout, systemImage: "figure.strengthtraining.traditional")
                 }
                 .tag(1)
 
             ExerciseLibraryView()
                 .tabItem {
-                    Label("種目辞典", systemImage: "book")
+                    Label(L10n.exerciseLibrary, systemImage: "book")
                 }
                 .tag(2)
 
             HistoryView()
                 .tabItem {
-                    Label("履歴", systemImage: "chart.bar")
+                    Label(L10n.history, systemImage: "chart.bar")
                 }
                 .tag(3)
 
             SettingsView()
                 .tabItem {
-                    Label("設定", systemImage: "gearshape")
+                    Label(L10n.settings, systemImage: "gearshape")
                 }
                 .tag(4)
         }
