@@ -19,6 +19,7 @@
 		1AA94FF61CC9E6126D159F9F /* CSVImportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C301C32BCB89E6F1B5349A6 /* CSVImportView.swift */; };
 		1B78DB667BFDD3E8AAB15FA6 /* PurchaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E62C3348AF8D24E0BA19F31 /* PurchaseManager.swift */; };
 		210539EBA932CACE31A3BC98 /* HistoryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BE171442748D8639DE3CD7C /* HistoryViewModel.swift */; };
+		22D27F27F1A8718826A59974 /* DayWorkoutDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EA3B4ECB770C8953CB55232 /* DayWorkoutDetailView.swift */; };
 		2B6CBAF613691D5E5D7C5450 /* RecoveryCalculatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 300D254EBBCA6CC21F07DD9B /* RecoveryCalculatorTests.swift */; };
 		31E876C2E3253AC0F79BAF5A /* UserProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8A4C5A76D596FFBABB6E47D /* UserProfile.swift */; };
 		329A3AFB2F0294F140FFCC0C /* ExerciseDefinition.swift in Sources */ = {isa = PBXBuildFile; fileRef = C775B710D458A8600002BACD /* ExerciseDefinition.swift */; };
@@ -151,6 +152,7 @@
 		6B6EB19ED49B4292C0046F8C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		6C301C32BCB89E6F1B5349A6 /* CSVImportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CSVImportView.swift; sourceTree = "<group>"; };
 		6DFCD8E07A44A61C9FFC4430 /* SubscriptionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionManager.swift; sourceTree = "<group>"; };
+		6EA3B4ECB770C8953CB55232 /* DayWorkoutDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DayWorkoutDetailView.swift; sourceTree = "<group>"; };
 		700ED9DA900ADBC5D52FCFEC /* ClaudeAPIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClaudeAPIService.swift; sourceTree = "<group>"; };
 		738EF1DB3A50EA9C3CB89D68 /* MuscleDetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MuscleDetailViewModel.swift; sourceTree = "<group>"; };
 		7B4AB74E97EA7F7334488DC7 /* ExerciseListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseListViewModel.swift; sourceTree = "<group>"; };
@@ -453,6 +455,7 @@
 		F4B828C4C4B7C6347B5B4E1D /* History */ = {
 			isa = PBXGroup;
 			children = (
+				6EA3B4ECB770C8953CB55232 /* DayWorkoutDetailView.swift */,
 				15716239666A23DA22D539B5 /* HistoryView.swift */,
 				BEED42233C7340488A69CE9E /* MonthlyCalendarView.swift */,
 			);
@@ -598,6 +601,7 @@
 				70F5FA46B8F7F9CBDC1617AF /* ColorExtensions.swift in Sources */,
 				76241706AA8DE99609DFF879 /* ContentView.swift in Sources */,
 				96EA90BACB00F34DF6F87FE2 /* DateExtensions.swift in Sources */,
+				22D27F27F1A8718826A59974 /* DayWorkoutDetailView.swift in Sources */,
 				329A3AFB2F0294F140FFCC0C /* ExerciseDefinition.swift in Sources */,
 				0B813F2F5B8F05FD5BB365D5 /* ExerciseDescriptions.swift in Sources */,
 				F4FF8D32B70356D6B80EEBB6 /* ExerciseDetailView.swift in Sources */,

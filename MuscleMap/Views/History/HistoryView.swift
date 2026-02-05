@@ -7,9 +7,9 @@ import Charts
 struct HistoryView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var viewModel: HistoryViewModel?
-    @State private var selectedPeriod: StatPeriod = .weekly
     @State private var showingPaywall = false
     @State private var selectedCalendarDate: Date?
+    @State private var showDayDetail = false
 
     var body: some View {
         NavigationStack {
@@ -19,25 +19,17 @@ struct HistoryView: View {
                 if let vm = viewModel {
                     ScrollView {
                         VStack(spacing: 24) {
-                            // 期間セレクター
-                            periodPicker
-
-                            // 月間カレンダー（月表示時のみ）
-                            if selectedPeriod == .monthly {
-                                MonthlyCalendarView(
-                                    selectedDate: $selectedCalendarDate,
-                                    workoutDates: vm.workoutDates
-                                ) { date in
-                                    // カレンダー日付タップ時のアクション
-                                }
+                            // 月間カレンダー
+                            MonthlyCalendarView(
+                                selectedDate: $selectedCalendarDate,
+                                workoutDates: vm.workoutDates
+                            ) { date in
+                                selectedCalendarDate = date
+                                showDayDetail = true
                             }
 
-                            // サマリーカード
-                            if selectedPeriod == .weekly {
-                                WeeklySummaryCard(stats: vm.weeklyStats)
-                            } else {
-                                MonthlySummaryCard(stats: vm.monthlyStats)
-                            }
+                            // 月間サマリーカード
+                            MonthlySummaryCard(stats: vm.monthlyStats)
 
                             // ボリュームチャート
                             VolumeChartCard(data: vm.dailyVolumeData)
@@ -81,105 +73,12 @@ struct HistoryView: View {
             .sheet(isPresented: $showingPaywall) {
                 PaywallView()
             }
-        }
-    }
-
-    // MARK: - 期間ピッカー
-
-    private var periodPicker: some View {
-        HStack(spacing: 0) {
-            ForEach(StatPeriod.allCases) { period in
-                Button {
-                    withAnimation(.easeInOut(duration: 0.2)) {
-                        selectedPeriod = period
-                    }
-                } label: {
-                    Text(period.label)
-                        .font(.subheadline.bold())
-                        .foregroundStyle(selectedPeriod == period ? Color.mmBgPrimary : Color.mmTextSecondary)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 8)
-                        .background(selectedPeriod == period ? Color.mmAccentPrimary : Color.clear)
+            .sheet(isPresented: $showDayDetail) {
+                if let date = selectedCalendarDate {
+                    DayWorkoutDetailView(date: date)
                 }
             }
         }
-        .background(Color.mmBgCard)
-        .clipShape(RoundedRectangle(cornerRadius: 8))
-    }
-}
-
-// MARK: - 期間
-
-enum StatPeriod: String, CaseIterable, Identifiable {
-    case weekly
-    case monthly
-
-    var id: String { rawValue }
-
-    @MainActor var label: String {
-        switch self {
-        case .weekly: return L10n.weekly
-        case .monthly: return L10n.monthly
-        }
-    }
-}
-
-// MARK: - 週間サマリーカード
-
-private struct WeeklySummaryCard: View {
-    let stats: WeeklyStats
-
-    var body: some View {
-        VStack(spacing: 16) {
-            HStack {
-                Text(L10n.thisWeekSummary)
-                    .font(.headline)
-                    .foregroundStyle(Color.mmTextPrimary)
-                Spacer()
-            }
-
-            HStack(spacing: 0) {
-                StatItem(value: "\(stats.sessionCount)", label: L10n.sessions, icon: "figure.strengthtraining.traditional")
-                StatItem(value: "\(stats.totalSets)", label: L10n.totalSets, icon: "number")
-                StatItem(value: formatVolume(stats.totalVolume), label: L10n.totalVolume, icon: "scalemass")
-                StatItem(value: "\(stats.trainingDays)", label: L10n.trainingDays, icon: "calendar")
-            }
-
-            // グループカバー率
-            HStack(spacing: 8) {
-                Image(systemName: "figure.stand")
-                    .foregroundStyle(Color.mmAccentPrimary)
-                    .font(.caption)
-                Text(L10n.groupCoverage)
-                    .font(.caption)
-                    .foregroundStyle(Color.mmTextSecondary)
-                Spacer()
-                Text("\(stats.stimulatedGroupCount)/\(stats.totalGroupCount)")
-                    .font(.caption.bold())
-                    .foregroundStyle(Color.mmAccentPrimary)
-            }
-
-            // カバー率バー
-            GeometryReader { geo in
-                ZStack(alignment: .leading) {
-                    RoundedRectangle(cornerRadius: 4)
-                        .fill(Color.mmBgSecondary)
-                        .frame(height: 6)
-                    RoundedRectangle(cornerRadius: 4)
-                        .fill(Color.mmAccentPrimary)
-                        .frame(width: geo.size.width * coverageRatio, height: 6)
-                }
-            }
-            .frame(height: 6)
-        }
-        .padding()
-        .background(Color.mmBgCard)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-    }
-
-    private var coverageRatio: CGFloat {
-        guard stats.totalGroupCount > 0 else { return 0 }
-        return CGFloat(stats.stimulatedGroupCount) / CGFloat(stats.totalGroupCount)
     }
 }
 

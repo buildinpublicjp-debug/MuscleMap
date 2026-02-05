@@ -130,9 +130,12 @@ struct SmallWidgetView: View {
     let entry: MuscleMapEntry
 
     var body: some View {
-        WidgetMuscleMapView(muscleStates: entry.muscleStates, showFront: true)
-            .padding(6)
-            .containerBackground(Color.mmBgPrimary, for: .widget)
+        GeometryReader { geo in
+            WidgetMuscleMapView(muscleStates: entry.muscleStates, showFront: true)
+                .frame(width: geo.size.height * 0.5, height: geo.size.height)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+        .containerBackground(Color.mmBgPrimary, for: .widget)
     }
 }
 
@@ -142,26 +145,59 @@ struct MediumWidgetView: View {
     let entry: MuscleMapEntry
 
     var body: some View {
-        HStack(spacing: 12) {
-            WidgetMuscleMapView(muscleStates: entry.muscleStates, showFront: true)
-            WidgetMuscleMapView(muscleStates: entry.muscleStates, showFront: false)
+        GeometryReader { geo in
+            let bodyWidth = geo.size.height * 0.5
+            HStack(spacing: 8) {
+                WidgetMuscleMapView(muscleStates: entry.muscleStates, showFront: true)
+                    .frame(width: bodyWidth, height: geo.size.height)
+                WidgetMuscleMapView(muscleStates: entry.muscleStates, showFront: false)
+                    .frame(width: bodyWidth, height: geo.size.height)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .padding(10)
+        .padding(.vertical, 4)
         .containerBackground(Color.mmBgPrimary, for: .widget)
     }
 }
 
-// MARK: - Largeウィジェットビュー（前面 + 背面）
+// MARK: - Largeウィジェットビュー（前面 + 背面 + ステータス）
 
 struct LargeWidgetView: View {
     let entry: MuscleMapEntry
 
+    private var recoveringCount: Int {
+        entry.muscleStates.values.filter { $0.stateType == .recovering }.count
+    }
+
+    private var readyCount: Int {
+        entry.muscleStates.values.filter { $0.stateType == .inactive }.count
+    }
+
     var body: some View {
-        HStack(spacing: 20) {
-            WidgetMuscleMapView(muscleStates: entry.muscleStates, showFront: true)
-            WidgetMuscleMapView(muscleStates: entry.muscleStates, showFront: false)
+        GeometryReader { geo in
+            VStack(spacing: 8) {
+                HStack(spacing: 16) {
+                    WidgetMuscleMapView(muscleStates: entry.muscleStates, showFront: true)
+                        .frame(width: geo.size.width * 0.38)
+                    WidgetMuscleMapView(muscleStates: entry.muscleStates, showFront: false)
+                        .frame(width: geo.size.width * 0.38)
+                }
+                .frame(height: geo.size.height * 0.8)
+
+                // 簡易ステータス
+                HStack {
+                    Label("\(recoveringCount)", systemImage: "arrow.triangle.2.circlepath")
+                        .foregroundStyle(Color.mmMuscleCoral)
+                    Spacer()
+                    Label("\(readyCount)", systemImage: "checkmark.circle")
+                        .foregroundStyle(Color.mmMuscleBioGreen)
+                }
+                .font(.caption)
+                .padding(.horizontal, 4)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .padding(16)
+        .padding(12)
         .containerBackground(Color.mmBgPrimary, for: .widget)
     }
 }
@@ -177,24 +213,7 @@ struct WidgetMuscleMapView: View {
             let rect = CGRect(origin: .zero, size: geo.size)
 
             ZStack {
-                // シルエット（背景）
-                if showFront {
-                    MusclePathData.bodyOutlineFront(in: rect)
-                        .fill(Color.mmBgSecondary.opacity(0.5))
-                        .overlay {
-                            MusclePathData.bodyOutlineFront(in: rect)
-                                .stroke(Color.mmMuscleBorder.opacity(0.4), lineWidth: 0.5)
-                        }
-                } else {
-                    MusclePathData.bodyOutlineBack(in: rect)
-                        .fill(Color.mmBgSecondary.opacity(0.5))
-                        .overlay {
-                            MusclePathData.bodyOutlineBack(in: rect)
-                                .stroke(Color.mmMuscleBorder.opacity(0.4), lineWidth: 0.5)
-                        }
-                }
-
-                // 筋肉パス
+                // 筋肉パスのみ（シルエットなし）
                 let muscles = showFront
                     ? MusclePathData.frontMuscles
                     : MusclePathData.backMuscles
@@ -205,13 +224,12 @@ struct WidgetMuscleMapView: View {
 
                     entry.path(rect)
                         .fill(color)
-                        .overlay {
-                            entry.path(rect)
-                                .stroke(Color.mmMuscleBorder.opacity(0.3), lineWidth: 0.3)
-                        }
+                    entry.path(rect)
+                        .stroke(Color.mmMuscleBorder.opacity(0.3), lineWidth: 0.3)
                 }
             }
         }
+        .aspectRatio(0.5, contentMode: .fit)
     }
 }
 
@@ -228,9 +246,9 @@ extension Color {
     static let mmMuscleYellow = Color(hex: "#FFD93D")      // 回復中（40-60%）
     static let mmMuscleLime = Color(hex: "#A8E06C")        // 回復後期（60-80%）
     static let mmMuscleBioGreen = Color(hex: "#4ADE80")    // ほぼ回復（80%+）
-    static let mmMuscleInactive = Color(hex: "#2A2A2E")    // 未刺激（暗いグレー）
+    static let mmMuscleInactive = Color(hex: "#3D3D42")    // 未刺激（暗いグレー）
     static let mmMuscleNeglected = Color(hex: "#9B59B6")   // 長期未刺激
-    static let mmMuscleBorder = Color(hex: "#3A3A3E")
+    static let mmMuscleBorder = Color(hex: "#505058")
 
     init(hex: String) {
         let hex = hex.trimmingCharacters(in: CharacterSet(charactersIn: "#"))
