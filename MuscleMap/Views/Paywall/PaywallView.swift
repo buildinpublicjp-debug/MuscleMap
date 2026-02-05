@@ -1,235 +1,240 @@
 import SwiftUI
 import RevenueCat
 
-// MARK: - ペイウォール画面
+// MARK: - ペイウォール画面（プレミアムデザイン）
 
 struct PaywallView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var selectedPlan: PlanType = .annual
     @State private var isPurchasing = false
     @State private var showError = false
+    @State private var heroProgress: CGFloat = 0
 
     private let purchaseManager = PurchaseManager.shared
 
+    /// デモ用の筋肉状態（ヒーロー領域）
+    private var demoStates: [Muscle: MuscleVisualState] {
+        [
+            .chestUpper: .recovering(progress: 0.2),
+            .chestLower: .recovering(progress: 0.15),
+            .deltoidAnterior: .recovering(progress: 0.35),
+            .deltoidLateral: .recovering(progress: 0.4),
+            .biceps: .recovering(progress: 0.5),
+            .triceps: .recovering(progress: 0.55),
+            .lats: .recovering(progress: 0.65),
+            .quadriceps: .recovering(progress: 0.3),
+            .rectusAbdominis: .recovering(progress: 0.45),
+        ]
+    }
+
     var body: some View {
-        NavigationStack {
-            ZStack {
-                Color.mmBgPrimary.ignoresSafeArea()
+        ZStack {
+            Color.mmOnboardingBg.ignoresSafeArea()
 
-                ScrollView {
-                    VStack(spacing: 24) {
-                        // ヘッダー
-                        headerSection
+            ScrollView {
+                VStack(spacing: 24) {
+                    // ヒーロー領域
+                    heroSection
 
-                        // 機能比較テーブル
-                        featureComparisonSection
+                    // ヘッドライン
+                    Text(L10n.paywallHeadline)
+                        .font(.system(size: 22, weight: .bold))
+                        .foregroundStyle(Color.mmOnboardingTextMain)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 24)
 
-                        // プラン選択
-                        planSelectionSection
+                    // 特典リスト
+                    featureListSection
 
-                        // 購入ボタン
-                        purchaseButton
+                    // プランカード
+                    planCardsSection
 
-                        // リストア + 利用規約
-                        footerSection
-                    }
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 24)
+                    // CTAボタン
+                    ctaButton
+
+                    // フッター
+                    footerSection
                 }
+                .padding(.top, 16)
+                .padding(.bottom, 32)
             }
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
+
+            // ×ボタン（右上）
+            VStack {
+                HStack {
+                    Spacer()
                     Button {
                         dismiss()
                     } label: {
                         Image(systemName: "xmark.circle.fill")
-                            .foregroundStyle(Color.mmTextSecondary)
+                            .font(.title2)
+                            .foregroundStyle(Color.mmOnboardingTextSub)
                     }
+                    .padding(.trailing, 16)
+                    .padding(.top, 8)
+                }
+                Spacer()
+            }
+        }
+        .alert(L10n.purchaseError, isPresented: $showError) {
+            Button(L10n.ok) {}
+        } message: {
+            Text(L10n.purchaseErrorMessage)
+        }
+        .task {
+            await purchaseManager.fetchOfferings()
+        }
+        .onAppear {
+            withAnimation(.easeInOut(duration: 3.0).repeatForever(autoreverses: true)) {
+                heroProgress = 1.0
+            }
+        }
+    }
+
+    // MARK: - ヒーロー領域
+
+    private var heroSection: some View {
+        MuscleMapView(muscleStates: demoStates, demoMode: true)
+            .frame(height: 200)
+            .scaleEffect(1.0 + heroProgress * 0.05)
+            .opacity(0.6)
+            .blur(radius: 4)
+            .clipShape(RoundedRectangle(cornerRadius: 0))
+            .padding(.horizontal, 16)
+    }
+
+    // MARK: - 特典リスト
+
+    private var featureListSection: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            PaywallFeatureRow(
+                icon: "heart.text.clipboard",
+                text: L10n.paywallFeatureRecovery
+            )
+            PaywallFeatureRow(
+                icon: "rectangle.on.rectangle",
+                text: L10n.paywallFeatureWidget
+            )
+            PaywallFeatureRow(
+                icon: "clock.arrow.circlepath",
+                text: L10n.paywallFeatureHistory
+            )
+            PaywallFeatureRow(
+                icon: "square.and.arrow.up",
+                text: L10n.paywallFeatureExport
+            )
+        }
+        .padding(.horizontal, 32)
+    }
+
+    // MARK: - プランカード
+
+    private var planCardsSection: some View {
+        HStack(spacing: 10) {
+            PlanCardView(
+                title: L10n.planMonthly,
+                price: purchaseManager.monthlyPrice,
+                subtitle: nil,
+                badge: nil,
+                isSelected: selectedPlan == .monthly
+            ) {
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    selectedPlan = .monthly
                 }
             }
-            .alert(L10n.purchaseError, isPresented: $showError) {
-                Button(L10n.ok) {}
-            } message: {
-                Text(L10n.purchaseErrorMessage)
-            }
-            .task {
-                await purchaseManager.fetchOfferings()
-            }
-        }
-    }
 
-    // MARK: - ヘッダー
-
-    private var headerSection: some View {
-        VStack(spacing: 8) {
-            Image(systemName: "crown.fill")
-                .font(.system(size: 40))
-                .foregroundStyle(Color.mmAccentPrimary)
-
-            Text(L10n.muscleMaplPremium)
-                .font(.title2.bold())
-                .foregroundStyle(Color.mmTextPrimary)
-
-            Text(L10n.unlockAndOptimize)
-                .font(.subheadline)
-                .foregroundStyle(Color.mmTextSecondary)
-                .multilineTextAlignment(.center)
-        }
-        .padding(.top, 16)
-    }
-
-    // MARK: - 機能比較テーブル
-
-    private var featureComparisonSection: some View {
-        VStack(spacing: 0) {
-            // ヘッダー行
-            HStack {
-                Text(L10n.features)
-                    .font(.caption.bold())
-                    .foregroundStyle(Color.mmTextSecondary)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                Text(L10n.free)
-                    .font(.caption.bold())
-                    .foregroundStyle(Color.mmTextSecondary)
-                    .frame(width: 52)
-                Text(L10n.premiumLabel)
-                    .font(.caption.bold())
-                    .foregroundStyle(Color.mmAccentPrimary)
-                    .frame(width: 72)
-            }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 8)
-            .background(Color.mmBgSecondary)
-
-            // 機能行
-            ForEach(FeatureComparison.allFeatures) { feature in
-                FeatureComparisonRow(feature: feature)
-            }
-        }
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-        .overlay(
-            RoundedRectangle(cornerRadius: 12)
-                .stroke(Color.mmBgSecondary, lineWidth: 1)
-        )
-    }
-
-    // MARK: - プラン選択
-
-    private var planSelectionSection: some View {
-        VStack(spacing: 8) {
-            PlanCard(
-                plan: .monthly,
-                isSelected: selectedPlan == .monthly,
-                price: purchaseManager.monthlyPrice,
-                period: L10n.monthlyPlan,
-                badge: nil,
-                subtext: nil
-            ) {
-                selectedPlan = .monthly
-            }
-
-            PlanCard(
-                plan: .annual,
-                isSelected: selectedPlan == .annual,
+            PlanCardView(
+                title: L10n.planAnnual,
                 price: purchaseManager.annualPrice,
-                period: L10n.annualPlan,
-                badge: L10n.recommendedBadge,
-                subtext: L10n.perMonthPrice
+                subtitle: L10n.annualPerMonth,
+                badge: L10n.mostPopular,
+                isSelected: selectedPlan == .annual
             ) {
-                selectedPlan = .annual
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    selectedPlan = .annual
+                }
             }
 
-            PlanCard(
-                plan: .lifetime,
-                isSelected: selectedPlan == .lifetime,
+            PlanCardView(
+                title: L10n.planLifetime,
                 price: purchaseManager.lifetimePrice,
-                period: L10n.lifetimePlan,
+                subtitle: L10n.lifetimeLabel,
                 badge: nil,
-                subtext: nil
+                isSelected: selectedPlan == .lifetime
             ) {
-                selectedPlan = .lifetime
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    selectedPlan = .lifetime
+                }
             }
         }
-        .animation(.easeInOut(duration: 0.2), value: selectedPlan)
+        .padding(.horizontal, 16)
     }
 
-    // MARK: - 購入ボタン
+    // MARK: - CTAボタン
 
-    private var purchaseButton: some View {
+    private var ctaButton: some View {
         Button {
-            Task {
-                await purchase()
-            }
+            Task { await purchase() }
         } label: {
             HStack {
                 if isPurchasing {
                     ProgressView()
-                        .tint(Color.mmBgPrimary)
+                        .tint(.white)
                 } else {
-                    Text(purchaseButtonLabel)
-                        .font(.headline)
+                    Text(L10n.startFreeTrial)
+                        .font(.system(size: 18, weight: .bold))
                 }
             }
-            .foregroundStyle(Color.mmBgPrimary)
+            .foregroundStyle(.white)
             .frame(maxWidth: .infinity)
-            .padding(.vertical, 16)
-            .background(Color.mmAccentPrimary)
-            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .frame(height: 56)
+            .background(
+                LinearGradient(
+                    colors: [Color.mmOnboardingAccent, Color.mmOnboardingAccentDark],
+                    startPoint: .leading,
+                    endPoint: .trailing
+                )
+            )
+            .clipShape(RoundedRectangle(cornerRadius: 16))
         }
         .disabled(isPurchasing)
+        .padding(.horizontal, 24)
     }
 
     // MARK: - フッター
 
     private var footerSection: some View {
         VStack(spacing: 8) {
+            Text(L10n.cancelAnytime)
+                .font(.caption)
+                .foregroundStyle(Color.mmOnboardingTextSub)
+
             Button {
-                Task {
-                    await restore()
-                }
+                Task { await restore() }
             } label: {
                 Text(L10n.restorePurchases)
                     .font(.caption)
-                    .foregroundStyle(Color.mmTextSecondary)
+                    .foregroundStyle(Color.mmOnboardingTextSub)
+                    .underline()
             }
 
-            HStack(spacing: 16) {
+            HStack(spacing: 4) {
                 Button {
-                    // 利用規約（外部リンク）
+                    // 将来URL設定
                 } label: {
-                    Text(L10n.termsOfService)
-                        .font(.caption2)
-                        .foregroundStyle(Color.mmTextSecondary.opacity(0.5))
+                    Text(L10n.termsOfUse)
+                        .underline()
                 }
+                Text("|")
                 Button {
-                    // プライバシーポリシー（外部リンク）
+                    // 将来URL設定
                 } label: {
                     Text(L10n.privacyPolicy)
-                        .font(.caption2)
-                        .foregroundStyle(Color.mmTextSecondary.opacity(0.5))
+                        .underline()
                 }
             }
-
-            if selectedPlan == .monthly {
-                Text(L10n.monthlyTrialNote)
-                    .font(.caption2)
-                    .foregroundStyle(Color.mmTextSecondary.opacity(0.5))
-            } else if selectedPlan == .annual {
-                Text(L10n.annualTrialNote)
-                    .font(.caption2)
-                    .foregroundStyle(Color.mmTextSecondary.opacity(0.5))
-            }
-        }
-    }
-
-    // MARK: - ボタンラベル
-
-    private var purchaseButtonLabel: String {
-        switch selectedPlan {
-        case .monthly: return L10n.startMonthlyPlan
-        case .annual: return L10n.startAnnualPlan
-        case .lifetime: return L10n.purchaseLifetime
+            .font(.caption2)
+            .foregroundStyle(Color.mmOnboardingTextSub.opacity(0.6))
         }
     }
 
@@ -264,124 +269,6 @@ enum PlanType {
     case monthly
     case annual
     case lifetime
-}
-
-// MARK: - 機能比較データ
-
-private struct FeatureComparison: Identifiable {
-    let id = UUID()
-    let name: String
-    let icon: String
-    let freeAccess: Bool
-    let premiumAccess: Bool
-
-    @MainActor static var allFeatures: [FeatureComparison] {
-        [
-            FeatureComparison(name: L10n.featureMuscleMap2D, icon: "figure.stand", freeAccess: true, premiumAccess: true),
-            FeatureComparison(name: L10n.featureWorkoutRecord, icon: "dumbbell", freeAccess: true, premiumAccess: true),
-            FeatureComparison(name: L10n.featureRecoveryTracking, icon: "heart.text.clipboard", freeAccess: true, premiumAccess: true),
-            FeatureComparison(name: L10n.featureMenuSuggestion, icon: "sparkles", freeAccess: true, premiumAccess: true),
-            FeatureComparison(name: L10n.featureDetailedStats, icon: "chart.bar.fill", freeAccess: false, premiumAccess: true),
-            FeatureComparison(name: L10n.feature3DView, icon: "cube.fill", freeAccess: false, premiumAccess: true),
-            FeatureComparison(name: L10n.featureMenuSuggestionPlus, icon: "wand.and.stars", freeAccess: false, premiumAccess: true),
-            FeatureComparison(name: L10n.featureDataExport, icon: "square.and.arrow.up", freeAccess: false, premiumAccess: true),
-        ]
-    }
-}
-
-// MARK: - 機能比較行
-
-private struct FeatureComparisonRow: View {
-    let feature: FeatureComparison
-
-    var body: some View {
-        HStack {
-            HStack(spacing: 8) {
-                Image(systemName: feature.icon)
-                    .font(.caption)
-                    .foregroundStyle(Color.mmTextSecondary)
-                    .frame(width: 20)
-                Text(feature.name)
-                    .font(.caption)
-                    .foregroundStyle(Color.mmTextPrimary)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-
-            // Free
-            Image(systemName: feature.freeAccess ? "checkmark" : "minus")
-                .font(.caption.bold())
-                .foregroundStyle(feature.freeAccess ? Color.mmAccentPrimary : Color.mmTextSecondary.opacity(0.3))
-                .frame(width: 52)
-
-            // Premium
-            Image(systemName: "checkmark")
-                .font(.caption.bold())
-                .foregroundStyle(Color.mmAccentPrimary)
-                .frame(width: 72)
-        }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 8)
-        .background(Color.mmBgCard)
-    }
-}
-
-// MARK: - プランカード
-
-private struct PlanCard: View {
-    let plan: PlanType
-    let isSelected: Bool
-    let price: String
-    let period: String
-    let badge: String?
-    let subtext: String?
-    let onTap: () -> Void
-
-    var body: some View {
-        Button(action: onTap) {
-            HStack {
-                VStack(alignment: .leading, spacing: 4) {
-                    HStack(spacing: 8) {
-                        Text(period)
-                            .font(.subheadline.bold())
-                            .foregroundStyle(Color.mmTextPrimary)
-                        if let badge {
-                            Text(badge)
-                                .font(.caption2.bold())
-                                .foregroundStyle(Color.mmBgPrimary)
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 2)
-                                .background(Color.mmAccentPrimary)
-                                .clipShape(Capsule())
-                        }
-                    }
-
-                    if let subtext {
-                        Text(subtext)
-                            .font(.caption2)
-                            .foregroundStyle(Color.mmAccentPrimary)
-                    }
-                }
-
-                Spacer()
-
-                Text(price)
-                    .font(.title3.bold())
-                    .foregroundStyle(Color.mmTextPrimary)
-            }
-            .padding(16)
-            .background(
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(isSelected ? Color.mmAccentPrimary.opacity(0.08) : Color.mmBgCard)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 12)
-                            .stroke(
-                                isSelected ? Color.mmAccentPrimary : Color.mmBgSecondary,
-                                lineWidth: isSelected ? 2 : 1
-                            )
-                    )
-            )
-        }
-    }
 }
 
 // MARK: - Preview

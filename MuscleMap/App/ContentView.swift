@@ -4,14 +4,25 @@ import SwiftUI
 
 struct ContentView: View {
     @State private var appState = AppState.shared
+    @State private var showPostOnboardingPaywall = false
 
     var body: some View {
         if appState.hasCompletedOnboarding {
             MainTabView()
+                .sheet(isPresented: $showPostOnboardingPaywall) {
+                    PaywallView()
+                }
         } else {
             OnboardingView {
                 withAnimation {
                     appState.hasCompletedOnboarding = true
+                }
+                // 初回のみPaywallを表示
+                if !appState.hasSeenPostOnboardingPaywall {
+                    appState.hasSeenPostOnboardingPaywall = true
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        showPostOnboardingPaywall = true
+                    }
                 }
             }
         }

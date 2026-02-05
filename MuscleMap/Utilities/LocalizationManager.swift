@@ -368,34 +368,75 @@ enum L10n {
     static var trainingExperience: String { loc("トレーニング経験", "Training Experience") }
 
     // MARK: - ペイウォール
-    static var muscleMaplPremium: String { loc("MuscleMap Premium", "MuscleMap Premium") }
+    static var paywallHeadline: String {
+        loc("科学の力で、あなたの努力を最大化する。",
+            "Maximize your effort with science.")
+    }
+    static var paywallFeatureRecovery: String {
+        loc("EMGベースの回復予測", "EMG-based recovery prediction")
+    }
+    static var paywallFeatureWidget: String {
+        loc("ホームスクリーンウィジェット", "Home screen widget")
+    }
+    static var paywallFeatureHistory: String {
+        loc("無制限の履歴閲覧", "Unlimited history access")
+    }
+    static var paywallFeatureExport: String {
+        loc("データエクスポート（CSV）", "Data export (CSV)")
+    }
+    static var planMonthly: String { loc("月額", "Monthly") }
+    static var planAnnual: String { loc("年額", "Annual") }
+    static var planLifetime: String { loc("買い切り", "Lifetime") }
+    static var mostPopular: String { loc("一番人気", "Most Popular") }
+    static var startFreeTrial: String {
+        loc("7日間無料でProを体験する", "Start 7-Day Free Trial")
+    }
+    static var cancelAnytime: String {
+        loc("いつでもキャンセル可能", "Cancel anytime")
+    }
+    static var proUpgrade: String {
+        loc("MuscleMap Proにアップグレード", "Upgrade to MuscleMap Pro")
+    }
+    static var proActive: String { loc("Pro ✓", "Pro ✓") }
+    static var proFeatureLocked: String {
+        loc("Proにアップグレード", "Upgrade to Pro")
+    }
+    static var monthlyPrice: String { loc("¥480/月", "¥480/mo") }
+    static var annualPrice: String { loc("¥3,800/年", "¥3,800/yr") }
+    static var lifetimePrice: String { loc("¥7,800", "¥7,800") }
+    static var lifetimeLabel: String { loc("生涯アクセス", "Lifetime access") }
+    static var annualPerMonth: String { loc("月あたり約¥317", "~¥317/month") }
+    static var purchaseError: String { loc("購入エラー", "Purchase Error") }
+    static var purchaseErrorMessage: String {
+        loc("購入を完了できませんでした。しばらく後にお試しください。",
+            "Could not complete purchase. Please try again later.")
+    }
+    static var muscleMaplPremium: String { loc("MuscleMap Pro", "MuscleMap Pro") }
     static var unlockAndOptimize: String {
         loc("全機能をアンロックして\nトレーニングを最適化",
             "Unlock all features\nand optimize your training")
     }
     static var features: String { loc("機能", "Features") }
     static var free: String { loc("Free", "Free") }
-    static var premiumLabel: String { loc("Premium", "Premium") }
+    static var premiumLabel: String { loc("Pro", "Pro") }
     static var monthlyPlan: String { loc("月額", "Monthly") }
     static var annualPlan: String { loc("年額", "Annual") }
     static var lifetimePlan: String { loc("買い切り", "Lifetime") }
     static var recommendedBadge: String { loc("おすすめ", "Recommended") }
-    static var perMonthPrice: String { loc("月あたり ¥650", "¥650/month") }
+    static var perMonthPrice: String { loc("月あたり約¥317", "~¥317/month") }
     static var startMonthlyPlan: String { loc("月額プランで始める", "Start Monthly Plan") }
     static var startAnnualPlan: String { loc("年額プランで始める（おすすめ）", "Start Annual Plan (Recommended)") }
     static var purchaseLifetime: String { loc("買い切りプランで購入", "Purchase Lifetime") }
-    static var purchaseError: String { loc("購入エラー", "Purchase Error") }
-    static var purchaseErrorMessage: String {
-        loc("購入を完了できませんでした。しばらく後にお試しください。",
-            "Could not complete purchase. Please try again later.")
-    }
     static var monthlyTrialNote: String {
-        loc("7日間の無料トライアル後、¥980/月で自動更新",
-            "7-day free trial, then ¥980/month auto-renews")
+        loc("7日間の無料トライアル後、¥480/月で自動更新",
+            "7-day free trial, then ¥480/month auto-renews")
     }
     static var annualTrialNote: String {
-        loc("14日間の無料トライアル後、¥7,800/年で自動更新",
-            "14-day free trial, then ¥7,800/year auto-renews")
+        loc("7日間の無料トライアル後、¥3,800/年で自動更新",
+            "7-day free trial, then ¥3,800/year auto-renews")
+    }
+    static var manageSubscription: String {
+        loc("サブスクリプションを管理", "Manage Subscription")
     }
 
     // ペイウォール機能名
@@ -407,6 +448,20 @@ enum L10n {
     static var feature3DView: String { loc("3D筋肉ビュー", "3D Muscle View") }
     static var featureMenuSuggestionPlus: String { loc("メニュー提案+", "Menu Suggestions+") }
     static var featureDataExport: String { loc("データエクスポート", "Data Export") }
+
+    // Pro機能ロック
+    static var proFeatureRecovery: String {
+        loc("EMG回復計算はPro機能です", "EMG recovery calculation is a Pro feature")
+    }
+    static var proFeatureWidget: String {
+        loc("ウィジェットはPro機能です", "Widgets are a Pro feature")
+    }
+    static var proFeatureUnlimitedHistory: String {
+        loc("30日以上の履歴はPro機能です", "History beyond 30 days is a Pro feature")
+    }
+    static var proFeatureExport: String {
+        loc("データエクスポートはPro機能です", "Data export is a Pro feature")
+    }
 
     // MARK: - 部位名（カテゴリ）
     static var categoryChest: String { loc("胸", "Chest") }

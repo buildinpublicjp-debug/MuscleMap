@@ -31,6 +31,11 @@ class AppState {
         didSet { UserDefaults.standard.set(hasSeenDemoAnimation, forKey: "hasSeenDemoAnimation") }
     }
 
+    // オンボーディング後のPaywall表示済みフラグ
+    var hasSeenPostOnboardingPaywall: Bool = UserDefaults.standard.bool(forKey: "hasSeenPostOnboardingPaywall") {
+        didSet { UserDefaults.standard.set(hasSeenPostOnboardingPaywall, forKey: "hasSeenPostOnboardingPaywall") }
+    }
+
     // アプリバージョン
     var appVersion: String {
         Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0"

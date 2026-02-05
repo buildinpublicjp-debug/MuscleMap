@@ -9,7 +9,7 @@ class PurchaseManager {
     static let shared = PurchaseManager()
 
     // Entitlement ID
-    private static let premiumEntitlementID = "premium"
+    private static let premiumEntitlementID = "pro"
 
     // RevenueCat API Key（Keychainから取得）
     private static var apiKey: String {
@@ -129,4 +129,7 @@ extension PurchaseManager {
         }
         return isPremium
     }
+
+    /// Pro機能が利用可能か（canAccessPremiumFeaturesのエイリアス）
+    var isProUser: Bool { canAccessPremiumFeatures }
 }

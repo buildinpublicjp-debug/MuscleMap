@@ -50,12 +50,13 @@ struct SettingsView: View {
 
     private var premiumSection: some View {
         Section {
-            if purchaseManager.canAccessPremiumFeatures {
+            if purchaseManager.isProUser {
+                // Pro加入済み
                 HStack(spacing: 12) {
                     Image(systemName: "crown.fill")
                         .foregroundStyle(Color.mmAccentPrimary)
                     VStack(alignment: .leading, spacing: 2) {
-                        Text(L10n.premium)
+                        Text(L10n.proActive)
                             .font(.subheadline.bold())
                             .foregroundStyle(Color.mmTextPrimary)
                         Text(L10n.premiumUnlocked)
@@ -64,7 +65,28 @@ struct SettingsView: View {
                     }
                 }
                 .listRowBackground(Color.mmBgCard)
+
+                // サブスク管理リンク
+                Button {
+                    if let url = URL(string: "https://apps.apple.com/account/subscriptions") {
+                        UIApplication.shared.open(url)
+                    }
+                } label: {
+                    HStack(spacing: 12) {
+                        Image(systemName: "gear")
+                            .foregroundStyle(Color.mmTextSecondary)
+                        Text(L10n.manageSubscription)
+                            .font(.subheadline)
+                            .foregroundStyle(Color.mmTextPrimary)
+                        Spacer()
+                        Image(systemName: "arrow.up.right")
+                            .font(.caption)
+                            .foregroundStyle(Color.mmTextSecondary)
+                    }
+                }
+                .listRowBackground(Color.mmBgCard)
             } else {
+                // Pro未加入
                 Button {
                     showingPaywall = true
                 } label: {
@@ -72,7 +94,7 @@ struct SettingsView: View {
                         Image(systemName: "crown")
                             .foregroundStyle(Color.mmAccentPrimary)
                         VStack(alignment: .leading, spacing: 2) {
-                            Text(L10n.upgradeToPremium)
+                            Text(L10n.proUpgrade)
                                 .font(.subheadline.bold())
                                 .foregroundStyle(Color.mmTextPrimary)
                             Text(L10n.unlockAllFeatures)
@@ -105,7 +127,7 @@ struct SettingsView: View {
                 .listRowBackground(Color.mmBgCard)
             }
         } header: {
-            Text(L10n.premium)
+            Text("MuscleMap Pro")
                 .foregroundStyle(Color.mmTextSecondary)
         }
     }

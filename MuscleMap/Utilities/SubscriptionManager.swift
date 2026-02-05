@@ -20,13 +20,13 @@ protocol SubscriptionManaging {
 
 extension PurchaseManager: SubscriptionManaging {
     var monthlyPrice: String {
-        monthlyPackage?.localizedPriceString ?? "¥980"
+        monthlyPackage?.localizedPriceString ?? "¥480"
     }
     var annualPrice: String {
-        annualPackage?.localizedPriceString ?? "¥7,800"
+        annualPackage?.localizedPriceString ?? "¥3,800"
     }
     var lifetimePrice: String {
-        lifetimePackage?.localizedPriceString ?? "¥12,000"
+        lifetimePackage?.localizedPriceString ?? "¥7,800"
     }
 
     func purchase(plan: PlanType) async -> Bool {
@@ -49,9 +49,9 @@ final class MockSubscriptionManager: SubscriptionManaging {
     var isPremium: Bool = false
     var isLoading: Bool = false
 
-    var monthlyPrice: String = "¥980"
-    var annualPrice: String = "¥7,800"
-    var lifetimePrice: String = "¥12,000"
+    var monthlyPrice: String = "¥480"
+    var annualPrice: String = "¥3,800"
+    var lifetimePrice: String = "¥7,800"
 
     func purchase(plan: PlanType) async -> Bool {
         isLoading = true

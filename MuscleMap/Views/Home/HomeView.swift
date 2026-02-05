@@ -9,6 +9,7 @@ struct HomeView: View {
     @State private var showingWorkout = false
     @State private var selectedMuscle: Muscle?
     @State private var showDemo = false
+    @State private var showingPaywall = false
 
     var body: some View {
         NavigationStack {
@@ -33,6 +34,14 @@ struct HomeView: View {
                             )
                             .frame(maxHeight: 500)
                             .padding(.horizontal)
+
+                            // Pro機能バナー（非Proユーザー向け）
+                            if !PurchaseManager.shared.isProUser {
+                                ProFeatureBanner(feature: .recovery) {
+                                    showingPaywall = true
+                                }
+                                .padding(.horizontal)
+                            }
 
                             // 未刺激警告
                             if !vm.neglectedMuscles.isEmpty {
@@ -76,6 +85,9 @@ struct HomeView: View {
             }
             .sheet(item: $selectedMuscle) { muscle in
                 MuscleDetailView(muscle: muscle)
+            }
+            .sheet(isPresented: $showingPaywall) {
+                PaywallView()
             }
         }
     }
