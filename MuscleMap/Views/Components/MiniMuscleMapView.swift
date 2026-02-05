@@ -41,17 +41,17 @@ struct MiniMuscleMapView: View {
                 // シルエット（背景）- 人型が認識しやすいように
                 if shouldShowFront {
                     MusclePathData.bodyOutlineFront(in: rect)
-                        .fill(Color.mmBgSecondary.opacity(0.5))
+                        .fill(Color.mmBgCard.opacity(0.7))
                         .overlay {
                             MusclePathData.bodyOutlineFront(in: rect)
-                                .stroke(Color.mmMuscleBorder.opacity(0.4), lineWidth: 0.5)
+                                .stroke(Color.mmMuscleBorder.opacity(0.6), lineWidth: 1)
                         }
                 } else {
                     MusclePathData.bodyOutlineBack(in: rect)
-                        .fill(Color.mmBgSecondary.opacity(0.5))
+                        .fill(Color.mmBgCard.opacity(0.7))
                         .overlay {
                             MusclePathData.bodyOutlineBack(in: rect)
-                                .stroke(Color.mmMuscleBorder.opacity(0.4), lineWidth: 0.5)
+                                .stroke(Color.mmMuscleBorder.opacity(0.6), lineWidth: 1)
                         }
                 }
 

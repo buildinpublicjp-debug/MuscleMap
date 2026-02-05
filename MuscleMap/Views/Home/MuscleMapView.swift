@@ -39,20 +39,20 @@ struct MuscleMapView: View {
                 let rect = CGRect(origin: .zero, size: geo.size)
 
                 ZStack {
-                    // シルエット（背景）- 人型が見やすいように明るめに
+                    // シルエット（背景）- 人型が見やすいように
                     if showingFront {
                         MusclePathData.bodyOutlineFront(in: rect)
-                            .fill(Color.mmBgCard.opacity(0.6))
+                            .fill(Color.mmBgCard.opacity(0.8))
                             .overlay {
                                 MusclePathData.bodyOutlineFront(in: rect)
-                                    .stroke(Color.mmMuscleBorder.opacity(0.8), lineWidth: 1.5)
+                                    .stroke(Color.mmMuscleBorder, lineWidth: 2)
                             }
                     } else {
                         MusclePathData.bodyOutlineBack(in: rect)
-                            .fill(Color.mmBgCard.opacity(0.6))
+                            .fill(Color.mmBgCard.opacity(0.8))
                             .overlay {
                                 MusclePathData.bodyOutlineBack(in: rect)
-                                    .stroke(Color.mmMuscleBorder.opacity(0.8), lineWidth: 1.5)
+                                    .stroke(Color.mmMuscleBorder, lineWidth: 2)
                             }
                     }
 
@@ -144,12 +144,26 @@ private struct MusclePathView: View {
     @State private var isPulsing = false
     @State private var isTapped = false
 
+    private var isActive: Bool {
+        switch state {
+        case .inactive:
+            return false
+        case .recovering, .neglected:
+            return true
+        }
+    }
+
     var body: some View {
         path
             .fill(state.color)
             .overlay {
-                path.stroke(Color.mmMuscleBorder, lineWidth: 0.8)
+                // アクティブな筋肉は明るいボーダー、そうでなければ通常ボーダー
+                path.stroke(
+                    isActive ? Color.mmMuscleActiveBorder.opacity(0.6) : Color.mmMuscleBorder,
+                    lineWidth: isActive ? 1.2 : 0.8
+                )
             }
+            .shadow(color: isActive ? state.color.opacity(0.4) : .clear, radius: 4)
             .scaleEffect(isTapped ? 1.05 : (isPulsing ? 1.03 : 1.0))
             .brightness(isDemoHighlighted ? 0.2 : 0)
             .animation(pulseAnimation, value: isPulsing)

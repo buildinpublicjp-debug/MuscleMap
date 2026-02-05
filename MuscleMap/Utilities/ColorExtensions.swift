@@ -22,9 +22,10 @@ extension Color {
     static let mmMuscleYellow = Color(hex: "#FFEE58")     // イエロー（40-60%）
     static let mmMuscleLime = Color(hex: "#C6FF00")       // ライム（60-80%）
     static let mmMuscleBioGreen = Color(hex: "#00E676")   // バイオグリーン（80-100%）
-    static let mmMuscleInactive = Color(hex: "#2A2A2E")   // 記録なし/完全回復
-    static let mmMuscleBorder = Color(hex: "#3A3A3E")     // ボーダー色
+    static let mmMuscleInactive = Color(hex: "#3D3D42")   // 記録なし/完全回復（視認性向上）
+    static let mmMuscleBorder = Color(hex: "#505058")     // ボーダー色（コントラスト強化）
     static let mmMuscleNeglected = Color(hex: "#9B59B6")  // 紫（7日+未刺激）
+    static let mmMuscleActiveBorder = Color(hex: "#FFFFFF") // アクティブ筋肉の輪郭
 
     // 旧名の互換エイリアス
     static let mmMuscleJustWorked = mmMuscleCoral

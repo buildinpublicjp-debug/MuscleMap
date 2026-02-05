@@ -39,17 +39,17 @@ struct ExerciseMuscleMapView: View {
                     // シルエット（背景）
                     if showingFront {
                         MusclePathData.bodyOutlineFront(in: rect)
-                            .fill(Color.mmBgCard.opacity(0.4))
+                            .fill(Color.mmBgCard.opacity(0.7))
                             .overlay {
                                 MusclePathData.bodyOutlineFront(in: rect)
-                                    .stroke(Color.mmMuscleBorder, lineWidth: 1)
+                                    .stroke(Color.mmMuscleBorder, lineWidth: 1.5)
                             }
                     } else {
                         MusclePathData.bodyOutlineBack(in: rect)
-                            .fill(Color.mmBgCard.opacity(0.4))
+                            .fill(Color.mmBgCard.opacity(0.7))
                             .overlay {
                                 MusclePathData.bodyOutlineBack(in: rect)
-                                    .stroke(Color.mmMuscleBorder, lineWidth: 1)
+                                    .stroke(Color.mmMuscleBorder, lineWidth: 1.5)
                             }
                     }
                     
