@@ -19,7 +19,6 @@
 		1AA94FF61CC9E6126D159F9F /* CSVImportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C301C32BCB89E6F1B5349A6 /* CSVImportView.swift */; };
 		1B78DB667BFDD3E8AAB15FA6 /* PurchaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E62C3348AF8D24E0BA19F31 /* PurchaseManager.swift */; };
 		210539EBA932CACE31A3BC98 /* HistoryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BE171442748D8639DE3CD7C /* HistoryViewModel.swift */; };
-		27CCE1A0C36AF12548F03030 /* PRManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B1A8DF0A725B9698B3EF81A /* PRManager.swift */; };
 		2B6CBAF613691D5E5D7C5450 /* RecoveryCalculatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 300D254EBBCA6CC21F07DD9B /* RecoveryCalculatorTests.swift */; };
 		31E876C2E3253AC0F79BAF5A /* UserProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8A4C5A76D596FFBABB6E47D /* UserProfile.swift */; };
 		329A3AFB2F0294F140FFCC0C /* ExerciseDefinition.swift in Sources */ = {isa = PBXBuildFile; fileRef = C775B710D458A8600002BACD /* ExerciseDefinition.swift */; };
@@ -33,6 +32,7 @@
 		5E36AADEF8689212B83BF6FC /* exercises.json in Resources */ = {isa = PBXBuildFile; fileRef = F80DF745A0945BC8BB21285C /* exercises.json */; };
 		61C75BB37FF6157166400E5E /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C975A916E9A16C00A07248A3 /* HomeView.swift */; };
 		61DFE674FC9B8C0150AE7A36 /* PaywallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB37FE4EBE611ED62380668 /* PaywallView.swift */; };
+		63FA9C415DEC4B6A42C70AB1 /* PRManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B04E06EA374E74AAD225DB8C /* PRManager.swift */; };
 		6BC2A4EA0EAF81DD11C0C90E /* ImageRecognitionParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8BE5674F26496C47272D727 /* ImageRecognitionParserTests.swift */; };
 		70F5FA46B8F7F9CBDC1617AF /* ColorExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6E1885660D1D955C88C496C /* ColorExtensions.swift */; };
 		76241706AA8DE99609DFF879 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6685BDAE783FAC76CA211DC3 /* ContentView.swift */; };
@@ -126,7 +126,6 @@
 		25DC4C0963E665A4F3D621EA /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
 		281B4D0C19399AF581AAEC00 /* CSVParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CSVParser.swift; sourceTree = "<group>"; };
 		2B00A2B4E368518F02FC2485 /* ExercisePickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExercisePickerView.swift; sourceTree = "<group>"; };
-		2B1A8DF0A725B9698B3EF81A /* PRManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PRManager.swift; sourceTree = "<group>"; };
 		2D178E2488593ED7271BFB64 /* MuscleMapTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = MuscleMapTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		2E62C3348AF8D24E0BA19F31 /* PurchaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PurchaseManager.swift; sourceTree = "<group>"; };
 		300D254EBBCA6CC21F07DD9B /* RecoveryCalculatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecoveryCalculatorTests.swift; sourceTree = "<group>"; };
@@ -167,6 +166,7 @@
 		A641D503120435354F8CCA29 /* ExerciseDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseDetailView.swift; sourceTree = "<group>"; };
 		A7665A2A3A6E18C8037F80DD /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		A8FDEA0217A7E8F2762673A4 /* WorkoutViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutViewModel.swift; sourceTree = "<group>"; };
+		B04E06EA374E74AAD225DB8C /* PRManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PRManager.swift; sourceTree = "<group>"; };
 		B1C20CB4DE1E596D9D14A622 /* MuscleDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MuscleDetailView.swift; sourceTree = "<group>"; };
 		B22DC43736789BB61CD239BD /* FavoritesManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoritesManager.swift; sourceTree = "<group>"; };
 		B8A4C5A76D596FFBABB6E47D /* UserProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfile.swift; sourceTree = "<group>"; };
@@ -230,6 +230,7 @@
 				E75A1388B2C55CA9AA59D915 /* MenuSuggestionService.swift */,
 				FB8FC4CC2B04B8D324DD7100 /* ModelLoader.swift */,
 				4F79F9EB62B60C3520F659A0 /* ObsidianSyncManager.swift */,
+				B04E06EA374E74AAD225DB8C /* PRManager.swift */,
 				2E62C3348AF8D24E0BA19F31 /* PurchaseManager.swift */,
 				97C1051BF6F39CF7C365258E /* RecoveryCalculator.swift */,
 				6DFCD8E07A44A61C9FFC4430 /* SubscriptionManager.swift */,
@@ -375,7 +376,6 @@
 			children = (
 				E800074C8D53A0356F8230BF /* ExerciseStore.swift */,
 				F3934B8352158E0A999B4FCC /* MuscleStateRepository.swift */,
-				2B1A8DF0A725B9698B3EF81A /* PRManager.swift */,
 				36B9C0C525A22F0F0298F099 /* WorkoutRepository.swift */,
 			);
 			path = Repositories;
@@ -627,7 +627,7 @@
 				E4600BF28A7E837121E7944F /* ObsidianSettingsView.swift in Sources */,
 				A0EE0C5B81D710A0A04A6E91 /* ObsidianSyncManager.swift in Sources */,
 				DF796617F303D8007A723F6F /* OnboardingView.swift in Sources */,
-				27CCE1A0C36AF12548F03030 /* PRManager.swift in Sources */,
+				63FA9C415DEC4B6A42C70AB1 /* PRManager.swift in Sources */,
 				61DFE674FC9B8C0150AE7A36 /* PaywallView.swift in Sources */,
 				1B78DB667BFDD3E8AAB15FA6 /* PurchaseManager.swift in Sources */,
 				1A8C4925B1A20E8513EF6D40 /* RecentExercisesManager.swift in Sources */,

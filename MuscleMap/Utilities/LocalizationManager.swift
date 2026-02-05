@@ -495,6 +495,7 @@ enum L10n {
     static var time: String { loc("時間", "Time") }
     static var stimulatedMuscles: String { loc("刺激した筋肉", "Stimulated Muscles") }
     static var exercisesDone: String { loc("実施した種目", "Exercises Done") }
+    static var pr: String { loc("PR", "PR") }
 
     // MARK: - AI画像認識
     static var aiRecognition: String { loc("AI認識（高精度）", "AI Recognition (High Accuracy)") }

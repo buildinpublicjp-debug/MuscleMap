@@ -43,20 +43,4 @@ struct HapticManager {
         let generator = UINotificationFeedbackGenerator()
         generator.notificationOccurred(.error)
     }
-
-    /// PR達成時（スペシャルフィードバック）
-    static func prAchieved() {
-        guard AppState.shared.isHapticEnabled else { return }
-        let notification = UINotificationFeedbackGenerator()
-        notification.notificationOccurred(.success)
-        // 連続でインパクトを追加
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            let impact = UIImpactFeedbackGenerator(style: .heavy)
-            impact.impactOccurred()
-        }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-            let impact = UIImpactFeedbackGenerator(style: .heavy)
-            impact.impactOccurred()
-        }
-    }
 }

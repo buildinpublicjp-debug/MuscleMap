@@ -30,24 +30,9 @@ class PRManager {
         return weight > currentPR
     }
 
-    /// 指定セットがPRかどうかをチェック（記録後に判定用）
-    func checkIsPR(set: WorkoutSet, context: ModelContext) -> Bool {
-        let exerciseId = set.exerciseId
-        let descriptor = FetchDescriptor<WorkoutSet>(
-            predicate: #Predicate<WorkoutSet> { ws in
-                ws.exerciseId == exerciseId
-            },
-            sortBy: [SortDescriptor(\.weight, order: .reverse)]
-        )
-        guard let allSets = try? context.fetch(descriptor) else {
-            return true
-        }
-        // 自分以外のセットで最大重量を探す
-        let otherSets = allSets.filter { $0.id != set.id }
-        guard let previousMax = otherSets.first else {
-            // 他に記録がなければPR
-            return true
-        }
-        return set.weight > previousMax.weight
+    /// 推定1RM（Epley式）
+    func estimated1RM(weight: Double, reps: Int) -> Double {
+        guard reps > 1 else { return weight }
+        return weight * (1 + Double(reps) / 30.0)
     }
 }
