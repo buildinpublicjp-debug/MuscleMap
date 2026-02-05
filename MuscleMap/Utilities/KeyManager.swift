@@ -7,7 +7,6 @@ enum KeyManager {
 
     enum KeyType: String {
         case revenueCat = "revenuecat_api_key"
-        case claudeAPI = "claude_api_key"
     }
 
     // MARK: - RevenueCat API Key
@@ -68,11 +67,5 @@ enum KeyManager {
     static var hasRevenueCatKey: Bool {
         guard let key = getKey(.revenueCat) else { return false }
         return !key.isEmpty && key != "YOUR_REVENUECAT_API_KEY"
-    }
-
-    /// Claude APIキーが設定されているか
-    static var hasClaudeAPIKey: Bool {
-        guard let key = getKey(.claudeAPI) else { return false }
-        return !key.isEmpty
     }
 }

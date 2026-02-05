@@ -1,5 +1,26 @@
 import Foundation
 
+// MARK: - インポート共通データ型
+
+/// パース結果の1日分のワークアウト
+struct ParsedWorkout {
+    let date: Date
+    let muscleGroup: String?
+    let exercises: [ParsedExercise]
+}
+
+/// パース結果の1種目
+struct ParsedExercise {
+    let name: String
+    let sets: [ParsedSet]
+}
+
+/// パース結果の1セット
+struct ParsedSet {
+    let weight: Double
+    let reps: Int
+}
+
 // MARK: - CSV パーサー (Strong/Hevy互換)
 
 struct CSVParser {

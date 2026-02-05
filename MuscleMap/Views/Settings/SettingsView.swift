@@ -10,23 +10,6 @@ struct SettingsView: View {
     @State private var showingRestoreAlert = false
     @State private var restoreMessage = ""
     @AppStorage("youtubeSearchLanguage") private var youtubeSearchLanguage: String = "auto"
-    @State private var claudeAPIKey: String = ""
-    @State private var showingAPIKey = false
-
-    /// Claude APIキーのKeychain連携Binding
-    private var claudeAPIKeyBinding: Binding<String> {
-        Binding(
-            get: { claudeAPIKey },
-            set: { newValue in
-                claudeAPIKey = newValue
-                if newValue.isEmpty {
-                    KeyManager.deleteKey(.claudeAPI)
-                } else {
-                    KeyManager.saveKey(newValue, for: .claudeAPI)
-                }
-            }
-        )
-    }
 
     var body: some View {
         NavigationStack {
@@ -59,10 +42,6 @@ struct SettingsView: View {
                 Button(L10n.ok) {}
             } message: {
                 Text(restoreMessage)
-            }
-            .onAppear {
-                // KeychainからClaude APIキーを読み込み
-                claudeAPIKey = KeyManager.getKey(.claudeAPI) ?? ""
             }
         }
     }
@@ -182,56 +161,6 @@ struct SettingsView: View {
                 .tint(Color.mmAccentPrimary)
             }
             .listRowBackground(Color.mmBgCard)
-
-            // Claude API Key
-            VStack(alignment: .leading, spacing: 8) {
-                HStack(spacing: 12) {
-                    Image(systemName: "brain")
-                        .foregroundStyle(Color.mmAccentSecondary)
-                    Text(L10n.claudeAPIKey)
-                        .font(.subheadline)
-                        .foregroundStyle(Color.mmTextPrimary)
-                    Spacer()
-                    Button {
-                        showingAPIKey.toggle()
-                    } label: {
-                        Image(systemName: showingAPIKey ? "eye.slash" : "eye")
-                            .font(.caption)
-                            .foregroundStyle(Color.mmTextSecondary)
-                    }
-                }
-                HStack {
-                    if showingAPIKey {
-                        TextField(L10n.enterAPIKey, text: claudeAPIKeyBinding)
-                            .font(.caption)
-                            .foregroundStyle(Color.mmTextPrimary)
-                            .autocapitalization(.none)
-                            .textContentType(.password)
-                    } else {
-                        SecureField(L10n.enterAPIKey, text: claudeAPIKeyBinding)
-                            .font(.caption)
-                            .foregroundStyle(Color.mmTextPrimary)
-                    }
-                }
-                .padding(8)
-                .background(Color.mmBgSecondary)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
-
-                if claudeAPIKey.isEmpty {
-                    Text(L10n.apiKeyHint)
-                        .font(.caption2)
-                        .foregroundStyle(Color.mmTextSecondary)
-                } else {
-                    HStack(spacing: 4) {
-                        Image(systemName: "checkmark.circle.fill")
-                            .foregroundStyle(Color.mmAccentPrimary)
-                        Text(L10n.aiRecognition)
-                            .foregroundStyle(Color.mmAccentPrimary)
-                    }
-                    .font(.caption2)
-                }
-            }
-            .listRowBackground(Color.mmBgCard)
         } header: {
             Text(L10n.appSettings)
                 .foregroundStyle(Color.mmTextSecondary)
@@ -242,27 +171,6 @@ struct SettingsView: View {
 
     private var dataSection: some View {
         Section {
-            // Obsidian連携
-            NavigationLink {
-                ObsidianSettingsView()
-            } label: {
-                HStack(spacing: 12) {
-                    Image(systemName: "link")
-                        .foregroundStyle(Color.mmAccentPrimary)
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(L10n.obsidianSync)
-                            .font(.subheadline)
-                            .foregroundStyle(Color.mmTextPrimary)
-                        if ObsidianSyncManager.shared.isConnected {
-                            Text(L10n.connected)
-                                .font(.caption)
-                                .foregroundStyle(Color.mmAccentPrimary)
-                        }
-                    }
-                }
-            }
-            .listRowBackground(Color.mmBgCard)
-
             // CSVインポート
             NavigationLink {
                 CSVImportView()
@@ -271,20 +179,6 @@ struct SettingsView: View {
                     Image(systemName: "square.and.arrow.down")
                         .foregroundStyle(Color.mmAccentPrimary)
                     Text(L10n.csvImport)
-                        .font(.subheadline)
-                        .foregroundStyle(Color.mmTextPrimary)
-                }
-            }
-            .listRowBackground(Color.mmBgCard)
-
-            // 画像から取り込み
-            NavigationLink {
-                ImageImportView()
-            } label: {
-                HStack(spacing: 12) {
-                    Image(systemName: "photo.badge.plus")
-                        .foregroundStyle(Color.mmAccentPrimary)
-                    Text(L10n.imageImport)
                         .font(.subheadline)
                         .foregroundStyle(Color.mmTextPrimary)
                 }

@@ -308,10 +308,7 @@ enum L10n {
     static var hapticFeedback: String { loc("触覚フィードバック", "Haptic Feedback") }
     static var language: String { loc("言語", "Language") }
     static var data: String { loc("データ", "Data") }
-    static var obsidianSync: String { loc("Obsidian連携", "Obsidian Sync") }
-    static var connected: String { loc("接続済み", "Connected") }
     static var csvImport: String { loc("CSVインポート", "CSV Import") }
-    static var imageImport: String { loc("画像から取り込み", "Import from Image") }
     static var dataExport: String { loc("データエクスポート", "Data Export") }
     static var comingSoon: String { loc("準備中", "Coming Soon") }
     static var registeredExercises: String { loc("登録種目数", "Registered Exercises") }
@@ -474,18 +471,6 @@ enum L10n {
             "No workout data found. Please check the format.")
     }
 
-    // MARK: - Obsidian連携
-    static var obsidianIntegration: String { loc("Obsidian連携", "Obsidian Integration") }
-    static var connectionStatus: String { loc("接続状態", "Connection Status") }
-    static var selectVaultFolder: String { loc("Vaultフォルダを選択", "Select Vault Folder") }
-    static var loadObsidianData: String { loc("Obsidianのワークアウトデータを読み込みます", "Load workout data from Obsidian") }
-    static var disconnect: String { loc("接続を解除", "Disconnect") }
-    static var disconnectConfirm: String { loc("Obsidian Vaultとの接続を解除しますか？", "Disconnect from Obsidian Vault?") }
-    static var syncNow: String { loc("今すぐ同期", "Sync Now") }
-    static var lastSync: String { loc("最終同期", "Last Sync") }
-    static var sync: String { loc("同期", "Sync") }
-    static var readOnlyNote: String { loc("Obsidianへの書き込みは行いません（読み取り専用）", "Read-only (no write to Obsidian)") }
-
     // MARK: - ワークアウト完了画面
     static var workoutComplete: String { loc("ワークアウト完了！", "Workout Complete!") }
     static var share: String { loc("シェア", "Share") }
@@ -496,25 +481,6 @@ enum L10n {
     static var stimulatedMuscles: String { loc("刺激した筋肉", "Stimulated Muscles") }
     static var exercisesDone: String { loc("実施した種目", "Exercises Done") }
     static var pr: String { loc("PR", "PR") }
-
-    // MARK: - AI画像認識
-    static var aiRecognition: String { loc("AI認識（高精度）", "AI Recognition (High Accuracy)") }
-    static var claudeAPIKey: String { loc("Claude APIキー", "Claude API Key") }
-    static var enterAPIKey: String { loc("APIキーを入力", "Enter API Key") }
-    static var apiKeyHint: String {
-        loc("Anthropic ConsoleでAPIキーを取得してください",
-            "Get your API key from Anthropic Console")
-    }
-    static var recognitionMethod: String { loc("認識方法", "Recognition Method") }
-    static var onDeviceOCR: String { loc("端末内OCR", "On-device OCR") }
-    static var aiPowered: String { loc("AI認識", "AI Powered") }
-    static var aiRecognizing: String { loc("AI解析中...", "AI analyzing...") }
-    static var ocrRecognizing: String { loc("OCR解析中...", "OCR analyzing...") }
-    static var apiKeyRequired: String { loc("APIキーが必要です", "API key required") }
-    static var setAPIKeyInSettings: String {
-        loc("設定画面でClaude APIキーを入力してください",
-            "Please enter Claude API key in Settings")
-    }
 
     // MARK: - 追加カテゴリ・器具
     static var categoryArmsForearms: String { loc("腕（前腕）", "Arms (Forearms)") }
