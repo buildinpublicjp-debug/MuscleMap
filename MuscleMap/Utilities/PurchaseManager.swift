@@ -11,8 +11,15 @@ class PurchaseManager {
     // Entitlement ID
     private static let premiumEntitlementID = "premium"
 
-    // RevenueCat API Key（App Store Connectで発行後に設定）
-    private static let apiKey = "YOUR_REVENUECAT_API_KEY"
+    // RevenueCat API Key（Keychainから取得）
+    private static var apiKey: String {
+        KeyManager.getKey(.revenueCat) ?? ""
+    }
+
+    /// APIキーが有効か
+    private static var hasValidAPIKey: Bool {
+        KeyManager.hasRevenueCatKey
+    }
 
     // 状態
     var isPremium: Bool = false
@@ -36,7 +43,7 @@ class PurchaseManager {
 
     /// RevenueCatを設定
     func configure() {
-        guard Self.apiKey != "YOUR_REVENUECAT_API_KEY" else {
+        guard Self.hasValidAPIKey else {
             // APIキー未設定時はスキップ（開発中）
             return
         }
@@ -49,7 +56,7 @@ class PurchaseManager {
 
     /// プレミアム状態を確認
     func checkPremiumStatus() async {
-        guard Self.apiKey != "YOUR_REVENUECAT_API_KEY" else {
+        guard Self.hasValidAPIKey else {
             isPremium = false
             return
         }
@@ -66,7 +73,7 @@ class PurchaseManager {
 
     /// 利用可能なプランを取得
     func fetchOfferings() async {
-        guard Self.apiKey != "YOUR_REVENUECAT_API_KEY" else { return }
+        guard Self.hasValidAPIKey else { return }
 
         isLoading = true
         do {
@@ -117,7 +124,7 @@ extension PurchaseManager {
     /// プレミアム機能が利用可能か（開発中は常にtrue）
     var canAccessPremiumFeatures: Bool {
         // APIキー未設定時は全機能開放（開発中）
-        if Self.apiKey == "YOUR_REVENUECAT_API_KEY" {
+        if !Self.hasValidAPIKey {
             return true
         }
         return isPremium

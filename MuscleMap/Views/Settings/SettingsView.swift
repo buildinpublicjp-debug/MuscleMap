@@ -10,8 +10,23 @@ struct SettingsView: View {
     @State private var showingRestoreAlert = false
     @State private var restoreMessage = ""
     @AppStorage("youtubeSearchLanguage") private var youtubeSearchLanguage: String = "auto"
-    @AppStorage("claudeAPIKey") private var claudeAPIKey: String = ""
+    @State private var claudeAPIKey: String = ""
     @State private var showingAPIKey = false
+
+    /// Claude APIキーのKeychain連携Binding
+    private var claudeAPIKeyBinding: Binding<String> {
+        Binding(
+            get: { claudeAPIKey },
+            set: { newValue in
+                claudeAPIKey = newValue
+                if newValue.isEmpty {
+                    KeyManager.deleteKey(.claudeAPI)
+                } else {
+                    KeyManager.saveKey(newValue, for: .claudeAPI)
+                }
+            }
+        )
+    }
 
     var body: some View {
         NavigationStack {
@@ -44,6 +59,10 @@ struct SettingsView: View {
                 Button(L10n.ok) {}
             } message: {
                 Text(restoreMessage)
+            }
+            .onAppear {
+                // KeychainからClaude APIキーを読み込み
+                claudeAPIKey = KeyManager.getKey(.claudeAPI) ?? ""
             }
         }
     }
@@ -183,13 +202,13 @@ struct SettingsView: View {
                 }
                 HStack {
                     if showingAPIKey {
-                        TextField(L10n.enterAPIKey, text: $claudeAPIKey)
+                        TextField(L10n.enterAPIKey, text: claudeAPIKeyBinding)
                             .font(.caption)
                             .foregroundStyle(Color.mmTextPrimary)
                             .autocapitalization(.none)
                             .textContentType(.password)
                     } else {
-                        SecureField(L10n.enterAPIKey, text: $claudeAPIKey)
+                        SecureField(L10n.enterAPIKey, text: claudeAPIKeyBinding)
                             .font(.caption)
                             .foregroundStyle(Color.mmTextPrimary)
                     }

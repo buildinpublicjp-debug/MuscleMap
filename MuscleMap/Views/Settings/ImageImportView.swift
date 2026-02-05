@@ -15,7 +15,10 @@ struct ImageImportView: View {
     @State private var recognizedData: RecognizedWorkoutData?
     @State private var preview: ImportPreview?
     @State private var useAIRecognition: Bool = true
-    @AppStorage("claudeAPIKey") private var claudeAPIKey: String = ""
+
+    private var claudeAPIKey: String {
+        KeyManager.getKey(.claudeAPI) ?? ""
+    }
 
     enum ImageImportState: Equatable {
         case idle
