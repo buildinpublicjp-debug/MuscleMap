@@ -27,9 +27,12 @@ struct ExerciseDetailView: View {
                                 .font(.title2.bold())
                                 .foregroundStyle(Color.mmTextPrimary)
 
-                            Text(localization.currentLanguage == .japanese ? exercise.nameEN : exercise.nameJA)
-                                .font(.subheadline)
-                                .foregroundStyle(Color.mmTextSecondary)
+                            // 日本語モード時のみ英語名サブタイトルを表示
+                            if localization.currentLanguage == .japanese {
+                                Text(exercise.nameEN)
+                                    .font(.subheadline)
+                                    .foregroundStyle(Color.mmTextSecondary)
+                            }
                         }
 
                         // 基本情報

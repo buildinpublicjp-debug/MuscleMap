@@ -39,23 +39,6 @@ struct MuscleMapView: View {
                 let rect = CGRect(origin: .zero, size: geo.size)
 
                 ZStack {
-                    // シルエット（背景）- 人型が見やすいように
-                    if showingFront {
-                        MusclePathData.bodyOutlineFront(in: rect)
-                            .fill(Color.mmBgCard.opacity(0.8))
-                            .overlay {
-                                MusclePathData.bodyOutlineFront(in: rect)
-                                    .stroke(Color.mmMuscleBorder, lineWidth: 2)
-                            }
-                    } else {
-                        MusclePathData.bodyOutlineBack(in: rect)
-                            .fill(Color.mmBgCard.opacity(0.8))
-                            .overlay {
-                                MusclePathData.bodyOutlineBack(in: rect)
-                                    .stroke(Color.mmMuscleBorder, lineWidth: 2)
-                            }
-                    }
-
                     // 筋肉パス
                     let muscles = showingFront
                         ? MusclePathData.frontMuscles

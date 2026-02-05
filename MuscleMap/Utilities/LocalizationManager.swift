@@ -169,6 +169,7 @@ enum L10n {
     static var favorites: String { loc("お気に入り", "Favorites") }
     static var favoriteExercises: String { loc("お気に入り種目", "Favorite Exercises") }
     static var startFreeWorkout: String { loc("自由にトレーニング開始", "Start Free Workout") }
+    static var tapMuscleHint: String { loc("筋肉をタップして関連種目を選択", "Tap a muscle to select related exercises") }
     static var addExercise: String { loc("種目を追加", "Add Exercise") }
     static var endWorkout: String { loc("ワークアウト終了", "End Workout") }
     static var recordSet: String { loc("セットを記録", "Record Set") }
@@ -246,6 +247,9 @@ enum L10n {
     static var watchVideo: String { loc("動画で見る", "Watch Video") }
     static var targetMuscles: String { loc("対象筋肉", "Target Muscles") }
     static var stimulationLevel: String { loc("刺激度", "Stimulation Level") }
+    static var highStimulation: String { loc("高 (80%+)", "High (80%+)") }
+    static var mediumStimulation: String { loc("中 (50-79%)", "Mid (50-79%)") }
+    static var lowStimulation: String { loc("低 (1-49%)", "Low (1-49%)") }
 
     // MARK: - 履歴・統計画面
     static var weekly: String { loc("週間", "Weekly") }

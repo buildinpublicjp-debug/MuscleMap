@@ -115,7 +115,6 @@ private struct WorkoutIdleView: View {
 
     @ObservedObject private var favorites = FavoritesManager.shared
     @State private var selectedMuscle: Muscle?
-    @State private var showMuscleExercises = false
     private var localization: LocalizationManager { LocalizationManager.shared }
 
     private var favoriteExercises: [ExerciseDefinition] {
@@ -132,11 +131,16 @@ private struct WorkoutIdleView: View {
                         muscleStates: muscleStates,
                         onMuscleTapped: { muscle in
                             selectedMuscle = muscle
-                            showMuscleExercises = true
                         }
                     )
                     .frame(height: UIScreen.main.bounds.height * 0.45)
                     .padding(.horizontal)
+
+                    // ヒントテキスト
+                    Text(L10n.tapMuscleHint)
+                        .font(.caption)
+                        .foregroundStyle(Color.mmTextSecondary)
+                        .multilineTextAlignment(.center)
 
                     // お気に入り種目
                     if !favoriteExercises.isEmpty {
@@ -165,12 +169,10 @@ private struct WorkoutIdleView: View {
             .padding(.horizontal)
             .padding(.bottom, 8)
         }
-        .sheet(isPresented: $showMuscleExercises) {
-            if let muscle = selectedMuscle {
-                MuscleExercisePickerSheet(muscle: muscle) { exercise in
-                    onSelectExercise(exercise)
-                    showMuscleExercises = false
-                }
+        .sheet(item: $selectedMuscle) { muscle in
+            MuscleExercisePickerSheet(muscle: muscle) { exercise in
+                onSelectExercise(exercise)
+                selectedMuscle = nil
             }
         }
     }
@@ -338,6 +340,22 @@ private struct ActiveWorkoutView: View {
                 VStack(spacing: 16) {
                     // 選択中の種目のセット入力
                     if let exercise = viewModel.selectedExercise {
+                        // 戻るボタン
+                        HStack {
+                            Button {
+                                viewModel.selectedExercise = nil
+                            } label: {
+                                HStack(spacing: 4) {
+                                    Image(systemName: "chevron.left")
+                                    Text(L10n.selectExercise)
+                                }
+                                .font(.subheadline)
+                                .foregroundStyle(Color.mmAccentPrimary)
+                            }
+                            Spacer()
+                        }
+                        .padding(.horizontal)
+
                         SetInputCard(viewModel: viewModel, exercise: exercise)
                     }
 
@@ -369,6 +387,7 @@ private struct ActiveWorkoutView: View {
                     }
                 }
                 .padding(.vertical)
+                .padding(.bottom, 16)
             }
 
             // 終了ボタン

@@ -54,6 +54,9 @@ class WorkoutViewModel {
         workoutRepo.endSession(session)
         activeSession = nil
         exerciseSets = []
+
+        // ウィジェットデータを更新
+        updateWidgetAfterSession()
     }
 
     /// セッションを破棄（記録と筋肉刺激を削除）
@@ -175,6 +178,27 @@ class WorkoutViewModel {
             let sortedSets = sets.sorted { $0.setNumber < $1.setNumber }
             return (exercise: exercise, sets: sortedSets)
         }.sorted { ($0.sets.first?.completedAt ?? .distantPast) < ($1.sets.first?.completedAt ?? .distantPast) }
+    }
+
+    /// ウィジェットデータを最新の筋肉状態で更新
+    private func updateWidgetAfterSession() {
+        let stimulations = muscleStateRepo.fetchLatestStimulations()
+        var states: [Muscle: MuscleVisualState] = [:]
+
+        for muscle in Muscle.allCases {
+            if let stim = stimulations[muscle] {
+                let status = RecoveryCalculator.recoveryStatus(
+                    stimulationDate: stim.stimulationDate,
+                    muscle: muscle,
+                    totalSets: stim.totalSets
+                )
+                states[muscle] = status.visualState
+            } else {
+                states[muscle] = .inactive
+            }
+        }
+
+        WidgetDataProvider.updateWidgetData(muscleStates: states)
     }
 
     /// 筋肉刺激記録を更新（バッチ保存で1回のsave）

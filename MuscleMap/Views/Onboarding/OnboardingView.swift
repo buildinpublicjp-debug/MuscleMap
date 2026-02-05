@@ -22,6 +22,20 @@ struct OnboardingView: View {
                 // 画面2: 一言紹介
                 IntroPage(onComplete: onComplete)
             }
+
+            // ページインジケーター
+            VStack {
+                Spacer()
+                HStack(spacing: 8) {
+                    Circle()
+                        .fill(currentPage == 0 ? Color.mmAccentPrimary : Color.mmTextSecondary.opacity(0.3))
+                        .frame(width: 8, height: 8)
+                    Circle()
+                        .fill(currentPage == 1 ? Color.mmAccentPrimary : Color.mmTextSecondary.opacity(0.3))
+                        .frame(width: 8, height: 8)
+                }
+                .padding(.bottom, 16)
+            }
         }
     }
 }
@@ -133,22 +147,23 @@ private struct IntroPage: View {
 
             Spacer()
 
-            // 筋肉マップ（デモ表示）
-            MuscleMapView(muscleStates: demoMuscleStates)
-                .frame(height: UIScreen.main.bounds.height * 0.4)
+            // 筋肉マップ（デモアニメーション付き）
+            MuscleMapView(muscleStates: demoMuscleStates, demoMode: true)
+                .frame(height: UIScreen.main.bounds.height * 0.45)
                 .padding(.horizontal, 24)
 
             // キャッチコピー
-            VStack(spacing: 8) {
+            VStack(spacing: 12) {
                 Text(L10n.onboardingTagline1)
-                    .font(.title2.bold())
+                    .font(.system(size: 24, weight: .bold))
                     .foregroundStyle(Color.mmTextPrimary)
 
                 Text(L10n.onboardingTagline2)
-                    .font(.title3)
+                    .font(.system(size: 17, weight: .medium))
                     .foregroundStyle(Color.mmAccentPrimary)
             }
             .multilineTextAlignment(.center)
+            .padding(.horizontal, 24)
 
             Spacer()
 
@@ -166,7 +181,7 @@ private struct IntroPage: View {
                     .clipShape(RoundedRectangle(cornerRadius: 16))
             }
             .padding(.horizontal, 32)
-            .padding(.bottom, 32)
+            .padding(.bottom, 48)
         }
     }
 }

@@ -103,12 +103,14 @@ struct ExerciseMuscleMapView: View {
     // MARK: - 凡例
     
     private var legendView: some View {
-        HStack(spacing: 16) {
-            LegendItem(color: .mmMuscleJustWorked, label: "高 (80%+)")
-            LegendItem(color: .mmMuscleAmber, label: "中 (50-79%)")
-            LegendItem(color: .mmMuscleLime, label: "低 (1-49%)")
+        HStack(spacing: 20) {
+            LegendItem(color: .mmMuscleJustWorked, label: L10n.highStimulation)
+            LegendItem(color: .mmMuscleAmber, label: L10n.mediumStimulation)
+            LegendItem(color: .mmMuscleLime, label: L10n.lowStimulation)
         }
         .font(.caption2)
+        .padding(.vertical, 8)
+        .padding(.horizontal, 12)
     }
 }
 

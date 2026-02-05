@@ -144,14 +144,51 @@ struct SmallWidgetView: View {
 struct MediumWidgetView: View {
     let entry: MuscleMapEntry
 
+    private var recoveringCount: Int {
+        entry.muscleStates.values.filter { $0.stateType == .recovering }.count
+    }
+
+    private var readyCount: Int {
+        21 - entry.muscleStates.values.filter { $0.stateType == .recovering || $0.stateType == .neglected || $0.stateType == .neglectedSevere }.count
+    }
+
     var body: some View {
         GeometryReader { geo in
-            let bodyWidth = geo.size.height * 0.5
-            HStack(spacing: 8) {
+            let bodyHeight = geo.size.height
+            let bodyWidth = bodyHeight * 0.5
+            HStack(spacing: 4) {
                 WidgetMuscleMapView(muscleStates: entry.muscleStates, showFront: true)
-                    .frame(width: bodyWidth, height: geo.size.height)
+                    .frame(width: bodyWidth, height: bodyHeight)
                 WidgetMuscleMapView(muscleStates: entry.muscleStates, showFront: false)
-                    .frame(width: bodyWidth, height: geo.size.height)
+                    .frame(width: bodyWidth, height: bodyHeight)
+
+                // 情報カラム
+                VStack(alignment: .leading, spacing: 6) {
+                    Spacer()
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("回復済み")
+                            .font(.system(size: 9))
+                            .foregroundStyle(Color.mmTextSecondary)
+                        Text("\(readyCount)/21")
+                            .font(.system(size: 16, weight: .bold, design: .monospaced))
+                            .foregroundStyle(Color.mmAccentPrimary)
+                    }
+
+                    Rectangle()
+                        .fill(Color.mmMuscleBorder.opacity(0.3))
+                        .frame(height: 1)
+
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("回復中")
+                            .font(.system(size: 9))
+                            .foregroundStyle(Color.mmTextSecondary)
+                        Text("\(recoveringCount)")
+                            .font(.system(size: 16, weight: .bold, design: .monospaced))
+                            .foregroundStyle(Color.mmMuscleCoral)
+                    }
+                    Spacer()
+                }
+                .frame(maxWidth: .infinity)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
@@ -221,10 +258,11 @@ struct WidgetMuscleMapView: View {
                 ForEach(muscles, id: \.muscle) { entry in
                     let state = muscleStates[entry.muscle.rawValue]
                     let color = state?.color ?? Color.mmMuscleInactive
+                    let path = entry.path(rect)
 
-                    entry.path(rect)
+                    path
                         .fill(color)
-                    entry.path(rect)
+                    path
                         .stroke(Color.mmMuscleBorder.opacity(0.3), lineWidth: 0.3)
                 }
             }

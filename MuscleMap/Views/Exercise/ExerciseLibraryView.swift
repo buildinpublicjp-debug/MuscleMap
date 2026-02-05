@@ -233,9 +233,12 @@ private struct ExerciseLibraryRow: View {
                     .font(.subheadline.bold())
                     .foregroundStyle(Color.mmTextPrimary)
 
-                Text(localization.currentLanguage == .japanese ? exercise.nameEN : exercise.nameJA)
-                    .font(.caption)
-                    .foregroundStyle(Color.mmTextSecondary)
+                // 日本語モード時のみ英語名サブタイトルを表示
+                if localization.currentLanguage == .japanese {
+                    Text(exercise.nameEN)
+                        .font(.caption)
+                        .foregroundStyle(Color.mmTextSecondary)
+                }
 
                 // 器具と難易度のタグ
                 HStack(spacing: 8) {
