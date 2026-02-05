@@ -447,7 +447,7 @@ enum L10n {
         loc("。\(muscleName)は\(days)日以上未刺激です", ". \(muscleName) hasn't been trained for \(days)+ days")
     }
 
-    // MARK: - オンボーディング（シンプル版）
+    // MARK: - オンボーディング
     static var getStarted: String { loc("はじめる", "Get Started") }
     static var onboardingTagline1: String { loc("鍛えた筋肉が光る。", "Your trained muscles glow.") }
     static var onboardingTagline2: String { loc("回復状態が一目でわかる。", "See recovery at a glance.") }
@@ -455,6 +455,23 @@ enum L10n {
     // 言語名（ネイティブ表記で固定）
     static var languageJapanese: String { "日本語" }
     static var languageEnglish: String { "English" }
+
+    // MARK: - オンボーディングV2
+    static var onboardingV2Title1: String { loc("努力を、可視化する。", "Visualize Your Effort.") }
+    static var onboardingV2Subtitle1: String {
+        loc("鍛えた筋肉が光る。回復状態が一目でわかる。",
+            "See your muscles light up. Track recovery at a glance.")
+    }
+    static var onboardingGoalQuestion: String { loc("主な目標は何ですか？", "What's your primary goal?") }
+    static var goalMuscleGain: String { loc("筋力アップ", "Muscle Gain") }
+    static var goalFatLoss: String { loc("脂肪燃焼", "Fat Loss") }
+    static var goalHealth: String { loc("健康維持", "Stay Healthy") }
+    static var onboardingDemoTitle: String { loc("あなたの身体が、キャンバスになる。", "Your body becomes a canvas.") }
+    static var onboardingDemoHint: String { loc("タップして筋肉を光らせよう", "Tap muscles to light them up") }
+    static var onboardingFeature1: String { loc("21部位の筋肉を可視化", "Visualize 21 muscle groups") }
+    static var onboardingFeature2: String { loc("無制限のワークアウト記録", "Unlimited workout tracking") }
+    static var onboardingFeature3: String { loc("EMGベースの回復計算", "EMG-based recovery calculation") }
+    static var termsOfUse: String { loc("利用規約", "Terms of Use") }
 
     // MARK: - CSVインポート
     static var selectCSVFile: String { loc("CSVファイルを選択", "Select CSV File") }
