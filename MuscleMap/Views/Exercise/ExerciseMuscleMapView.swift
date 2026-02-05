@@ -34,39 +34,21 @@ struct ExerciseMuscleMapView: View {
             // 筋肉マップ
             GeometryReader { geo in
                 let rect = CGRect(origin: .zero, size: geo.size)
-                
+
                 ZStack {
-                    // シルエット（背景）
-                    if showingFront {
-                        MusclePathData.bodyOutlineFront(in: rect)
-                            .fill(Color.mmBgCard.opacity(0.7))
-                            .overlay {
-                                MusclePathData.bodyOutlineFront(in: rect)
-                                    .stroke(Color.mmMuscleBorder, lineWidth: 1.5)
-                            }
-                    } else {
-                        MusclePathData.bodyOutlineBack(in: rect)
-                            .fill(Color.mmBgCard.opacity(0.7))
-                            .overlay {
-                                MusclePathData.bodyOutlineBack(in: rect)
-                                    .stroke(Color.mmMuscleBorder, lineWidth: 1.5)
-                            }
-                    }
-                    
-                    // 筋肉パス
+                    // 全ての筋肉を表示（刺激されない筋肉も薄く表示）
                     let muscles = showingFront
                         ? MusclePathData.frontMuscles
                         : MusclePathData.backMuscles
-                    
+
                     ForEach(muscles, id: \.muscle) { entry in
                         let stimulation = stimulationFor(entry.muscle)
-                        
+
                         entry.path(rect)
                             .fill(colorFor(stimulation: stimulation))
-                            .overlay {
-                                entry.path(rect)
-                                    .stroke(Color.mmMuscleBorder, lineWidth: 0.8)
-                            }
+                        // 境界線（筋肉の形がわかるように）
+                        entry.path(rect)
+                            .stroke(Color.mmMuscleBorder.opacity(0.4), lineWidth: 0.8)
                     }
                 }
             }
@@ -94,16 +76,17 @@ struct ExerciseMuscleMapView: View {
     }
     
     // MARK: - 刺激度に応じた色
-    
+
     private func colorFor(stimulation: Int) -> Color {
         guard stimulation > 0 else {
-            return Color.mmTextSecondary.opacity(0.1)
+            // 刺激されない筋肉 = 暗いグレー（でも形は見える）
+            return Color.mmTextSecondary.opacity(0.15)
         }
-        
+
         // 刺激度に応じてグラデーション
         // 低 → 黄緑、中 → 黄、高 → オレンジ/赤
-        let opacity = 0.3 + (Double(stimulation) / 100.0) * 0.7
-        
+        let opacity = 0.4 + (Double(stimulation) / 100.0) * 0.6
+
         switch stimulation {
         case 80...:
             return Color.mmMuscleJustWorked.opacity(opacity)
@@ -112,7 +95,7 @@ struct ExerciseMuscleMapView: View {
         case 20..<50:
             return Color.mmMuscleLime.opacity(opacity)
         default:
-            return Color.mmMuscleLime.opacity(0.4)
+            return Color.mmMuscleLime.opacity(0.5)
         }
     }
     

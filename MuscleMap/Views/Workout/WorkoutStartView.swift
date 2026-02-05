@@ -55,6 +55,18 @@ struct WorkoutStartView: View {
                     showingExercisePicker = false
                 }
             }
+            .toolbar {
+                ToolbarItemGroup(placement: .keyboard) {
+                    Spacer()
+                    Button(L10n.done) {
+                        UIApplication.shared.sendAction(
+                            #selector(UIResponder.resignFirstResponder),
+                            to: nil, from: nil, for: nil
+                        )
+                    }
+                    .foregroundStyle(Color.mmAccentPrimary)
+                }
+            }
         }
     }
 
@@ -504,9 +516,9 @@ private struct SetInputCard: View {
             if !isBodyweight || useAdditionalWeight {
                 HStack(spacing: 16) {
                     WeightStepperButton(systemImage: "minus") {
-                        viewModel.adjustWeight(by: -2.5)
+                        viewModel.adjustWeight(by: -0.25)  // タップ = 細かく
                     } onLongPress: {
-                        viewModel.adjustWeight(by: -0.25)
+                        viewModel.adjustWeight(by: -2.5)   // 長押し = 大きく
                     }
 
                     WeightInputView(
@@ -516,9 +528,9 @@ private struct SetInputCard: View {
                     .frame(minWidth: 100)
 
                     WeightStepperButton(systemImage: "plus") {
-                        viewModel.adjustWeight(by: 2.5)
+                        viewModel.adjustWeight(by: 0.25)   // タップ = 細かく
                     } onLongPress: {
-                        viewModel.adjustWeight(by: 0.25)
+                        viewModel.adjustWeight(by: 2.5)    // 長押し = 大きく
                     }
                 }
             }

@@ -38,24 +38,7 @@ struct MiniMuscleMapView: View {
             let rect = CGRect(origin: .zero, size: geo.size)
 
             ZStack {
-                // シルエット（背景）- 人型が認識しやすいように
-                if shouldShowFront {
-                    MusclePathData.bodyOutlineFront(in: rect)
-                        .fill(Color.mmBgCard.opacity(0.7))
-                        .overlay {
-                            MusclePathData.bodyOutlineFront(in: rect)
-                                .stroke(Color.mmMuscleBorder.opacity(0.6), lineWidth: 1)
-                        }
-                } else {
-                    MusclePathData.bodyOutlineBack(in: rect)
-                        .fill(Color.mmBgCard.opacity(0.7))
-                        .overlay {
-                            MusclePathData.bodyOutlineBack(in: rect)
-                                .stroke(Color.mmMuscleBorder.opacity(0.6), lineWidth: 1)
-                        }
-                }
-
-                // 筋肉パス
+                // 全ての筋肉を表示（刺激されない筋肉も薄く表示）
                 let muscles = shouldShowFront
                     ? MusclePathData.frontMuscles
                     : MusclePathData.backMuscles
@@ -65,6 +48,9 @@ struct MiniMuscleMapView: View {
 
                     entry.path(rect)
                         .fill(colorFor(stimulation: stimulation))
+                    // 境界線（筋肉の形がわかるように）
+                    entry.path(rect)
+                        .stroke(Color.mmMuscleBorder.opacity(0.3), lineWidth: 0.5)
                 }
             }
         }
@@ -87,14 +73,12 @@ struct MiniMuscleMapView: View {
 
     private func colorFor(stimulation: Int) -> Color {
         guard stimulation > 0 else {
-            return Color.clear
+            // 刺激されない筋肉 = 暗いグレー（でも形は見える）
+            return Color.mmTextSecondary.opacity(0.15)
         }
 
-        // 刺激度に応じた緑の濃さ
-        // 100% → opacity 1.0（濃い緑）
-        // 50%  → opacity 0.5
-        // 20%  → opacity 0.3（最低値）
-        let opacity = max(0.3, Double(stimulation) / 100.0)
+        // 刺激される筋肉 = 緑系でハイライト
+        let opacity = max(0.4, Double(stimulation) / 100.0)
         return Color.mmAccentPrimary.opacity(opacity)
     }
 }

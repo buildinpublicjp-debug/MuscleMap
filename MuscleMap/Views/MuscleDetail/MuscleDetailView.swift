@@ -26,14 +26,6 @@ struct MuscleDetailView: View {
                             )
                             .padding(.horizontal)
 
-                            // 回復ステータスカード
-                            RecoveryStatusCard(viewModel: vm)
-                                .padding(.horizontal)
-
-                            // 基本情報
-                            MuscleInfoCard(muscle: muscle)
-                                .padding(.horizontal)
-
                             // 関連種目
                             if !vm.relatedExercises.isEmpty {
                                 RelatedExercisesSection(
