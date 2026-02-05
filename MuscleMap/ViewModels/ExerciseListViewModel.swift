@@ -6,6 +6,7 @@ import Foundation
 @Observable
 class ExerciseListViewModel {
     private let exerciseStore: ExerciseStore
+    private var isBatchUpdating = false
 
     var exercises: [ExerciseDefinition] = []
     var filteredExercises: [ExerciseDefinition] = []
@@ -13,23 +14,23 @@ class ExerciseListViewModel {
     var equipmentList: [String] = []
 
     var selectedCategory: String? {
-        didSet { applyFilters() }
+        didSet { if !isBatchUpdating { applyFilters() } }
     }
 
     var searchText: String = "" {
-        didSet { applyFilters() }
+        didSet { if !isBatchUpdating { applyFilters() } }
     }
 
     var showFavoritesOnly: Bool = false {
-        didSet { applyFilters() }
+        didSet { if !isBatchUpdating { applyFilters() } }
     }
 
     var showRecentOnly: Bool = false {
-        didSet { applyFilters() }
+        didSet { if !isBatchUpdating { applyFilters() } }
     }
 
     var selectedEquipment: String? {
-        didSet { applyFilters() }
+        didSet { if !isBatchUpdating { applyFilters() } }
     }
 
     init() {
@@ -105,13 +106,16 @@ class ExerciseListViewModel {
         filteredExercises = result
     }
 
-    /// フィルターをすべてクリア
+    /// フィルターをすべてクリア（didSetの多重発火を回避）
     func clearAllFilters() {
+        isBatchUpdating = true
         showFavoritesOnly = false
         showRecentOnly = false
         selectedCategory = nil
         selectedEquipment = nil
         searchText = ""
+        isBatchUpdating = false
+        applyFilters()
     }
 
     /// 指定筋肉をターゲットにする種目を取得

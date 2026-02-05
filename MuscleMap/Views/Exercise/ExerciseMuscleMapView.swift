@@ -43,11 +43,12 @@ struct ExerciseMuscleMapView: View {
 
                     ForEach(muscles, id: \.muscle) { entry in
                         let stimulation = stimulationFor(entry.muscle)
+                        let path = entry.path(rect)
 
-                        entry.path(rect)
+                        path
                             .fill(colorFor(stimulation: stimulation))
                         // 境界線（筋肉の形がわかるように）
-                        entry.path(rect)
+                        path
                             .stroke(Color.mmMuscleBorder.opacity(0.4), lineWidth: 0.8)
                     }
                 }

@@ -24,6 +24,12 @@ class HistoryViewModel {
     // 最もよく行う種目 Top5
     var topExercises: [(exercise: ExerciseDefinition, count: Int)] = []
 
+    // カレンダー用（stored property: 毎render再計算を防止）
+    var workoutDates: Set<DateComponents> = []
+
+    // チャート用（stored property: 毎render再計算を防止）
+    var dailyVolumeData: [DailyVolume] = []
+
     init(modelContext: ModelContext) {
         self.workoutRepo = WorkoutRepository(modelContext: modelContext)
         self.muscleStateRepo = MuscleStateRepository(modelContext: modelContext)
@@ -37,6 +43,8 @@ class HistoryViewModel {
         calculateMonthlyStats()
         calculateWeeklyGroupVolume()
         calculateTopExercises()
+        calculateWorkoutDates()
+        calculateDailyVolumeData()
     }
 
     // MARK: - 週間統計
@@ -153,19 +161,21 @@ class HistoryViewModel {
         return groups
     }
 
-    /// ワークアウトした日付のセット（カレンダー表示用）
-    var workoutDates: Set<DateComponents> {
+    // MARK: - カレンダー用日付
+
+    private func calculateWorkoutDates() {
         let calendar = Calendar.current
         var dates = Set<DateComponents>()
         for session in sessions {
             let components = calendar.dateComponents([.year, .month, .day], from: session.startDate)
             dates.insert(components)
         }
-        return dates
+        workoutDates = dates
     }
 
-    /// 日ごとのボリュームデータ（チャート用、直近14日）
-    var dailyVolumeData: [DailyVolume] {
+    // MARK: - 日ごとのボリュームデータ（直近14日）
+
+    private func calculateDailyVolumeData() {
         let calendar = Calendar.current
         var result: [DailyVolume] = []
 
@@ -184,7 +194,7 @@ class HistoryViewModel {
             result.append(DailyVolume(date: dayStart, volume: volume))
         }
 
-        return result
+        dailyVolumeData = result
     }
 }
 

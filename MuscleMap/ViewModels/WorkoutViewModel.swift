@@ -177,7 +177,7 @@ class WorkoutViewModel {
         }.sorted { ($0.sets.first?.completedAt ?? .distantPast) < ($1.sets.first?.completedAt ?? .distantPast) }
     }
 
-    /// 筋肉刺激記録を更新
+    /// 筋肉刺激記録を更新（バッチ保存で1回のsave）
     private func updateMuscleStimulations(exercise: ExerciseDefinition, session: WorkoutSession) {
         let sessionSets = workoutRepo.fetchSets(in: session, exerciseId: exercise.id)
         let totalSets = sessionSets.count
@@ -188,8 +188,10 @@ class WorkoutViewModel {
                 muscle: muscle,
                 sessionId: session.id,
                 maxIntensity: Double(percentage) / 100.0,
-                totalSets: totalSets
+                totalSets: totalSets,
+                saveImmediately: false
             )
         }
+        muscleStateRepo.save()
     }
 }

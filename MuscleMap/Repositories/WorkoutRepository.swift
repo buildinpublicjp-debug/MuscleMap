@@ -15,10 +15,11 @@ class WorkoutRepository {
 
     /// 進行中のセッションを取得
     func fetchActiveSession() -> WorkoutSession? {
-        let descriptor = FetchDescriptor<WorkoutSession>(
+        var descriptor = FetchDescriptor<WorkoutSession>(
             predicate: #Predicate { $0.endDate == nil },
             sortBy: [SortDescriptor(\.startDate, order: .reverse)]
         )
+        descriptor.fetchLimit = 1
         return try? modelContext.fetch(descriptor).first
     }
 
@@ -90,10 +91,11 @@ class WorkoutRepository {
 
     /// 指定種目の前回の記録（直近セッションから）
     func fetchLastRecord(exerciseId: String) -> WorkoutSet? {
-        let descriptor = FetchDescriptor<WorkoutSet>(
+        var descriptor = FetchDescriptor<WorkoutSet>(
             predicate: #Predicate { $0.exerciseId == exerciseId },
             sortBy: [SortDescriptor(\.completedAt, order: .reverse)]
         )
+        descriptor.fetchLimit = 1
         return try? modelContext.fetch(descriptor).first
     }
 
