@@ -51,16 +51,12 @@ struct CallToActionPage: View {
 
             // 利用規約・プライバシーポリシー
             HStack(spacing: 4) {
-                Button {
-                    // 将来URL設定
-                } label: {
+                Link(destination: URL(string: LegalURL.termsOfUse)!) {
                     Text(L10n.termsOfUse)
                         .underline()
                 }
                 Text("|")
-                Button {
-                    // 将来URL設定
-                } label: {
+                Link(destination: URL(string: LegalURL.privacyPolicy)!) {
                     Text(L10n.privacyPolicy)
                         .underline()
                 }

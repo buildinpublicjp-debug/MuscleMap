@@ -323,7 +323,8 @@ enum L10n {
     static func muscleCount(_ count: Int) -> String {
         loc("\(count)部位", "\(count) muscles")
     }
-    static var appInfo: String { loc("アプリ情報", "App Info") }
+    static var feedback: String { loc("フィードバック", "Feedback") }
+    static var appInfo: String { loc("アプリ情報", "About") }
     static var version: String { loc("バージョン", "Version") }
     static var tagline: String {
         loc("MuscleMap — 筋肉の状態が見える。だから、迷わない。",

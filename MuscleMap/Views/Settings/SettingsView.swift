@@ -9,6 +9,8 @@ struct SettingsView: View {
     @State private var showingPaywall = false
     @State private var showingRestoreAlert = false
     @State private var restoreMessage = ""
+    @State private var showingSafari = false
+    @State private var safariURL: URL?
     @AppStorage("youtubeSearchLanguage") private var youtubeSearchLanguage: String = "auto"
 
     var body: some View {
@@ -17,17 +19,17 @@ struct SettingsView: View {
                 Color.mmBgPrimary.ignoresSafeArea()
 
                 List {
-                    // プレミアムセクション
+                    // 1. MuscleMap Pro
                     premiumSection
 
-                    // アプリ設定
-                    appSettingsSection
+                    // 2. 一般
+                    generalSection
 
-                    // データ管理
-                    dataSection
+                    // 3. 法的事項
+                    legalSection
 
-                    // アプリ情報
-                    appInfoSection
+                    // 4. アプリについて
+                    aboutSection
                 }
                 .scrollContentBackground(.hidden)
                 .listStyle(.insetGrouped)
@@ -38,6 +40,12 @@ struct SettingsView: View {
             .sheet(isPresented: $showingPaywall) {
                 PaywallView()
             }
+            .sheet(isPresented: $showingSafari) {
+                if let url = safariURL {
+                    SafariView(url: url)
+                        .ignoresSafeArea()
+                }
+            }
             .alert(L10n.restoreResult, isPresented: $showingRestoreAlert) {
                 Button(L10n.ok) {}
             } message: {
@@ -46,7 +54,7 @@ struct SettingsView: View {
         }
     }
 
-    // MARK: - プレミアム
+    // MARK: - 1. MuscleMap Pro
 
     private var premiumSection: some View {
         Section {
@@ -132,9 +140,9 @@ struct SettingsView: View {
         }
     }
 
-    // MARK: - アプリ設定
+    // MARK: - 2. 一般
 
-    private var appSettingsSection: some View {
+    private var generalSection: some View {
         Section {
             // 言語設定
             HStack(spacing: 12) {
@@ -152,18 +160,6 @@ struct SettingsView: View {
                 .pickerStyle(.menu)
                 .tint(Color.mmAccentPrimary)
             }
-            .listRowBackground(Color.mmBgCard)
-
-            Toggle(isOn: Bindable(appState).isHapticEnabled) {
-                HStack(spacing: 12) {
-                    Image(systemName: "hand.tap")
-                        .foregroundStyle(Color.mmTextSecondary)
-                    Text(L10n.hapticFeedback)
-                        .font(.subheadline)
-                        .foregroundStyle(Color.mmTextPrimary)
-                }
-            }
-            .tint(Color.mmAccentPrimary)
             .listRowBackground(Color.mmBgCard)
 
             // YouTube検索言語設定
@@ -189,75 +185,56 @@ struct SettingsView: View {
         }
     }
 
-    // MARK: - データ管理
+    // MARK: - 3. 法的事項
 
-    private var dataSection: some View {
+    private var legalSection: some View {
         Section {
-            // CSVインポート
-            NavigationLink {
-                CSVImportView()
+            Button {
+                safariURL = URL(string: LegalURL.privacyPolicy)
+                showingSafari = true
             } label: {
                 HStack(spacing: 12) {
-                    Image(systemName: "square.and.arrow.down")
-                        .foregroundStyle(Color.mmAccentPrimary)
-                    Text(L10n.csvImport)
+                    Image(systemName: "hand.raised.fill")
+                        .foregroundStyle(Color.mmTextSecondary)
+                    Text(L10n.privacyPolicy)
                         .font(.subheadline)
                         .foregroundStyle(Color.mmTextPrimary)
+                    Spacer()
+                    Image(systemName: "arrow.up.right")
+                        .font(.caption)
+                        .foregroundStyle(Color.mmTextSecondary)
                 }
             }
             .listRowBackground(Color.mmBgCard)
 
-            // データエクスポート（将来実装）
-            HStack(spacing: 12) {
-                Image(systemName: "square.and.arrow.up")
-                    .foregroundStyle(Color.mmTextSecondary.opacity(0.5))
-                Text(L10n.dataExport)
-                    .font(.subheadline)
-                    .foregroundStyle(Color.mmTextSecondary.opacity(0.5))
-                Spacer()
-                Text(L10n.comingSoon)
-                    .font(.caption)
-                    .foregroundStyle(Color.mmTextSecondary.opacity(0.5))
-            }
-            .listRowBackground(Color.mmBgCard)
-
-            // エクササイズ情報
-            HStack(spacing: 12) {
-                Image(systemName: "dumbbell")
-                    .foregroundStyle(Color.mmTextSecondary)
-                Text(L10n.registeredExercises)
-                    .font(.subheadline)
-                    .foregroundStyle(Color.mmTextPrimary)
-                Spacer()
-                Text(L10n.exerciseCount(ExerciseStore.shared.exercises.count))
-                    .font(.subheadline)
-                    .foregroundStyle(Color.mmTextSecondary)
-            }
-            .listRowBackground(Color.mmBgCard)
-
-            // 筋肉数
-            HStack(spacing: 12) {
-                Image(systemName: "figure.stand")
-                    .foregroundStyle(Color.mmTextSecondary)
-                Text(L10n.trackedMuscles)
-                    .font(.subheadline)
-                    .foregroundStyle(Color.mmTextPrimary)
-                Spacer()
-                Text(L10n.muscleCount(Muscle.allCases.count))
-                    .font(.subheadline)
-                    .foregroundStyle(Color.mmTextSecondary)
+            Button {
+                safariURL = URL(string: LegalURL.termsOfUse)
+                showingSafari = true
+            } label: {
+                HStack(spacing: 12) {
+                    Image(systemName: "doc.text")
+                        .foregroundStyle(Color.mmTextSecondary)
+                    Text(L10n.termsOfUse)
+                        .font(.subheadline)
+                        .foregroundStyle(Color.mmTextPrimary)
+                    Spacer()
+                    Image(systemName: "arrow.up.right")
+                        .font(.caption)
+                        .foregroundStyle(Color.mmTextSecondary)
+                }
             }
             .listRowBackground(Color.mmBgCard)
         } header: {
-            Text(L10n.data)
+            Text(L10n.termsOfService)
                 .foregroundStyle(Color.mmTextSecondary)
         }
     }
 
-    // MARK: - アプリ情報
+    // MARK: - 4. アプリについて
 
-    private var appInfoSection: some View {
+    private var aboutSection: some View {
         Section {
+            // バージョン
             HStack(spacing: 12) {
                 Image(systemName: "info.circle")
                     .foregroundStyle(Color.mmTextSecondary)
@@ -268,6 +245,26 @@ struct SettingsView: View {
                 Text("\(appState.appVersion) (\(appState.buildNumber))")
                     .font(.subheadline)
                     .foregroundStyle(Color.mmTextSecondary)
+            }
+            .listRowBackground(Color.mmBgCard)
+
+            // フィードバック
+            Button {
+                if let url = URL(string: "https://github.com/buildinpublicjp-debug/MuscleMap/issues") {
+                    UIApplication.shared.open(url)
+                }
+            } label: {
+                HStack(spacing: 12) {
+                    Image(systemName: "envelope")
+                        .foregroundStyle(Color.mmTextSecondary)
+                    Text(L10n.feedback)
+                        .font(.subheadline)
+                        .foregroundStyle(Color.mmTextPrimary)
+                    Spacer()
+                    Image(systemName: "arrow.up.right")
+                        .font(.caption)
+                        .foregroundStyle(Color.mmTextSecondary)
+                }
             }
             .listRowBackground(Color.mmBgCard)
         } header: {

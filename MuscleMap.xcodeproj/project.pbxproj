@@ -35,6 +35,7 @@
 		61C75BB37FF6157166400E5E /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C975A916E9A16C00A07248A3 /* HomeView.swift */; };
 		61DFE674FC9B8C0150AE7A36 /* PaywallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB37FE4EBE611ED62380668 /* PaywallView.swift */; };
 		63FA9C415DEC4B6A42C70AB1 /* PRManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B04E06EA374E74AAD225DB8C /* PRManager.swift */; };
+		662D5CBA07EFBBA0FA088CD9 /* LegalURL.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A1FA14BC36B9C6CA887533B /* LegalURL.swift */; };
 		6BB577A4DE391007F041935A /* ProFeatureBanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = E615DA1A8B9A383A3E11AB7E /* ProFeatureBanner.swift */; };
 		70F5FA46B8F7F9CBDC1617AF /* ColorExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6E1885660D1D955C88C496C /* ColorExtensions.swift */; };
 		76241706AA8DE99609DFF879 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6685BDAE783FAC76CA211DC3 /* ContentView.swift */; };
@@ -129,6 +130,7 @@
 		1D4AC14E973BEC3D403032D7 /* WidgetMusclePathData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetMusclePathData.swift; sourceTree = "<group>"; };
 		25DC4C0963E665A4F3D621EA /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
 		281B4D0C19399AF581AAEC00 /* CSVParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CSVParser.swift; sourceTree = "<group>"; };
+		2A1FA14BC36B9C6CA887533B /* LegalURL.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegalURL.swift; sourceTree = "<group>"; };
 		2B00A2B4E368518F02FC2485 /* ExercisePickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExercisePickerView.swift; sourceTree = "<group>"; };
 		2D178E2488593ED7271BFB64 /* MuscleMapTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = MuscleMapTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		2E62C3348AF8D24E0BA19F31 /* PurchaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PurchaseManager.swift; sourceTree = "<group>"; };
@@ -233,6 +235,7 @@
 				7BCC6B908DD79252499174F4 /* ImportDataConverter.swift */,
 				A2A4D34488563E474C78D571 /* KeychainHelper.swift */,
 				BDA68A5C4978E543B4AC723F /* KeyManager.swift */,
+				2A1FA14BC36B9C6CA887533B /* LegalURL.swift */,
 				91C8FDD5228CC86C3A148EBA /* LocalizationManager.swift */,
 				E75A1388B2C55CA9AA59D915 /* MenuSuggestionService.swift */,
 				FB8FC4CC2B04B8D324DD7100 /* ModelLoader.swift */,
@@ -623,6 +626,7 @@
 				0B03A3DE5E415B29DB2CC5D3 /* InteractiveDemoPage.swift in Sources */,
 				76650C872A5850F096495974 /* KeyManager.swift in Sources */,
 				9B6E1B29E00C1268526C82B4 /* KeychainHelper.swift in Sources */,
+				662D5CBA07EFBBA0FA088CD9 /* LegalURL.swift in Sources */,
 				3EDDCA712A0B8E4A7415899B /* LocalizationManager.swift in Sources */,
 				D352F429F17B8DB95A9E9867 /* MenuSuggestionService.swift in Sources */,
 				9BB6E56E51225B390FB48C6A /* MiniMuscleMapView.swift in Sources */,
