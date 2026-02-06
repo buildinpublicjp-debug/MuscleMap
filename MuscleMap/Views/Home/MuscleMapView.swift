@@ -76,39 +76,39 @@ struct MuscleMapView: View {
         }
     }
 
-    // MARK: - デモアニメーション
+    // MARK: - デモアニメーション（控えめに調整）
 
     private func runDemoAnimation() {
         let frontMuscles = MusclePathData.frontMuscles.map(\.muscle)
         let backMuscles = MusclePathData.backMuscles.map(\.muscle)
         let allMuscles = frontMuscles + backMuscles
 
-        // 筋肉を1つずつ点灯
+        // 筋肉を1つずつ点灯（ゆっくりめに）
         for (index, muscle) in allMuscles.enumerated() {
-            DispatchQueue.main.asyncAfter(deadline: .now() + Double(index) * 0.08) {
-                withAnimation(.easeInOut(duration: 0.15)) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + Double(index) * 0.06) {
+                withAnimation(.easeInOut(duration: 0.2)) {
                     _ = demoHighlighted.insert(muscle)
                 }
             }
         }
 
         // 全点灯後にパルス
-        let totalLightUpTime = Double(allMuscles.count) * 0.08 + 0.2
+        let totalLightUpTime = Double(allMuscles.count) * 0.06 + 0.3
         DispatchQueue.main.asyncAfter(deadline: .now() + totalLightUpTime) {
-            withAnimation(.easeInOut(duration: 0.3)) {
+            withAnimation(.easeInOut(duration: 0.4)) {
                 demoPulse = true
             }
         }
 
         // パルス後にリセット
-        DispatchQueue.main.asyncAfter(deadline: .now() + totalLightUpTime + 0.6) {
-            withAnimation(.easeInOut(duration: 0.3)) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + totalLightUpTime + 0.8) {
+            withAnimation(.easeInOut(duration: 0.4)) {
                 demoPulse = false
             }
         }
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + totalLightUpTime + 1.0) {
-            withAnimation(.easeInOut(duration: 0.4)) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + totalLightUpTime + 1.3) {
+            withAnimation(.easeInOut(duration: 0.5)) {
                 demoHighlighted.removeAll()
             }
         }
@@ -147,7 +147,7 @@ private struct MusclePathView: View {
                 )
             }
             .shadow(color: isActive ? state.color.opacity(0.4) : .clear, radius: 4)
-            .scaleEffect(isTapped ? 1.05 : (isPulsing ? 1.03 : 1.0))
+            .scaleEffect(isTapped ? 1.03 : (isPulsing ? 1.015 : 1.0))
             .brightness(isDemoHighlighted ? 0.2 : 0)
             .animation(pulseAnimation, value: isPulsing)
             .onTapGesture {

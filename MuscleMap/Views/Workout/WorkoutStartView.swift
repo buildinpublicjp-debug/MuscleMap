@@ -133,7 +133,7 @@ private struct WorkoutIdleView: View {
                             selectedMuscle = muscle
                         }
                     )
-                    .frame(height: UIScreen.main.bounds.height * 0.45)
+                    .frame(height: UIScreen.main.bounds.height * 0.55)
                     .padding(.horizontal)
 
                     // ヒントテキスト

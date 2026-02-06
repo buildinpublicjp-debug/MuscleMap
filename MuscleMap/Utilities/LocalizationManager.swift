@@ -375,8 +375,9 @@ enum L10n {
 
     // MARK: - ペイウォール
     static var paywallHeadline: String {
-        loc("科学の力で、あなたの努力を最大化する。",
-            "Maximize your effort with science.")
+        // 「最大化する。」が単独改行されないよう調整
+        loc("科学の力で、\nあなたの努力を最大化する。",
+            "Maximize your effort\nwith science.")
     }
     static var paywallFeatureRecovery: String {
         loc("EMGベースの回復予測", "EMG-based recovery prediction")

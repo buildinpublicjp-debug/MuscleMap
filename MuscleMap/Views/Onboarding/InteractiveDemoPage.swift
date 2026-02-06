@@ -55,7 +55,7 @@ struct InteractiveDemoPage: View {
                     HapticManager.lightTap()
                 }
             )
-            .frame(height: UIScreen.main.bounds.height * 0.5)
+            .frame(height: UIScreen.main.bounds.height * 0.55)
             .padding(.horizontal, 16)
 
             // ヒントテキスト
