@@ -43,6 +43,7 @@ targets:
         INFOPLIST_KEY_UISupportedInterfaceOrientations: "UIInterfaceOrientationPortrait"
         INFOPLIST_KEY_UIRequiresFullScreen: true
         INFOPLIST_KEY_CFBundleDisplayName: "MuscleMap"
+        INFOPLIST_KEY_REVENUECAT_API_KEY: "appl_IzrrBdSVXMDZUylPnwcaJxvdlxb"
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
 
   MuscleMapWidgetExtension:
