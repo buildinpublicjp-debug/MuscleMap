@@ -314,10 +314,10 @@ private struct WorkoutShareCard: View {
 
             // 統計
             HStack(spacing: 16) {
-                ShareStatItem(value: formatVolume(totalVolume), label: "Volume")
-                ShareStatItem(value: "\(exerciseCount)", label: "Exercises")
-                ShareStatItem(value: "\(totalSets)", label: "Sets")
-                ShareStatItem(value: duration, label: "Time")
+                ShareStatItem(value: formatVolume(totalVolume), label: L10n.volume)
+                ShareStatItem(value: "\(exerciseCount)", label: L10n.exercises)
+                ShareStatItem(value: "\(totalSets)", label: L10n.sets)
+                ShareStatItem(value: duration, label: L10n.time)
             }
 
             // 種目リスト
@@ -334,7 +334,7 @@ private struct WorkoutShareCard: View {
                     }
                 }
                 if exerciseNames.count > 5 {
-                    Text("+\(exerciseNames.count - 5) more")
+                    Text(L10n.andMoreCount(exerciseNames.count - 5))
                         .font(.caption)
                         .foregroundStyle(Color.mmTextSecondary)
                 }

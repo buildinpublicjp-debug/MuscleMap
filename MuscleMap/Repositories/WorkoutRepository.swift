@@ -20,7 +20,14 @@ class WorkoutRepository {
             sortBy: [SortDescriptor(\.startDate, order: .reverse)]
         )
         descriptor.fetchLimit = 1
-        return try? modelContext.fetch(descriptor).first
+        do {
+            return try modelContext.fetch(descriptor).first
+        } catch {
+            #if DEBUG
+            print("[WorkoutRepository] Failed to fetch active session: \(error)")
+            #endif
+            return nil
+        }
     }
 
     /// 新しいセッションを開始
@@ -30,7 +37,9 @@ class WorkoutRepository {
         do {
             try modelContext.save()
         } catch {
+            #if DEBUG
             print("[WorkoutRepository] Failed to start session: \(error)")
+            #endif
         }
         return session
     }
@@ -41,7 +50,9 @@ class WorkoutRepository {
         do {
             try modelContext.save()
         } catch {
+            #if DEBUG
             print("[WorkoutRepository] Failed to end session: \(error)")
+            #endif
         }
     }
 
@@ -52,7 +63,14 @@ class WorkoutRepository {
             sortBy: [SortDescriptor(\.startDate, order: .reverse)]
         )
         descriptor.fetchLimit = limit
-        return (try? modelContext.fetch(descriptor)) ?? []
+        do {
+            return try modelContext.fetch(descriptor)
+        } catch {
+            #if DEBUG
+            print("[WorkoutRepository] Failed to fetch recent sessions: \(error)")
+            #endif
+            return []
+        }
     }
 
     // MARK: セット
@@ -77,7 +95,9 @@ class WorkoutRepository {
         do {
             try modelContext.save()
         } catch {
+            #if DEBUG
             print("[WorkoutRepository] Failed to add set: \(error)")
+            #endif
         }
         return workoutSet
     }
@@ -96,7 +116,14 @@ class WorkoutRepository {
             sortBy: [SortDescriptor(\.completedAt, order: .reverse)]
         )
         descriptor.fetchLimit = 1
-        return try? modelContext.fetch(descriptor).first
+        do {
+            return try modelContext.fetch(descriptor).first
+        } catch {
+            #if DEBUG
+            print("[WorkoutRepository] Failed to fetch last record: \(error)")
+            #endif
+            return nil
+        }
     }
 
     /// セットを削除
@@ -105,7 +132,9 @@ class WorkoutRepository {
         do {
             try modelContext.save()
         } catch {
+            #if DEBUG
             print("[WorkoutRepository] Failed to delete set: \(error)")
+            #endif
         }
     }
 
@@ -118,7 +147,9 @@ class WorkoutRepository {
         do {
             try modelContext.save()
         } catch {
+            #if DEBUG
             print("[WorkoutRepository] Failed to discard session: \(error)")
+            #endif
         }
     }
 }

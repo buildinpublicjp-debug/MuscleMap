@@ -13,6 +13,9 @@ struct CSVImportView: View {
     @State private var importState: ImportState = .idle
     @State private var preview: ImportPreview?
     @State private var csvContent: String?
+    @State private var showingPaywall = false
+
+    private let purchaseManager = PurchaseManager.shared
 
     enum ImportState: Equatable {
         case idle
@@ -26,6 +29,22 @@ struct CSVImportView: View {
         ZStack {
             Color.mmBgPrimary.ignoresSafeArea()
 
+            if !purchaseManager.isProUser {
+                // Pro未加入: ロック表示
+                VStack(spacing: 24) {
+                    Spacer()
+                    ProFeatureBanner(feature: .export) {
+                        showingPaywall = true
+                    }
+                    Spacer()
+                }
+                .padding(.horizontal, 24)
+                .sheet(isPresented: $showingPaywall) {
+                    PaywallView()
+                }
+            }
+
+            if purchaseManager.isProUser {
             List {
                 // ファイル選択
                 fileSelectionSection
@@ -48,8 +67,9 @@ struct CSVImportView: View {
             }
             .scrollContentBackground(.hidden)
             .listStyle(.insetGrouped)
+            } // if isProUser
         }
-        .navigationTitle("CSVインポート")
+        .navigationTitle(L10n.csvImport)
         .navigationBarTitleDisplayMode(.inline)
         .fileImporter(
             isPresented: $showingFilePicker,
@@ -71,10 +91,10 @@ struct CSVImportView: View {
                     Image(systemName: "doc.badge.plus")
                         .foregroundStyle(Color.mmAccentPrimary)
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("CSVファイルを選択")
+                        Text(L10n.selectCSVFile)
                             .font(.subheadline.bold())
                             .foregroundStyle(Color.mmTextPrimary)
-                        Text("Strong/Hevy形式に対応")
+                        Text(L10n.strongHevyFormat)
                             .font(.caption)
                             .foregroundStyle(Color.mmTextSecondary)
                     }
@@ -86,7 +106,7 @@ struct CSVImportView: View {
             }
             .listRowBackground(Color.mmBgCard)
         } header: {
-            Text("ファイル選択")
+            Text(L10n.fileSelection)
                 .foregroundStyle(Color.mmTextSecondary)
         }
     }
@@ -99,11 +119,11 @@ struct CSVImportView: View {
             HStack(spacing: 12) {
                 Image(systemName: "calendar")
                     .foregroundStyle(Color.mmTextSecondary)
-                Text("ワークアウト数")
+                Text(L10n.workoutCount)
                     .font(.subheadline)
                     .foregroundStyle(Color.mmTextPrimary)
                 Spacer()
-                Text("\(preview.workouts.count)件")
+                Text(L10n.itemCount(preview.workouts.count))
                     .font(.subheadline)
                     .foregroundStyle(Color.mmAccentPrimary)
             }
@@ -114,11 +134,11 @@ struct CSVImportView: View {
             HStack(spacing: 12) {
                 Image(systemName: "list.number")
                     .foregroundStyle(Color.mmTextSecondary)
-                Text("セット数")
+                Text(L10n.totalSets)
                     .font(.subheadline)
                     .foregroundStyle(Color.mmTextPrimary)
                 Spacer()
-                Text("\(totalSets)セット")
+                Text(L10n.setsLabel(totalSets))
                     .font(.subheadline)
                     .foregroundStyle(Color.mmAccentPrimary)
             }
@@ -130,7 +150,7 @@ struct CSVImportView: View {
                     HStack(spacing: 12) {
                         Image(systemName: "exclamationmark.triangle")
                             .foregroundStyle(Color.orange)
-                        Text("未登録の種目")
+                        Text(L10n.unregisteredExercises)
                             .font(.subheadline)
                             .foregroundStyle(Color.mmTextPrimary)
                     }
@@ -146,18 +166,18 @@ struct CSVImportView: View {
                 HStack(spacing: 12) {
                     Image(systemName: "doc.on.doc")
                         .foregroundStyle(Color.orange)
-                    Text("重複の可能性")
+                    Text(L10n.potentialDuplicates)
                         .font(.subheadline)
                         .foregroundStyle(Color.mmTextPrimary)
                     Spacer()
-                    Text("\(preview.potentialDuplicates)件")
+                    Text(L10n.itemCount(preview.potentialDuplicates))
                         .font(.subheadline)
                         .foregroundStyle(Color.orange)
                 }
                 .listRowBackground(Color.mmBgCard)
             }
         } header: {
-            Text("プレビュー")
+            Text(L10n.preview)
                 .foregroundStyle(Color.mmTextSecondary)
         }
     }
@@ -175,7 +195,7 @@ struct CSVImportView: View {
                         ProgressView()
                             .tint(Color.mmBgPrimary)
                     } else {
-                        Text("インポート実行")
+                        Text(L10n.executeImport)
                             .font(.headline)
                     }
                     Spacer()
@@ -198,7 +218,7 @@ struct CSVImportView: View {
                     HStack(spacing: 8) {
                         Image(systemName: "checkmark.circle.fill")
                             .foregroundStyle(Color.mmAccentPrimary)
-                        Text("インポート完了")
+                        Text(L10n.importComplete)
                             .font(.subheadline.bold())
                             .foregroundStyle(Color.mmTextPrimary)
                     }
@@ -213,7 +233,7 @@ struct CSVImportView: View {
                 } label: {
                     HStack {
                         Spacer()
-                        Text("閉じる")
+                        Text(L10n.close)
                             .font(.subheadline)
                         Spacer()
                     }
@@ -221,7 +241,7 @@ struct CSVImportView: View {
                 }
                 .listRowBackground(Color.mmBgCard)
             } header: {
-                Text("結果")
+                Text(L10n.result)
                     .foregroundStyle(Color.mmTextSecondary)
             }
         } else if case .error(let message) = importState {
@@ -235,7 +255,7 @@ struct CSVImportView: View {
                 }
                 .listRowBackground(Color.mmBgCard)
             } header: {
-                Text("エラー")
+                Text(L10n.error)
                     .foregroundStyle(Color.mmTextSecondary)
             }
         }
@@ -246,7 +266,7 @@ struct CSVImportView: View {
     private var helpSection: some View {
         Section {
             VStack(alignment: .leading, spacing: 8) {
-                Text("対応フォーマット")
+                Text(L10n.supportedFormat)
                     .font(.caption.bold())
                     .foregroundStyle(Color.mmTextPrimary)
 
@@ -263,10 +283,10 @@ struct CSVImportView: View {
             }
             .listRowBackground(Color.mmBgCard)
         } header: {
-            Text("ヘルプ")
+            Text(L10n.help)
                 .foregroundStyle(Color.mmTextSecondary)
         } footer: {
-            Text("Strong、HevyなどのアプリからエクスポートしたCSVに対応")
+            Text(L10n.csvImportFooter)
                 .font(.caption2)
                 .foregroundStyle(Color.mmTextSecondary.opacity(0.5))
         }
@@ -280,7 +300,7 @@ struct CSVImportView: View {
             guard let url = urls.first else { return }
 
             guard url.startAccessingSecurityScopedResource() else {
-                importState = .error("ファイルへのアクセス権限がありません")
+                importState = .error(L10n.noAccessPermission)
                 return
             }
             defer { url.stopAccessingSecurityScopedResource() }
@@ -292,7 +312,7 @@ struct CSVImportView: View {
                 // パース & プレビュー生成
                 let workouts = CSVParser.parse(content)
                 if workouts.isEmpty {
-                    importState = .error("ワークアウトデータが見つかりませんでした。フォーマットを確認してください。")
+                    importState = .error(L10n.noWorkoutDataFound)
                     preview = nil
                 } else {
                     let converter = ImportDataConverter(modelContext: modelContext)
@@ -300,11 +320,11 @@ struct CSVImportView: View {
                     importState = .previewing
                 }
             } catch {
-                importState = .error("ファイルの読み込みに失敗: \(error.localizedDescription)")
+                importState = .error(L10n.fileReadError(error.localizedDescription))
             }
 
         case .failure(let error):
-            importState = .error("ファイル選択エラー: \(error.localizedDescription)")
+            importState = .error(L10n.fileSelectionError(error.localizedDescription))
         }
     }
 

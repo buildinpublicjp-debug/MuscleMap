@@ -439,6 +439,10 @@ enum L10n {
     static var manageSubscription: String {
         loc("サブスクリプションを管理", "Manage Subscription")
     }
+    static var subscriptionDisclosure: String {
+        loc("サブスクリプションは確認後にApple IDアカウントに課金されます。無料トライアル期間終了の24時間前までにキャンセルしない限り、自動的に更新されます。アカウント設定から管理・キャンセルできます。",
+            "Payment will be charged to your Apple ID account after confirmation. Subscription automatically renews unless canceled at least 24 hours before the end of the free trial period. You can manage and cancel in Account Settings.")
+    }
 
     // ペイウォール機能名
     static var featureMuscleMap2D: String { loc("筋肉マップ（2D）", "Muscle Map (2D)") }
@@ -547,6 +551,19 @@ enum L10n {
         loc("ワークアウトデータが見つかりませんでした。フォーマットを確認してください。",
             "No workout data found. Please check the format.")
     }
+    static func itemCount(_ count: Int) -> String {
+        loc("\(count)件", "\(count) items")
+    }
+    static func fileReadError(_ detail: String) -> String {
+        loc("ファイルの読み込みに失敗: \(detail)", "Failed to read file: \(detail)")
+    }
+    static func fileSelectionError(_ detail: String) -> String {
+        loc("ファイル選択エラー: \(detail)", "File selection error: \(detail)")
+    }
+    static var csvImportFooter: String {
+        loc("Strong、HevyなどのアプリからエクスポートしたCSVに対応",
+            "Supports CSV exported from apps like Strong, Hevy, etc.")
+    }
 
     // MARK: - ワークアウト完了画面
     static var workoutComplete: String { loc("ワークアウト完了！", "Workout Complete!") }
@@ -558,6 +575,10 @@ enum L10n {
     static var stimulatedMuscles: String { loc("刺激した筋肉", "Stimulated Muscles") }
     static var exercisesDone: String { loc("実施した種目", "Exercises Done") }
     static var pr: String { loc("PR", "PR") }
+    static var volume: String { loc("ボリューム", "Volume") }
+    static func andMoreCount(_ count: Int) -> String {
+        loc("他\(count)種目", "+\(count) more")
+    }
 
     // MARK: - 追加カテゴリ・器具
     static var categoryArmsForearms: String { loc("腕（前腕）", "Arms (Forearms)") }

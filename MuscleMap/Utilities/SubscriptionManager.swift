@@ -12,7 +12,7 @@ protocol SubscriptionManaging {
     var annualPrice: String { get }
     var lifetimePrice: String { get }
 
-    func purchase(plan: PlanType) async -> Bool
+    func purchase(plan: PlanType) async -> PurchaseManager.PurchaseResult
     func restorePurchases() async -> Bool
 }
 
@@ -29,14 +29,14 @@ extension PurchaseManager: SubscriptionManaging {
         lifetimePackage?.localizedPriceString ?? "¥7,800"
     }
 
-    func purchase(plan: PlanType) async -> Bool {
+    func purchase(plan: PlanType) async -> PurchaseResult {
         let package: RevenueCat.Package?
         switch plan {
         case .monthly: package = monthlyPackage
         case .annual: package = annualPackage
         case .lifetime: package = lifetimePackage
         }
-        guard let package else { return false }
+        guard let package else { return .failed }
         return await purchase(package)
     }
 }
@@ -53,12 +53,12 @@ final class MockSubscriptionManager: SubscriptionManaging {
     var annualPrice: String = "¥3,800"
     var lifetimePrice: String = "¥7,800"
 
-    func purchase(plan: PlanType) async -> Bool {
+    func purchase(plan: PlanType) async -> PurchaseManager.PurchaseResult {
         isLoading = true
         try? await Task.sleep(for: .seconds(1))
         isLoading = false
         isPremium = true
-        return true
+        return .success
     }
 
     func restorePurchases() async -> Bool {

@@ -26,6 +26,13 @@ struct WidgetMuscleData: Codable {
 enum WidgetDataProvider {
     static let suiteName = "group.com.buildinpublic.MuscleMap"
     static let dataKey = "widget_muscle_data"
+    static let proStatusKey = "widget_is_pro_user"
+
+    /// Pro状態を共有UserDefaultsに書き込む
+    static func updateProStatus(_ isPro: Bool) {
+        guard let defaults = UserDefaults(suiteName: suiteName) else { return }
+        defaults.set(isPro, forKey: proStatusKey)
+    }
 
     /// 共有UserDefaultsにウィジェットデータを書き込む
     static func write(_ data: WidgetMuscleData) {
@@ -48,8 +55,11 @@ enum WidgetDataProvider {
     }
 
     /// 現在の筋肉状態からウィジェットデータを生成して書き込む
+    /// 現在の筋肉状態からウィジェットデータを生成して書き込む（Pro状態も同期）
     @MainActor
     static func updateWidgetData(muscleStates: [Muscle: MuscleVisualState]) {
+        // Pro状態を同期
+        updateProStatus(PurchaseManager.shared.isProUser)
         var snapshots: [String: WidgetMuscleData.MuscleSnapshot] = [:]
 
         for (muscle, state) in muscleStates {

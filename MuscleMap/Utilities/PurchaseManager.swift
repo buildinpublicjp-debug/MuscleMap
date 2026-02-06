@@ -87,17 +87,31 @@ class PurchaseManager {
 
     // MARK: - 購入
 
+    /// 購入結果
+    enum PurchaseResult {
+        case success
+        case cancelled
+        case failed
+    }
+
     /// パッケージを購入
-    func purchase(_ package: Package) async -> Bool {
+    func purchase(_ package: Package) async -> PurchaseResult {
         isLoading = true
         defer { isLoading = false }
 
         do {
             let result = try await Purchases.shared.purchase(package: package)
+            if result.userCancelled {
+                return .cancelled
+            }
             isPremium = result.customerInfo.entitlements[Self.premiumEntitlementID]?.isActive == true
-            return isPremium
+            return isPremium ? .success : .failed
         } catch {
-            return false
+            // ErrorCodeのpurchaseCancelledErrorをチェック
+            if let errorCode = (error as? ErrorCode), errorCode == .purchaseCancelledError {
+                return .cancelled
+            }
+            return .failed
         }
     }
 
@@ -121,12 +135,9 @@ class PurchaseManager {
 // MARK: - プレミアム機能ゲート
 
 extension PurchaseManager {
-    /// プレミアム機能が利用可能か（開発中は常にtrue）
+    /// プレミアム機能が利用可能か
     var canAccessPremiumFeatures: Bool {
-        // APIキー未設定時は全機能開放（開発中）
-        if !Self.hasValidAPIKey {
-            return true
-        }
+        // APIキー未設定時もPro機能は利用不可（isPremiumはfalseのまま）
         return isPremium
     }
 

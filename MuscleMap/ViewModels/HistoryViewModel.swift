@@ -9,9 +9,13 @@ class HistoryViewModel {
     private let workoutRepo: WorkoutRepository
     private let muscleStateRepo: MuscleStateRepository
     private let exerciseStore: ExerciseStore
+    private let purchaseManager = PurchaseManager.shared
 
     // セッション履歴
     var sessions: [WorkoutSession] = []
+
+    // 無料ユーザーの履歴制限（日数）
+    private static let freeUserHistoryLimitDays = 30
 
     // 週間統計
     var weeklyStats: WeeklyStats = .empty
@@ -38,7 +42,17 @@ class HistoryViewModel {
 
     /// 全データ読み込み
     func load() {
-        sessions = workoutRepo.fetchRecentSessions(limit: 50)
+        let allSessions = workoutRepo.fetchRecentSessions(limit: 50)
+
+        // 無料ユーザーは直近30日のみ表示
+        if purchaseManager.isProUser {
+            sessions = allSessions
+        } else {
+            let calendar = Calendar.current
+            let limitDate = calendar.date(byAdding: .day, value: -Self.freeUserHistoryLimitDays, to: Date())!
+            sessions = allSessions.filter { $0.startDate >= limitDate }
+        }
+
         calculateWeeklyStats()
         calculateMonthlyStats()
         calculateWeeklyGroupVolume()
@@ -46,6 +60,9 @@ class HistoryViewModel {
         calculateWorkoutDates()
         calculateDailyVolumeData()
     }
+
+    /// 無料ユーザーかどうか（UIでロック表示に使用）
+    var isFreeUser: Bool { !purchaseManager.isProUser }
 
     // MARK: - 週間統計
 

@@ -90,20 +90,20 @@ struct Muscle3DView: View {
                 let offsetY = geo.size.height / 2 - expandedBounds.midY * scale
 
                 ZStack {
-                    // シルエット（背景）
+                    // シルエット（背景）— 対象筋肉を際立たせるため極薄
                     let outline = isBackMuscle
                         ? MusclePathData.bodyOutlineBack(in: fullRect)
                         : MusclePathData.bodyOutlineFront(in: fullRect)
                     outline
-                        .fill(Color.mmBgSecondary.opacity(0.3))
+                        .fill(Color.mmBgSecondary.opacity(0.12))
                     outline
-                        .stroke(Color.mmMuscleBorder.opacity(0.3), lineWidth: 0.5)
+                        .stroke(Color.mmMuscleBorder.opacity(0.08), lineWidth: 0.3)
 
-                    // すべての筋肉を薄く表示
+                    // すべての筋肉を薄く表示（対象筋肉のみ際立たせる）
                     ForEach(muscleEntries, id: \.muscle) { entry in
                         entry.path(fullRect)
                             .fill(entry.muscle == muscle ? highlightColor : dimColor)
-                            .opacity(entry.muscle == muscle ? 1.0 : 0.15)
+                            .opacity(entry.muscle == muscle ? 1.0 : 0.08)
                     }
 
                     // 対象筋肉のストローク（強調）
@@ -125,10 +125,10 @@ struct Muscle3DView: View {
                 HStack {
                     Spacer()
                     VStack(spacing: 2) {
-                        Text(muscle.japaneseName)
+                        Text(muscle.localizedName)
                             .font(.caption.bold())
                             .foregroundStyle(Color.mmTextPrimary)
-                        Text(muscle.group.japaneseName)
+                        Text(muscle.group.localizedName)
                             .font(.caption2)
                             .foregroundStyle(Color.mmTextSecondary)
                     }

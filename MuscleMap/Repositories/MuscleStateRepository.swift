@@ -16,7 +16,15 @@ class MuscleStateRepository {
         let descriptor = FetchDescriptor<MuscleStimulation>(
             sortBy: [SortDescriptor(\.stimulationDate, order: .reverse)]
         )
-        let all = (try? modelContext.fetch(descriptor)) ?? []
+        let all: [MuscleStimulation]
+        do {
+            all = try modelContext.fetch(descriptor)
+        } catch {
+            #if DEBUG
+            print("[MuscleStateRepository] Failed to fetch stimulations: \(error)")
+            #endif
+            return [:]
+        }
 
         var result: [Muscle: MuscleStimulation] = [:]
         for stim in all {
@@ -36,7 +44,14 @@ class MuscleStateRepository {
             sortBy: [SortDescriptor(\.stimulationDate, order: .reverse)]
         )
         descriptor.fetchLimit = 1
-        return try? modelContext.fetch(descriptor).first
+        do {
+            return try modelContext.fetch(descriptor).first
+        } catch {
+            #if DEBUG
+            print("[MuscleStateRepository] Failed to fetch stimulation for \(muscleRaw): \(error)")
+            #endif
+            return nil
+        }
     }
 
     /// 刺激記録を保存
@@ -45,7 +60,9 @@ class MuscleStateRepository {
         do {
             try modelContext.save()
         } catch {
+            #if DEBUG
             print("[MuscleStateRepository] Failed to save stimulation: \(error)")
+            #endif
         }
     }
 
@@ -65,7 +82,17 @@ class MuscleStateRepository {
             }
         )
 
-        if let existing = try? modelContext.fetch(descriptor).first {
+        let existing: MuscleStimulation?
+        do {
+            existing = try modelContext.fetch(descriptor).first
+        } catch {
+            #if DEBUG
+            print("[MuscleStateRepository] Failed to fetch for upsert: \(error)")
+            #endif
+            existing = nil
+        }
+
+        if let existing {
             existing.maxIntensity = max(existing.maxIntensity, maxIntensity)
             existing.totalSets = totalSets
         } else {
@@ -82,7 +109,9 @@ class MuscleStateRepository {
             do {
                 try modelContext.save()
             } catch {
-                print("[MuscleStateRepository] Failed to upsert stimulation: \(error)")
+                #if DEBUG
+            print("[MuscleStateRepository] Failed to upsert stimulation: \(error)")
+            #endif
             }
         }
     }
@@ -92,7 +121,9 @@ class MuscleStateRepository {
         do {
             try modelContext.save()
         } catch {
+            #if DEBUG
             print("[MuscleStateRepository] Failed to save: \(error)")
+            #endif
         }
     }
 
@@ -108,7 +139,9 @@ class MuscleStateRepository {
             }
             try modelContext.save()
         } catch {
+            #if DEBUG
             print("[MuscleStateRepository] Failed to delete stimulations: \(error)")
+            #endif
         }
     }
 }

@@ -11,19 +11,18 @@ enum KeyManager {
 
     // MARK: - RevenueCat API Key
 
-    /// 難読化されたRevenueCat APIキー
-    /// 本番ではCI/CDで環境変数から注入するか、Xcodeのビルド設定で管理
-    /// ここではプレースホルダーのみ
+    /// RevenueCat APIキー
+    /// ReleaseビルドではInfo.plistの `REVENUECAT_API_KEY` から読み込む
+    /// DEBUGビルドではプレースホルダーを返す（開発中）
     private static var obfuscatedRevenueCatKey: String {
-        // 開発中はプレースホルダー
-        // 本番リリース時はCI/CDで実際のキーに置換
         #if DEBUG
         return "YOUR_REVENUECAT_API_KEY"
         #else
-        // プロダクションビルド用（CI/CDで置換される想定）
-        // 例: let parts: [UInt8] = [112, 117, 98, ...] // ASCII codes
-        // return String(bytes: parts, encoding: .utf8) ?? ""
-        return "YOUR_REVENUECAT_API_KEY"
+        guard let key = Bundle.main.object(forInfoDictionaryKey: "REVENUECAT_API_KEY") as? String,
+              !key.isEmpty else {
+            fatalError("[KeyManager] REVENUECAT_API_KEY が Info.plist に設定されていません")
+        }
+        return key
         #endif
     }
 

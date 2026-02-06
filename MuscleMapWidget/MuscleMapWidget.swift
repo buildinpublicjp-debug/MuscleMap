@@ -6,6 +6,7 @@ import SwiftUI
 struct MuscleMapEntry: TimelineEntry {
     let date: Date
     let muscleStates: [String: MuscleState]
+    let isProUser: Bool
 
     struct MuscleState {
         let progress: Double      // 0.0-1.0
@@ -56,7 +57,7 @@ struct MuscleMapEntry: TimelineEntry {
         states["biceps"] = MuscleState(progress: 0.4, stateType: .recovering)
         states["quadriceps"] = MuscleState(progress: 0.9, stateType: .recovering)
         states["glutes"] = MuscleState(progress: 0.8, stateType: .recovering)
-        return MuscleMapEntry(date: Date(), muscleStates: states)
+        return MuscleMapEntry(date: Date(), muscleStates: states, isProUser: true)
     }()
 }
 
@@ -80,8 +81,10 @@ struct MuscleMapTimelineProvider: TimelineProvider {
     }
 
     private func createEntry() -> MuscleMapEntry {
+        let isPro = WidgetDataReader.isProUser()
+
         guard let data = WidgetDataReader.read() else {
-            return .placeholder
+            return MuscleMapEntry(date: Date(), muscleStates: [:], isProUser: isPro)
         }
 
         var states: [String: MuscleMapEntry.MuscleState] = [:]
@@ -104,7 +107,7 @@ struct MuscleMapTimelineProvider: TimelineProvider {
             )
         }
 
-        return MuscleMapEntry(date: Date(), muscleStates: states)
+        return MuscleMapEntry(date: Date(), muscleStates: states, isProUser: isPro)
     }
 }
 
@@ -113,6 +116,7 @@ struct MuscleMapTimelineProvider: TimelineProvider {
 enum WidgetDataReader {
     static let suiteName = "group.com.buildinpublic.MuscleMap"
     static let dataKey = "widget_muscle_data"
+    static let proStatusKey = "widget_is_pro_user"
 
     static func read() -> WidgetMuscleData? {
         guard let defaults = UserDefaults(suiteName: suiteName),
@@ -121,6 +125,11 @@ enum WidgetDataReader {
             return nil
         }
         return decoded
+    }
+
+    static func isProUser() -> Bool {
+        guard let defaults = UserDefaults(suiteName: suiteName) else { return false }
+        return defaults.bool(forKey: proStatusKey)
     }
 }
 
@@ -314,6 +323,26 @@ struct MuscleMapWidget: Widget {
     }
 }
 
+// MARK: - ロック画面（非Pro）
+
+struct WidgetLockedView: View {
+    var body: some View {
+        VStack(spacing: 8) {
+            Image(systemName: "lock.fill")
+                .font(.title2)
+                .foregroundStyle(Color.mmAccentPrimary)
+            Text("MuscleMap Pro")
+                .font(.system(size: 12, weight: .bold))
+                .foregroundStyle(Color.mmTextPrimary)
+            Text("Proにアップグレード")
+                .font(.system(size: 9))
+                .foregroundStyle(Color.mmTextSecondary)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .containerBackground(Color.mmBgPrimary, for: .widget)
+    }
+}
+
 // MARK: - エントリビュー（サイズ切り替え）
 
 struct WidgetEntryView: View {
@@ -321,15 +350,19 @@ struct WidgetEntryView: View {
     let entry: MuscleMapEntry
 
     var body: some View {
-        switch family {
-        case .systemSmall:
-            SmallWidgetView(entry: entry)
-        case .systemMedium:
-            MediumWidgetView(entry: entry)
-        case .systemLarge:
-            LargeWidgetView(entry: entry)
-        default:
-            SmallWidgetView(entry: entry)
+        if !entry.isProUser {
+            WidgetLockedView()
+        } else {
+            switch family {
+            case .systemSmall:
+                SmallWidgetView(entry: entry)
+            case .systemMedium:
+                MediumWidgetView(entry: entry)
+            case .systemLarge:
+                LargeWidgetView(entry: entry)
+            default:
+                SmallWidgetView(entry: entry)
+            }
         }
     }
 }

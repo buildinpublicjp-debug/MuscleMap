@@ -267,6 +267,7 @@ private struct ExerciseTag: View {
         HStack(spacing: 3) {
             Image(systemName: icon)
             Text(text)
+                .lineLimit(1)
         }
         .font(.caption2)
         .foregroundStyle(Color.mmTextSecondary)
@@ -274,6 +275,7 @@ private struct ExerciseTag: View {
         .padding(.vertical, 2)
         .background(Color.mmBgCard)
         .clipShape(Capsule())
+        .fixedSize()
     }
 }
 

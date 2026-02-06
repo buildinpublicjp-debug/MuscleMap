@@ -16,8 +16,10 @@ final class ExerciseStore {
     /// Bundleからexercises.jsonを読み込む
     func load() {
         guard let url = Bundle.main.url(forResource: "exercises", withExtension: "json") else {
+            #if DEBUG
             print("[ExerciseStore] exercises.json not found in bundle")
             print("[ExerciseStore] Bundle path: \(Bundle.main.bundlePath)")
+            #endif
             return
         }
 
@@ -26,9 +28,13 @@ final class ExerciseStore {
             let decoded = try JSONDecoder().decode([ExerciseDefinition].self, from: data)
             exercises = decoded
             exerciseMap = Dictionary(uniqueKeysWithValues: decoded.map { ($0.id, $0) })
+            #if DEBUG
             print("[ExerciseStore] Loaded \(decoded.count) exercises")
+            #endif
         } catch {
+            #if DEBUG
             print("[ExerciseStore] Failed to decode exercises.json: \(error)")
+            #endif
         }
     }
 

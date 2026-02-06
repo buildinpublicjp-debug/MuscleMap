@@ -209,6 +209,13 @@ struct PaywallView: View {
                 .font(.caption)
                 .foregroundStyle(Color.mmOnboardingTextSub)
 
+            // App Store必須: 自動更新説明文
+            Text(L10n.subscriptionDisclosure)
+                .font(.caption2)
+                .foregroundStyle(Color.mmOnboardingTextSub.opacity(0.6))
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 24)
+
             Button {
                 Task { await restore() }
             } label: {
@@ -219,14 +226,18 @@ struct PaywallView: View {
             }
 
             HStack(spacing: 4) {
-                Link(destination: URL(string: LegalURL.termsOfUse)!) {
-                    Text(L10n.termsOfUse)
-                        .underline()
+                if let termsURL = URL(string: LegalURL.termsOfUse) {
+                    Link(destination: termsURL) {
+                        Text(L10n.termsOfUse)
+                            .underline()
+                    }
                 }
                 Text("|")
-                Link(destination: URL(string: LegalURL.privacyPolicy)!) {
-                    Text(L10n.privacyPolicy)
-                        .underline()
+                if let privacyURL = URL(string: LegalURL.privacyPolicy) {
+                    Link(destination: privacyURL) {
+                        Text(L10n.privacyPolicy)
+                            .underline()
+                    }
                 }
             }
             .font(.caption2)
@@ -240,11 +251,15 @@ struct PaywallView: View {
         isPurchasing = true
         defer { isPurchasing = false }
 
-        let success = await purchaseManager.purchase(plan: selectedPlan)
-        if success {
+        let result = await purchaseManager.purchase(plan: selectedPlan)
+        switch result {
+        case .success:
             HapticManager.setRecorded()
             dismiss()
-        } else {
+        case .cancelled:
+            // ユーザーがキャンセルした場合はエラーを表示しない
+            break
+        case .failed:
             showError = true
         }
     }

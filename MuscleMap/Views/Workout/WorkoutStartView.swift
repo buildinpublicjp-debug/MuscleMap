@@ -738,7 +738,7 @@ private struct RecordedSetsView: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 16) {
             Text(L10n.recorded)
                 .font(.subheadline.bold())
                 .foregroundStyle(Color.mmTextSecondary)
@@ -793,7 +793,7 @@ private struct RecordedSetsView: View {
                     }
                     .listStyle(.plain)
                     .scrollContentBackground(.hidden)
-                    .frame(height: CGFloat(entry.sets.count) * 44)
+                    .frame(height: CGFloat(entry.sets.count) * 48)
                 }
                 .background(Color.mmBgCard)
                 .clipShape(RoundedRectangle(cornerRadius: 12))

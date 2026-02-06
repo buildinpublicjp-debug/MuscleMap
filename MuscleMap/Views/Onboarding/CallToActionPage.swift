@@ -51,14 +51,18 @@ struct CallToActionPage: View {
 
             // 利用規約・プライバシーポリシー
             HStack(spacing: 4) {
-                Link(destination: URL(string: LegalURL.termsOfUse)!) {
-                    Text(L10n.termsOfUse)
-                        .underline()
+                if let termsURL = URL(string: LegalURL.termsOfUse) {
+                    Link(destination: termsURL) {
+                        Text(L10n.termsOfUse)
+                            .underline()
+                    }
                 }
                 Text("|")
-                Link(destination: URL(string: LegalURL.privacyPolicy)!) {
-                    Text(L10n.privacyPolicy)
-                        .underline()
+                if let privacyURL = URL(string: LegalURL.privacyPolicy) {
+                    Link(destination: privacyURL) {
+                        Text(L10n.privacyPolicy)
+                            .underline()
+                    }
                 }
             }
             .font(.caption2)
