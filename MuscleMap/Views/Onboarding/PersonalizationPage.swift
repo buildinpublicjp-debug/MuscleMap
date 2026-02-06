@@ -1,33 +1,43 @@
 import SwiftUI
 
-// MARK: - Page 2: パーソナライゼーション（目標選択）
+// MARK: - 目標設定画面（Fitbod風カードデザイン）
 
 struct PersonalizationPage: View {
     let onGoalSelected: () -> Void
 
     @State private var selectedGoal: OnboardingGoal?
-    @State private var appeared = false
+    @State private var cardAppearances: [Bool] = [false, false, false, false]
     @State private var isProceeding = false
 
     var body: some View {
-        VStack(spacing: 32) {
-            Spacer()
+        VStack(spacing: 0) {
+            Spacer().frame(height: 60)
 
-            // 質問
-            Text(L10n.onboardingGoalQuestion)
-                .font(.system(size: 24, weight: .bold))
-                .foregroundStyle(Color.mmOnboardingTextMain)
-                .multilineTextAlignment(.center)
+            // タイトルエリア
+            VStack(spacing: 8) {
+                Text(L10n.goalPageTitle)
+                    .font(.system(size: 28, weight: .bold))
+                    .foregroundStyle(Color.mmOnboardingTextMain)
+                    .multilineTextAlignment(.center)
 
-            // 選択肢カード
+                Text(L10n.goalPageSubtitle)
+                    .font(.subheadline)
+                    .foregroundStyle(Color.mmOnboardingTextSub)
+                    .multilineTextAlignment(.center)
+            }
+            .padding(.horizontal, 24)
+
+            Spacer().frame(height: 32)
+
+            // 目標カード（縦並び）
             VStack(spacing: 12) {
-                ForEach(OnboardingGoal.allCases) { goal in
-                    GoalCard(
+                ForEach(Array(OnboardingGoal.allCases.enumerated()), id: \.element.id) { index, goal in
+                    LargeGoalCard(
                         goal: goal,
                         isSelected: selectedGoal == goal,
                         onTap: {
                             guard !isProceeding else { return }
-                            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                            withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
                                 selectedGoal = goal
                             }
                             HapticManager.lightTap()
@@ -36,75 +46,96 @@ struct PersonalizationPage: View {
                             UserDefaults.standard.set(goal.rawValue, forKey: "selectedTrainingGoal")
                         }
                     )
+                    .opacity(cardAppearances[index] ? 1 : 0)
+                    .offset(y: cardAppearances[index] ? 0 : 20)
                 }
             }
             .padding(.horizontal, 24)
-            .opacity(appeared ? 1 : 0)
-            .offset(y: appeared ? 0 : 20)
 
             Spacer()
 
-            // 続けるボタン
-            if selectedGoal != nil {
-                Button {
-                    guard !isProceeding else { return }
-                    isProceeding = true
-                    HapticManager.lightTap()
-                    onGoalSelected()
-                } label: {
-                    Text(L10n.continueButton)
-                        .font(.system(size: 18, weight: .bold))
-                        .foregroundStyle(Color.mmOnboardingBg)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 56)
-                        .background(Color.mmOnboardingAccent)
-                        .clipShape(RoundedRectangle(cornerRadius: 16))
-                }
-                .padding(.horizontal, 24)
-                .transition(.opacity.combined(with: .move(edge: .bottom)))
+            // 次へボタン
+            Button {
+                guard !isProceeding, selectedGoal != nil else { return }
+                isProceeding = true
+                HapticManager.lightTap()
+                onGoalSelected()
+            } label: {
+                Text(L10n.next)
+                    .font(.system(size: 18, weight: .bold))
+                    .foregroundStyle(selectedGoal != nil ? Color.mmOnboardingBg : Color.mmOnboardingTextSub)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 56)
+                    .background(selectedGoal != nil ? Color.mmOnboardingAccent : Color.mmOnboardingCard)
+                    .clipShape(RoundedRectangle(cornerRadius: 16))
             }
-
-            Spacer()
+            .disabled(selectedGoal == nil)
+            .padding(.horizontal, 24)
+            .padding(.bottom, 32)
+            .animation(.easeInOut(duration: 0.2), value: selectedGoal != nil)
         }
         .onAppear {
-            withAnimation(.easeOut(duration: 0.6).delay(0.2)) {
-                appeared = true
+            // Staggered fade-in animation
+            for index in 0..<4 {
+                withAnimation(.easeOut(duration: 0.5).delay(Double(index) * 0.1 + 0.2)) {
+                    cardAppearances[index] = true
+                }
             }
         }
-        .animation(.easeInOut(duration: 0.3), value: selectedGoal != nil)
     }
 }
 
-// MARK: - オンボーディング用目標（既存TrainingGoalと別定義）
+// MARK: - オンボーディング用目標（4つの選択肢）
 
 @MainActor
 enum OnboardingGoal: String, CaseIterable, Identifiable {
-    case muscleGain = "muscle_gain"
-    case fatLoss = "fat_loss"
-    case stayHealthy = "stay_healthy"
+    case muscleGrowth = "muscle_growth"
+    case strength = "strength"
+    case recovery = "recovery"
+    case health = "health"
 
     var id: String { rawValue }
 
-    var emoji: String {
+    var icon: String {
         switch self {
-        case .muscleGain: return "💪"
-        case .fatLoss: return "🔥"
-        case .stayHealthy: return "🏃"
+        case .muscleGrowth: return "figure.strengthtraining.traditional"
+        case .strength: return "dumbbell.fill"
+        case .recovery: return "bolt.heart.fill"
+        case .health: return "heart.fill"
         }
     }
 
     var localizedName: String {
         switch self {
-        case .muscleGain: return L10n.goalMuscleGain
-        case .fatLoss: return L10n.goalFatLoss
-        case .stayHealthy: return L10n.goalHealth
+        case .muscleGrowth: return L10n.goalMuscleGrowth
+        case .strength: return L10n.goalStrength
+        case .recovery: return L10n.goalRecovery
+        case .health: return L10n.goalHealthMaintenance
+        }
+    }
+
+    var localizedDescription: String {
+        switch self {
+        case .muscleGrowth: return L10n.goalMuscleGrowthDesc
+        case .strength: return L10n.goalStrengthDesc
+        case .recovery: return L10n.goalRecoveryDesc
+        case .health: return L10n.goalHealthMaintenanceDesc
+        }
+    }
+
+    var iconColor: Color {
+        switch self {
+        case .muscleGrowth: return Color.mmOnboardingAccent
+        case .strength: return Color(red: 1.0, green: 0.6, blue: 0.2) // オレンジ
+        case .recovery: return Color(red: 0.4, green: 0.8, blue: 1.0) // ライトブルー
+        case .health: return Color(red: 1.0, green: 0.4, blue: 0.5) // ピンク
         }
     }
 }
 
-// MARK: - 目標カード
+// MARK: - 大型目標カード
 
-private struct GoalCard: View {
+private struct LargeGoalCard: View {
     let goal: OnboardingGoal
     let isSelected: Bool
     let onTap: () -> Void
@@ -112,23 +143,45 @@ private struct GoalCard: View {
     var body: some View {
         Button(action: onTap) {
             HStack(spacing: 16) {
-                Text(goal.emoji)
-                    .font(.system(size: 28))
+                // アイコン
+                ZStack {
+                    Circle()
+                        .fill(goal.iconColor.opacity(0.15))
+                        .frame(width: 56, height: 56)
 
-                Text(goal.localizedName)
-                    .font(.system(size: 18, weight: .semibold))
-                    .foregroundStyle(Color.mmOnboardingTextMain)
+                    Image(systemName: goal.icon)
+                        .font(.system(size: 24))
+                        .foregroundStyle(goal.iconColor)
+                }
+
+                // テキスト
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(goal.localizedName)
+                        .font(.system(size: 18, weight: .semibold))
+                        .foregroundStyle(Color.mmOnboardingTextMain)
+
+                    Text(goal.localizedDescription)
+                        .font(.subheadline)
+                        .foregroundStyle(Color.mmOnboardingTextSub)
+                }
 
                 Spacer()
 
+                // チェックマーク
                 if isSelected {
-                    Image(systemName: "checkmark.circle.fill")
-                        .font(.title3)
-                        .foregroundStyle(Color.mmOnboardingAccent)
-                        .transition(.scale.combined(with: .opacity))
+                    ZStack {
+                        Circle()
+                            .fill(Color.mmOnboardingAccent)
+                            .frame(width: 28, height: 28)
+
+                        Image(systemName: "checkmark")
+                            .font(.system(size: 14, weight: .bold))
+                            .foregroundStyle(Color.mmOnboardingBg)
+                    }
+                    .transition(.scale.combined(with: .opacity))
                 }
             }
-            .padding(20)
+            .padding(16)
             .background(Color.mmOnboardingCard)
             .clipShape(RoundedRectangle(cornerRadius: 16))
             .overlay(
@@ -138,7 +191,7 @@ private struct GoalCard: View {
                         lineWidth: 2
                     )
             )
-            .scaleEffect(isSelected ? 1.03 : 1.0)
+            .scaleEffect(isSelected ? 1.02 : 1.0)
         }
         .buttonStyle(.plain)
     }

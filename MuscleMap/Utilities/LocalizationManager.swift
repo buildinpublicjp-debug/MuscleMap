@@ -539,6 +539,26 @@ enum L10n {
     static var continueButton: String { loc("続ける", "Continue") }
     static var onboardingDemoTitle: String { loc("鍛えた部位が光る", "Trained muscles glow") }
     static var onboardingDemoHint: String { loc("筋肉をタップして体験", "Tap muscles to try it out") }
+
+    // MARK: - 価値体験画面（InteractiveDemoPage）
+    static var demoPrimaryTitle: String { loc("昨日トレーニングした部位は？", "Which muscles did you train yesterday?") }
+    static var demoSubtitle: String { loc("タップして回復状態を確認", "Tap to check recovery status") }
+    static func recoveryTimeRemaining(_ hours: Int) -> String {
+        loc("回復まであと\(hours)時間", "\(hours)h until recovery")
+    }
+
+    // MARK: - 目標設定画面（PersonalizationPage）
+    static var goalPageTitle: String { loc("あなたの目標は？", "What's your goal?") }
+    static var goalPageSubtitle: String { loc("最適なトレーニングプランを提案します", "We'll suggest the optimal training plan") }
+    static var goalMuscleGrowth: String { loc("筋肥大", "Muscle Growth") }
+    static var goalMuscleGrowthDesc: String { loc("筋肉を大きく、強く", "Build bigger, stronger muscles") }
+    static var goalStrength: String { loc("筋力向上", "Strength") }
+    static var goalStrengthDesc: String { loc("パワーを最大化", "Maximize your power") }
+    static var goalRecovery: String { loc("回復の最適化", "Optimize Recovery") }
+    static var goalRecoveryDesc: String { loc("オーバートレーニングを防ぐ", "Prevent overtraining") }
+    static var goalHealthMaintenance: String { loc("健康維持", "Stay Healthy") }
+    static var goalHealthMaintenanceDesc: String { loc("無理なく続ける", "Maintain without strain") }
+
     static var onboardingFeature1: String { loc("21部位の筋肉を可視化", "Visualize 21 muscle groups") }
     static var onboardingFeature1Sub: String { loc("全身の筋肉をリアルタイムで追跡", "Track your entire body in real-time") }
     static var onboardingFeature2: String { loc("無制限のワークアウト記録", "Unlimited workout tracking") }
