@@ -73,32 +73,37 @@ struct WorkoutCompletionView: View {
         ZStack {
             Color.mmBgPrimary.ignoresSafeArea()
 
-            VStack(spacing: 32) {
-                Spacer()
+            VStack(spacing: 0) {
+                // スクロール可能なコンテンツ
+                ScrollView {
+                    VStack(spacing: 24) {
+                        // 完了アイコン
+                        completionIcon
+                            .padding(.top, 24)
 
-                // 完了アイコン
-                completionIcon
+                        // タイトル
+                        Text(L10n.workoutComplete)
+                            .font(.title.bold())
+                            .foregroundStyle(Color.mmTextPrimary)
 
-                // タイトル
-                Text(L10n.workoutComplete)
-                    .font(.title.bold())
-                    .foregroundStyle(Color.mmTextPrimary)
+                        // 統計カード
+                        statsCard
 
-                // 統計カード
-                statsCard
+                        // 刺激した筋肉
+                        stimulatedMusclesSection
 
-                // 刺激した筋肉
-                stimulatedMusclesSection
+                        // 種目リスト（セット数付き）
+                        exerciseList
+                    }
+                    .padding(.horizontal)
+                    .padding(.bottom, 16)
+                }
 
-                // 種目リスト（セット数付き）
-                exerciseList
-
-                Spacer()
-
-                // ボタン
+                // ボタン（下部固定）
                 buttonSection
+                    .padding(.horizontal)
+                    .padding(.bottom, 16)
             }
-            .padding()
         }
         .sheet(isPresented: $showingShareSheet) {
             if let image = renderedImage {
@@ -147,20 +152,24 @@ struct WorkoutCompletionView: View {
                 .font(.headline)
                 .foregroundStyle(Color.mmTextPrimary)
 
-            HStack(spacing: 16) {
+            HStack(spacing: 12) {
                 // 前面
                 MiniMuscleMapView(
                     muscleMapping: stimulatedMuscleMapping,
                     showFront: true
                 )
-                .frame(height: 160)
+                .aspectRatio(0.5, contentMode: .fit)
+                .frame(maxWidth: .infinity)
+                .frame(height: 220)
 
                 // 背面
                 MiniMuscleMapView(
                     muscleMapping: stimulatedMuscleMapping,
                     showFront: false
                 )
-                .frame(height: 160)
+                .aspectRatio(0.5, contentMode: .fit)
+                .frame(maxWidth: .infinity)
+                .frame(height: 220)
             }
         }
         .padding()

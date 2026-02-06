@@ -22,36 +22,31 @@ struct InteractiveDemoPage: View {
     }
 
     var body: some View {
-        ZStack {
-            VStack(spacing: 0) {
-                // ヘッダー（スキップボタン）
-                HStack {
-                    Spacer()
-                    // スキップは不要になったので削除（ページスワイプで移動可能）
-                }
-                .padding(.horizontal, 20)
-                .padding(.top, 8)
-                .frame(height: 44)
+        GeometryReader { geometry in
+            let safeArea = geometry.safeAreaInsets
+            // ヘッダー + トグル + 回復カード用のスペースを確保し、残りを筋肉マップに使用
+            let headerHeight: CGFloat = 100 // タイトル + トグル
+            let cardAreaHeight: CGFloat = 100 // 回復情報カード用
+            let mapHeight = geometry.size.height - headerHeight - cardAreaHeight - safeArea.top
 
-                // タイトルエリア
-                VStack(spacing: 8) {
+            VStack(spacing: 0) {
+                // タイトルエリア（コンパクト化）
+                VStack(spacing: 4) {
                     Text(L10n.demoPrimaryTitle)
-                        .font(.system(size: 26, weight: .bold))
+                        .font(.system(size: 22, weight: .bold))
                         .foregroundStyle(Color.mmOnboardingTextMain)
                         .multilineTextAlignment(.center)
 
                     Text(L10n.demoSubtitle)
-                        .font(.subheadline)
+                        .font(.caption)
                         .foregroundStyle(Color.mmOnboardingTextSub)
                 }
                 .padding(.horizontal, 24)
-                .padding(.top, 16)
+                .padding(.top, 8)
                 .opacity(appeared ? 1 : 0)
                 .offset(y: appeared ? 0 : -10)
 
-                Spacer().frame(height: 16)
-
-                // 前面/背面トグル
+                // 前面/背面トグル（コンパクト化）
                 HStack(spacing: 0) {
                     ToggleButton(
                         title: L10n.front,
@@ -76,13 +71,14 @@ struct InteractiveDemoPage: View {
                         HapticManager.lightTap()
                     }
                 }
-                .padding(4)
+                .padding(3)
                 .background(Color.mmOnboardingCard)
-                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .clipShape(RoundedRectangle(cornerRadius: 10))
                 .padding(.horizontal, 24)
+                .padding(.top, 8)
                 .opacity(appeared ? 1 : 0)
 
-                // 筋肉マップ（スワイプ対応）
+                // 筋肉マップ（スワイプ対応）- 残り領域をフルに使用
                 TabView(selection: $showingFront) {
                     // 前面
                     DemoMuscleMapView(
@@ -101,27 +97,23 @@ struct InteractiveDemoPage: View {
                     .tag(false)
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
-                .frame(height: UIScreen.main.bounds.height * 0.50)
+                .frame(height: max(mapHeight, 300))
                 .opacity(appeared ? 1 : 0)
                 .scaleEffect(appeared ? 1 : 0.95)
 
-                Spacer()
-            }
-
-            // 回復情報カード（下からスライドアップ）
-            VStack {
-                Spacer()
-
-                if let info = selectedMuscleInfo {
-                    RecoveryInfoCard(info: info) {
-                        withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
-                            selectedMuscleInfo = nil
+                // 回復情報カード（筋肉マップの下に固定エリア）
+                ZStack {
+                    if let info = selectedMuscleInfo {
+                        RecoveryInfoCard(info: info) {
+                            withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                                selectedMuscleInfo = nil
+                            }
                         }
+                        .transition(.move(edge: .bottom).combined(with: .opacity))
+                        .padding(.horizontal, 24)
                     }
-                    .transition(.move(edge: .bottom).combined(with: .opacity))
-                    .padding(.horizontal, 24)
-                    .padding(.bottom, 100)
                 }
+                .frame(height: cardAreaHeight)
             }
         }
         .onAppear {
@@ -237,8 +229,8 @@ private struct DemoMuscleMapView: View {
                 }
             }
         }
-        .aspectRatio(0.55, contentMode: .fit)
-        .padding(.horizontal, 40)
+        .aspectRatio(0.5, contentMode: .fit)
+        .padding(.horizontal, 24)
     }
 }
 
