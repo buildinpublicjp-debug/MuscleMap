@@ -567,6 +567,24 @@ enum L10n {
     static var onboardingFeature3Sub: String { loc("科学的データで最適なタイミングを提案", "Science-backed training timing") }
     static var termsOfUse: String { loc("利用規約", "Terms of Use") }
 
+    // MARK: - 機能紹介画面（CallToActionPage）
+    static var ctaPageTitle: String { loc("MuscleMapでできること", "What MuscleMap Can Do") }
+    static var ctaFeature1Title: String { loc("筋肉の可視化", "Muscle Visualization") }
+    static var ctaFeature1Desc: String { loc("21部位の回復状態をリアルタイムで確認", "Check recovery status of 21 muscles in real-time") }
+    static var ctaFeature2Title: String { loc("スマートな記録", "Smart Logging") }
+    static var ctaFeature2Desc: String { loc("数タップで完了するワークアウト記録", "Complete workout logging in just a few taps") }
+    static var ctaFeature3Title: String { loc("科学的な回復計算", "Scientific Recovery") }
+    static var ctaFeature3Desc: String { loc("EMGデータに基づく最適な休息期間", "Optimal rest periods based on EMG data") }
+
+    // MARK: - 通知許可画面
+    static var notificationTitle: String { loc("回復したらお知らせ", "Get Notified When Recovered") }
+    static var notificationDescription: String {
+        loc("筋肉が回復したタイミングで通知を受け取れます",
+            "Receive notifications when your muscles are ready to train again")
+    }
+    static var allowNotifications: String { loc("通知を許可", "Allow Notifications") }
+    static var maybeLater: String { loc("あとで", "Maybe Later") }
+
     // MARK: - CSVインポート
     static var selectCSVFile: String { loc("CSVファイルを選択", "Select CSV File") }
     static var strongHevyFormat: String { loc("Strong/Hevy形式に対応", "Supports Strong/Hevy format") }

@@ -32,6 +32,7 @@
 		592F06EEC6A1A7A42C296BC6 /* WidgetDataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF93A0C1642FBC94B4E365CC /* WidgetDataProvider.swift */; };
 		5B20EB381EF4E9A9A02FCDCD /* OnboardingV2View.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2D7479246A925801D0814DB /* OnboardingV2View.swift */; };
 		5B20EB381EF4E9A9A02FCDCE /* SplashView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7665A2A3A6E18C8037F80DE /* SplashView.swift */; };
+		5B20EB381EF4E9A9A02FCDCF /* NotificationPermissionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7665A2A3A6E18C8037F80DF /* NotificationPermissionView.swift */; };
 		5E36AADEF8689212B83BF6FC /* exercises.json in Resources */ = {isa = PBXBuildFile; fileRef = F80DF745A0945BC8BB21285C /* exercises.json */; };
 		61C75BB37FF6157166400E5E /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C975A916E9A16C00A07248A3 /* HomeView.swift */; };
 		61DFE674FC9B8C0150AE7A36 /* PaywallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB37FE4EBE611ED62380668 /* PaywallView.swift */; };
@@ -175,6 +176,7 @@
 		A641D503120435354F8CCA29 /* ExerciseDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseDetailView.swift; sourceTree = "<group>"; };
 		A7665A2A3A6E18C8037F80DD /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		A7665A2A3A6E18C8037F80DE /* SplashView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashView.swift; sourceTree = "<group>"; };
+		A7665A2A3A6E18C8037F80DF /* NotificationPermissionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationPermissionView.swift; sourceTree = "<group>"; };
 		A8FDEA0217A7E8F2762673A4 /* WorkoutViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutViewModel.swift; sourceTree = "<group>"; };
 		B04E06EA374E74AAD225DB8C /* PRManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PRManager.swift; sourceTree = "<group>"; };
 		B1C20CB4DE1E596D9D14A622 /* MuscleDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MuscleDetailView.swift; sourceTree = "<group>"; };
@@ -379,6 +381,7 @@
 			children = (
 				B9A5D4E86A95308B2CB88291 /* CallToActionPage.swift */,
 				F18EDC80AAE83E2C194E8272 /* InteractiveDemoPage.swift */,
+				A7665A2A3A6E18C8037F80DF /* NotificationPermissionView.swift */,
 				F2D7479246A925801D0814DB /* OnboardingV2View.swift */,
 				A7665A2A3A6E18C8037F80DD /* OnboardingView.swift */,
 				4A2D2051DFF145ACA4958AD6 /* PersonalizationPage.swift */,
@@ -656,6 +659,7 @@
 				CEB8E5A272EE81B64A0B086B /* RecoveryCalculator.swift in Sources */,
 				D0FC5529011C1DCB4F1673F0 /* SettingsView.swift in Sources */,
 				5B20EB381EF4E9A9A02FCDCE /* SplashView.swift in Sources */,
+				5B20EB381EF4E9A9A02FCDCF /* NotificationPermissionView.swift in Sources */,
 				E846C758C23553AB728831B0 /* SubscriptionManager.swift in Sources */,
 				31E876C2E3253AC0F79BAF5A /* UserProfile.swift in Sources */,
 				E7CED2B85A00E807CE175FEC /* ValuePropositionPage.swift in Sources */,
