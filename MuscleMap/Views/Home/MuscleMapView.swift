@@ -146,16 +146,23 @@ private struct MusclePathView: View {
                     lineWidth: isActive ? 1.2 : 0.8
                 )
             }
-            .shadow(color: isActive ? state.color.opacity(0.4) : .clear, radius: 4)
-            .scaleEffect(isTapped ? 1.03 : (isPulsing ? 1.015 : 1.0))
-            .brightness(isDemoHighlighted ? 0.2 : 0)
+            // グローエフェクト（パルス時に強調）
+            .shadow(
+                color: isActive ? state.color.opacity(isPulsing ? 0.6 : 0.3) : .clear,
+                radius: isPulsing ? 6 : 3
+            )
+            // タップ時のみスケール、通常パルスはopacityで表現
+            .scaleEffect(isTapped ? 1.02 : 1.0)
+            .opacity(isPulsing ? 0.85 : 1.0)
+            .brightness(isDemoHighlighted ? 0.15 : 0)
+            .animation(.easeInOut(duration: 0.2), value: isTapped)
             .animation(pulseAnimation, value: isPulsing)
             .onTapGesture {
-                withAnimation(.easeInOut(duration: 0.2)) {
+                withAnimation(.easeInOut(duration: 0.15)) {
                     isTapped = true
                 }
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                    withAnimation(.easeInOut(duration: 0.15)) {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+                    withAnimation(.easeInOut(duration: 0.1)) {
                         isTapped = false
                     }
                 }
@@ -163,7 +170,10 @@ private struct MusclePathView: View {
             }
             .onAppear {
                 if state.shouldPulse {
-                    isPulsing = true
+                    // 少し遅延させてから開始（全体がバラバラにならないよう）
+                    DispatchQueue.main.asyncAfter(deadline: .now() + Double.random(in: 0...0.3)) {
+                        isPulsing = true
+                    }
                 }
             }
             .onChange(of: state.shouldPulse) { _, shouldPulse in
@@ -173,7 +183,8 @@ private struct MusclePathView: View {
 
     private var pulseAnimation: Animation? {
         guard state.shouldPulse else { return nil }
-        return .easeInOut(duration: state.pulseInterval)
+        // より滑らかなアニメーション
+        return .easeInOut(duration: state.pulseInterval * 1.2)
             .repeatForever(autoreverses: true)
     }
 }

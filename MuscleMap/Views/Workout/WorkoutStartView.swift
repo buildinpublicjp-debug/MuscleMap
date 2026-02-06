@@ -9,6 +9,10 @@ struct WorkoutStartView: View {
     @State private var showingExercisePicker = false
     @State private var muscleStates: [Muscle: MuscleVisualState] = [:]
 
+    // 完了画面用の状態（親ビューで管理してビュー遷移後も維持）
+    @State private var completedSession: WorkoutSession?
+    @State private var showingCompletionView = false
+
     var body: some View {
         NavigationStack {
             ZStack {
@@ -17,7 +21,16 @@ struct WorkoutStartView: View {
                 if let vm = viewModel {
                     if vm.isSessionActive {
                         // セッション進行中
-                        ActiveWorkoutView(viewModel: vm, showingExercisePicker: $showingExercisePicker)
+                        ActiveWorkoutView(
+                            viewModel: vm,
+                            showingExercisePicker: $showingExercisePicker,
+                            onWorkoutCompleted: { session in
+                                completedSession = session
+                                vm.endSession()
+                                HapticManager.workoutEnded()
+                                showingCompletionView = true
+                            }
+                        )
                     } else {
                         // セッション未開始
                         WorkoutIdleView(
@@ -65,6 +78,15 @@ struct WorkoutStartView: View {
                         )
                     }
                     .foregroundStyle(Color.mmAccentPrimary)
+                }
+            }
+            .fullScreenCover(isPresented: $showingCompletionView) {
+                if let session = completedSession {
+                    WorkoutCompletionView(session: session) {
+                        showingCompletionView = false
+                        completedSession = nil
+                        loadMuscleStates() // 筋肉状態を更新
+                    }
                 }
             }
         }
@@ -330,9 +352,9 @@ private struct MuscleExercisePickerSheet: View {
 private struct ActiveWorkoutView: View {
     @Bindable var viewModel: WorkoutViewModel
     @Binding var showingExercisePicker: Bool
+    let onWorkoutCompleted: (WorkoutSession) -> Void
+
     @State private var showingEndConfirm = false
-    @State private var completedSession: WorkoutSession?
-    @State private var showingCompletionView = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -403,26 +425,15 @@ private struct ActiveWorkoutView: View {
             }
             .confirmationDialog(L10n.endWorkoutConfirm, isPresented: $showingEndConfirm, titleVisibility: .visible) {
                 Button(L10n.saveAndEnd) {
-                    // セッションを保存して完了画面を表示
+                    // セッションを親ビューに渡して完了画面を表示
                     if let session = viewModel.activeSession {
-                        completedSession = session
-                        viewModel.endSession()
-                        HapticManager.workoutEnded()
-                        showingCompletionView = true
+                        onWorkoutCompleted(session)
                     }
                 }
                 Button(L10n.discardAndEnd, role: .destructive) {
                     viewModel.discardSession()
                 }
                 Button(L10n.cancel, role: .cancel) {}
-            }
-            .fullScreenCover(isPresented: $showingCompletionView) {
-                if let session = completedSession {
-                    WorkoutCompletionView(session: session) {
-                        showingCompletionView = false
-                        completedSession = nil
-                    }
-                }
             }
         }
     }

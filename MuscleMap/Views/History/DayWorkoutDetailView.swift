@@ -124,15 +124,18 @@ private struct SessionDetailCard: View {
                 .foregroundStyle(Color.mmTextSecondary)
             }
 
-            // ミニ筋肉マップ
+            // ミニ筋肉マップ（アスペクト比を維持）
             if !stimulatedMuscleMapping.isEmpty {
-                HStack(spacing: 12) {
+                HStack(spacing: 16) {
                     MiniMuscleMapView(muscleMapping: stimulatedMuscleMapping, showFront: true)
-                        .frame(height: 100)
+                        .aspectRatio(0.5, contentMode: .fit)
+                        .frame(maxHeight: 120)
                     MiniMuscleMapView(muscleMapping: stimulatedMuscleMapping, showFront: false)
-                        .frame(height: 100)
+                        .aspectRatio(0.5, contentMode: .fit)
+                        .frame(maxHeight: 120)
                 }
-                .padding(.vertical, 4)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 8)
             }
 
             Divider().background(Color.mmBgSecondary)
