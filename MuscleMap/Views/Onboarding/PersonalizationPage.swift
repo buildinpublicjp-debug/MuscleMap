@@ -7,6 +7,7 @@ struct PersonalizationPage: View {
 
     @State private var selectedGoal: OnboardingGoal?
     @State private var appeared = false
+    @State private var isProceeding = false
 
     var body: some View {
         VStack(spacing: 32) {
@@ -25,7 +26,7 @@ struct PersonalizationPage: View {
                         goal: goal,
                         isSelected: selectedGoal == goal,
                         onTap: {
-                            guard selectedGoal == nil else { return }
+                            guard !isProceeding else { return }
                             withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                                 selectedGoal = goal
                             }
@@ -33,11 +34,6 @@ struct PersonalizationPage: View {
 
                             // UserDefaultsに保存
                             UserDefaults.standard.set(goal.rawValue, forKey: "selectedTrainingGoal")
-
-                            // 1秒後に次のページへ
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                                onGoalSelected()
-                            }
                         }
                     )
                 }
@@ -47,6 +43,27 @@ struct PersonalizationPage: View {
             .offset(y: appeared ? 0 : 20)
 
             Spacer()
+
+            // 続けるボタン
+            if selectedGoal != nil {
+                Button {
+                    guard !isProceeding else { return }
+                    isProceeding = true
+                    HapticManager.lightTap()
+                    onGoalSelected()
+                } label: {
+                    Text(L10n.continueButton)
+                        .font(.system(size: 18, weight: .bold))
+                        .foregroundStyle(Color.mmOnboardingBg)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 56)
+                        .background(Color.mmOnboardingAccent)
+                        .clipShape(RoundedRectangle(cornerRadius: 16))
+                }
+                .padding(.horizontal, 24)
+                .transition(.opacity.combined(with: .move(edge: .bottom)))
+            }
+
             Spacer()
         }
         .onAppear {
@@ -54,6 +71,7 @@ struct PersonalizationPage: View {
                 appeared = true
             }
         }
+        .animation(.easeInOut(duration: 0.3), value: selectedGoal != nil)
     }
 }
 

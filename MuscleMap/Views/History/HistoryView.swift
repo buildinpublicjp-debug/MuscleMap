@@ -8,8 +8,13 @@ struct HistoryView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var viewModel: HistoryViewModel?
     @State private var showingPaywall = false
-    @State private var selectedCalendarDate: Date?
-    @State private var showDayDetail = false
+    @State private var selectedCalendarDate: SelectedDate?
+
+    /// シート表示用のラッパー（Identifiable対応）
+    struct SelectedDate: Identifiable {
+        let id = UUID()
+        let date: Date
+    }
 
     var body: some View {
         NavigationStack {
@@ -21,11 +26,9 @@ struct HistoryView: View {
                         VStack(spacing: 24) {
                             // 月間カレンダー
                             MonthlyCalendarView(
-                                selectedDate: $selectedCalendarDate,
                                 workoutDates: vm.workoutDates
                             ) { date in
-                                selectedCalendarDate = date
-                                showDayDetail = true
+                                selectedCalendarDate = SelectedDate(date: date)
                             }
 
                             // 月間サマリーカード
@@ -73,10 +76,8 @@ struct HistoryView: View {
             .sheet(isPresented: $showingPaywall) {
                 PaywallView()
             }
-            .sheet(isPresented: $showDayDetail) {
-                if let date = selectedCalendarDate {
-                    DayWorkoutDetailView(date: date)
-                }
+            .sheet(item: $selectedCalendarDate) { selected in
+                DayWorkoutDetailView(date: selected.date)
             }
         }
     }

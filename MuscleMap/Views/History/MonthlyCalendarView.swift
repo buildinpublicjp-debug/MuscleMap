@@ -3,11 +3,11 @@ import SwiftUI
 // MARK: - 月間カレンダービュー
 
 struct MonthlyCalendarView: View {
-    @Binding var selectedDate: Date?
     let workoutDates: Set<DateComponents>
     var onDateSelected: ((Date) -> Void)?
 
     @State private var currentMonth = Date()
+    @State private var selectedDate: Date?
 
     private let calendar = Calendar.current
     private let weekdaySymbols: [String] = {
@@ -233,7 +233,6 @@ private struct DayCell: View {
         Color.mmBgPrimary.ignoresSafeArea()
 
         MonthlyCalendarView(
-            selectedDate: .constant(nil),
             workoutDates: [
                 DateComponents(year: 2026, month: 2, day: 3),
                 DateComponents(year: 2026, month: 2, day: 5),

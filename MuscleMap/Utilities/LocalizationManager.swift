@@ -27,10 +27,13 @@ class LocalizationManager {
     static let shared = LocalizationManager()
 
     private let languageKey = "appLanguage"
+    private let appGroupSuiteName = "group.com.buildinpublic.MuscleMap"
 
     var currentLanguage: AppLanguage {
         didSet {
             UserDefaults.standard.set(currentLanguage.rawValue, forKey: languageKey)
+            // ウィジェット用にApp Groupにも保存
+            UserDefaults(suiteName: appGroupSuiteName)?.set(currentLanguage.rawValue, forKey: languageKey)
             NotificationCenter.default.post(name: .languageDidChange, object: nil)
         }
     }
@@ -43,6 +46,8 @@ class LocalizationManager {
             let preferredLanguage = Locale.preferredLanguages.first ?? "en"
             self.currentLanguage = preferredLanguage.hasPrefix("ja") ? .japanese : .english
         }
+        // ウィジェット用にApp Groupにも同期
+        UserDefaults(suiteName: appGroupSuiteName)?.set(currentLanguage.rawValue, forKey: languageKey)
     }
 
     /// ヘルパー: 言語に応じた文字列を返す
@@ -526,6 +531,7 @@ enum L10n {
     static var goalMuscleGain: String { loc("筋力アップ", "Muscle Gain") }
     static var goalFatLoss: String { loc("脂肪燃焼", "Fat Loss") }
     static var goalHealth: String { loc("健康維持", "Stay Healthy") }
+    static var continueButton: String { loc("続ける", "Continue") }
     static var onboardingDemoTitle: String { loc("あなたの身体が、キャンバスになる。", "Your body becomes a canvas.") }
     static var onboardingDemoHint: String { loc("タップして筋肉を光らせよう", "Tap muscles to light them up") }
     static var onboardingFeature1: String { loc("21部位の筋肉を可視化", "Visualize 21 muscle groups") }

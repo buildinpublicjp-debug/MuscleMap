@@ -117,6 +117,7 @@ enum WidgetDataReader {
     static let suiteName = "group.com.buildinpublic.MuscleMap"
     static let dataKey = "widget_muscle_data"
     static let proStatusKey = "widget_is_pro_user"
+    static let languageKey = "appLanguage"
 
     static func read() -> WidgetMuscleData? {
         guard let defaults = UserDefaults(suiteName: suiteName),
@@ -130,6 +131,36 @@ enum WidgetDataReader {
     static func isProUser() -> Bool {
         guard let defaults = UserDefaults(suiteName: suiteName) else { return false }
         return defaults.bool(forKey: proStatusKey)
+    }
+
+    static func isJapanese() -> Bool {
+        guard let defaults = UserDefaults(suiteName: suiteName),
+              let lang = defaults.string(forKey: languageKey) else {
+            // デフォルトはシステム言語を参照
+            let preferredLanguage = Locale.preferredLanguages.first ?? "en"
+            return preferredLanguage.hasPrefix("ja")
+        }
+        return lang == "ja"
+    }
+}
+
+// MARK: - ウィジェット用ローカライズ
+
+enum WidgetL10n {
+    static var recovered: String {
+        WidgetDataReader.isJapanese() ? "回復済み" : "Recovered"
+    }
+    static var recovering: String {
+        WidgetDataReader.isJapanese() ? "回復中" : "Recovering"
+    }
+    static var upgradeToProTitle: String {
+        "MuscleMap Pro"
+    }
+    static var upgradeToPro: String {
+        WidgetDataReader.isJapanese() ? "Proにアップグレード" : "Upgrade to Pro"
+    }
+    static var widgetDescription: String {
+        WidgetDataReader.isJapanese() ? "筋肉の回復状態を表示" : "Display muscle recovery status"
     }
 }
 
@@ -175,7 +206,7 @@ struct MediumWidgetView: View {
                 VStack(alignment: .leading, spacing: 6) {
                     Spacer()
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("回復済み")
+                        Text(WidgetL10n.recovered)
                             .font(.system(size: 9))
                             .foregroundStyle(Color.mmTextSecondary)
                         Text("\(readyCount)/21")
@@ -188,7 +219,7 @@ struct MediumWidgetView: View {
                         .frame(height: 1)
 
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("回復中")
+                        Text(WidgetL10n.recovering)
                             .font(.system(size: 9))
                             .foregroundStyle(Color.mmTextSecondary)
                         Text("\(recoveringCount)")
@@ -318,7 +349,7 @@ struct MuscleMapWidget: Widget {
             WidgetEntryView(entry: entry)
         }
         .configurationDisplayName("MuscleMap")
-        .description("筋肉の回復状態を表示")
+        .description(WidgetL10n.widgetDescription)
         .supportedFamilies([.systemSmall, .systemMedium, .systemLarge])
     }
 }
@@ -331,10 +362,10 @@ struct WidgetLockedView: View {
             Image(systemName: "lock.fill")
                 .font(.title2)
                 .foregroundStyle(Color.mmAccentPrimary)
-            Text("MuscleMap Pro")
+            Text(WidgetL10n.upgradeToProTitle)
                 .font(.system(size: 12, weight: .bold))
                 .foregroundStyle(Color.mmTextPrimary)
-            Text("Proにアップグレード")
+            Text(WidgetL10n.upgradeToPro)
                 .font(.system(size: 9))
                 .foregroundStyle(Color.mmTextSecondary)
         }

@@ -33,7 +33,8 @@ struct OnboardingView: View {
 
 private struct LanguageSelectionPage: View {
     let onLanguageSelected: () -> Void
-    @State private var localization = LocalizationManager.shared
+    private var localization: LocalizationManager { LocalizationManager.shared }
+    @State private var isLoading = false
 
     var body: some View {
         VStack(spacing: 32) {
@@ -45,9 +46,15 @@ private struct LanguageSelectionPage: View {
                     .fill(Color.mmAccentPrimary.opacity(0.1))
                     .frame(width: 120, height: 120)
 
-                Image(systemName: "figure.stand")
-                    .font(.system(size: 50))
-                    .foregroundStyle(Color.mmAccentPrimary)
+                if isLoading {
+                    ProgressView()
+                        .tint(Color.mmAccentPrimary)
+                        .scaleEffect(1.5)
+                } else {
+                    Image(systemName: "figure.stand")
+                        .font(.system(size: 50))
+                        .foregroundStyle(Color.mmAccentPrimary)
+                }
             }
 
             // タイトル
@@ -60,9 +67,7 @@ private struct LanguageSelectionPage: View {
             // 言語選択ボタン
             VStack(spacing: 12) {
                 Button {
-                    localization.currentLanguage = .japanese
-                    HapticManager.lightTap()
-                    onLanguageSelected()
+                    selectLanguage(.japanese)
                 } label: {
                     Text(L10n.languageJapanese)
                         .font(.headline)
@@ -76,11 +81,10 @@ private struct LanguageSelectionPage: View {
                                 .stroke(Color.mmAccentPrimary.opacity(0.3), lineWidth: 1)
                         )
                 }
+                .disabled(isLoading)
 
                 Button {
-                    localization.currentLanguage = .english
-                    HapticManager.lightTap()
-                    onLanguageSelected()
+                    selectLanguage(.english)
                 } label: {
                     Text(L10n.languageEnglish)
                         .font(.headline)
@@ -94,10 +98,36 @@ private struct LanguageSelectionPage: View {
                                 .stroke(Color.mmAccentPrimary.opacity(0.3), lineWidth: 1)
                         )
                 }
+                .disabled(isLoading)
             }
             .padding(.horizontal, 32)
+            .opacity(isLoading ? 0.5 : 1.0)
 
             Spacer()
+        }
+    }
+
+    private func selectLanguage(_ language: AppLanguage) {
+        guard !isLoading else { return }
+        isLoading = true
+        HapticManager.lightTap()
+
+        // 言語設定を非同期で実行し、UIをブロックしない
+        Task { @MainActor in
+            #if DEBUG
+            let start = Date()
+            #endif
+
+            localization.currentLanguage = language
+
+            #if DEBUG
+            let elapsed = Date().timeIntervalSince(start)
+            print("[LanguageSelection] Language set in \(String(format: "%.3f", elapsed))s")
+            #endif
+
+            // 次のランループでコールバックを実行（UIの更新を完了させる）
+            try? await Task.sleep(nanoseconds: 50_000_000) // 50ms
+            onLanguageSelected()
         }
     }
 }
