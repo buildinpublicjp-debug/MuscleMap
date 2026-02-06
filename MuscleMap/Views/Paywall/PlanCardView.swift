@@ -76,9 +76,9 @@ struct PlanCardView: View {
     ZStack {
         Color.mmOnboardingBg.ignoresSafeArea()
         HStack(spacing: 10) {
-            PlanCardView(title: "月額", price: "¥480", subtitle: nil, badge: nil, isSelected: false) {}
-            PlanCardView(title: "年額", price: "¥3,800", subtitle: "~¥317/月", badge: "一番人気", isSelected: true) {}
-            PlanCardView(title: "買い切り", price: "¥7,800", subtitle: "生涯アクセス", badge: nil, isSelected: false) {}
+            PlanCardView(title: L10n.planMonthly, price: "¥480", subtitle: nil, badge: nil, isSelected: false) {}
+            PlanCardView(title: L10n.planAnnual, price: "¥3,800", subtitle: L10n.annualPerMonth, badge: L10n.mostPopular, isSelected: true) {}
+            PlanCardView(title: L10n.planLifetime, price: "¥7,800", subtitle: L10n.lifetimeLabel, badge: nil, isSelected: false) {}
         }
         .padding()
     }

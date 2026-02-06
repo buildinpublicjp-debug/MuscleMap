@@ -92,16 +92,27 @@ extension UserProfile {
     private static let storageKey = "userProfile"
 
     static func load() -> UserProfile {
-        guard let data = UserDefaults.standard.data(forKey: storageKey),
-              let profile = try? JSONDecoder().decode(UserProfile.self, from: data) else {
+        guard let data = UserDefaults.standard.data(forKey: storageKey) else {
             return .default
         }
-        return profile
+        do {
+            return try JSONDecoder().decode(UserProfile.self, from: data)
+        } catch {
+            #if DEBUG
+            print("[UserProfile] Failed to decode: \(error)")
+            #endif
+            return .default
+        }
     }
 
     func save() {
-        if let data = try? JSONEncoder().encode(self) {
+        do {
+            let data = try JSONEncoder().encode(self)
             UserDefaults.standard.set(data, forKey: Self.storageKey)
+        } catch {
+            #if DEBUG
+            print("[UserProfile] Failed to encode: \(error)")
+            #endif
         }
     }
 }

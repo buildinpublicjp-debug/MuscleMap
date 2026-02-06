@@ -396,6 +396,8 @@ struct ShareSheet: UIViewControllerRepresentable {
     session.endDate = Date()
 
     return WorkoutCompletionView(session: session) {
+        #if DEBUG
         print("Dismissed")
+        #endif
     }
 }

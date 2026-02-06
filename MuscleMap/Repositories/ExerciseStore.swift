@@ -47,9 +47,17 @@ final class ExerciseStore {
 
     /// テスト用：データを直接設定
     func load(from data: Data) {
-        let decoded = (try? JSONDecoder().decode([ExerciseDefinition].self, from: data)) ?? []
-        exercises = decoded
-        exerciseMap = Dictionary(uniqueKeysWithValues: decoded.map { ($0.id, $0) })
+        do {
+            let decoded = try JSONDecoder().decode([ExerciseDefinition].self, from: data)
+            exercises = decoded
+            exerciseMap = Dictionary(uniqueKeysWithValues: decoded.map { ($0.id, $0) })
+        } catch {
+            #if DEBUG
+            print("[ExerciseStore] Failed to decode test data: \(error)")
+            #endif
+            exercises = []
+            exerciseMap = [:]
+        }
     }
 
     // MARK: 検索

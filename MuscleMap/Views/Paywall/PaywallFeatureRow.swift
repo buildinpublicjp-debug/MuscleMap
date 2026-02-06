@@ -23,10 +23,10 @@ struct PaywallFeatureRow: View {
     ZStack {
         Color.mmOnboardingBg.ignoresSafeArea()
         VStack(alignment: .leading, spacing: 16) {
-            PaywallFeatureRow(icon: "heart.text.clipboard", text: "EMGベースの回復予測")
-            PaywallFeatureRow(icon: "rectangle.on.rectangle", text: "ホームスクリーンウィジェット")
-            PaywallFeatureRow(icon: "clock.arrow.circlepath", text: "無制限の履歴閲覧")
-            PaywallFeatureRow(icon: "square.and.arrow.up", text: "データエクスポート（CSV）")
+            PaywallFeatureRow(icon: "heart.text.clipboard", text: L10n.paywallFeatureRecovery)
+            PaywallFeatureRow(icon: "rectangle.on.rectangle", text: L10n.paywallFeatureWidget)
+            PaywallFeatureRow(icon: "clock.arrow.circlepath", text: L10n.paywallFeatureHistory)
+            PaywallFeatureRow(icon: "square.and.arrow.up", text: L10n.paywallFeatureExport)
         }
         .padding()
     }
