@@ -12,13 +12,28 @@ struct CallToActionPage: View {
         VStack(spacing: 0) {
             Spacer()
 
-            // 特典リスト
-            VStack(alignment: .leading, spacing: 20) {
-                FeatureRow(text: L10n.onboardingFeature1, delay: 0.1)
-                FeatureRow(text: L10n.onboardingFeature2, delay: 0.3)
-                FeatureRow(text: L10n.onboardingFeature3, delay: 0.5)
+            // 特典リスト（カード形式）
+            VStack(spacing: 16) {
+                FeatureCard(
+                    icon: "figure.stand",
+                    title: L10n.onboardingFeature1,
+                    subtitle: L10n.onboardingFeature1Sub,
+                    delay: 0.1
+                )
+                FeatureCard(
+                    icon: "list.bullet.clipboard",
+                    title: L10n.onboardingFeature2,
+                    subtitle: L10n.onboardingFeature2Sub,
+                    delay: 0.3
+                )
+                FeatureCard(
+                    icon: "waveform.path.ecg",
+                    title: L10n.onboardingFeature3,
+                    subtitle: L10n.onboardingFeature3Sub,
+                    delay: 0.5
+                )
             }
-            .padding(.horizontal, 32)
+            .padding(.horizontal, 24)
             .opacity(appeared ? 1 : 0)
             .offset(y: appeared ? 0 : 15)
 
@@ -81,28 +96,49 @@ struct CallToActionPage: View {
     }
 }
 
-// MARK: - 特典行
+// MARK: - 特典カード
 
-private struct FeatureRow: View {
-    let text: String
+private struct FeatureCard: View {
+    let icon: String
+    let title: String
+    let subtitle: String
     let delay: Double
 
     @State private var visible = false
 
     var body: some View {
-        HStack(spacing: 14) {
-            Image(systemName: "checkmark.circle.fill")
-                .font(.title3)
-                .foregroundStyle(Color.mmOnboardingAccent)
+        HStack(spacing: 16) {
+            // アイコン
+            ZStack {
+                Circle()
+                    .fill(Color.mmOnboardingAccent.opacity(0.15))
+                    .frame(width: 50, height: 50)
 
-            Text(text)
-                .font(.system(size: 17, weight: .medium))
-                .foregroundStyle(Color.mmOnboardingTextMain)
+                Image(systemName: icon)
+                    .font(.system(size: 22))
+                    .foregroundStyle(Color.mmOnboardingAccent)
+            }
+
+            // テキスト
+            VStack(alignment: .leading, spacing: 4) {
+                Text(title)
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(Color.mmOnboardingTextMain)
+
+                Text(subtitle)
+                    .font(.system(size: 13))
+                    .foregroundStyle(Color.mmOnboardingTextSub)
+            }
+
+            Spacer()
         }
+        .padding(16)
+        .background(Color.mmOnboardingCard)
+        .clipShape(RoundedRectangle(cornerRadius: 14))
         .opacity(visible ? 1 : 0)
-        .offset(x: visible ? 0 : -10)
+        .offset(x: visible ? 0 : -15)
         .onAppear {
-            withAnimation(.easeOut(duration: 0.6).delay(delay)) {
+            withAnimation(.easeOut(duration: 0.5).delay(delay)) {
                 visible = true
             }
         }

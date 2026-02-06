@@ -533,11 +533,14 @@ enum L10n {
     static var goalFatLoss: String { loc("脂肪燃焼", "Fat Loss") }
     static var goalHealth: String { loc("健康維持", "Stay Healthy") }
     static var continueButton: String { loc("続ける", "Continue") }
-    static var onboardingDemoTitle: String { loc("あなたの身体が、キャンバスになる。", "Your body becomes a canvas.") }
-    static var onboardingDemoHint: String { loc("タップして筋肉を光らせよう", "Tap muscles to light them up") }
+    static var onboardingDemoTitle: String { loc("鍛えた部位が光る", "Trained muscles glow") }
+    static var onboardingDemoHint: String { loc("筋肉をタップして体験", "Tap muscles to try it out") }
     static var onboardingFeature1: String { loc("21部位の筋肉を可視化", "Visualize 21 muscle groups") }
+    static var onboardingFeature1Sub: String { loc("全身の筋肉をリアルタイムで追跡", "Track your entire body in real-time") }
     static var onboardingFeature2: String { loc("無制限のワークアウト記録", "Unlimited workout tracking") }
+    static var onboardingFeature2Sub: String { loc("セット・レップ・重量を簡単記録", "Log sets, reps, and weight easily") }
     static var onboardingFeature3: String { loc("EMGベースの回復計算", "EMG-based recovery calculation") }
+    static var onboardingFeature3Sub: String { loc("科学的データで最適なタイミングを提案", "Science-backed training timing") }
     static var termsOfUse: String { loc("利用規約", "Terms of Use") }
 
     // MARK: - CSVインポート

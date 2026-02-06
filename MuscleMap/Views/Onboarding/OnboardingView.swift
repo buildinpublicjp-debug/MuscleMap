@@ -35,75 +35,105 @@ private struct LanguageSelectionPage: View {
     let onLanguageSelected: () -> Void
     private var localization: LocalizationManager { LocalizationManager.shared }
     @State private var isLoading = false
+    @State private var glowAnimation = false
 
     var body: some View {
         VStack(spacing: 32) {
             Spacer()
 
-            // アプリアイコン
+            // プレミアムアイコン（グラデーション＋グロー）
             ZStack {
+                // 外側のグロー
                 Circle()
-                    .fill(Color.mmAccentPrimary.opacity(0.1))
-                    .frame(width: 120, height: 120)
+                    .fill(
+                        RadialGradient(
+                            colors: [
+                                Color.mmAccentPrimary.opacity(0.3),
+                                Color.mmAccentPrimary.opacity(0.0)
+                            ],
+                            center: .center,
+                            startRadius: 50,
+                            endRadius: 100
+                        )
+                    )
+                    .frame(width: 200, height: 200)
+                    .scaleEffect(glowAnimation ? 1.1 : 1.0)
+                    .opacity(glowAnimation ? 0.8 : 0.5)
 
+                // 内側の円
+                Circle()
+                    .fill(
+                        LinearGradient(
+                            colors: [
+                                Color.mmAccentPrimary.opacity(0.2),
+                                Color.mmAccentSecondary.opacity(0.1)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .frame(width: 130, height: 130)
+
+                // アイコン
                 if isLoading {
                     ProgressView()
                         .tint(Color.mmAccentPrimary)
                         .scaleEffect(1.5)
                 } else {
-                    Image(systemName: "figure.stand")
-                        .font(.system(size: 50))
-                        .foregroundStyle(Color.mmAccentPrimary)
+                    // 筋肉アイコン群
+                    ZStack {
+                        Image(systemName: "figure.strengthtraining.traditional")
+                            .font(.system(size: 45, weight: .medium))
+                            .foregroundStyle(
+                                LinearGradient(
+                                    colors: [Color.mmAccentPrimary, Color.mmAccentSecondary],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                    }
                 }
             }
 
             // タイトル
-            Text("MuscleMap")
-                .font(.largeTitle.bold())
-                .foregroundStyle(Color.mmTextPrimary)
+            VStack(spacing: 8) {
+                Text("MuscleMap")
+                    .font(.system(size: 36, weight: .bold))
+                    .foregroundStyle(Color.mmTextPrimary)
+
+                Text(L10n.onboardingTagline1)
+                    .font(.subheadline)
+                    .foregroundStyle(Color.mmTextSecondary)
+            }
 
             Spacer()
 
             // 言語選択ボタン
             VStack(spacing: 12) {
-                Button {
+                LanguageButton(
+                    title: L10n.languageJapanese,
+                    flag: "🇯🇵",
+                    isLoading: isLoading
+                ) {
                     selectLanguage(.japanese)
-                } label: {
-                    Text(L10n.languageJapanese)
-                        .font(.headline)
-                        .foregroundStyle(Color.mmTextPrimary)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 56)
-                        .background(Color.mmBgCard)
-                        .clipShape(RoundedRectangle(cornerRadius: 16))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 16)
-                                .stroke(Color.mmAccentPrimary.opacity(0.3), lineWidth: 1)
-                        )
                 }
-                .disabled(isLoading)
 
-                Button {
+                LanguageButton(
+                    title: L10n.languageEnglish,
+                    flag: "🇺🇸",
+                    isLoading: isLoading
+                ) {
                     selectLanguage(.english)
-                } label: {
-                    Text(L10n.languageEnglish)
-                        .font(.headline)
-                        .foregroundStyle(Color.mmTextPrimary)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 56)
-                        .background(Color.mmBgCard)
-                        .clipShape(RoundedRectangle(cornerRadius: 16))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 16)
-                                .stroke(Color.mmAccentPrimary.opacity(0.3), lineWidth: 1)
-                        )
                 }
-                .disabled(isLoading)
             }
             .padding(.horizontal, 32)
-            .opacity(isLoading ? 0.5 : 1.0)
 
             Spacer()
+        }
+        .onAppear {
+            withAnimation(.easeInOut(duration: 2.0).repeatForever(autoreverses: true)) {
+                glowAnimation = true
+            }
         }
     }
 
@@ -129,6 +159,45 @@ private struct LanguageSelectionPage: View {
             try? await Task.sleep(nanoseconds: 50_000_000) // 50ms
             onLanguageSelected()
         }
+    }
+}
+
+// MARK: - 言語選択ボタン
+
+private struct LanguageButton: View {
+    let title: String
+    let flag: String
+    let isLoading: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 12) {
+                Text(flag)
+                    .font(.title2)
+
+                Text(title)
+                    .font(.headline)
+                    .foregroundStyle(Color.mmTextPrimary)
+
+                Spacer()
+
+                Image(systemName: "chevron.right")
+                    .font(.subheadline)
+                    .foregroundStyle(Color.mmTextSecondary)
+            }
+            .padding(.horizontal, 20)
+            .frame(maxWidth: .infinity)
+            .frame(height: 60)
+            .background(Color.mmBgCard)
+            .clipShape(RoundedRectangle(cornerRadius: 16))
+            .overlay(
+                RoundedRectangle(cornerRadius: 16)
+                    .stroke(Color.mmAccentPrimary.opacity(0.2), lineWidth: 1)
+            )
+        }
+        .disabled(isLoading)
+        .opacity(isLoading ? 0.5 : 1.0)
     }
 }
 
