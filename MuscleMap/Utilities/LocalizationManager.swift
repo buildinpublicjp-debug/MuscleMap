@@ -522,6 +522,10 @@ enum L10n {
     static var languageJapanese: String { "日本語" }
     static var languageEnglish: String { "English" }
 
+    // MARK: - スプラッシュ画面
+    static var splashTagline: String { loc("鍛えた筋肉が光る。", "Your trained muscles glow.") }
+    static var splashContinue: String { loc("始める", "Get Started") }
+
     // MARK: - オンボーディングV2
     static var onboardingV2Title1: String { loc("努力を、可視化する。", "Visualize Your Effort.") }
     static var onboardingV2Subtitle1: String {

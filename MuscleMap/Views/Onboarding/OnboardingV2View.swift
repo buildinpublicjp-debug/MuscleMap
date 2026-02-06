@@ -1,6 +1,6 @@
 import SwiftUI
 
-// MARK: - オンボーディングV2（4ページ横スワイプ）
+// MARK: - オンボーディングV2（3ページ横スワイプ: 体験 → 目標 → 機能）
 
 struct OnboardingV2View: View {
     let onComplete: () -> Void
@@ -12,9 +12,11 @@ struct OnboardingV2View: View {
             Color.mmOnboardingBg.ignoresSafeArea()
 
             TabView(selection: $currentPage) {
-                ValuePropositionPage()
+                // ページ1: 体験（筋肉マップをタップして体験）
+                InteractiveDemoPage()
                     .tag(0)
 
+                // ページ2: 目標選択
                 PersonalizationPage {
                     withAnimation(.easeInOut(duration: 0.5)) {
                         currentPage = 2
@@ -22,11 +24,9 @@ struct OnboardingV2View: View {
                 }
                 .tag(1)
 
-                InteractiveDemoPage()
-                    .tag(2)
-
+                // ページ3: 機能紹介 & 開始
                 CallToActionPage(onComplete: onComplete)
-                    .tag(3)
+                    .tag(2)
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
             .animation(.easeInOut(duration: 0.3), value: currentPage)
@@ -35,7 +35,7 @@ struct OnboardingV2View: View {
             VStack {
                 Spacer()
                 HStack(spacing: 8) {
-                    ForEach(0..<4) { index in
+                    ForEach(0..<3) { index in
                         Capsule()
                             .fill(index == currentPage ? Color.mmOnboardingAccent : Color.mmOnboardingTextSub.opacity(0.3))
                             .frame(width: index == currentPage ? 20 : 8, height: 8)
