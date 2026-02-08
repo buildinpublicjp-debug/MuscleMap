@@ -7,15 +7,16 @@ struct HomeView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var viewModel: HomeViewModel?
     @State private var streakViewModel = StreakViewModel()
-    @State private var showingWorkout = false
     @State private var selectedMuscle: Muscle?
     @State private var showDemo = false
     @State private var showingPaywall = false
     @State private var showingMilestone = false
-    @State private var showingWeeklySummary = false
-    @State private var showingBalanceDiagnosis = false
-    @State private var showingMuscleJourney = false
-    @State private var showingHeatmap = false
+    @State private var showingAnalyticsMenu = false
+
+    /// ワークアウト履歴があるかどうか
+    private var hasWorkoutHistory: Bool {
+        AppState.shared.hasCompletedFirstWorkout
+    }
 
     var body: some View {
         NavigationStack {
@@ -25,18 +26,13 @@ struct HomeView: View {
                 if let vm = viewModel {
                     ScrollView {
                         VStack(spacing: 24) {
-                            // 週間ストリークバッジ（タップで週間サマリーへ）
-                            Button {
-                                showingWeeklySummary = true
-                            } label: {
-                                WeeklyStreakBadge(
-                                    weeks: streakViewModel.currentStreak,
-                                    isCurrentWeekCompleted: streakViewModel.isCurrentWeekCompleted
-                                )
-                            }
-                            .buttonStyle(.plain)
+                            // 週間ストリークバッジ（コンパクト表示）
+                            WeeklyStreakBadge(
+                                weeks: streakViewModel.currentStreak,
+                                isCurrentWeekCompleted: streakViewModel.isCurrentWeekCompleted
+                            )
 
-                            // 筋肉マップ
+                            // 筋肉マップ（メイン）
                             MuscleMapView(
                                 muscleStates: vm.muscleStates,
                                 onMuscleTapped: { muscle in
@@ -47,36 +43,30 @@ struct HomeView: View {
                             .frame(maxHeight: 500)
                             .padding(.horizontal)
 
+                            // 未刺激警告（該当する場合のみ）
+                            if !vm.neglectedMuscleInfos.isEmpty {
+                                NeglectedWarningView(muscleInfos: vm.neglectedMuscleInfos)
+                                    .padding(.horizontal)
+                            }
+
+                            // 統計・分析セクション（ワークアウト履歴がある場合のみ）
+                            if hasWorkoutHistory {
+                                ViewStatsButton {
+                                    showingAnalyticsMenu = true
+                                }
+                                .padding(.horizontal)
+                            } else {
+                                // 初回ユーザー向けCTA
+                                FirstWorkoutCTA()
+                                    .padding(.horizontal)
+                            }
+
                             // Pro機能バナー（非Proユーザー向け）
                             if !PurchaseManager.shared.isProUser {
                                 ProFeatureBanner(feature: .recovery) {
                                     showingPaywall = true
                                 }
                                 .padding(.horizontal)
-                            }
-
-                            // 筋肉バランス診断カード
-                            BalanceDiagnosisCard {
-                                showingBalanceDiagnosis = true
-                            }
-                            .padding(.horizontal)
-
-                            // マッスル・ジャーニーカード
-                            MuscleJourneyCard {
-                                showingMuscleJourney = true
-                            }
-                            .padding(.horizontal)
-
-                            // トレーニングヒートマップカード
-                            TrainingHeatmapCard {
-                                showingHeatmap = true
-                            }
-                            .padding(.horizontal)
-
-                            // 未刺激警告
-                            if !vm.neglectedMuscleInfos.isEmpty {
-                                NeglectedWarningView(muscleInfos: vm.neglectedMuscleInfos)
-                                    .padding(.horizontal)
                             }
 
                             // 凡例
@@ -139,19 +129,65 @@ struct HomeView: View {
                     }
                 }
             }
-            .sheet(isPresented: $showingWeeklySummary) {
-                WeeklySummaryView()
-            }
-            .sheet(isPresented: $showingBalanceDiagnosis) {
-                MuscleBalanceDiagnosisView()
-            }
-            .sheet(isPresented: $showingMuscleJourney) {
-                MuscleJourneyView()
-            }
-            .sheet(isPresented: $showingHeatmap) {
-                MuscleHeatmapView()
+            .sheet(isPresented: $showingAnalyticsMenu) {
+                AnalyticsMenuView()
             }
         }
+    }
+}
+
+// MARK: - 統計を見るボタン
+
+private struct ViewStatsButton: View {
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 12) {
+                Image(systemName: "chart.bar.xaxis")
+                    .font(.title3)
+                    .foregroundStyle(Color.mmAccentPrimary)
+
+                Text(L10n.viewStats)
+                    .font(.subheadline.bold())
+                    .foregroundStyle(Color.mmTextPrimary)
+
+                Spacer()
+
+                Image(systemName: "chevron.right")
+                    .font(.caption)
+                    .foregroundStyle(Color.mmTextSecondary)
+            }
+            .padding()
+            .background(Color.mmBgCard)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+// MARK: - 初回ユーザー向けCTA
+
+private struct FirstWorkoutCTA: View {
+    var body: some View {
+        VStack(spacing: 12) {
+            Image(systemName: "figure.strengthtraining.traditional")
+                .font(.system(size: 40))
+                .foregroundStyle(Color.mmAccentPrimary)
+
+            Text(L10n.startFirstWorkout)
+                .font(.headline)
+                .foregroundStyle(Color.mmTextPrimary)
+
+            Text(L10n.firstWorkoutHint)
+                .font(.caption)
+                .foregroundStyle(Color.mmTextSecondary)
+                .multilineTextAlignment(.center)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 24)
+        .background(Color.mmBgCard)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 }
 

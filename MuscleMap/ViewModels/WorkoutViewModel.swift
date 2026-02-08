@@ -102,17 +102,23 @@ class WorkoutViewModel {
 
     // MARK: セット記録
 
-    /// セットを記録
+    /// セットを記録（バリデーション済み）
     func recordSet() {
         guard let session = activeSession,
               let exercise = selectedExercise else { return }
+
+        // バリデーション: レップ数は最低1回必要
+        guard currentReps >= 1 else { return }
+
+        // バリデーション: 重量は0以上（負の値は0に補正）
+        let validatedWeight = max(0, currentWeight)
 
         // セットを保存
         _ = workoutRepo.addSet(
             to: session,
             exerciseId: exercise.id,
             setNumber: currentSetNumber,
-            weight: currentWeight,
+            weight: validatedWeight,
             reps: currentReps
         )
 

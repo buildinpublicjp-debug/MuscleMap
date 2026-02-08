@@ -914,4 +914,13 @@ enum L10n {
         loc("\(trainingDays)日間トレーニングを積み重ねています！\(hashtag)\n\(url)",
             "I've trained for \(trainingDays) days! \(hashtag)\n\(url)")
     }
+
+    // MARK: - 統計・分析メニュー
+    static var analyticsMenu: String { loc("統計・分析", "Analytics") }
+    static var viewStats: String { loc("統計を見る", "View Stats") }
+    static var weeklySummaryDescription: String { loc("今週のトレーニング成果を確認", "Review this week's training results") }
+    static var balanceDiagnosis: String { loc("筋肉バランス診断", "Balance Diagnosis") }
+    static var balanceDiagnosisDescription: String { loc("部位ごとの刺激バランスをチェック", "Check stimulation balance by muscle group") }
+    static var startFirstWorkout: String { loc("最初のワークアウトを記録しよう！", "Start Your First Workout!") }
+    static var firstWorkoutHint: String { loc("トレーニングを記録すると、ここに統計が表示されます", "Record a workout to see your stats here") }
 }
