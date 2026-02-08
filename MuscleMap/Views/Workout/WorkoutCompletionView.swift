@@ -248,7 +248,8 @@ struct WorkoutCompletionView: View {
             exerciseCount: uniqueExercises,
             duration: duration,
             exerciseNames: exerciseNames,
-            date: session.startDate
+            date: session.startDate,
+            muscleMapping: stimulatedMuscleMapping
         )
 
         let renderer = ImageRenderer(content: shareView)
@@ -294,6 +295,7 @@ private struct StatBox: View {
 }
 
 // MARK: - シェア用カード（画像レンダリング用）
+// Instagram Stories最適サイズ: 9:16比率 (390 x 693)
 
 private struct WorkoutShareCard: View {
     let totalVolume: Double
@@ -302,9 +304,10 @@ private struct WorkoutShareCard: View {
     let duration: String
     let exerciseNames: [String]
     let date: Date
+    let muscleMapping: [String: Int]
 
     var body: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: 16) {
             // ヘッダー
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
@@ -320,41 +323,70 @@ private struct WorkoutShareCard: View {
                     .font(.title)
                     .foregroundStyle(Color.mmAccentPrimary)
             }
+            .padding(.horizontal, 24)
+            .padding(.top, 24)
+
+            // 筋肉マップ
+            ShareMuscleMapView(muscleMapping: muscleMapping)
+                .padding(.vertical, 8)
 
             // 統計
-            HStack(spacing: 16) {
+            HStack(spacing: 12) {
                 ShareStatItem(value: formatVolume(totalVolume), label: L10n.volume)
                 ShareStatItem(value: "\(exerciseCount)", label: L10n.exercises)
                 ShareStatItem(value: "\(totalSets)", label: L10n.sets)
                 ShareStatItem(value: duration, label: L10n.time)
             }
+            .padding(.horizontal, 24)
 
             // 種目リスト
-            VStack(alignment: .leading, spacing: 6) {
-                ForEach(exerciseNames.prefix(5), id: \.self) { name in
+            VStack(alignment: .leading, spacing: 5) {
+                ForEach(exerciseNames.prefix(4), id: \.self) { name in
                     HStack(spacing: 8) {
                         Image(systemName: "checkmark.circle.fill")
-                            .font(.caption)
+                            .font(.caption2)
                             .foregroundStyle(Color.mmAccentPrimary)
                         Text(name)
-                            .font(.subheadline)
+                            .font(.caption)
                             .foregroundStyle(Color.mmTextPrimary)
+                            .lineLimit(1)
                         Spacer()
                     }
                 }
-                if exerciseNames.count > 5 {
-                    Text(L10n.andMoreCount(exerciseNames.count - 5))
-                        .font(.caption)
+                if exerciseNames.count > 4 {
+                    Text(L10n.andMoreCount(exerciseNames.count - 4))
+                        .font(.caption2)
                         .foregroundStyle(Color.mmTextSecondary)
                 }
             }
+            .padding(.horizontal, 24)
+
+            Spacer()
+
+            // フッター（ロゴ + キャッチコピー）
+            VStack(spacing: 4) {
+                Divider()
+                    .background(Color.mmAccentPrimary.opacity(0.3))
+                HStack {
+                    Text("MuscleMap")
+                        .font(.caption.bold())
+                        .foregroundStyle(Color.mmAccentPrimary)
+                    Text("—")
+                        .font(.caption2)
+                        .foregroundStyle(Color.mmTextSecondary)
+                    Text(L10n.shareTagline)
+                        .font(.caption2)
+                        .foregroundStyle(Color.mmTextSecondary)
+                }
+                .padding(.vertical, 12)
+            }
+            .padding(.horizontal, 24)
         }
-        .padding(24)
-        .frame(width: 350)
+        .frame(width: 390, height: 693)
         .background(Color.mmBgCard)
-        .clipShape(RoundedRectangle(cornerRadius: 20))
+        .clipShape(RoundedRectangle(cornerRadius: 24))
         .overlay {
-            RoundedRectangle(cornerRadius: 20)
+            RoundedRectangle(cornerRadius: 24)
                 .stroke(Color.mmAccentPrimary.opacity(0.3), lineWidth: 2)
         }
         .padding(8)

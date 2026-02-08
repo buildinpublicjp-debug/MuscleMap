@@ -620,6 +620,7 @@ enum L10n {
     // MARK: - ワークアウト完了画面
     static var workoutComplete: String { loc("ワークアウト完了！", "Workout Complete!") }
     static var share: String { loc("シェア", "Share") }
+    static var shareTagline: String { loc("筋肉の回復を可視化", "Visualize muscle recovery") }
     static var todaysWorkout: String { loc("今日のワークアウト", "Today's Workout") }
     static var exercises: String { loc("種目", "Exercises") }
     static var sets: String { loc("セット", "Sets") }
