@@ -621,6 +621,9 @@ enum L10n {
     static var workoutComplete: String { loc("ワークアウト完了！", "Workout Complete!") }
     static var share: String { loc("シェア", "Share") }
     static var shareTagline: String { loc("筋肉の回復を可視化", "Visualize muscle recovery") }
+    static var shareTo: String { loc("シェア先を選択", "Share to") }
+    static var shareToInstagramStories: String { loc("Instagram Storiesにシェア", "Share to Instagram Stories") }
+    static var shareToOtherApps: String { loc("その他のアプリにシェア", "Share to other apps") }
     static var todaysWorkout: String { loc("今日のワークアウト", "Today's Workout") }
     static var exercises: String { loc("種目", "Exercises") }
     static var sets: String { loc("セット", "Sets") }

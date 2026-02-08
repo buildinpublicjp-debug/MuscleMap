@@ -43,4 +43,11 @@ struct HapticManager {
         let generator = UINotificationFeedbackGenerator()
         generator.notificationOccurred(.error)
     }
+
+    /// 成功時（シェア完了など）
+    static func success() {
+        guard AppState.shared.isHapticEnabled else { return }
+        let generator = UINotificationFeedbackGenerator()
+        generator.notificationOccurred(.success)
+    }
 }

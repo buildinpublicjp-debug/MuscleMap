@@ -30,6 +30,11 @@ targets:
       properties:
         com.apple.security.application-groups:
           - group.com.buildinpublic.MuscleMap
+    info:
+      path: MuscleMap/Info.plist
+      properties:
+        LSApplicationQueriesSchemes:
+          - instagram-stories
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.buildinpublic.MuscleMap

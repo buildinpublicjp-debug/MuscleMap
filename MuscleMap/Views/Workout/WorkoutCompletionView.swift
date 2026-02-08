@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 // MARK: - ワークアウト完了画面
 
@@ -7,9 +8,16 @@ struct WorkoutCompletionView: View {
     let onDismiss: () -> Void
 
     @State private var showingShareSheet = false
+    @State private var showingShareOptions = false
     @State private var renderedImage: UIImage?
 
     private var localization: LocalizationManager { LocalizationManager.shared }
+
+    /// Instagramがインストールされているか
+    private var isInstagramAvailable: Bool {
+        guard let url = URL(string: "instagram-stories://share") else { return false }
+        return UIApplication.shared.canOpenURL(url)
+    }
 
     // MARK: - 統計計算
 
@@ -107,8 +115,22 @@ struct WorkoutCompletionView: View {
         }
         .sheet(isPresented: $showingShareSheet) {
             if let image = renderedImage {
-                ShareSheet(items: [image])
+                ShareSheet(items: [image]) {
+                    // シェア完了時のフィードバック
+                    HapticManager.success()
+                }
             }
+        }
+        .confirmationDialog(L10n.shareTo, isPresented: $showingShareOptions, titleVisibility: .visible) {
+            if isInstagramAvailable {
+                Button(L10n.shareToInstagramStories) {
+                    shareToInstagramStories()
+                }
+            }
+            Button(L10n.shareToOtherApps) {
+                showingShareSheet = true
+            }
+            Button(L10n.cancel, role: .cancel) {}
         }
     }
 
@@ -211,7 +233,8 @@ struct WorkoutCompletionView: View {
         VStack(spacing: 12) {
             // シェアボタン
             Button {
-                renderAndShare()
+                prepareShareImage()
+                showingShareOptions = true
             } label: {
                 HStack {
                     Image(systemName: "square.and.arrow.up")
@@ -241,7 +264,7 @@ struct WorkoutCompletionView: View {
     // MARK: - シェア用画像生成
 
     @MainActor
-    private func renderAndShare() {
+    private func prepareShareImage() {
         let shareView = WorkoutShareCard(
             totalVolume: totalVolume,
             totalSets: totalSets,
@@ -257,7 +280,35 @@ struct WorkoutCompletionView: View {
 
         if let image = renderer.uiImage {
             renderedImage = image
-            showingShareSheet = true
+        }
+    }
+
+    // MARK: - Instagram Storiesにシェア
+
+    @MainActor
+    private func shareToInstagramStories() {
+        guard let image = renderedImage,
+              let imageData = image.pngData(),
+              let url = URL(string: "instagram-stories://share") else {
+            return
+        }
+
+        // ペーストボードに画像をセット
+        let pasteboardItems: [[String: Any]] = [[
+            "com.instagram.sharedSticker.backgroundImage": imageData
+        ]]
+
+        let pasteboardOptions: [UIPasteboard.OptionsKey: Any] = [
+            .expirationDate: Date().addingTimeInterval(60 * 5) // 5分で期限切れ
+        ]
+
+        UIPasteboard.general.setItems(pasteboardItems, options: pasteboardOptions)
+
+        // Instagram Storiesを開く
+        UIApplication.shared.open(url) { success in
+            if success {
+                HapticManager.success()
+            }
         }
     }
 
@@ -307,80 +358,101 @@ private struct WorkoutShareCard: View {
     let muscleMapping: [String: Int]
 
     var body: some View {
-        VStack(spacing: 16) {
-            // ヘッダー
-            HStack {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("MuscleMap")
-                        .font(.title2.bold())
-                        .foregroundStyle(Color.mmAccentPrimary)
-                    Text(date.formatted(date: .abbreviated, time: .omitted))
-                        .font(.subheadline)
-                        .foregroundStyle(Color.mmTextSecondary)
-                }
-                Spacer()
-                Image(systemName: "figure.strengthtraining.traditional")
-                    .font(.title)
-                    .foregroundStyle(Color.mmAccentPrimary)
-            }
-            .padding(.horizontal, 24)
-            .padding(.top, 24)
+        VStack(spacing: 0) {
+            // 上部グラデーションアクセント
+            LinearGradient(
+                colors: [Color.mmAccentPrimary, Color.mmAccentSecondary],
+                startPoint: .leading,
+                endPoint: .trailing
+            )
+            .frame(height: 4)
 
-            // 筋肉マップ
-            ShareMuscleMapView(muscleMapping: muscleMapping)
-                .padding(.vertical, 8)
-
-            // 統計
-            HStack(spacing: 12) {
-                ShareStatItem(value: formatVolume(totalVolume), label: L10n.volume)
-                ShareStatItem(value: "\(exerciseCount)", label: L10n.exercises)
-                ShareStatItem(value: "\(totalSets)", label: L10n.sets)
-                ShareStatItem(value: duration, label: L10n.time)
-            }
-            .padding(.horizontal, 24)
-
-            // 種目リスト
-            VStack(alignment: .leading, spacing: 5) {
-                ForEach(exerciseNames.prefix(4), id: \.self) { name in
-                    HStack(spacing: 8) {
-                        Image(systemName: "checkmark.circle.fill")
-                            .font(.caption2)
+            VStack(spacing: 16) {
+                // ヘッダー
+                HStack {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("MuscleMap")
+                            .font(.title2.bold())
                             .foregroundStyle(Color.mmAccentPrimary)
-                        Text(name)
-                            .font(.caption)
-                            .foregroundStyle(Color.mmTextPrimary)
-                            .lineLimit(1)
-                        Spacer()
+                        Text(date.formatted(date: .abbreviated, time: .omitted))
+                            .font(.subheadline)
+                            .foregroundStyle(Color.mmTextSecondary)
+                    }
+                    Spacer()
+                    Image(systemName: "figure.strengthtraining.traditional")
+                        .font(.title)
+                        .foregroundStyle(Color.mmAccentPrimary)
+                }
+                .padding(.horizontal, 24)
+                .padding(.top, 20)
+
+                // 筋肉マップ（FRONT/BACKラベル付き）
+                VStack(spacing: 8) {
+                    HStack(spacing: 40) {
+                        Text("FRONT")
+                            .font(.caption2.bold())
+                            .foregroundStyle(Color.mmTextSecondary)
+                            .frame(width: 140)
+                        Text("BACK")
+                            .font(.caption2.bold())
+                            .foregroundStyle(Color.mmTextSecondary)
+                            .frame(width: 140)
+                    }
+                    ShareMuscleMapView(muscleMapping: muscleMapping)
+                }
+                .padding(.vertical, 4)
+
+                // 統計（より目立つスタイル）
+                HStack(spacing: 8) {
+                    ShareStatItemBold(value: formatVolume(totalVolume), unit: "kg", label: L10n.volume)
+                    ShareStatItemBold(value: "\(exerciseCount)", unit: nil, label: L10n.exercises)
+                    ShareStatItemBold(value: "\(totalSets)", unit: nil, label: L10n.sets)
+                    ShareStatItemBold(value: duration, unit: nil, label: L10n.time)
+                }
+                .padding(.horizontal, 20)
+
+                // 種目リスト
+                VStack(alignment: .leading, spacing: 5) {
+                    ForEach(exerciseNames.prefix(4), id: \.self) { name in
+                        HStack(spacing: 8) {
+                            Image(systemName: "checkmark.circle.fill")
+                                .font(.caption2)
+                                .foregroundStyle(Color.mmAccentPrimary)
+                            Text(name)
+                                .font(.caption)
+                                .foregroundStyle(Color.mmTextPrimary)
+                                .lineLimit(1)
+                            Spacer()
+                        }
+                    }
+                    if exerciseNames.count > 4 {
+                        Text(L10n.andMoreCount(exerciseNames.count - 4))
+                            .font(.caption2)
+                            .foregroundStyle(Color.mmTextSecondary)
                     }
                 }
-                if exerciseNames.count > 4 {
-                    Text(L10n.andMoreCount(exerciseNames.count - 4))
-                        .font(.caption2)
-                        .foregroundStyle(Color.mmTextSecondary)
+                .padding(.horizontal, 24)
+
+                Spacer()
+
+                // フッター（ブランディング）
+                VStack(spacing: 8) {
+                    Rectangle()
+                        .fill(Color.mmAccentPrimary.opacity(0.3))
+                        .frame(height: 1)
+                        .padding(.horizontal, 24)
+
+                    VStack(spacing: 2) {
+                        Text("MuscleMap")
+                            .font(.title3.bold())
+                            .foregroundStyle(Color.mmAccentPrimary)
+                        Text(L10n.shareTagline)
+                            .font(.caption)
+                            .foregroundStyle(Color.mmTextSecondary)
+                    }
+                    .padding(.vertical, 12)
                 }
             }
-            .padding(.horizontal, 24)
-
-            Spacer()
-
-            // フッター（ロゴ + キャッチコピー）
-            VStack(spacing: 4) {
-                Divider()
-                    .background(Color.mmAccentPrimary.opacity(0.3))
-                HStack {
-                    Text("MuscleMap")
-                        .font(.caption.bold())
-                        .foregroundStyle(Color.mmAccentPrimary)
-                    Text("—")
-                        .font(.caption2)
-                        .foregroundStyle(Color.mmTextSecondary)
-                    Text(L10n.shareTagline)
-                        .font(.caption2)
-                        .foregroundStyle(Color.mmTextSecondary)
-                }
-                .padding(.vertical, 12)
-            }
-            .padding(.horizontal, 24)
         }
         .frame(width: 390, height: 693)
         .background(Color.mmBgCard)
@@ -418,13 +490,46 @@ private struct ShareStatItem: View {
     }
 }
 
+// シェアカード用の目立つ統計アイテム
+private struct ShareStatItemBold: View {
+    let value: String
+    let unit: String?
+    let label: String
+
+    var body: some View {
+        VStack(spacing: 2) {
+            HStack(alignment: .lastTextBaseline, spacing: 1) {
+                Text(value)
+                    .font(.system(size: 22, weight: .bold))
+                    .foregroundStyle(Color.mmTextPrimary)
+                if let unit = unit {
+                    Text(unit)
+                        .font(.caption2)
+                        .foregroundStyle(Color.mmTextSecondary)
+                }
+            }
+            Text(label)
+                .font(.caption2)
+                .foregroundStyle(Color.mmTextSecondary)
+        }
+        .frame(maxWidth: .infinity)
+    }
+}
+
 // MARK: - シェアシート
 
 struct ShareSheet: UIViewControllerRepresentable {
     let items: [Any]
+    var onComplete: (() -> Void)?
 
     func makeUIViewController(context: Context) -> UIActivityViewController {
-        UIActivityViewController(activityItems: items, applicationActivities: nil)
+        let controller = UIActivityViewController(activityItems: items, applicationActivities: nil)
+        controller.completionWithItemsHandler = { _, completed, _, _ in
+            if completed {
+                onComplete?()
+            }
+        }
+        return controller
     }
 
     func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}

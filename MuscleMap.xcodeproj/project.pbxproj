@@ -123,6 +123,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		01B9922AAB0A364E8C3A34DB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		0A22EE6380A0F51DCD1534DD /* HomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModel.swift; sourceTree = "<group>"; };
 		0ADE5F383177BBB6409F7D61 /* RecentExercisesManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentExercisesManager.swift; sourceTree = "<group>"; };
 		0BE68481B1986B8E34B2034B /* ExerciseMuscleMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseMuscleMapView.swift; sourceTree = "<group>"; };
@@ -295,6 +296,7 @@
 			isa = PBXGroup;
 			children = (
 				6B6EB19ED49B4292C0046F8C /* Assets.xcassets */,
+				01B9922AAB0A364E8C3A34DB /* Info.plist */,
 				E23422ECC0DDBFE11BAD25A4 /* Localizable.xcstrings */,
 				95E15F4939F5CC681A1FD0D2 /* MuscleMap.entitlements */,
 				FC6E470EB9D3BBF1018E22A5 /* App */,
@@ -807,6 +809,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = MuscleMap/Info.plist;
 				INFOPLIST_GENERATION_ENABLED = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = MuscleMap;
 				INFOPLIST_KEY_REVENUECAT_API_KEY = appl_IzrrBdSVXMDZUylPnwcaJxvdlxb;
@@ -871,6 +874,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = MuscleMap/Info.plist;
 				INFOPLIST_GENERATION_ENABLED = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = MuscleMap;
 				INFOPLIST_KEY_REVENUECAT_API_KEY = appl_IzrrBdSVXMDZUylPnwcaJxvdlxb;
