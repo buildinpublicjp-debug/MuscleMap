@@ -16,6 +16,7 @@ struct HomeView: View {
     @State private var showingWeeklySummary = false
     @State private var showingBalanceDiagnosis = false
     @State private var showingMuscleJourney = false
+    @State private var showingHeatmap = false
 
     var body: some View {
         NavigationStack {
@@ -64,6 +65,12 @@ struct HomeView: View {
                             // マッスル・ジャーニーカード
                             MuscleJourneyCard {
                                 showingMuscleJourney = true
+                            }
+                            .padding(.horizontal)
+
+                            // トレーニングヒートマップカード
+                            TrainingHeatmapCard {
+                                showingHeatmap = true
                             }
                             .padding(.horizontal)
 
@@ -142,6 +149,9 @@ struct HomeView: View {
             .sheet(isPresented: $showingMuscleJourney) {
                 MuscleJourneyView()
             }
+            .sheet(isPresented: $showingHeatmap) {
+                MuscleHeatmapView()
+            }
         }
     }
 }
@@ -168,6 +178,47 @@ private struct MuscleJourneyCard: View {
                         .font(.subheadline.bold())
                         .foregroundStyle(Color.mmTextPrimary)
                     Text(L10n.journeyCardSubtitle)
+                        .font(.caption)
+                        .foregroundStyle(Color.mmTextSecondary)
+                }
+
+                Spacer()
+
+                // 矢印
+                Image(systemName: "chevron.right")
+                    .font(.caption)
+                    .foregroundStyle(Color.mmTextSecondary)
+            }
+            .padding()
+            .background(Color.mmBgCard)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+// MARK: - トレーニングヒートマップカード
+
+private struct TrainingHeatmapCard: View {
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 12) {
+                // アイコン
+                Image(systemName: "chart.bar.xaxis")
+                    .font(.title2)
+                    .foregroundStyle(Color.green)
+                    .frame(width: 44, height: 44)
+                    .background(Color.green.opacity(0.15))
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+
+                // テキスト
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(L10n.trainingHeatmap)
+                        .font(.subheadline.bold())
+                        .foregroundStyle(Color.mmTextPrimary)
+                    Text(L10n.heatmapCardSubtitle)
                         .font(.caption)
                         .foregroundStyle(Color.mmTextSecondary)
                 }

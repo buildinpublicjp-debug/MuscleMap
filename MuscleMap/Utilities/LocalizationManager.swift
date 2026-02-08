@@ -899,4 +899,19 @@ enum L10n {
         loc("\(muscle)を\(days)日間サボってます...誰か叱ってください 😭 \(hashtag)\n\(url)",
             "I've been neglecting my \(muscle) for \(days) days... someone scold me 😭 \(hashtag)\n\(url)")
     }
+
+    // MARK: - トレーニングヒートマップ
+    static var trainingHeatmap: String { loc("トレーニングヒートマップ", "Training Heatmap") }
+    static var heatmapCardSubtitle: String { loc("GitHubの草のようにトレーニングを可視化", "Visualize training like GitHub contributions") }
+    static var less: String { loc("少ない", "Less") }
+    static var more: String { loc("多い", "More") }
+    static var trainingDaysLabel: String { loc("トレーニング日数", "Training Days") }
+    static var days: String { loc("日", "days") }
+    static var longestStreak: String { loc("最長連続", "Longest Streak") }
+    static var averagePerWeek: String { loc("週平均", "Weekly Average") }
+    static var timesPerWeek: String { loc("回/週", "times/week") }
+    static func heatmapShareText(_ trainingDays: Int, _ hashtag: String, _ url: String) -> String {
+        loc("\(trainingDays)日間トレーニングを積み重ねています！\(hashtag)\n\(url)",
+            "I've trained for \(trainingDays) days! \(hashtag)\n\(url)")
+    }
 }
