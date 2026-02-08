@@ -13,6 +13,7 @@ struct ExercisePickerView: View {
     @ObservedObject private var recentManager = RecentExercisesManager.shared
     @State private var searchText = ""
     @State private var muscleStates: [Muscle: MuscleStimulation] = [:]
+    @State private var previewExercise: ExerciseDefinition?
 
     var body: some View {
         NavigationStack {
@@ -43,6 +44,11 @@ struct ExercisePickerView: View {
             .onAppear {
                 viewModel.load()
                 loadMuscleStates()
+            }
+            .sheet(item: $previewExercise) { exercise in
+                ExercisePreviewSheet(exercise: exercise) {
+                    onSelect(exercise)
+                }
             }
         }
     }
@@ -127,13 +133,29 @@ struct ExercisePickerView: View {
             FavoritesEmptyState()
         } else {
             List(viewModel.filteredExercises) { exercise in
-                Button {
-                    onSelect(exercise)
-                } label: {
-                    EnhancedExerciseRow(
-                        exercise: exercise,
-                        muscleStates: muscleStates
-                    )
+                HStack(spacing: 0) {
+                    // メイン行（タップで種目選択）
+                    Button {
+                        onSelect(exercise)
+                    } label: {
+                        EnhancedExerciseRow(
+                            exercise: exercise,
+                            muscleStates: muscleStates,
+                            showChevron: false
+                        )
+                    }
+
+                    // 情報ボタン（タップでプレビュー表示）
+                    Button {
+                        HapticManager.lightTap()
+                        previewExercise = exercise
+                    } label: {
+                        Image(systemName: "info.circle")
+                            .font(.title3)
+                            .foregroundStyle(Color.mmAccentSecondary)
+                            .frame(width: 44, height: 44)
+                    }
+                    .buttonStyle(.plain)
                 }
                 .listRowBackground(Color.mmBgSecondary)
             }
@@ -255,6 +277,7 @@ struct ExerciseRow: View {
 struct EnhancedExerciseRow: View {
     let exercise: ExerciseDefinition
     let muscleStates: [Muscle: MuscleStimulation]
+    var showChevron: Bool = true
     private var localization: LocalizationManager { LocalizationManager.shared }
 
     private var compatibility: ExerciseCompatibility {
@@ -325,9 +348,11 @@ struct EnhancedExerciseRow: View {
 
             Spacer()
 
-            Image(systemName: "chevron.right")
-                .font(.caption)
-                .foregroundStyle(Color.mmTextSecondary)
+            if showChevron {
+                Image(systemName: "chevron.right")
+                    .font(.caption)
+                    .foregroundStyle(Color.mmTextSecondary)
+            }
         }
         .padding(.vertical, 6)
     }

@@ -923,4 +923,12 @@ enum L10n {
     static var balanceDiagnosisDescription: String { loc("部位ごとの刺激バランスをチェック", "Check stimulation balance by muscle group") }
     static var startFirstWorkout: String { loc("最初のワークアウトを記録しよう！", "Start Your First Workout!") }
     static var firstWorkoutHint: String { loc("トレーニングを記録すると、ここに統計が表示されます", "Record a workout to see your stats here") }
+
+    // MARK: - 種目プレビュー
+    static var exerciseInfo: String { loc("種目情報", "Exercise Info") }
+    static var primaryTarget: String { loc("メインターゲット", "Primary Target") }
+    static var secondaryTarget: String { loc("サブターゲット", "Secondary Target") }
+    static var watchFormVideo: String { loc("フォームを動画で確認", "Watch Form Video") }
+    static var openInYouTube: String { loc("YouTubeで開く", "Open in YouTube") }
+    static var addThisExercise: String { loc("この種目を追加", "Add This Exercise") }
 }
