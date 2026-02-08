@@ -12,6 +12,7 @@ struct HomeView: View {
     @State private var showDemo = false
     @State private var showingPaywall = false
     @State private var showingMilestone = false
+    @State private var showingWeeklySummary = false
 
     var body: some View {
         NavigationStack {
@@ -21,11 +22,16 @@ struct HomeView: View {
                 if let vm = viewModel {
                     ScrollView {
                         VStack(spacing: 24) {
-                            // 週間ストリークバッジ
-                            WeeklyStreakBadge(
-                                weeks: streakViewModel.currentStreak,
-                                isCurrentWeekCompleted: streakViewModel.isCurrentWeekCompleted
-                            )
+                            // 週間ストリークバッジ（タップで週間サマリーへ）
+                            Button {
+                                showingWeeklySummary = true
+                            } label: {
+                                WeeklyStreakBadge(
+                                    weeks: streakViewModel.currentStreak,
+                                    isCurrentWeekCompleted: streakViewModel.isCurrentWeekCompleted
+                                )
+                            }
+                            .buttonStyle(.plain)
 
                             // 筋肉マップ
                             MuscleMapView(
@@ -111,6 +117,9 @@ struct HomeView: View {
                         showingMilestone = false
                     }
                 }
+            }
+            .sheet(isPresented: $showingWeeklySummary) {
+                WeeklySummaryView()
             }
         }
     }

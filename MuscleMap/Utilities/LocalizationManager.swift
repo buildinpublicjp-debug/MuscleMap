@@ -717,4 +717,27 @@ enum L10n {
     static func conquestCount(_ count: Int) -> String {
         loc("累計\(count)回達成", "\(count) times achieved")
     }
+
+    // MARK: - 週間サマリー
+    static var weeklySummary: String { loc("週間サマリー", "Weekly Summary") }
+    static var weeklyReport: String { loc("WEEKLY REPORT", "WEEKLY REPORT") }
+    static var workouts: String { loc("ワークアウト", "Workouts") }
+    static var volumeKg: String { loc("ボリューム(kg)", "Volume (kg)") }
+    static var mvpMuscle: String { loc("今週のMVP", "This Week's MVP") }
+    static func stimulatedTimes(_ count: Int) -> String {
+        loc("\(count)回刺激", "\(count) times stimulated")
+    }
+    static var noWorkoutThisWeekYet: String { loc("今週はまだワークアウトなし", "No workouts this week yet") }
+    static var lazyMuscle: String { loc("来週の宿題", "Next Week's Homework") }
+    static var noLazyMuscles: String { loc("サボりなし！", "No slacking!") }
+    static var nextWeekHomework: String { loc("来週こそ鍛えよう", "Train these next week") }
+    static var currentStreak: String { loc("継続記録", "Current Streak") }
+    static var noStreakYet: String { loc("まだ記録なし", "No streak yet") }
+    static var noSlacking: String { loc("完璧！", "Perfect!") }
+    static var homework: String { loc("宿題", "Homework") }
+    static var weeksStreak: String { loc("週連続", "weeks") }
+    static func weeklySummaryShareText(_ range: String, _ hashtag: String, _ url: String) -> String {
+        loc("今週のトレーニング結果 \(range)\n\(hashtag)\n\(url)",
+            "This week's training results \(range)\n\(hashtag)\n\(url)")
+    }
 }
