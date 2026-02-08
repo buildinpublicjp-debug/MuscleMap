@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import CoreImage.CIFilterBuiltins
 
 // MARK: - ホーム画面
 
@@ -67,8 +68,8 @@ struct HomeView: View {
                             .padding(.horizontal)
 
                             // 未刺激警告
-                            if !vm.neglectedMuscles.isEmpty {
-                                NeglectedWarningView(muscles: vm.neglectedMuscles)
+                            if !vm.neglectedMuscleInfos.isEmpty {
+                                NeglectedWarningView(muscleInfos: vm.neglectedMuscleInfos)
                                     .padding(.horizontal)
                             }
 
@@ -442,10 +443,12 @@ private struct MilestoneShareCard: View {
 // MARK: - 未刺激警告
 
 private struct NeglectedWarningView: View {
-    let muscles: [Muscle]
+    let muscleInfos: [NeglectedMuscleInfo]
+    @State private var showingShareSheet = false
+    @State private var renderedImage: UIImage?
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 6) {
                 Image(systemName: "exclamationmark.triangle.fill")
                     .foregroundStyle(Color.mmMuscleNeglected)
@@ -455,8 +458,8 @@ private struct NeglectedWarningView: View {
             }
 
             FlowLayout(spacing: 8) {
-                ForEach(muscles) { muscle in
-                    Text(muscle.localizedName)
+                ForEach(muscleInfos) { info in
+                    Text(info.muscle.localizedName)
                         .font(.caption)
                         .padding(.horizontal, 10)
                         .padding(.vertical, 4)
@@ -465,10 +468,232 @@ private struct NeglectedWarningView: View {
                         .clipShape(Capsule())
                 }
             }
+
+            // シェアボタン
+            Button {
+                prepareShareImage()
+                showingShareSheet = true
+            } label: {
+                HStack(spacing: 4) {
+                    Image(systemName: "square.and.arrow.up")
+                    Text(L10n.shareShame)
+                }
+                .font(.caption.bold())
+                .foregroundStyle(Color.mmMuscleNeglected)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 6)
+                .background(Color.mmMuscleNeglected.opacity(0.15))
+                .clipShape(Capsule())
+            }
         }
         .padding()
         .background(Color.mmBgCard)
         .clipShape(RoundedRectangle(cornerRadius: 12))
+        .sheet(isPresented: $showingShareSheet) {
+            if let image = renderedImage {
+                let worstMuscle = muscleInfos.first
+                let shareText = L10n.neglectedShareText(
+                    worstMuscle?.muscle.localizedName ?? "",
+                    worstMuscle?.daysSinceStimulation ?? 0,
+                    AppConstants.shareHashtag,
+                    AppConstants.appStoreURL
+                )
+                ShareSheet(items: [shareText, image], onComplete: nil)
+            }
+        }
+    }
+
+    @MainActor
+    private func prepareShareImage() {
+        let shareCard = NeglectedShareCard(muscleInfos: muscleInfos)
+        let renderer = ImageRenderer(content: shareCard)
+        renderer.scale = 3.0
+
+        if let image = renderer.uiImage {
+            renderedImage = image
+        }
+    }
+}
+
+// MARK: - 未刺激シェアカード
+
+private struct NeglectedShareCard: View {
+    let muscleInfos: [NeglectedMuscleInfo]
+
+    private var neglectedMuscleMapping: [String: Int] {
+        var mapping: [String: Int] = [:]
+        // 未刺激の筋肉を紫表示用に設定（-1は特別な値として紫を示す）
+        for info in muscleInfos {
+            mapping[info.muscle.rawValue] = -1
+        }
+        return mapping
+    }
+
+    var body: some View {
+        VStack(spacing: 0) {
+            // 上部グラデーション（紫系）
+            LinearGradient(
+                colors: [Color.mmMuscleNeglected, Color.mmMuscleNeglected.opacity(0.5)],
+                startPoint: .leading,
+                endPoint: .trailing
+            )
+            .frame(height: 4)
+
+            VStack(spacing: 16) {
+                // タイトル
+                VStack(spacing: 4) {
+                    Text("NEGLECTED ALERT ⚠️")
+                        .font(.caption.bold())
+                        .foregroundStyle(Color.mmMuscleNeglected)
+                    Text(L10n.neglectedShareSubtitle)
+                        .font(.title3.bold())
+                        .foregroundStyle(Color.mmTextPrimary)
+                }
+                .padding(.top, 20)
+
+                // 筋肉マップ（紫ハイライト）
+                NeglectedMuscleMapView(neglectedMuscles: Set(muscleInfos.map { $0.muscle }))
+                    .frame(height: 200)
+
+                // 未刺激部位リスト
+                VStack(alignment: .leading, spacing: 8) {
+                    ForEach(muscleInfos.prefix(5)) { info in
+                        HStack {
+                            Circle()
+                                .fill(Color.mmMuscleNeglected)
+                                .frame(width: 8, height: 8)
+                            Text(info.muscle.localizedName)
+                                .font(.caption.bold())
+                                .foregroundStyle(Color.mmTextPrimary)
+                            Spacer()
+                            Text(L10n.daysNeglected(info.daysSinceStimulation))
+                                .font(.caption)
+                                .foregroundStyle(Color.mmMuscleNeglected)
+                        }
+                    }
+                    if muscleInfos.count > 5 {
+                        Text(L10n.andMoreCount(muscleInfos.count - 5))
+                            .font(.caption)
+                            .foregroundStyle(Color.mmTextSecondary)
+                    }
+                }
+                .padding(.horizontal, 24)
+
+                Spacer()
+
+                // フッター
+                VStack(spacing: 8) {
+                    Rectangle()
+                        .fill(Color.mmMuscleNeglected.opacity(0.3))
+                        .frame(height: 1)
+                        .padding(.horizontal, 24)
+
+                    HStack(spacing: 16) {
+                        // QRコード
+                        if let qrImage = generateQRCode(from: AppConstants.appStoreURL) {
+                            Image(uiImage: qrImage)
+                                .interpolation(.none)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 40, height: 40)
+                                .background(Color.white)
+                                .clipShape(RoundedRectangle(cornerRadius: 4))
+                        }
+
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(AppConstants.appName)
+                                .font(.headline.bold())
+                                .foregroundStyle(Color.mmAccentPrimary)
+                            Text(L10n.shareTagline)
+                                .font(.caption2)
+                                .foregroundStyle(Color.mmTextSecondary)
+                        }
+
+                        Spacer()
+                    }
+                    .padding(.horizontal, 24)
+                    .padding(.vertical, 12)
+                }
+            }
+        }
+        .frame(width: 350, height: 520)
+        .background(
+            LinearGradient(
+                colors: [Color.mmBgCard, Color.mmBgPrimary],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+        )
+        .clipShape(RoundedRectangle(cornerRadius: 24))
+        .overlay {
+            RoundedRectangle(cornerRadius: 24)
+                .stroke(Color.mmMuscleNeglected.opacity(0.3), lineWidth: 2)
+        }
+        .padding(8)
+        .background(Color.mmBgPrimary)
+    }
+
+    private func generateQRCode(from string: String) -> UIImage? {
+        let context = CIContext()
+        let filter = CIFilter.qrCodeGenerator()
+
+        guard let data = string.data(using: .utf8) else { return nil }
+        filter.setValue(data, forKey: "inputMessage")
+        filter.setValue("M", forKey: "inputCorrectionLevel")
+
+        guard let outputImage = filter.outputImage else { return nil }
+
+        let transform = CGAffineTransform(scaleX: 10, y: 10)
+        let scaledImage = outputImage.transformed(by: transform)
+
+        guard let cgImage = context.createCGImage(scaledImage, from: scaledImage.extent) else { return nil }
+        return UIImage(cgImage: cgImage)
+    }
+}
+
+// MARK: - 未刺激筋肉マップビュー（紫ハイライト）
+
+private struct NeglectedMuscleMapView: View {
+    let neglectedMuscles: Set<Muscle>
+
+    var body: some View {
+        HStack(spacing: 20) {
+            // 前面
+            Canvas { context, size in
+                let rect = CGRect(origin: .zero, size: size)
+                for entry in MusclePathData.frontMuscles {
+                    let path = entry.path(rect)
+                    let isNeglected = neglectedMuscles.contains(entry.muscle)
+                    let color = isNeglected ? Color.mmMuscleNeglected : Color.mmBgSecondary
+
+                    context.fill(path, with: .color(color))
+                    context.stroke(
+                        path,
+                        with: .color(Color.mmMuscleBorder.opacity(0.4)),
+                        lineWidth: 0.5
+                    )
+                }
+            }
+            .frame(width: 100, height: 180)
+
+            // 背面
+            Canvas { context, size in
+                let rect = CGRect(origin: .zero, size: size)
+                for entry in MusclePathData.backMuscles {
+                    let path = entry.path(rect)
+                    let isNeglected = neglectedMuscles.contains(entry.muscle)
+                    let color = isNeglected ? Color.mmMuscleNeglected : Color.mmBgSecondary
+
+                    context.fill(path, with: .color(color))
+                    context.stroke(
+                        path,
+                        with: .color(Color.mmMuscleBorder.opacity(0.4)),
+                        lineWidth: 0.5
+                    )
+                }
+            }
+            .frame(width: 100, height: 180)
+        }
     }
 }
 

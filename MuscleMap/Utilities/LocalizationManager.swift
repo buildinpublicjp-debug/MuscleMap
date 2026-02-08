@@ -888,4 +888,15 @@ enum L10n {
         loc("私の筋肉の成長記録！\(progress)\n\(hashtag)\n\(url)",
             "My muscle growth journey! \(progress)\n\(hashtag)\n\(url)")
     }
+
+    // MARK: - 未刺激警告シェア
+    static var shareShame: String { loc("恥を晒す 😱", "Share my shame 😱") }
+    static var neglectedShareSubtitle: String { loc("サボってます...", "Slacking off...") }
+    static func daysNeglected(_ days: Int) -> String {
+        loc("\(days)日放置", "\(days) days neglected")
+    }
+    static func neglectedShareText(_ muscle: String, _ days: Int, _ hashtag: String, _ url: String) -> String {
+        loc("\(muscle)を\(days)日間サボってます...誰か叱ってください 😭 \(hashtag)\n\(url)",
+            "I've been neglecting my \(muscle) for \(days) days... someone scold me 😭 \(hashtag)\n\(url)")
+    }
 }

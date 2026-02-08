@@ -2,6 +2,15 @@ import Foundation
 import SwiftData
 import WidgetKit
 
+// MARK: - 未刺激筋肉情報
+
+struct NeglectedMuscleInfo: Identifiable {
+    let muscle: Muscle
+    let daysSinceStimulation: Int
+
+    var id: String { muscle.rawValue }
+}
+
 // MARK: - ホーム画面ViewModel
 
 @MainActor
@@ -14,6 +23,8 @@ class HomeViewModel {
     var muscleStates: [Muscle: MuscleVisualState] = [:]
     // 未刺激警告がある筋肉
     var neglectedMuscles: [Muscle] = []
+    // 未刺激筋肉の詳細情報（日数付き）
+    var neglectedMuscleInfos: [NeglectedMuscleInfo] = []
     // 進行中のセッション
     var activeSession: WorkoutSession?
     // 継続日数
@@ -29,6 +40,7 @@ class HomeViewModel {
         let stimulations = muscleStateRepo.fetchLatestStimulations()
         var states: [Muscle: MuscleVisualState] = [:]
         var neglected: [Muscle] = []
+        var neglectedInfos: [NeglectedMuscleInfo] = []
 
         for muscle in Muscle.allCases {
             if let stim = stimulations[muscle] {
@@ -39,10 +51,13 @@ class HomeViewModel {
                 )
                 states[muscle] = status.visualState
 
+                let days = RecoveryCalculator.daysSinceStimulation(stim.stimulationDate)
                 if case .neglected = status {
                     neglected.append(muscle)
+                    neglectedInfos.append(NeglectedMuscleInfo(muscle: muscle, daysSinceStimulation: days))
                 } else if case .neglectedSevere = status {
                     neglected.append(muscle)
+                    neglectedInfos.append(NeglectedMuscleInfo(muscle: muscle, daysSinceStimulation: days))
                 }
             } else {
                 // 刺激記録なし → inactive
@@ -50,8 +65,12 @@ class HomeViewModel {
             }
         }
 
+        // 日数の多い順にソート
+        neglectedInfos.sort { $0.daysSinceStimulation > $1.daysSinceStimulation }
+
         muscleStates = states
         neglectedMuscles = neglected
+        neglectedMuscleInfos = neglectedInfos
 
         // ウィジェットデータを更新
         updateWidgetData(stimulations: stimulations)
