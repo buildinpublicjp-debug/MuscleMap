@@ -63,6 +63,7 @@
 		AAB9858A19C0D58352C5E60F /* WorkoutViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8FDEA0217A7E8F2762673A4 /* WorkoutViewModel.swift */; };
 		BB7774B470B91F871DD62476 /* WidgetSharedTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9098D5CD12276919C4D8E50B /* WidgetSharedTypes.swift */; };
 		BE9FEC7AFF416CF1792DB135 /* ExercisePickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B00A2B4E368518F02FC2485 /* ExercisePickerView.swift */; };
+		C762DF40CA0388CE66D842AB /* AppConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4349BDA9F7FC0FA6D523B7D5 /* AppConstants.swift */; };
 		C90393E91463DBAE83F8D5FD /* MuscleMapWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40B76814AFC279384771D580 /* MuscleMapWidget.swift */; };
 		CA8491AB2483B03927D67CF3 /* MarkdownParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49396567D4FF1B05B7DCE11D /* MarkdownParserTests.swift */; };
 		CC474F18B50B9B48AC070A90 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6B6EB19ED49B4292C0046F8C /* Assets.xcassets */; };
@@ -151,6 +152,7 @@
 		3FF01BFBC85F09E4AC3175C4 /* MuscleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MuscleTests.swift; sourceTree = "<group>"; };
 		40B76814AFC279384771D580 /* MuscleMapWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MuscleMapWidget.swift; sourceTree = "<group>"; };
 		42E895571E0BA26A49A45A33 /* MuscleMap.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = MuscleMap.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		4349BDA9F7FC0FA6D523B7D5 /* AppConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppConstants.swift; sourceTree = "<group>"; };
 		467C46635C48C115FF535C56 /* Muscle3DView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Muscle3DView.swift; sourceTree = "<group>"; };
 		49396567D4FF1B05B7DCE11D /* MarkdownParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownParserTests.swift; sourceTree = "<group>"; };
 		4A2D2051DFF145ACA4958AD6 /* PersonalizationPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonalizationPage.swift; sourceTree = "<group>"; };
@@ -234,6 +236,7 @@
 		15F8D0AA37758AD356C9BEAB /* Utilities */ = {
 			isa = PBXGroup;
 			children = (
+				4349BDA9F7FC0FA6D523B7D5 /* AppConstants.swift */,
 				8F49E2D1636F7157790215EB /* ColorCalculator.swift */,
 				E6E1885660D1D955C88C496C /* ColorExtensions.swift */,
 				281B4D0C19399AF581AAEC00 /* CSVParser.swift */,
@@ -610,6 +613,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C762DF40CA0388CE66D842AB /* AppConstants.swift in Sources */,
 				F9B8AE0A0B4948E3C4E7D136 /* AppState.swift in Sources */,
 				1AA94FF61CC9E6126D159F9F /* CSVImportView.swift in Sources */,
 				38FF8BD300356973DD5C3165 /* CSVParser.swift in Sources */,

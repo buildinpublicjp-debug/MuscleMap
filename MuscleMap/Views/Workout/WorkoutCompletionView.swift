@@ -1,5 +1,6 @@
 import SwiftUI
 import UIKit
+import CoreImage.CIFilterBuiltins
 
 // MARK: - ワークアウト完了画面
 
@@ -77,6 +78,17 @@ struct WorkoutCompletionView: View {
         exercisesDone.map { localization.currentLanguage == .japanese ? $0.nameJA : $0.nameEN }
     }
 
+    /// シェア用テキスト
+    private var shareText: String {
+        let volumeStr = formatVolume(totalVolume)
+        return """
+        今日のワークアウト完了 💪
+        \(uniqueExercises)種目 | \(totalSets)セット | \(volumeStr)kg
+        \(AppConstants.shareHashtag)
+        \(AppConstants.appStoreURL)
+        """
+    }
+
     var body: some View {
         ZStack {
             Color.mmBgPrimary.ignoresSafeArea()
@@ -115,7 +127,7 @@ struct WorkoutCompletionView: View {
         }
         .sheet(isPresented: $showingShareSheet) {
             if let image = renderedImage {
-                ShareSheet(items: [image]) {
+                ShareSheet(items: [shareText, image]) {
                     // シェア完了時のフィードバック
                     HapticManager.success()
                 }
@@ -435,21 +447,41 @@ private struct WorkoutShareCard: View {
 
                 Spacer()
 
-                // フッター（ブランディング）
+                // フッター（ブランディング + QRコード）
                 VStack(spacing: 8) {
                     Rectangle()
                         .fill(Color.mmAccentPrimary.opacity(0.3))
                         .frame(height: 1)
                         .padding(.horizontal, 24)
 
-                    VStack(spacing: 2) {
-                        Text("MuscleMap")
-                            .font(.title3.bold())
-                            .foregroundStyle(Color.mmAccentPrimary)
-                        Text(L10n.shareTagline)
-                            .font(.caption)
-                            .foregroundStyle(Color.mmTextSecondary)
+                    HStack(spacing: 16) {
+                        // QRコード
+                        if let qrImage = generateQRCode(from: AppConstants.appStoreURL) {
+                            Image(uiImage: qrImage)
+                                .interpolation(.none)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 50, height: 50)
+                                .background(Color.white)
+                                .clipShape(RoundedRectangle(cornerRadius: 4))
+                        }
+
+                        // ブランディングテキスト
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(AppConstants.appName)
+                                .font(.headline.bold())
+                                .foregroundStyle(Color.mmAccentPrimary)
+                            Text(L10n.shareTagline)
+                                .font(.caption2)
+                                .foregroundStyle(Color.mmTextSecondary)
+                            Text(L10n.downloadApp)
+                                .font(.caption2)
+                                .foregroundStyle(Color.mmTextSecondary.opacity(0.7))
+                        }
+
+                        Spacer()
                     }
+                    .padding(.horizontal, 24)
                     .padding(.vertical, 12)
                 }
             }
@@ -470,6 +502,25 @@ private struct WorkoutShareCard: View {
             return String(format: "%.1fk", volume / 1000)
         }
         return String(format: "%.0f", volume)
+    }
+
+    /// QRコード生成
+    private func generateQRCode(from string: String) -> UIImage? {
+        let context = CIContext()
+        let filter = CIFilter.qrCodeGenerator()
+
+        guard let data = string.data(using: .utf8) else { return nil }
+        filter.setValue(data, forKey: "inputMessage")
+        filter.setValue("M", forKey: "inputCorrectionLevel") // Medium error correction
+
+        guard let outputImage = filter.outputImage else { return nil }
+
+        // 高解像度にスケールアップ
+        let transform = CGAffineTransform(scaleX: 10, y: 10)
+        let scaledImage = outputImage.transformed(by: transform)
+
+        guard let cgImage = context.createCGImage(scaledImage, from: scaledImage.extent) else { return nil }
+        return UIImage(cgImage: cgImage)
     }
 }
 
