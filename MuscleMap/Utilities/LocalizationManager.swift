@@ -153,7 +153,25 @@ enum L10n {
     static func dayStreak(_ days: Int) -> String {
         loc("\(days)日連続", "\(days) day streak")
     }
+    static func weekStreak(_ weeks: Int) -> String {
+        loc("\(weeks)週連続", "\(weeks) week streak")
+    }
+    static var noWorkoutThisWeek: String { loc("今週まだです", "Not yet this week") }
     static var neglectedMuscles: String { loc("未刺激の部位", "Neglected Muscles") }
+
+    // MARK: - ストリークマイルストーン
+    static var milestone1Month: String { loc("1ヶ月継続！", "1 Month Streak!") }
+    static var milestone3Months: String { loc("3ヶ月継続！", "3 Months Streak!") }
+    static var milestone6Months: String { loc("半年継続！", "6 Months Streak!") }
+    static var milestone1Year: String { loc("1年継続！", "1 Year Streak!") }
+    static func streakCongrats(_ weeks: Int) -> String {
+        loc("\(weeks)週間トレーニングを続けています", "You've been training for \(weeks) weeks")
+    }
+    static var shareAchievement: String { loc("達成をシェア", "Share Achievement") }
+    static func milestoneShareText(_ weeks: Int, _ hashtag: String, _ url: String) -> String {
+        loc("\(weeks)週連続でトレーニング継続中！\(hashtag)\n\(url)",
+            "\(weeks) weeks of consistent training! \(hashtag)\n\(url)")
+    }
 
     // 凡例
     static var highLoad: String { loc("高負荷", "High Load") }
