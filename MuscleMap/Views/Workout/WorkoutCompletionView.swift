@@ -1,7 +1,6 @@
 import SwiftUI
 import SwiftData
 import UIKit
-import CoreImage.CIFilterBuiltins
 
 // MARK: - ワークアウト完了画面
 
@@ -16,6 +15,8 @@ struct WorkoutCompletionView: View {
     @State private var showingFullBodyConquest = false
     @State private var currentMuscleStates: [Muscle: MuscleVisualState] = [:]
     @State private var isFirstConquest = false
+    @State private var showingFirstWorkoutPaywall = false
+    @State private var appState = AppState.shared
 
     private var localization: LocalizationManager { LocalizationManager.shared }
 
@@ -151,6 +152,7 @@ struct WorkoutCompletionView: View {
         }
         .onAppear {
             checkFullBodyConquest()
+            markFirstWorkoutCompleted()
         }
         .fullScreenCover(isPresented: $showingFullBodyConquest) {
             FullBodyConquestView(
@@ -160,6 +162,26 @@ struct WorkoutCompletionView: View {
                     showingFullBodyConquest = false
                 }
             )
+        }
+        .sheet(isPresented: $showingFirstWorkoutPaywall) {
+            PaywallView()
+        }
+    }
+
+    // MARK: - 初回ワークアウト完了処理
+
+    private func markFirstWorkoutCompleted() {
+        // 初回ワークアウト完了をマーク
+        if !appState.hasCompletedFirstWorkout {
+            appState.hasCompletedFirstWorkout = true
+
+            // 初回のみペイウォールを表示（少し遅延させてUXを改善）
+            if !appState.hasSeenFirstWorkoutPaywall && !PurchaseManager.shared.isProUser {
+                appState.hasSeenFirstWorkoutPaywall = true
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                    showingFirstWorkoutPaywall = true
+                }
+            }
         }
     }
 
@@ -534,7 +556,7 @@ private struct WorkoutShareCard: View {
 
                     HStack(spacing: 16) {
                         // QRコード
-                        if let qrImage = generateQRCode(from: AppConstants.appStoreURL) {
+                        if let qrImage = QRCodeGenerator.generate(from: AppConstants.appStoreURL) {
                             Image(uiImage: qrImage)
                                 .interpolation(.none)
                                 .resizable()
@@ -582,24 +604,6 @@ private struct WorkoutShareCard: View {
         return String(format: "%.0f", volume)
     }
 
-    /// QRコード生成
-    private func generateQRCode(from string: String) -> UIImage? {
-        let context = CIContext()
-        let filter = CIFilter.qrCodeGenerator()
-
-        guard let data = string.data(using: .utf8) else { return nil }
-        filter.setValue(data, forKey: "inputMessage")
-        filter.setValue("M", forKey: "inputCorrectionLevel") // Medium error correction
-
-        guard let outputImage = filter.outputImage else { return nil }
-
-        // 高解像度にスケールアップ
-        let transform = CGAffineTransform(scaleX: 10, y: 10)
-        let scaledImage = outputImage.transformed(by: transform)
-
-        guard let cgImage = context.createCGImage(scaledImage, from: scaledImage.extent) else { return nil }
-        return UIImage(cgImage: cgImage)
-    }
 }
 
 private struct ShareStatItem: View {

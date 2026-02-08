@@ -1,6 +1,5 @@
 import SwiftUI
 import SwiftData
-import CoreImage.CIFilterBuiltins
 
 // MARK: - マッスルヒートマップ画面
 
@@ -273,27 +272,18 @@ private struct HeatmapShareCard: View {
     let viewModel: MuscleHeatmapViewModel
 
     var body: some View {
-        VStack(spacing: 0) {
-            // 上部グラデーション
-            LinearGradient(
-                colors: [Color.mmAccentPrimary, Color.mmAccentSecondary],
-                startPoint: .leading,
-                endPoint: .trailing
+        ShareCardContainer(
+            width: 350,
+            height: 480,
+            accentColor: .mmAccentPrimary,
+            secondaryColor: .mmAccentSecondary,
+            backgroundStyle: .gradient([Color.mmBgCard, Color.mmBgPrimary]),
+            header: ShareCardHeader(
+                title: "MY TRAINING HEATMAP",
+                subtitle: viewModel.periodRangeText
             )
-            .frame(height: 4)
-
+        ) {
             VStack(spacing: 16) {
-                // タイトル
-                VStack(spacing: 4) {
-                    Text("MY TRAINING HEATMAP")
-                        .font(.caption.bold())
-                        .foregroundStyle(Color.mmAccentPrimary)
-                    Text(viewModel.periodRangeText)
-                        .font(.caption)
-                        .foregroundStyle(Color.mmTextSecondary)
-                }
-                .padding(.top, 20)
-
                 // ミニヒートマップ
                 miniHeatmap
                     .padding(.horizontal, 16)
@@ -317,87 +307,13 @@ private struct HeatmapShareCard: View {
 
                 // 統計
                 HStack(spacing: 24) {
-                    VStack(spacing: 2) {
-                        Text("\(viewModel.stats.trainingDays)")
-                            .font(.title2.bold())
-                            .foregroundStyle(Color.mmAccentPrimary)
-                        Text(L10n.trainingDaysLabel)
-                            .font(.caption2)
-                            .foregroundStyle(Color.mmTextSecondary)
-                    }
-
-                    VStack(spacing: 2) {
-                        Text("\(viewModel.stats.longestStreak)")
-                            .font(.title2.bold())
-                            .foregroundStyle(Color.mmAccentPrimary)
-                        Text(L10n.longestStreak)
-                            .font(.caption2)
-                            .foregroundStyle(Color.mmTextSecondary)
-                    }
-
-                    VStack(spacing: 2) {
-                        Text(String(format: "%.1f", viewModel.stats.averagePerWeek))
-                            .font(.title2.bold())
-                            .foregroundStyle(Color.mmAccentPrimary)
-                        Text(L10n.timesPerWeek)
-                            .font(.caption2)
-                            .foregroundStyle(Color.mmTextSecondary)
-                    }
+                    ShareCardStatItem("\(viewModel.stats.trainingDays)", label: L10n.trainingDaysLabel)
+                    ShareCardStatItem("\(viewModel.stats.longestStreak)", label: L10n.longestStreak)
+                    ShareCardStatItem(String(format: "%.1f", viewModel.stats.averagePerWeek), label: L10n.timesPerWeek)
                 }
                 .padding(.vertical, 8)
-
-                Spacer()
-
-                // フッター
-                VStack(spacing: 8) {
-                    Rectangle()
-                        .fill(Color.mmAccentPrimary.opacity(0.3))
-                        .frame(height: 1)
-                        .padding(.horizontal, 24)
-
-                    HStack(spacing: 16) {
-                        // QRコード
-                        if let qrImage = generateQRCode(from: AppConstants.appStoreURL) {
-                            Image(uiImage: qrImage)
-                                .interpolation(.none)
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 40, height: 40)
-                                .background(Color.white)
-                                .clipShape(RoundedRectangle(cornerRadius: 4))
-                        }
-
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(AppConstants.appName)
-                                .font(.headline.bold())
-                                .foregroundStyle(Color.mmAccentPrimary)
-                            Text(L10n.shareTagline)
-                                .font(.caption2)
-                                .foregroundStyle(Color.mmTextSecondary)
-                        }
-
-                        Spacer()
-                    }
-                    .padding(.horizontal, 24)
-                    .padding(.vertical, 12)
-                }
             }
         }
-        .frame(width: 350, height: 480)
-        .background(
-            LinearGradient(
-                colors: [Color.mmBgCard, Color.mmBgPrimary],
-                startPoint: .top,
-                endPoint: .bottom
-            )
-        )
-        .clipShape(RoundedRectangle(cornerRadius: 24))
-        .overlay {
-            RoundedRectangle(cornerRadius: 24)
-                .stroke(Color.mmAccentPrimary.opacity(0.3), lineWidth: 2)
-        }
-        .padding(8)
-        .background(Color.mmBgPrimary)
     }
 
     // MARK: - ミニヒートマップ
@@ -425,22 +341,6 @@ private struct HeatmapShareCard: View {
         .frame(height: 70)
     }
 
-    private func generateQRCode(from string: String) -> UIImage? {
-        let context = CIContext()
-        let filter = CIFilter.qrCodeGenerator()
-
-        guard let data = string.data(using: .utf8) else { return nil }
-        filter.setValue(data, forKey: "inputMessage")
-        filter.setValue("M", forKey: "inputCorrectionLevel")
-
-        guard let outputImage = filter.outputImage else { return nil }
-
-        let transform = CGAffineTransform(scaleX: 10, y: 10)
-        let scaledImage = outputImage.transformed(by: transform)
-
-        guard let cgImage = context.createCGImage(scaledImage, from: scaledImage.extent) else { return nil }
-        return UIImage(cgImage: cgImage)
-    }
 }
 
 #Preview {

@@ -49,7 +49,10 @@ class HistoryViewModel {
             sessions = allSessions
         } else {
             let calendar = Calendar.current
-            let limitDate = calendar.date(byAdding: .day, value: -Self.freeUserHistoryLimitDays, to: Date())!
+            guard let limitDate = calendar.date(byAdding: .day, value: -Self.freeUserHistoryLimitDays, to: Date()) else {
+                sessions = allSessions
+                return
+            }
             sessions = allSessions.filter { $0.startDate >= limitDate }
         }
 
@@ -68,7 +71,7 @@ class HistoryViewModel {
 
     private func calculateWeeklyStats() {
         let calendar = Calendar.current
-        let weekAgo = calendar.date(byAdding: .day, value: -7, to: Date())!
+        guard let weekAgo = calendar.date(byAdding: .day, value: -7, to: Date()) else { return }
         let weekSessions = sessions.filter { $0.startDate >= weekAgo }
 
         let totalSets = weekSessions.reduce(0) { $0 + $1.sets.count }
@@ -98,7 +101,7 @@ class HistoryViewModel {
 
     private func calculateMonthlyStats() {
         let calendar = Calendar.current
-        let monthAgo = calendar.date(byAdding: .month, value: -1, to: Date())!
+        guard let monthAgo = calendar.date(byAdding: .month, value: -1, to: Date()) else { return }
         let monthSessions = sessions.filter { $0.startDate >= monthAgo }
 
         let totalSets = monthSessions.reduce(0) { $0 + $1.sets.count }
@@ -121,7 +124,7 @@ class HistoryViewModel {
 
     private func calculateWeeklyGroupVolume() {
         let calendar = Calendar.current
-        let weekAgo = calendar.date(byAdding: .day, value: -7, to: Date())!
+        guard let weekAgo = calendar.date(byAdding: .day, value: -7, to: Date()) else { return }
         let weekSessions = sessions.filter { $0.startDate >= weekAgo }
 
         var volume: [MuscleGroup: Int] = [:]
@@ -197,9 +200,9 @@ class HistoryViewModel {
         var result: [DailyVolume] = []
 
         for dayOffset in (0..<14).reversed() {
-            let date = calendar.date(byAdding: .day, value: -dayOffset, to: Date())!
+            guard let date = calendar.date(byAdding: .day, value: -dayOffset, to: Date()) else { continue }
             let dayStart = calendar.startOfDay(for: date)
-            let dayEnd = calendar.date(byAdding: .day, value: 1, to: dayStart)!
+            guard let dayEnd = calendar.date(byAdding: .day, value: 1, to: dayStart) else { continue }
 
             let daySessions = sessions.filter {
                 $0.startDate >= dayStart && $0.startDate < dayEnd

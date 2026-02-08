@@ -242,7 +242,7 @@ class ImportDataConverter {
     private func hasExistingSession(on date: Date) -> Bool {
         let calendar = Calendar.current
         let dayStart = calendar.startOfDay(for: date)
-        let dayEnd = calendar.date(byAdding: .day, value: 1, to: dayStart)!
+        guard let dayEnd = calendar.date(byAdding: .day, value: 1, to: dayStart) else { return false }
 
         let descriptor = FetchDescriptor<WorkoutSession>(
             predicate: #Predicate {

@@ -1,7 +1,6 @@
 import SwiftUI
 import SwiftData
 import UIKit
-import CoreImage.CIFilterBuiltins
 
 // MARK: - 週間サマリー画面
 
@@ -307,27 +306,12 @@ private struct WeeklySummaryShareCard: View {
     let streakWeeks: Int
 
     var body: some View {
-        VStack(spacing: 0) {
-            // 上部グラデーション
-            LinearGradient(
-                colors: [Color.mmAccentPrimary, Color.mmAccentSecondary],
-                startPoint: .leading,
-                endPoint: .trailing
-            )
-            .frame(height: 4)
-
+        ShareCardContainer(
+            accentColor: .mmAccentPrimary,
+            secondaryColor: .mmAccentSecondary,
+            header: ShareCardHeader(title: "WEEKLY REPORT", subtitle: weekRange)
+        ) {
             VStack(spacing: 16) {
-                // ヘッダー
-                VStack(spacing: 4) {
-                    Text("WEEKLY REPORT")
-                        .font(.caption.bold())
-                        .foregroundStyle(Color.mmAccentPrimary)
-                    Text(weekRange)
-                        .font(.title3.bold())
-                        .foregroundStyle(Color.mmTextPrimary)
-                }
-                .padding(.top, 20)
-
                 // 筋肉マップ
                 VStack(spacing: 4) {
                     HStack(spacing: 40) {
@@ -345,9 +329,9 @@ private struct WeeklySummaryShareCard: View {
 
                 // 統計
                 HStack(spacing: 8) {
-                    ShareStatItemBold(value: "\(workoutCount)", unit: nil, label: L10n.workouts)
-                    ShareStatItemBold(value: "\(totalSets)", unit: nil, label: L10n.sets)
-                    ShareStatItemBold(value: totalVolume, unit: "kg", label: L10n.volume)
+                    ShareCardStatItem("\(workoutCount)", label: L10n.workouts)
+                    ShareCardStatItem("\(totalSets)", label: L10n.sets)
+                    ShareCardStatItem(totalVolume, unit: "kg", label: L10n.volume)
                 }
                 .padding(.horizontal, 20)
 
@@ -405,70 +389,8 @@ private struct WeeklySummaryShareCard: View {
                     .frame(maxWidth: .infinity)
                 }
                 .padding(.horizontal, 24)
-
-                Spacer()
-
-                // フッター
-                VStack(spacing: 8) {
-                    Rectangle()
-                        .fill(Color.mmAccentPrimary.opacity(0.3))
-                        .frame(height: 1)
-                        .padding(.horizontal, 24)
-
-                    HStack(spacing: 16) {
-                        // QRコード
-                        if let qrImage = generateQRCode(from: AppConstants.appStoreURL) {
-                            Image(uiImage: qrImage)
-                                .interpolation(.none)
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 50, height: 50)
-                                .background(Color.white)
-                                .clipShape(RoundedRectangle(cornerRadius: 4))
-                        }
-
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(AppConstants.appName)
-                                .font(.headline.bold())
-                                .foregroundStyle(Color.mmAccentPrimary)
-                            Text(L10n.shareTagline)
-                                .font(.caption2)
-                                .foregroundStyle(Color.mmTextSecondary)
-                        }
-
-                        Spacer()
-                    }
-                    .padding(.horizontal, 24)
-                    .padding(.vertical, 12)
-                }
             }
         }
-        .frame(width: 390, height: 693)
-        .background(Color.mmBgCard)
-        .clipShape(RoundedRectangle(cornerRadius: 24))
-        .overlay {
-            RoundedRectangle(cornerRadius: 24)
-                .stroke(Color.mmAccentPrimary.opacity(0.3), lineWidth: 2)
-        }
-        .padding(8)
-        .background(Color.mmBgPrimary)
-    }
-
-    private func generateQRCode(from string: String) -> UIImage? {
-        let context = CIContext()
-        let filter = CIFilter.qrCodeGenerator()
-
-        guard let data = string.data(using: .utf8) else { return nil }
-        filter.setValue(data, forKey: "inputMessage")
-        filter.setValue("M", forKey: "inputCorrectionLevel")
-
-        guard let outputImage = filter.outputImage else { return nil }
-
-        let transform = CGAffineTransform(scaleX: 10, y: 10)
-        let scaledImage = outputImage.transformed(by: transform)
-
-        guard let cgImage = context.createCGImage(scaledImage, from: scaledImage.extent) else { return nil }
-        return UIImage(cgImage: cgImage)
     }
 }
 

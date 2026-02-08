@@ -105,7 +105,8 @@ class HomeViewModel {
         for day in sortedDays {
             if day == checkDate {
                 streak += 1
-                checkDate = calendar.date(byAdding: .day, value: -1, to: checkDate)!
+                guard let newDate = calendar.date(byAdding: .day, value: -1, to: checkDate) else { break }
+                checkDate = newDate
             } else if day < checkDate {
                 break
             }

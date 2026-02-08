@@ -4,7 +4,6 @@ import SwiftUI
 
 struct ContentView: View {
     @State private var appState = AppState.shared
-    @State private var showPostOnboardingPaywall = false
 
     var body: some View {
         if appState.hasCompletedOnboarding {
@@ -12,21 +11,12 @@ struct ContentView: View {
                 .task {
                     await PurchaseManager.shared.checkPremiumStatus()
                 }
-                .sheet(isPresented: $showPostOnboardingPaywall) {
-                    PaywallView()
-                }
         } else {
             OnboardingView {
                 withAnimation {
                     appState.hasCompletedOnboarding = true
                 }
-                // 初回のみPaywallを表示
-                if !appState.hasSeenPostOnboardingPaywall {
-                    appState.hasSeenPostOnboardingPaywall = true
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                        showPostOnboardingPaywall = true
-                    }
-                }
+                // ペイウォールは初回ワークアウト完了後に表示（WorkoutCompletionViewで処理）
             }
         }
     }

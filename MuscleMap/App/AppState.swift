@@ -31,9 +31,19 @@ class AppState {
         didSet { UserDefaults.standard.set(hasSeenDemoAnimation, forKey: "hasSeenDemoAnimation") }
     }
 
-    // オンボーディング後のPaywall表示済みフラグ
+    // オンボーディング後のPaywall表示済みフラグ（レガシー、現在は初回ワークアウト後に表示）
     var hasSeenPostOnboardingPaywall: Bool = UserDefaults.standard.bool(forKey: "hasSeenPostOnboardingPaywall") {
         didSet { UserDefaults.standard.set(hasSeenPostOnboardingPaywall, forKey: "hasSeenPostOnboardingPaywall") }
+    }
+
+    // 初回ワークアウト完了フラグ
+    var hasCompletedFirstWorkout: Bool = UserDefaults.standard.bool(forKey: "hasCompletedFirstWorkout") {
+        didSet { UserDefaults.standard.set(hasCompletedFirstWorkout, forKey: "hasCompletedFirstWorkout") }
+    }
+
+    // 初回ワークアウト後のPaywall表示済みフラグ
+    var hasSeenFirstWorkoutPaywall: Bool = UserDefaults.standard.bool(forKey: "hasSeenFirstWorkoutPaywall") {
+        didSet { UserDefaults.standard.set(hasSeenFirstWorkoutPaywall, forKey: "hasSeenFirstWorkoutPaywall") }
     }
 
     // 全身制覇達成フラグ
