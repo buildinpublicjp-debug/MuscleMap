@@ -703,4 +703,18 @@ enum L10n {
         default: return jaKey
         }
     }
+
+    // MARK: - 全身制覇アチーブメント
+    static var fullBodyConquestTitle: String { loc("全身制覇達成！", "Full Body Conquered!") }
+    static var fullBodyConquestSubtitle: String { loc("全21部位を刺激しました", "All 21 muscles stimulated") }
+    static var allMusclesStimulated: String { loc("全21部位を刺激中", "All 21 muscles active") }
+    static var fullBodyConquestAchieved: String { loc("全身制覇達成", "Full Body Conquered") }
+    static func fullBodyConquestShareText(_ hashtag: String, _ url: String) -> String {
+        loc("全21部位を刺激して全身制覇達成！\(hashtag)\n\(url)",
+            "Full body conquered! All 21 muscles stimulated! \(hashtag)\n\(url)")
+    }
+    static var fullBodyConquestAgain: String { loc("再び全身制覇！", "Full Body Again!") }
+    static func conquestCount(_ count: Int) -> String {
+        loc("累計\(count)回達成", "\(count) times achieved")
+    }
 }

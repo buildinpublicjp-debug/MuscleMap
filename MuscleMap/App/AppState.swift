@@ -36,6 +36,22 @@ class AppState {
         didSet { UserDefaults.standard.set(hasSeenPostOnboardingPaywall, forKey: "hasSeenPostOnboardingPaywall") }
     }
 
+    // 全身制覇達成フラグ
+    var hasAchievedFullBodyConquest: Bool = UserDefaults.standard.bool(forKey: "hasAchievedFullBodyConquest") {
+        didSet { UserDefaults.standard.set(hasAchievedFullBodyConquest, forKey: "hasAchievedFullBodyConquest") }
+    }
+
+    // 初回全身制覇達成日
+    var fullBodyConquestDate: Date? {
+        get { UserDefaults.standard.object(forKey: "fullBodyConquestDate") as? Date }
+        set { UserDefaults.standard.set(newValue, forKey: "fullBodyConquestDate") }
+    }
+
+    // 全身制覇達成回数
+    var fullBodyConquestCount: Int = UserDefaults.standard.integer(forKey: "fullBodyConquestCount") {
+        didSet { UserDefaults.standard.set(fullBodyConquestCount, forKey: "fullBodyConquestCount") }
+    }
+
     // アプリバージョン
     var appVersion: String {
         Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0"

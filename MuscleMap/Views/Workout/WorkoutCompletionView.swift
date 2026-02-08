@@ -1,16 +1,21 @@
 import SwiftUI
+import SwiftData
 import UIKit
 import CoreImage.CIFilterBuiltins
 
 // MARK: - ワークアウト完了画面
 
 struct WorkoutCompletionView: View {
+    @Environment(\.modelContext) private var modelContext
     let session: WorkoutSession
     let onDismiss: () -> Void
 
     @State private var showingShareSheet = false
     @State private var showingShareOptions = false
     @State private var renderedImage: UIImage?
+    @State private var showingFullBodyConquest = false
+    @State private var currentMuscleStates: [Muscle: MuscleVisualState] = [:]
+    @State private var isFirstConquest = false
 
     private var localization: LocalizationManager { LocalizationManager.shared }
 
@@ -143,6 +148,79 @@ struct WorkoutCompletionView: View {
                 showingShareSheet = true
             }
             Button(L10n.cancel, role: .cancel) {}
+        }
+        .onAppear {
+            checkFullBodyConquest()
+        }
+        .fullScreenCover(isPresented: $showingFullBodyConquest) {
+            FullBodyConquestView(
+                muscleStates: currentMuscleStates,
+                onShare: {},
+                onDismiss: {
+                    showingFullBodyConquest = false
+                }
+            )
+        }
+    }
+
+    // MARK: - 全身制覇チェック
+
+    private func checkFullBodyConquest() {
+        let repo = MuscleStateRepository(modelContext: modelContext)
+        let stimulations = repo.fetchLatestStimulations()
+
+        // 全筋肉の状態を取得
+        var states: [Muscle: MuscleVisualState] = [:]
+        var stimulatedCount = 0
+
+        for muscle in Muscle.allCases {
+            if let stim = stimulations[muscle] {
+                let status = RecoveryCalculator.recoveryStatus(
+                    stimulationDate: stim.stimulationDate,
+                    muscle: muscle,
+                    totalSets: stim.totalSets
+                )
+
+                switch status {
+                case .recovering(let progress):
+                    states[muscle] = .recovering(progress: progress)
+                    stimulatedCount += 1
+                case .fullyRecovered:
+                    // 完全回復は刺激済み扱い（過去に刺激された）
+                    states[muscle] = .inactive
+                    stimulatedCount += 1
+                case .neglected, .neglectedSevere:
+                    // 7日以上未刺激も過去に刺激されたことがある
+                    states[muscle] = .neglected(fast: status == .neglectedSevere)
+                    stimulatedCount += 1
+                }
+            } else {
+                // 一度も刺激されていない
+                states[muscle] = .inactive
+            }
+        }
+
+        currentMuscleStates = states
+
+        // 全21部位が刺激済み（stimulationsに記録がある）= 全身制覇
+        let allMusclesStimulated = stimulations.count == Muscle.allCases.count
+
+        if allMusclesStimulated {
+            isFirstConquest = !AppState.shared.hasAchievedFullBodyConquest
+
+            // 達成記録を更新
+            if isFirstConquest {
+                AppState.shared.hasAchievedFullBodyConquest = true
+                AppState.shared.fullBodyConquestDate = Date()
+            }
+            AppState.shared.fullBodyConquestCount += 1
+
+            // 初回は祝福モーダル、2回目以降は表示しない（バナーは別途実装可能）
+            if isFirstConquest {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    showingFullBodyConquest = true
+                }
+            }
         }
     }
 

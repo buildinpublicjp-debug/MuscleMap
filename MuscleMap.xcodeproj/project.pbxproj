@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		00D49623654116AB9FE4C319 /* FullBodyConquestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5CA9BCBE472E0D49D5B3C1C /* FullBodyConquestView.swift */; };
 		024F3C0E7D4784540FDC0A96 /* RevenueCat in Frameworks */ = {isa = PBXBuildFile; productRef = 3862F42F7A39E887709274F3 /* RevenueCat */; };
 		0295F7D904CD868EA1F249C2 /* ExerciseListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B4AB74E97EA7F7334488DC7 /* ExerciseListViewModel.swift */; };
 		04C8146BDF8BDDBEEDE88C32 /* PlanCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71788B066F3B9879835D8D19 /* PlanCardView.swift */; };
@@ -208,6 +209,7 @@
 		F18EDC80AAE83E2C194E8272 /* InteractiveDemoPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InteractiveDemoPage.swift; sourceTree = "<group>"; };
 		F2D7479246A925801D0814DB /* OnboardingV2View.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingV2View.swift; sourceTree = "<group>"; };
 		F3934B8352158E0A999B4FCC /* MuscleStateRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MuscleStateRepository.swift; sourceTree = "<group>"; };
+		F5CA9BCBE472E0D49D5B3C1C /* FullBodyConquestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FullBodyConquestView.swift; sourceTree = "<group>"; };
 		F80DF745A0945BC8BB21285C /* exercises.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = exercises.json; sourceTree = "<group>"; };
 		FAB37FE4EBE611ED62380668 /* PaywallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaywallView.swift; sourceTree = "<group>"; };
 		FB8FC4CC2B04B8D324DD7100 /* ModelLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelLoader.swift; sourceTree = "<group>"; };
@@ -437,6 +439,7 @@
 			isa = PBXGroup;
 			children = (
 				2B00A2B4E368518F02FC2485 /* ExercisePickerView.swift */,
+				F5CA9BCBE472E0D49D5B3C1C /* FullBodyConquestView.swift */,
 				7ED8FA057402DBBDA14A597B /* ShareMuscleMapView.swift */,
 				36BBC597C6AB7DF2637FFB6A /* WorkoutCompletionView.swift */,
 				BC330D37D4C1CA40ADDDCA05 /* WorkoutStartView.swift */,
@@ -635,6 +638,7 @@
 				BE9FEC7AFF416CF1792DB135 /* ExercisePickerView.swift in Sources */,
 				F773B96F66C58CFF0131552A /* ExerciseStore.swift in Sources */,
 				199105C9D79242C784284B51 /* FavoritesManager.swift in Sources */,
+				00D49623654116AB9FE4C319 /* FullBodyConquestView.swift in Sources */,
 				ED19BBE40B6D532A92D3D9CC /* HapticManager.swift in Sources */,
 				ED0627432704DF5E78FB158D /* HistoryView.swift in Sources */,
 				210539EBA932CACE31A3BC98 /* HistoryViewModel.swift in Sources */,
