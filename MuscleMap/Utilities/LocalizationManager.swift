@@ -740,4 +740,152 @@ enum L10n {
         loc("今週のトレーニング結果 \(range)\n\(hashtag)\n\(url)",
             "This week's training results \(range)\n\(hashtag)\n\(url)")
     }
+
+    // MARK: - 筋肉バランス診断
+    static var muscleBalanceDiagnosis: String { loc("筋肉バランス診断", "Muscle Balance Diagnosis") }
+    static var diagnosisCardSubtitle: String { loc("あなたのトレーニングタイプを分析", "Analyze your training type") }
+    static var diagnosisDescription: String {
+        loc("過去のワークアウトデータを分析し、あなたのトレーニングタイプと筋肉バランスを診断します",
+            "Analyze your workout history to diagnose your training type and muscle balance")
+    }
+    static var startDiagnosis: String { loc("診断を開始", "Start Diagnosis") }
+    static var analyzing: String { loc("分析中...", "Analyzing...") }
+    static var analyzingSubtitle: String { loc("ワークアウト履歴を解析しています", "Processing your workout history") }
+    static var diagnosisResult: String { loc("診断結果", "Diagnosis Result") }
+    static var balanceAnalysis: String { loc("バランス分析", "Balance Analysis") }
+    static var improvementAdvice: String { loc("改善アドバイス", "Improvement Advice") }
+    static var shareResult: String { loc("結果をシェア", "Share Result") }
+    static var retryDiagnosis: String { loc("もう一度診断する", "Run Again") }
+    static var needMoreData: String { loc("より正確な診断のため、あと少しトレーニングデータが必要です", "More workout data needed for accurate diagnosis") }
+    static var currentSessions: String { loc("現在のセッション数", "Current Sessions") }
+    static var balanced: String { loc("バランス良好", "Balanced") }
+    static func sessionsAnalyzed(_ count: Int) -> String {
+        loc("\(count)セッション分析", "\(count) sessions analyzed")
+    }
+    static var sessionsAnalyzed: String { loc("セッション分析済み", "sessions analyzed") }
+    static func balanceDiagnosisShareText(_ typeName: String, _ hashtag: String, _ url: String) -> String {
+        loc("私のトレーナータイプは「\(typeName)」でした！\(hashtag)\n\(url)",
+            "My trainer type is \"\(typeName)\"! \(hashtag)\n\(url)")
+    }
+
+    // バランス軸
+    static var upperBody: String { loc("上半身", "Upper Body") }
+    static var lowerBody: String { loc("下半身", "Lower Body") }
+    static var frontSide: String { loc("前面", "Front") }
+    static var backSide: String { loc("背面", "Back") }
+    static var pushType: String { loc("プッシュ", "Push") }
+    static var pullType: String { loc("プル", "Pull") }
+    static var coreType: String { loc("体幹", "Core") }
+    static var limbType: String { loc("四肢", "Limbs") }
+
+    // トレーナータイプ名
+    static var typeMirrorMuscle: String { loc("ミラーマッスル型", "Mirror Muscle Type") }
+    static var typeBalanceMaster: String { loc("バランスマスター型", "Balance Master Type") }
+    static var typeLegDayNeverSkip: String { loc("レッグデイ・ネバースキップ型", "Leg Day Never Skip Type") }
+    static var typeBackAttack: String { loc("バックアタック型", "Back Attack Type") }
+    static var typeCoreMaster: String { loc("体幹番長型", "Core Master Type") }
+    static var typeArmDayEveryDay: String { loc("アームデイ・エブリデイ型", "Arm Day Every Day Type") }
+    static var typePushCrazy: String { loc("プッシュ狂い型", "Push Crazy Type") }
+    static var typeFullBodyConqueror: String { loc("全身制覇型", "Full Body Conqueror Type") }
+    static var typeDataInsufficient: String { loc("データ不足", "Data Insufficient") }
+
+    // トレーナータイプ説明
+    static var descMirrorMuscle: String {
+        loc("胸・肩・腕など、鏡に映る筋肉を重点的に鍛えるタイプです",
+            "You focus on muscles visible in the mirror: chest, shoulders, and arms")
+    }
+    static var descBalanceMaster: String {
+        loc("全身をバランスよく鍛えられています。理想的なトレーニングです！",
+            "You train your entire body in perfect balance. Ideal training!")
+    }
+    static var descLegDayNeverSkip: String {
+        loc("下半身を重点的に鍛えるタイプです。脚の日を欠かしません！",
+            "You emphasize lower body training. Never skip leg day!")
+    }
+    static var descBackAttack: String {
+        loc("背中を重点的に鍛えるタイプです。引く動作が得意です",
+            "You focus on back training. Great at pulling movements")
+    }
+    static var descCoreMaster: String {
+        loc("体幹を重点的に鍛えるタイプです。安定性を重視しています",
+            "You emphasize core training. Stability is your priority")
+    }
+    static var descArmDayEveryDay: String {
+        loc("腕を重点的に鍛えるタイプです。二頭・三頭が大好き！",
+            "You focus on arm training. Love those biceps and triceps!")
+    }
+    static var descPushCrazy: String {
+        loc("押す動作を重点的に行うタイプです。プレス系が得意です",
+            "You focus on pushing movements. Great at pressing exercises")
+    }
+    static var descFullBodyConqueror: String {
+        loc("全身をまんべんなく高頻度で鍛えています。素晴らしい！",
+            "You train your entire body frequently and evenly. Amazing!")
+    }
+    static var descDataInsufficient: String {
+        loc("診断には10セッション以上のデータが必要です",
+            "At least 10 sessions needed for diagnosis")
+    }
+
+    // トレーナータイプアドバイス
+    static var adviceMirrorMuscle: String {
+        loc("背中と下半身のトレーニングを増やすと、より バランスの取れた体を作れます。特にデッドリフトやスクワットがおすすめです。",
+            "Add more back and leg training for a balanced physique. Deadlifts and squats are highly recommended.")
+    }
+    static var adviceBalanceMaster: String {
+        loc("このまま続けてください！次のステップとして、弱点部位をさらに強化するか、新しい種目に挑戦してみましょう。",
+            "Keep it up! Next step: strengthen any weak points or try new exercises.")
+    }
+    static var adviceLegDayNeverSkip: String {
+        loc("素晴らしい下半身の意識です！上半身、特に背中や胸のトレーニングも取り入れると、さらにバランスが良くなります。",
+            "Great lower body focus! Add upper body work, especially back and chest, for better balance.")
+    }
+    static var adviceBackAttack: String {
+        loc("背中の発達は素晴らしい！胸やプッシュ系の種目を追加して、前後のバランスを整えましょう。",
+            "Great back development! Add chest and push exercises to balance front and back.")
+    }
+    static var adviceCoreMaster: String {
+        loc("体幹の強さは全ての基礎です。四肢（腕・脚）のトレーニングも増やして、パワーを活かしましょう。",
+            "Core strength is fundamental. Add more limb training to utilize that power.")
+    }
+    static var adviceArmDayEveryDay: String {
+        loc("腕の成長には大筋群も重要です。胸・背中・脚のコンパウンド種目を増やすと、腕もさらに発達します。",
+            "Big muscles help arm growth. Add compound exercises for chest, back, and legs.")
+    }
+    static var advicePushCrazy: String {
+        loc("プル系（引く動作）を増やしましょう。ローイングやプルダウンで背中を鍛えると、姿勢も良くなります。",
+            "Add more pulling movements. Rows and pulldowns will improve your posture too.")
+    }
+    static var adviceFullBodyConqueror: String {
+        loc("完璧なバランスです！さらなる成長のために、各部位のボリュームを徐々に増やしていきましょう。",
+            "Perfect balance! For more growth, gradually increase volume for each muscle group.")
+    }
+    static var adviceDataInsufficient: String {
+        loc("もう少しトレーニングを記録してから診断をお試しください。毎回のワークアウトを記録することで、より正確な分析が可能になります。",
+            "Record more workouts before trying again. Logging every session enables more accurate analysis.")
+    }
+
+    // MARK: - マッスル・ジャーニー
+    static var muscleJourney: String { loc("マッスル・ジャーニー", "Muscle Journey") }
+    static var journeyCardSubtitle: String { loc("過去と現在を比較", "Compare past and present") }
+    static var oneMonthAgo: String { loc("1ヶ月前", "1 month ago") }
+    static var threeMonthsAgo: String { loc("3ヶ月前", "3 months ago") }
+    static var sixMonthsAgo: String { loc("6ヶ月前", "6 months ago") }
+    static var oneYearAgo: String { loc("1年前", "1 year ago") }
+    static var customDate: String { loc("カスタム", "Custom") }
+    static var now: String { loc("現在", "Now") }
+    static var selectDate: String { loc("日付を選択", "Select Date") }
+    static var changeSummary: String { loc("変化のサマリー", "Change Summary") }
+    static var newlyStimulated: String { loc("新たに刺激した部位", "Newly Stimulated") }
+    static var mostImproved: String { loc("最も改善した部位", "Most Improved") }
+    static var stillNeglected: String { loc("まだ未刺激の部位", "Still Neglected") }
+    static func countParts(_ count: Int) -> String {
+        loc("\(count)部位", "\(count) parts")
+    }
+    static var noDataForPeriod: String { loc("この期間のデータがありません", "No data for this period") }
+    static var newMuscles: String { loc("新規部位", "New Muscles") }
+    static func journeyShareText(_ progress: String, _ hashtag: String, _ url: String) -> String {
+        loc("私の筋肉の成長記録！\(progress)\n\(hashtag)\n\(url)",
+            "My muscle growth journey! \(progress)\n\(hashtag)\n\(url)")
+    }
 }

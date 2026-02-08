@@ -13,6 +13,8 @@ struct HomeView: View {
     @State private var showingPaywall = false
     @State private var showingMilestone = false
     @State private var showingWeeklySummary = false
+    @State private var showingBalanceDiagnosis = false
+    @State private var showingMuscleJourney = false
 
     var body: some View {
         NavigationStack {
@@ -51,6 +53,18 @@ struct HomeView: View {
                                 }
                                 .padding(.horizontal)
                             }
+
+                            // 筋肉バランス診断カード
+                            BalanceDiagnosisCard {
+                                showingBalanceDiagnosis = true
+                            }
+                            .padding(.horizontal)
+
+                            // マッスル・ジャーニーカード
+                            MuscleJourneyCard {
+                                showingMuscleJourney = true
+                            }
+                            .padding(.horizontal)
 
                             // 未刺激警告
                             if !vm.neglectedMuscles.isEmpty {
@@ -121,7 +135,95 @@ struct HomeView: View {
             .sheet(isPresented: $showingWeeklySummary) {
                 WeeklySummaryView()
             }
+            .sheet(isPresented: $showingBalanceDiagnosis) {
+                MuscleBalanceDiagnosisView()
+            }
+            .sheet(isPresented: $showingMuscleJourney) {
+                MuscleJourneyView()
+            }
         }
+    }
+}
+
+// MARK: - マッスル・ジャーニーカード
+
+private struct MuscleJourneyCard: View {
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 12) {
+                // アイコン
+                Image(systemName: "clock.arrow.2.circlepath")
+                    .font(.title2)
+                    .foregroundStyle(Color.mmAccentSecondary)
+                    .frame(width: 44, height: 44)
+                    .background(Color.mmAccentSecondary.opacity(0.15))
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+
+                // テキスト
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(L10n.muscleJourney)
+                        .font(.subheadline.bold())
+                        .foregroundStyle(Color.mmTextPrimary)
+                    Text(L10n.journeyCardSubtitle)
+                        .font(.caption)
+                        .foregroundStyle(Color.mmTextSecondary)
+                }
+
+                Spacer()
+
+                // 矢印
+                Image(systemName: "chevron.right")
+                    .font(.caption)
+                    .foregroundStyle(Color.mmTextSecondary)
+            }
+            .padding()
+            .background(Color.mmBgCard)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+// MARK: - 筋肉バランス診断カード
+
+private struct BalanceDiagnosisCard: View {
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 12) {
+                // アイコン
+                Image(systemName: "chart.bar.doc.horizontal")
+                    .font(.title2)
+                    .foregroundStyle(Color.mmAccentPrimary)
+                    .frame(width: 44, height: 44)
+                    .background(Color.mmAccentPrimary.opacity(0.15))
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+
+                // テキスト
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(L10n.muscleBalanceDiagnosis)
+                        .font(.subheadline.bold())
+                        .foregroundStyle(Color.mmTextPrimary)
+                    Text(L10n.diagnosisCardSubtitle)
+                        .font(.caption)
+                        .foregroundStyle(Color.mmTextSecondary)
+                }
+
+                Spacer()
+
+                // 矢印
+                Image(systemName: "chevron.right")
+                    .font(.caption)
+                    .foregroundStyle(Color.mmTextSecondary)
+            }
+            .padding()
+            .background(Color.mmBgCard)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+        }
+        .buttonStyle(.plain)
     }
 }
 
