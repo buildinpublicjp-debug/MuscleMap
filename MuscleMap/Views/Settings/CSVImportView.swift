@@ -149,7 +149,7 @@ struct CSVImportView: View {
                 VStack(alignment: .leading, spacing: 4) {
                     HStack(spacing: 12) {
                         Image(systemName: "exclamationmark.triangle")
-                            .foregroundStyle(Color.orange)
+                            .foregroundStyle(Color.mmMuscleModerate)
                         Text(L10n.unregisteredExercises)
                             .font(.subheadline)
                             .foregroundStyle(Color.mmTextPrimary)
@@ -165,14 +165,14 @@ struct CSVImportView: View {
             if preview.potentialDuplicates > 0 {
                 HStack(spacing: 12) {
                     Image(systemName: "doc.on.doc")
-                        .foregroundStyle(Color.orange)
+                        .foregroundStyle(Color.mmMuscleModerate)
                     Text(L10n.potentialDuplicates)
                         .font(.subheadline)
                         .foregroundStyle(Color.mmTextPrimary)
                     Spacer()
                     Text(L10n.itemCount(preview.potentialDuplicates))
                         .font(.subheadline)
-                        .foregroundStyle(Color.orange)
+                        .foregroundStyle(Color.mmMuscleModerate)
                 }
                 .listRowBackground(Color.mmBgCard)
             }
@@ -248,10 +248,10 @@ struct CSVImportView: View {
             Section {
                 HStack(spacing: 12) {
                     Image(systemName: "exclamationmark.triangle.fill")
-                        .foregroundStyle(Color.red)
+                        .foregroundStyle(Color.mmMuscleFatigued)
                     Text(message)
                         .font(.caption)
-                        .foregroundStyle(Color.red)
+                        .foregroundStyle(Color.mmMuscleFatigued)
                 }
                 .listRowBackground(Color.mmBgCard)
             } header: {

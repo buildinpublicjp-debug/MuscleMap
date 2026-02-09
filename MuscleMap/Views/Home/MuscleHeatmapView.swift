@@ -273,35 +273,37 @@ private struct HeatmapShareCard: View {
 
     var body: some View {
         ShareCardContainer(
-            width: 350,
-            height: 480,
+            width: 390,
+            height: 693,
             accentColor: .mmAccentPrimary,
             secondaryColor: .mmAccentSecondary,
             backgroundStyle: .gradient([Color.mmBgCard, Color.mmBgPrimary]),
             header: ShareCardHeader(
                 title: "MY TRAINING HEATMAP",
-                subtitle: viewModel.periodRangeText
+                subtitle: viewModel.periodRangeText,
+                date: Date()
             )
         ) {
-            VStack(spacing: 16) {
-                // ミニヒートマップ
+            VStack(spacing: 24) {
+                // ミニヒートマップ（大きく表示）
                 miniHeatmap
                     .padding(.horizontal, 16)
+                    .padding(.vertical, 16)
 
                 // 凡例
-                HStack(spacing: 4) {
+                HStack(spacing: 6) {
                     Text(L10n.less)
-                        .font(.system(size: 8))
+                        .font(.system(size: 10))
                         .foregroundStyle(Color.mmTextSecondary)
 
                     ForEach(0..<5, id: \.self) { level in
-                        RoundedRectangle(cornerRadius: 2)
+                        RoundedRectangle(cornerRadius: 3)
                             .fill(viewModel.cellColor(for: level))
-                            .frame(width: 10, height: 10)
+                            .frame(width: 14, height: 14)
                     }
 
                     Text(L10n.more)
-                        .font(.system(size: 8))
+                        .font(.system(size: 10))
                         .foregroundStyle(Color.mmTextSecondary)
                 }
 
@@ -311,7 +313,7 @@ private struct HeatmapShareCard: View {
                     ShareCardStatItem("\(viewModel.stats.longestStreak)", label: L10n.longestStreak)
                     ShareCardStatItem(String(format: "%.1f", viewModel.stats.averagePerWeek), label: L10n.timesPerWeek)
                 }
-                .padding(.vertical, 8)
+                .padding(.vertical, 16)
             }
         }
     }

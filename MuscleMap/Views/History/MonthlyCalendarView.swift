@@ -76,7 +76,7 @@ struct MonthlyCalendarView: View {
             ForEach(0..<7, id: \.self) { index in
                 Text(weekdaySymbols[index])
                     .font(.caption.bold())
-                    .foregroundStyle(index == 0 ? Color.red.opacity(0.7) : Color.mmTextSecondary)
+                    .foregroundStyle(index == 0 ? Color.mmMuscleFatigued.opacity(0.7) : Color.mmTextSecondary)
                     .frame(maxWidth: .infinity)
             }
         }

@@ -91,7 +91,6 @@
 		E7852DA6B42B8F29063D5287 /* WorkoutCompletionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36BBC597C6AB7DF2637FFB6A /* WorkoutCompletionView.swift */; };
 		E7CED2B85A00E807CE175FEC /* ValuePropositionPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80F2E4EB6EF5B3921B9BD78D /* ValuePropositionPage.swift */; };
 		E846C758C23553AB728831B0 /* SubscriptionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DFCD8E07A44A61C9FFC4430 /* SubscriptionManager.swift */; };
-		EC99129C25A51CCC484AA2BD /* QRCodeGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FB681BD025807C04B3C0271 /* QRCodeGenerator.swift */; };
 		ED0627432704DF5E78FB158D /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15716239666A23DA22D539B5 /* HistoryView.swift */; };
 		ED19BBE40B6D532A92D3D9CC /* HapticManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF5C6313CCA5C93FA15D5153 /* HapticManager.swift */; };
 		EF007E76A67290DF3E3AEFCE /* ExerciseStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F61D31BBAC55B5215E6A2B8 /* ExerciseStoreTests.swift */; };
@@ -184,7 +183,6 @@
 		6C301C32BCB89E6F1B5349A6 /* CSVImportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CSVImportView.swift; sourceTree = "<group>"; };
 		6DFCD8E07A44A61C9FFC4430 /* SubscriptionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionManager.swift; sourceTree = "<group>"; };
 		6EA3B4ECB770C8953CB55232 /* DayWorkoutDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DayWorkoutDetailView.swift; sourceTree = "<group>"; };
-		6FB681BD025807C04B3C0271 /* QRCodeGenerator.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = QRCodeGenerator.swift; sourceTree = "<group>"; };
 		71788B066F3B9879835D8D19 /* PlanCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanCardView.swift; sourceTree = "<group>"; };
 		738EF1DB3A50EA9C3CB89D68 /* MuscleDetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MuscleDetailViewModel.swift; sourceTree = "<group>"; };
 		7B4AB74E97EA7F7334488DC7 /* ExerciseListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseListViewModel.swift; sourceTree = "<group>"; };
@@ -282,7 +280,6 @@
 				97C1051BF6F39CF7C365258E /* RecoveryCalculator.swift */,
 				6DFCD8E07A44A61C9FFC4430 /* SubscriptionManager.swift */,
 				FF93A0C1642FBC94B4E365CC /* WidgetDataProvider.swift */,
-				6FB681BD025807C04B3C0271 /* QRCodeGenerator.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -729,7 +726,6 @@
 				AAB9858A19C0D58352C5E60F /* WorkoutViewModel.swift in Sources */,
 				D21FD3FDFD331CC0A10A5CB3 /* MuscleHeatmapViewModel.swift in Sources */,
 				11739DC556CBCA4562BAD403 /* MuscleHeatmapView.swift in Sources */,
-				EC99129C25A51CCC484AA2BD /* QRCodeGenerator.swift in Sources */,
 				046348E27D6561AD6B16D546 /* ShareCardTemplate.swift in Sources */,
 				D63174B864B2A72C33BE3764 /* AnalyticsMenuView.swift in Sources */,
 				28B6FC3EAD1419243F10B8DF /* ExercisePreviewSheet.swift in Sources */,

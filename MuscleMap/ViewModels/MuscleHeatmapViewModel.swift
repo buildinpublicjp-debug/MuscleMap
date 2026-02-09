@@ -267,10 +267,10 @@ class MuscleHeatmapViewModel {
     func cellColor(for level: Int) -> Color {
         switch level {
         case 0: return Color.mmBgSecondary
-        case 1: return Color.green.opacity(0.25)
-        case 2: return Color.green.opacity(0.5)
-        case 3: return Color.green.opacity(0.75)
-        case 4: return Color.green.opacity(1.0)
+        case 1: return Color.mmAccentPrimary.opacity(0.25)
+        case 2: return Color.mmAccentPrimary.opacity(0.5)
+        case 3: return Color.mmAccentPrimary.opacity(0.75)
+        case 4: return Color.mmAccentPrimary
         default: return Color.clear // 未来の日付
         }
     }

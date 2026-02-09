@@ -8,27 +8,36 @@ extension Color {
     static let mmBgSecondary = Color(hex: "#1E1E1E")
     static let mmBgCard = Color(hex: "#2A2A2A")
 
-    // テキスト
+    // テキスト（WCAG AA準拠）
     static let mmTextPrimary = Color.white
-    static let mmTextSecondary = Color(hex: "#9E9E9E")
+    static let mmTextSecondary = Color(hex: "#B0B0B0")    // コントラスト比 7.4:1
 
     // アクセント
     static let mmAccentPrimary = Color(hex: "#00FFB3")    // バイオグリーン
     static let mmAccentSecondary = Color(hex: "#00D4FF")  // 電光ブルー
 
-    // 筋肉状態（6段階 × 20%バンド）
-    static let mmMuscleCoral = Color(hex: "#FF6B6B")      // コーラル（回復0-20%）
-    static let mmMuscleAmber = Color(hex: "#FFA726")      // アンバー（20-40%）
-    static let mmMuscleYellow = Color(hex: "#FFEE58")     // イエロー（40-60%）
-    static let mmMuscleLime = Color(hex: "#C6FF00")       // ライム（60-80%）
-    static let mmMuscleBioGreen = Color(hex: "#00E676")   // バイオグリーン（80-100%）
-    static let mmMuscleInactive = Color(hex: "#3D3D42")   // 記録なし/完全回復（視認性向上）
-    static let mmMuscleBorder = Color(hex: "#505058")     // ボーダー色（コントラスト強化）
-    static let mmMuscleNeglected = Color(hex: "#9B59B6")  // 紫（7日+未刺激）
-    static let mmMuscleActiveBorder = Color(hex: "#FFFFFF") // アクティブ筋肉の輪郭
+    // ブランドカラー
+    static let mmBrandPurple = Color(hex: "#A020F0")
 
-    // 旧名の互換エイリアス
-    static let mmMuscleJustWorked = mmMuscleCoral
+    // 筋肉状態（3段階に簡素化）
+    static let mmMuscleFatigued = Color(hex: "#FF6B6B")   // 疲労（0-20%）= 赤
+    static let mmMuscleModerate = Color(hex: "#FFEE58")   // 中間（20-80%）= 黄
+    static let mmMuscleRecovered = Color(hex: "#00E676")  // 回復済み（80-100%）= 緑
+    static let mmMuscleInactive = Color(hex: "#3D3D42")   // 記録なし/完全回復
+    static let mmMuscleNeglected = Color(hex: "#B388D4")  // 紫（7日+未刺激）コントラスト比 5.3:1
+
+    // 境界線（WCAG準拠）
+    static let mmBorder = Color(hex: "#808080")           // コントラスト比 4.1:1
+    static let mmMuscleActiveBorder = Color(hex: "#FFFFFF")
+
+    // 旧名との互換エイリアス（移行期間中のみ）
+    static let mmMuscleCoral = mmMuscleFatigued
+    static let mmMuscleAmber = mmMuscleModerate
+    static let mmMuscleYellow = mmMuscleModerate
+    static let mmMuscleLime = mmMuscleRecovered
+    static let mmMuscleBioGreen = mmMuscleRecovered
+    static let mmMuscleBorder = mmBorder
+    static let mmMuscleJustWorked = mmMuscleFatigued
 }
 
 // MARK: - Hex初期化

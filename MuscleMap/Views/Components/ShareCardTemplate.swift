@@ -1,34 +1,57 @@
 import SwiftUI
 
-// MARK: - シェアカードヘッダー
+// MARK: - シェアカードヘッダー（統一デザイン）
 
 struct ShareCardHeader: View {
     let title: String
     let subtitle: String?
     let accentColor: Color
+    let date: Date
 
-    init(title: String, subtitle: String? = nil, accentColor: Color = .mmAccentPrimary) {
+    init(title: String, subtitle: String? = nil, accentColor: Color = .mmAccentPrimary, date: Date = Date()) {
         self.title = title
         self.subtitle = subtitle
         self.accentColor = accentColor
+        self.date = date
+    }
+
+    private var dateString: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy/MM/dd"
+        return formatter.string(from: date)
     }
 
     var body: some View {
-        VStack(spacing: 4) {
-            Text(title)
-                .font(.caption.bold())
-                .foregroundStyle(accentColor)
-            if let subtitle = subtitle {
-                Text(subtitle)
-                    .font(.title3.bold())
+        VStack(spacing: 8) {
+            // 上部: MuscleMap + 日付
+            HStack {
+                Text("MuscleMap")
+                    .font(.system(size: 14, weight: .bold, design: .default))
                     .foregroundStyle(Color.mmTextPrimary)
+                Spacer()
+                Text(dateString)
+                    .font(.caption)
+                    .foregroundStyle(Color.mmTextSecondary)
+            }
+            .padding(.horizontal, 24)
+
+            // タイトル・サブタイトル
+            VStack(spacing: 4) {
+                Text(title)
+                    .font(.caption.bold())
+                    .foregroundStyle(accentColor)
+                if let subtitle = subtitle {
+                    Text(subtitle)
+                        .font(.title3.bold())
+                        .foregroundStyle(Color.mmTextPrimary)
+                }
             }
         }
-        .padding(.top, 20)
+        .padding(.top, 16)
     }
 }
 
-// MARK: - シェアカードフッター
+// MARK: - シェアカードフッター（シンプル）
 
 struct ShareCardFooter: View {
     let accentColor: Color
@@ -38,37 +61,16 @@ struct ShareCardFooter: View {
     }
 
     var body: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: 12) {
             Rectangle()
                 .fill(accentColor.opacity(0.3))
                 .frame(height: 1)
                 .padding(.horizontal, 24)
 
-            HStack(spacing: 16) {
-                // QRコード
-                if let qrImage = QRCodeGenerator.generate(from: AppConstants.appStoreURL) {
-                    Image(uiImage: qrImage)
-                        .interpolation(.none)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 50, height: 50)
-                        .background(Color.white)
-                        .clipShape(RoundedRectangle(cornerRadius: 4))
-                }
-
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(AppConstants.appName)
-                        .font(.headline.bold())
-                        .foregroundStyle(Color.mmAccentPrimary)
-                    Text(L10n.shareTagline)
-                        .font(.caption2)
-                        .foregroundStyle(Color.mmTextSecondary)
-                }
-
-                Spacer()
-            }
-            .padding(.horizontal, 24)
-            .padding(.vertical, 12)
+            Text("MuscleMap")
+                .font(.system(size: 12, weight: .medium))
+                .foregroundStyle(Color.mmTextSecondary.opacity(0.6))
+                .padding(.bottom, 16)
         }
     }
 }

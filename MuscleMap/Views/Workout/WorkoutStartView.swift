@@ -211,7 +211,7 @@ private struct FavoriteExercisesSection: View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Image(systemName: "star.fill")
-                    .foregroundStyle(Color.yellow)
+                    .foregroundStyle(Color.mmMuscleModerate)
                 Text(L10n.favoriteExercises)
                     .font(.headline)
                     .foregroundStyle(Color.mmTextPrimary)

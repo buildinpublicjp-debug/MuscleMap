@@ -396,6 +396,12 @@ private struct JourneyShareCard: View {
     let newlyStimulatedCount: Int
     let mostImproved: Muscle?
 
+    private var dateString: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy/MM/dd"
+        return formatter.string(from: Date())
+    }
+
     var body: some View {
         VStack(spacing: 0) {
             // 上部グラデーション
@@ -407,6 +413,19 @@ private struct JourneyShareCard: View {
             .frame(height: 4)
 
             VStack(spacing: 16) {
+                // ヘッダー（統一デザイン）
+                HStack {
+                    Text("MuscleMap")
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundStyle(Color.mmTextPrimary)
+                    Spacer()
+                    Text(dateString)
+                        .font(.caption)
+                        .foregroundStyle(Color.mmTextSecondary)
+                }
+                .padding(.horizontal, 24)
+                .padding(.top, 16)
+
                 // タイトル
                 VStack(spacing: 4) {
                     Text("MY MUSCLE JOURNEY")
@@ -416,23 +435,22 @@ private struct JourneyShareCard: View {
                         .font(.title3.bold())
                         .foregroundStyle(Color.mmTextPrimary)
                 }
-                .padding(.top, 20)
 
-                // Before/After
-                HStack(spacing: 24) {
+                // Before/After（大きく表示）
+                HStack(spacing: 32) {
                     // Before
                     VStack(spacing: 4) {
                         Text("BEFORE")
                             .font(.caption2.bold())
                             .foregroundStyle(Color.mmTextSecondary)
                         ShareMuscleMapView(muscleMapping: pastMapping)
-                            .scaleEffect(0.6)
-                            .frame(width: 120, height: 180)
+                            .scaleEffect(0.7)
+                            .frame(width: 140, height: 210)
                     }
 
                     // 矢印
                     Image(systemName: "arrow.right")
-                        .font(.title3)
+                        .font(.title2)
                         .foregroundStyle(Color.mmAccentPrimary)
 
                     // After
@@ -441,29 +459,29 @@ private struct JourneyShareCard: View {
                             .font(.caption2.bold())
                             .foregroundStyle(Color.mmAccentPrimary)
                         ShareMuscleMapView(muscleMapping: currentMapping)
-                            .scaleEffect(0.6)
-                            .frame(width: 120, height: 180)
+                            .scaleEffect(0.7)
+                            .frame(width: 140, height: 210)
                     }
                 }
 
                 // サマリー
-                HStack(spacing: 24) {
+                HStack(spacing: 32) {
                     VStack(spacing: 2) {
                         Text("+\(newlyStimulatedCount)")
-                            .font(.title2.bold())
+                            .font(.title.bold())
                             .foregroundStyle(Color.mmAccentPrimary)
                         Text(L10n.newMuscles)
-                            .font(.caption2)
+                            .font(.caption)
                             .foregroundStyle(Color.mmTextSecondary)
                     }
 
                     if let improved = mostImproved {
                         VStack(spacing: 2) {
                             Text("MVP")
-                                .font(.title2.bold())
+                                .font(.title.bold())
                                 .foregroundStyle(Color.mmAccentSecondary)
                             Text(improved.localizedName)
-                                .font(.caption2)
+                                .font(.caption)
                                 .foregroundStyle(Color.mmTextSecondary)
                         }
                     }
@@ -471,42 +489,21 @@ private struct JourneyShareCard: View {
 
                 Spacer()
 
-                // フッター
-                VStack(spacing: 8) {
+                // フッター（シンプル）
+                VStack(spacing: 12) {
                     Rectangle()
                         .fill(Color.mmAccentPrimary.opacity(0.3))
                         .frame(height: 1)
                         .padding(.horizontal, 24)
 
-                    HStack(spacing: 16) {
-                        // QRコード
-                        if let qrImage = QRCodeGenerator.generate(from: AppConstants.appStoreURL) {
-                            Image(uiImage: qrImage)
-                                .interpolation(.none)
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 40, height: 40)
-                                .background(Color.white)
-                                .clipShape(RoundedRectangle(cornerRadius: 4))
-                        }
-
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(AppConstants.appName)
-                                .font(.headline.bold())
-                                .foregroundStyle(Color.mmAccentPrimary)
-                            Text(L10n.shareTagline)
-                                .font(.caption2)
-                                .foregroundStyle(Color.mmTextSecondary)
-                        }
-
-                        Spacer()
-                    }
-                    .padding(.horizontal, 24)
-                    .padding(.vertical, 12)
+                    Text("MuscleMap")
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundStyle(Color.mmTextSecondary.opacity(0.6))
+                        .padding(.bottom, 16)
                 }
             }
         }
-        .frame(width: 350, height: 550)
+        .frame(width: 390, height: 693)
         .background(Color.mmBgCard)
         .clipShape(RoundedRectangle(cornerRadius: 24))
         .overlay {

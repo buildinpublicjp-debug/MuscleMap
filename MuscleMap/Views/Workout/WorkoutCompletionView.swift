@@ -469,6 +469,12 @@ private struct WorkoutShareCard: View {
     let date: Date
     let muscleMapping: [String: Int]
 
+    private var dateString: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy/MM/dd"
+        return formatter.string(from: date)
+    }
+
     var body: some View {
         VStack(spacing: 0) {
             // 上部グラデーションアクセント
@@ -480,39 +486,27 @@ private struct WorkoutShareCard: View {
             .frame(height: 4)
 
             VStack(spacing: 16) {
-                // ヘッダー
+                // ヘッダー（統一デザイン）
                 HStack {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("MuscleMap")
-                            .font(.title2.bold())
-                            .foregroundStyle(Color.mmAccentPrimary)
-                        Text(date.formatted(date: .abbreviated, time: .omitted))
-                            .font(.subheadline)
-                            .foregroundStyle(Color.mmTextSecondary)
-                    }
+                    Text("MuscleMap")
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundStyle(Color.mmTextPrimary)
                     Spacer()
-                    Image(systemName: "figure.strengthtraining.traditional")
-                        .font(.title)
-                        .foregroundStyle(Color.mmAccentPrimary)
+                    Text(dateString)
+                        .font(.caption)
+                        .foregroundStyle(Color.mmTextSecondary)
                 }
                 .padding(.horizontal, 24)
-                .padding(.top, 20)
+                .padding(.top, 16)
 
-                // 筋肉マップ（FRONT/BACKラベル付き）
-                VStack(spacing: 8) {
-                    HStack(spacing: 40) {
-                        Text("FRONT")
-                            .font(.caption2.bold())
-                            .foregroundStyle(Color.mmTextSecondary)
-                            .frame(width: 140)
-                        Text("BACK")
-                            .font(.caption2.bold())
-                            .foregroundStyle(Color.mmTextSecondary)
-                            .frame(width: 140)
-                    }
-                    ShareMuscleMapView(muscleMapping: muscleMapping)
-                }
-                .padding(.vertical, 4)
+                // タイトル
+                Text("WORKOUT COMPLETE")
+                    .font(.caption.bold())
+                    .foregroundStyle(Color.mmAccentPrimary)
+
+                // 筋肉マップ（大きく表示）
+                ShareMuscleMapView(muscleMapping: muscleMapping)
+                    .padding(.vertical, 8)
 
                 // 統計（より目立つスタイル）
                 HStack(spacing: 8) {
@@ -547,42 +541,17 @@ private struct WorkoutShareCard: View {
 
                 Spacer()
 
-                // フッター（ブランディング + QRコード）
-                VStack(spacing: 8) {
+                // フッター（シンプル）
+                VStack(spacing: 12) {
                     Rectangle()
                         .fill(Color.mmAccentPrimary.opacity(0.3))
                         .frame(height: 1)
                         .padding(.horizontal, 24)
 
-                    HStack(spacing: 16) {
-                        // QRコード
-                        if let qrImage = QRCodeGenerator.generate(from: AppConstants.appStoreURL) {
-                            Image(uiImage: qrImage)
-                                .interpolation(.none)
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 50, height: 50)
-                                .background(Color.white)
-                                .clipShape(RoundedRectangle(cornerRadius: 4))
-                        }
-
-                        // ブランディングテキスト
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(AppConstants.appName)
-                                .font(.headline.bold())
-                                .foregroundStyle(Color.mmAccentPrimary)
-                            Text(L10n.shareTagline)
-                                .font(.caption2)
-                                .foregroundStyle(Color.mmTextSecondary)
-                            Text(L10n.downloadApp)
-                                .font(.caption2)
-                                .foregroundStyle(Color.mmTextSecondary.opacity(0.7))
-                        }
-
-                        Spacer()
-                    }
-                    .padding(.horizontal, 24)
-                    .padding(.vertical, 12)
+                    Text("MuscleMap")
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundStyle(Color.mmTextSecondary.opacity(0.6))
+                        .padding(.bottom, 16)
                 }
             }
         }

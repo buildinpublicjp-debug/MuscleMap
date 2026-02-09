@@ -243,9 +243,9 @@ private struct TrainingHeatmapCard: View {
                 // アイコン
                 Image(systemName: "chart.bar.xaxis")
                     .font(.title2)
-                    .foregroundStyle(Color.green)
+                    .foregroundStyle(Color.mmAccentPrimary)
                     .frame(width: 44, height: 44)
-                    .background(Color.green.opacity(0.15))
+                    .background(Color.mmAccentPrimary.opacity(0.15))
                     .clipShape(RoundedRectangle(cornerRadius: 10))
 
                 // テキスト
@@ -464,6 +464,12 @@ private struct MilestoneShareCard: View {
     let milestone: StreakMilestone
     let streakWeeks: Int
 
+    private var dateString: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy/MM/dd"
+        return formatter.string(from: Date())
+    }
+
     var body: some View {
         VStack(spacing: 0) {
             // 上部グラデーション
@@ -474,12 +480,25 @@ private struct MilestoneShareCard: View {
             )
             .frame(height: 4)
 
-            VStack(spacing: 24) {
+            VStack(spacing: 16) {
+                // ヘッダー
+                HStack {
+                    Text("MuscleMap")
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundStyle(Color.mmTextPrimary)
+                    Spacer()
+                    Text(dateString)
+                        .font(.caption)
+                        .foregroundStyle(Color.mmTextSecondary)
+                }
+                .padding(.horizontal, 24)
+                .padding(.top, 16)
+
                 Spacer()
 
                 // 絵文字
                 Text(milestone.emoji)
-                    .font(.system(size: 60))
+                    .font(.system(size: 80))
 
                 // タイトル
                 Text(milestone.localizedTitle)
@@ -494,27 +513,20 @@ private struct MilestoneShareCard: View {
                 Spacer()
 
                 // フッター
-                VStack(spacing: 4) {
+                VStack(spacing: 12) {
                     Rectangle()
                         .fill(Color.mmAccentPrimary.opacity(0.3))
                         .frame(height: 1)
+                        .padding(.horizontal, 24)
 
-                    HStack {
-                        Text(AppConstants.appName)
-                            .font(.headline.bold())
-                            .foregroundStyle(Color.mmAccentPrimary)
-                        Text("—")
-                            .foregroundStyle(Color.mmTextSecondary)
-                        Text(L10n.shareTagline)
-                            .font(.caption)
-                            .foregroundStyle(Color.mmTextSecondary)
-                    }
-                    .padding(.vertical, 12)
+                    Text("MuscleMap")
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundStyle(Color.mmTextSecondary.opacity(0.6))
+                        .padding(.bottom, 16)
                 }
-                .padding(.horizontal, 24)
             }
         }
-        .frame(width: 350, height: 400)
+        .frame(width: 390, height: 693)
         .background(Color.mmBgCard)
         .clipShape(RoundedRectangle(cornerRadius: 24))
         .overlay {
@@ -615,6 +627,12 @@ private struct NeglectedShareCard: View {
         return mapping
     }
 
+    private var dateString: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy/MM/dd"
+        return formatter.string(from: Date())
+    }
+
     var body: some View {
         VStack(spacing: 0) {
             // 上部グラデーション（紫系）
@@ -626,6 +644,19 @@ private struct NeglectedShareCard: View {
             .frame(height: 4)
 
             VStack(spacing: 16) {
+                // ヘッダー
+                HStack {
+                    Text("MuscleMap")
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundStyle(Color.mmTextPrimary)
+                    Spacer()
+                    Text(dateString)
+                        .font(.caption)
+                        .foregroundStyle(Color.mmTextSecondary)
+                }
+                .padding(.horizontal, 24)
+                .padding(.top, 16)
+
                 // タイトル
                 VStack(spacing: 4) {
                     Text("NEGLECTED ALERT ⚠️")
@@ -635,7 +666,6 @@ private struct NeglectedShareCard: View {
                         .font(.title3.bold())
                         .foregroundStyle(Color.mmTextPrimary)
                 }
-                .padding(.top, 20)
 
                 // 筋肉マップ（紫ハイライト）
                 NeglectedMuscleMapView(neglectedMuscles: Set(muscleInfos.map { $0.muscle }))
@@ -668,41 +698,20 @@ private struct NeglectedShareCard: View {
                 Spacer()
 
                 // フッター
-                VStack(spacing: 8) {
+                VStack(spacing: 12) {
                     Rectangle()
                         .fill(Color.mmMuscleNeglected.opacity(0.3))
                         .frame(height: 1)
                         .padding(.horizontal, 24)
 
-                    HStack(spacing: 16) {
-                        // QRコード
-                        if let qrImage = QRCodeGenerator.generate(from: AppConstants.appStoreURL) {
-                            Image(uiImage: qrImage)
-                                .interpolation(.none)
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 40, height: 40)
-                                .background(Color.white)
-                                .clipShape(RoundedRectangle(cornerRadius: 4))
-                        }
-
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(AppConstants.appName)
-                                .font(.headline.bold())
-                                .foregroundStyle(Color.mmAccentPrimary)
-                            Text(L10n.shareTagline)
-                                .font(.caption2)
-                                .foregroundStyle(Color.mmTextSecondary)
-                        }
-
-                        Spacer()
-                    }
-                    .padding(.horizontal, 24)
-                    .padding(.vertical, 12)
+                    Text("MuscleMap")
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundStyle(Color.mmTextSecondary.opacity(0.6))
+                        .padding(.bottom, 16)
                 }
             }
         }
-        .frame(width: 350, height: 520)
+        .frame(width: 390, height: 693)
         .background(
             LinearGradient(
                 colors: [Color.mmBgCard, Color.mmBgPrimary],

@@ -309,23 +309,12 @@ private struct WeeklySummaryShareCard: View {
         ShareCardContainer(
             accentColor: .mmAccentPrimary,
             secondaryColor: .mmAccentSecondary,
-            header: ShareCardHeader(title: "WEEKLY REPORT", subtitle: weekRange)
+            header: ShareCardHeader(title: "WEEKLY REPORT", subtitle: weekRange, date: Date())
         ) {
             VStack(spacing: 16) {
-                // 筋肉マップ
-                VStack(spacing: 4) {
-                    HStack(spacing: 40) {
-                        Text("FRONT")
-                            .font(.caption2.bold())
-                            .foregroundStyle(Color.mmTextSecondary)
-                            .frame(width: 140)
-                        Text("BACK")
-                            .font(.caption2.bold())
-                            .foregroundStyle(Color.mmTextSecondary)
-                            .frame(width: 140)
-                    }
-                    ShareMuscleMapView(muscleMapping: muscleMapping)
-                }
+                // 筋肉マップ（大きく表示）
+                ShareMuscleMapView(muscleMapping: muscleMapping)
+                    .padding(.vertical, 8)
 
                 // 統計
                 HStack(spacing: 8) {

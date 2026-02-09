@@ -112,7 +112,7 @@ struct ExerciseDetailView: View {
                         HapticManager.lightTap()
                     } label: {
                         Image(systemName: favorites.isFavorite(exercise.id) ? "star.fill" : "star")
-                            .foregroundStyle(favorites.isFavorite(exercise.id) ? Color.yellow : Color.mmTextSecondary)
+                            .foregroundStyle(favorites.isFavorite(exercise.id) ? Color.mmMuscleModerate : Color.mmTextSecondary)
                     }
                 }
                 ToolbarItem(placement: .topBarTrailing) {

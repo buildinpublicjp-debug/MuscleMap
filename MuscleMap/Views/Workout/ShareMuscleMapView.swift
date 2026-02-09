@@ -37,11 +37,11 @@ struct ShareMuscleMapView: View {
                 // 塗りつぶし
                 context.fill(path, with: .color(color))
 
-                // 境界線
+                // 境界線（太く、コントラスト強化）
                 context.stroke(
                     path,
-                    with: .color(Color.mmMuscleBorder.opacity(0.4)),
-                    lineWidth: 0.5
+                    with: .color(Color.mmBorder.opacity(0.8)),
+                    lineWidth: 1.0
                 )
             }
         }
@@ -62,28 +62,25 @@ struct ShareMuscleMapView: View {
         return 0
     }
 
-    // MARK: - 刺激度に応じた色
+    // MARK: - 刺激度に応じた色（3段階）
 
     private func colorFor(stimulation: Int) -> Color {
         guard stimulation > 0 else {
             // 未刺激 = 暗いグレー
-            return Color.mmBgSecondary
+            return Color.mmMuscleInactive
         }
 
-        // 刺激度に応じた色分け
+        // 刺激度に応じた3段階色分け
+        // 高刺激（80%+）= 赤（最近やった）
+        // 中刺激（20-80%）= 黄（回復中）
+        // 低刺激（1-20%）= 緑（ほぼ回復）
         switch stimulation {
         case 80...100:
-            // 高刺激 = 赤
-            return Color.mmMuscleJustWorked
-        case 50..<80:
-            // 中刺激 = コーラル
-            return Color.mmMuscleCoral
-        case 20..<50:
-            // 低刺激 = アンバー
-            return Color.mmMuscleAmber
+            return Color.mmMuscleFatigued
+        case 20..<80:
+            return Color.mmMuscleModerate
         default:
-            // 微刺激 = 薄い緑
-            return Color.mmAccentPrimary.opacity(0.5)
+            return Color.mmMuscleRecovered
         }
     }
 }
