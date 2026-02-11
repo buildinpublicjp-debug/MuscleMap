@@ -647,32 +647,24 @@ private struct HistoryMuscleMapCanvas: View {
     var body: some View {
         let muscles = showFront ? MusclePathData.frontMuscles : MusclePathData.backMuscles
 
-        Canvas { context, size in
-            let rect = CGRect(origin: .zero, size: size)
-            // Draw all muscle paths
-            for entry in muscles {
-                let sets = muscleSets[entry.muscle] ?? 0
-                let path = entry.path(rect)
+        GeometryReader { geo in
+            let rect = CGRect(origin: .zero, size: geo.size)
 
-                // Fill
-                context.fill(path, with: .color(colorForSets(sets)))
+            ZStack {
+                ForEach(muscles, id: \.muscle) { entry in
+                    let sets = muscleSets[entry.muscle] ?? 0
+                    let path = entry.path(rect)
 
-                // Stroke
-                context.stroke(path, with: .color(Color.mmMuscleBorder.opacity(0.3)), lineWidth: 0.5)
-            }
-        }
-        .contentShape(Rectangle())
-        .onTapGesture {
-            // Find the first muscle with workout data
-            for entry in muscles {
-                if let sets = muscleSets[entry.muscle], sets > 0 {
-                    onMuscleTap(entry.muscle)
-                    return
+                    path
+                        .fill(colorForSets(sets))
+                        .overlay {
+                            path.stroke(Color.mmMuscleBorder.opacity(0.3), lineWidth: 0.5)
+                        }
+                        .contentShape(path)
+                        .onTapGesture {
+                            onMuscleTap(entry.muscle)
+                        }
                 }
-            }
-            // Fallback: tap first muscle
-            if let first = muscles.first {
-                onMuscleTap(first.muscle)
             }
         }
     }
