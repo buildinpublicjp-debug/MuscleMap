@@ -12,17 +12,19 @@ enum KeyManager {
     // MARK: - RevenueCat API Key
 
     /// RevenueCat APIキー
-    /// ReleaseビルドではInfo.plistの `REVENUECAT_API_KEY` から読み込む
+    /// ReleaseビルドではInfo.plistから読み込み、なければハードコードフォールバック
     /// DEBUGビルドではプレースホルダーを返す（開発中）
     private static var obfuscatedRevenueCatKey: String {
         #if DEBUG
         return "YOUR_REVENUECAT_API_KEY"
         #else
-        guard let key = Bundle.main.object(forInfoDictionaryKey: "REVENUECAT_API_KEY") as? String,
-              !key.isEmpty else {
-            fatalError("[KeyManager] REVENUECAT_API_KEY が Info.plist に設定されていません")
+        // Info.plistにキーがあればそちらを優先
+        if let key = Bundle.main.object(forInfoDictionaryKey: "REVENUECAT_API_KEY") as? String,
+           !key.isEmpty {
+            return key
         }
-        return key
+        // フォールバック: project.ymlで設定済みのAPIキー
+        return "appl_IzrrBdSVXMDZUylPnwcaJxvdlxb"
         #endif
     }
 
