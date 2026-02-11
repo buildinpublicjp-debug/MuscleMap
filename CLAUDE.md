@@ -1,6 +1,6 @@
 # MuscleMap - Claude Code Rules
 
-> **v2.1 | 2026-02-01**
+> **v2.3 | 2026-02-11**
 > 筋肉の回復状態を可視化し、最適なトレーニングを導くiOSアプリ
 
 ---
@@ -47,6 +47,177 @@
 
 ---
 
+## UIデザイン原則
+
+> **全UI実装の判断基準。新画面・新コンポーネント作成時に必ず参照すること。**
+
+### 基本思想
+
+| 思想 | 意味 |
+|:---|:---|
+| **ビジュアルファースト** | テキストより視覚表現を優先。3Dモデル、色彩、チャートで直感的に伝える |
+| **情報階層の明確化** | 全情報を同等に扱わない。最重要データを最も目立たせる |
+| **達成感の演出** | PR更新やマイルストーンは祝福の体験としてデザインする |
+| **iOSネイティブ準拠** | SwiftUI標準コンポーネントとHIGを最大限尊重。独自パターンは最終手段 |
+
+### ビジュアルインパクト
+
+- 部位詳細・種目詳細・ワークアウトサマリーなど、特定対象に焦点を当てる画面では、3Dビジュアルまたは画像を**画面上部の最低1/3（33%）**で大きく表示する
+- リスト形式の画面でも、各行にサムネイル/アイコンを必ず配置。**テキストのみの行は禁止**
+- ハーフモーダルでも同じルールを適用。テキストリストだけのモーダルは作らない
+- 既存の類似画面（例：種目辞典の部位詳細）があれば、**そのコンポーネントを流用**して視覚的一貫性を保つ
+
+### 情報ヒエラルキー（フォント）
+
+PR・重量・セット数などの重要数値は、周囲ラベルの**2.0倍以上**のフォントサイズ + `Heavy`/`Black`ウェイト。
+
+```swift
+// 例: PR数値の強調
+VStack(alignment: .leading) {
+    Text("自己ベスト")
+        .font(.body)
+        .foregroundColor(.mmTextSecondary)
+    Text("120 kg")
+        .font(.system(size: 48, weight: .heavy))
+        .foregroundColor(.mmAccentPrimary)
+}
+```
+
+**フォント階層（4段階）:**
+
+| レベル | 用途 | SwiftUI | ウェイト |
+|:---|:---|:---|:---|
+| L1 | 画面タイトル | `.largeTitle` | `Heavy` |
+| L2 | セクションタイトル | `.title2` | `Bold` |
+| L3 | 主要数値・項目名 | `.title3` | `Bold` |
+| L4 | 本文・補足 | `.body` / `.caption` | `Regular` |
+
+### スペーシング（8ptグリッド）
+
+- セクション間: `32pt`
+- 要素間: `16pt`
+- コンテナ内パディング: `16pt`
+- リスト行の最小高さ: `44pt`（タップ領域確保）
+
+### モーダル / シート
+
+- ハーフモーダルを積極使用（`.presentationDetents([.medium, .large])`）
+- モーダル内に**必ずビジュアル要素**を含める。テキスト+入力だけの無味乾燥モーダル禁止
+- モーダル背景は`.mmBgSecondary`（メイン画面との視覚的区別）
+- 上部に太字タイトル必須
+
+```swift
+.sheet(isPresented: $isShowing) {
+    VStack {
+        Text("部位名")
+            .font(.title2).bold()
+        // 3Dビジュアル（画面の1/3以上）
+        // 統計情報
+        // 種目リスト
+    }
+    .background(Color.mmBgSecondary)
+    .presentationDetents([.medium, .large])
+    .presentationDragIndicator(.visible)
+}
+```
+
+### コンポーネント再利用
+
+- 新画面実装前に、**必ずプロジェクト内の類似Viewを検索**する
+- 類似コンポーネントがあれば流用してパラメータ変更。新規作成は最終手段
+- 特に以下は流用候補を確認:
+  - 部位ビジュアル → `Views/MuscleDetail/` 配下
+  - 3Dモデル表示 → `Utilities/ModelLoader.swift`
+  - 統計カード → 既存のサマリー系View
+
+### 達成感の演出
+
+- **PR更新時**: アクセントカラーで数値表示 + 「PR」バッジ
+- **連続記録**: ホーム画面に「🔥 N日連続」表示
+- **目標達成**: 専用モーダルシート + 達成バッジ
+
+### NGパターン（禁止事項）
+
+- ❌ テキストだけのリスト画面（ビジュアル要素なし）
+- ❌ 全要素が同サイズ・同ウェイトのフラットレイアウト
+- ❌ アクセントカラーが画面の30%以上を占める
+- ❌ 余白ゼロの詰め込みレイアウト
+- ❌ iOS標準から逸脱したナビゲーション
+- ❌ 純粋な黒（`#000000`）の背景使用
+- ❌ モーダル内でメイン画面と同じ背景色を使う（区別がつかない）
+- ❌ 既存の類似コンポーネントを無視して新規作成する
+
+---
+
+## カラーシステム（実装済み — ColorExtensions.swift に定義）
+
+### 背景
+
+| 用途 | コード | Hex |
+|:---|:---|:---|
+| 最背面 | `.mmBgPrimary` | `#121212` |
+| カード・モーダル | `.mmBgSecondary` | `#1E1E1E` |
+| 浮き上がるカード | `.mmBgCard` | `#2A2A2A` |
+
+### テキスト
+
+| 用途 | コード | 備考 |
+|:---|:---|:---|
+| 主要テキスト | `.mmTextPrimary` | `Color.white` |
+| 補足テキスト | `.mmTextSecondary` | `#B0B0B0`（コントラスト比 7.4:1） |
+
+### アクセント
+
+| 用途 | コード | Hex |
+|:---|:---|:---|
+| メインアクセント | `.mmAccentPrimary` | `#00FFB3`（バイオグリーン） |
+| サブアクセント | `.mmAccentSecondary` | `#00D4FF`（電光ブルー） |
+| ブランドパープル | `.mmBrandPurple` | `#A020F0` |
+
+### 筋肉状態カラー（3段階 + 特殊状態）
+
+⚠️ **色の方向: レッド(疲労) → イエロー → グリーン(回復)。信号機と同じ。**
+
+| 状態 | コード | Hex | 回復% |
+|:---|:---|:---|:---|
+| 疲労 | `.mmMuscleFatigued` | `#FF6B6B` | 0-20% |
+| 中間 | `.mmMuscleModerate` | `#FFEE58` | 20-80% |
+| 回復済み | `.mmMuscleRecovered` | `#00E676` | 80-100% |
+| 記録なし | `.mmMuscleInactive` | `#3D3D42` | — |
+| 未刺激警告 | `.mmMuscleNeglected` | `#B388D4` | 7日+ |
+
+### 境界線
+
+| 用途 | コード | Hex |
+|:---|:---|:---|
+| 通常境界線 | `.mmBorder` | `#808080`（コントラスト比 4.1:1） |
+| アクティブ境界線 | `.mmMuscleActiveBorder` | `#FFFFFF` |
+
+### カラー使用ルール
+
+- アクセントカラーは1画面あたり**総面積の15%未満**
+- テキストと背景のコントラスト比は**WCAG AA基準 4.5:1以上**
+- 画面の差別化: メイン画面=`.mmBgPrimary`、モーダル/シート=`.mmBgSecondary`
+
+### 色の計算（ColorCalculator.swift）
+
+```swift
+enum MuscleVisualState: Equatable {
+    case inactive                          // 背景に溶け込む（刺激なし or 完全回復）
+    case recovering(progress: Double)      // 回復中（色とパルスアニメーション）
+    case neglected(fast: Bool)             // 未刺激（fast = 14日以上で高速点滅）
+}
+```
+
+回復進捗に応じて5段階×20%バンドで色を補間:
+- 0-20%: `.mmMuscleFatigued`（赤）
+- 20-40%: 赤→黄 補間
+- 40-60%: 黄
+- 60-80%: 黄→緑 補間
+- 80-100%: `.mmMuscleRecovered`（緑）
+
+---
+
 ## データモデル
 
 ### 筋肉定義（21筋肉）
@@ -80,76 +251,6 @@ enum Muscle: String, CaseIterable, Codable {
     case hipFlexors = "hip_flexors"
     case gastrocnemius = "gastrocnemius"
     case soleus = "soleus"
-
-    var japaneseName: String {
-        switch self {
-        case .chestUpper: return "大胸筋上部"
-        case .chestLower: return "大胸筋下部"
-        case .lats: return "広背筋"
-        case .trapsUpper: return "僧帽筋上部"
-        case .trapsMiddleLower: return "僧帽筋中部・下部"
-        case .erectorSpinae: return "脊柱起立筋"
-        case .deltoidAnterior: return "三角筋前部"
-        case .deltoidLateral: return "三角筋中部"
-        case .deltoidPosterior: return "三角筋後部"
-        case .biceps: return "上腕二頭筋"
-        case .triceps: return "上腕三頭筋"
-        case .forearms: return "前腕筋群"
-        case .rectusAbdominis: return "腹直筋"
-        case .obliques: return "腹斜筋"
-        case .glutes: return "臀筋群"
-        case .quadriceps: return "大腿四頭筋"
-        case .hamstrings: return "ハムストリングス"
-        case .adductors: return "内転筋群"
-        case .hipFlexors: return "腸腰筋"
-        case .gastrocnemius: return "腓腹筋"
-        case .soleus: return "ヒラメ筋"
-        }
-    }
-
-    var group: MuscleGroup {
-        switch self {
-        case .chestUpper, .chestLower: return .chest
-        case .lats, .trapsUpper, .trapsMiddleLower, .erectorSpinae: return .back
-        case .deltoidAnterior, .deltoidLateral, .deltoidPosterior: return .shoulders
-        case .biceps, .triceps, .forearms: return .arms
-        case .rectusAbdominis, .obliques: return .core
-        case .glutes, .quadriceps, .hamstrings, .adductors, .hipFlexors, .gastrocnemius, .soleus: return .lowerBody
-        }
-    }
-
-    /// 基準回復時間（時間）。ボリューム係数で調整される
-    var baseRecoveryHours: Int {
-        switch self {
-        // 大筋群: 72h
-        case .lats, .trapsUpper, .trapsMiddleLower, .erectorSpinae,
-             .glutes, .quadriceps, .hamstrings, .adductors, .hipFlexors:
-            return 72
-        // 中筋群: 48h
-        case .chestUpper, .chestLower,
-             .deltoidAnterior, .deltoidLateral, .deltoidPosterior,
-             .biceps, .triceps:
-            return 48
-        // 小筋群: 24h
-        case .forearms, .rectusAbdominis, .obliques, .gastrocnemius, .soleus:
-            return 24
-        }
-    }
-}
-
-enum MuscleGroup: String, CaseIterable, Codable {
-    case chest, back, shoulders, arms, core, lowerBody
-
-    var japaneseName: String {
-        switch self {
-        case .chest: return "胸"
-        case .back: return "背中"
-        case .shoulders: return "肩"
-        case .arms: return "腕"
-        case .core: return "体幹"
-        case .lowerBody: return "下半身"
-        }
-    }
 }
 ```
 
@@ -157,32 +258,20 @@ enum MuscleGroup: String, CaseIterable, Codable {
 
 ```swift
 struct RecoveryCalculator {
-    /// セット数からボリューム係数を算出
     static func volumeCoefficient(sets: Int) -> Double {
         switch sets {
-        case 1:     return 0.7    // 軽く触っただけ
+        case 1:     return 0.7
         case 2:     return 0.85
-        case 3:     return 1.0    // 標準
+        case 3:     return 1.0
         case 4:     return 1.1
-        default:    return 1.15   // 5セット以上（上限）
+        default:    return 1.15
         }
     }
 
-    /// 調整済み回復時間（時間）
-    static func adjustedRecoveryHours(muscle: Muscle, totalSets: Int) -> Double {
-        Double(muscle.baseRecoveryHours) * volumeCoefficient(sets: totalSets)
-    }
-
-    /// 回復進捗（0.0=直後 〜 1.0=完全回復）
     static func recoveryProgress(stimulationDate: Date, muscle: Muscle, totalSets: Int) -> Double {
-        let elapsed = Date().timeIntervalSince(stimulationDate) / 3600 // 時間
-        let needed = adjustedRecoveryHours(muscle: muscle, totalSets: totalSets)
+        let elapsed = Date().timeIntervalSince(stimulationDate) / 3600
+        let needed = Double(muscle.baseRecoveryHours) * volumeCoefficient(sets: totalSets)
         return min(1.0, max(0.0, elapsed / needed))
-    }
-
-    /// 未刺激日数
-    static func daysSinceStimulation(_ date: Date) -> Int {
-        Calendar.current.dateComponents([.day], from: date, to: Date()).day ?? 0
     }
 }
 ```
@@ -190,34 +279,30 @@ struct RecoveryCalculator {
 ### Swift Data モデル
 
 ```swift
-@Model
-class WorkoutSession {
+@Model class WorkoutSession {
     var id: UUID
     var startDate: Date
     var endDate: Date?
     var note: String?
     @Relationship(deleteRule: .cascade) var sets: [WorkoutSet]
-
     var isActive: Bool { endDate == nil }
 }
 
-@Model
-class WorkoutSet {
+@Model class WorkoutSet {
     var id: UUID
     var session: WorkoutSession?
-    var exerciseId: String       // exercises.json の id
-    var setNumber: Int           // 1, 2, 3...
-    var weight: Double           // kg
+    var exerciseId: String
+    var setNumber: Int
+    var weight: Double
     var reps: Int
     var completedAt: Date
 }
 
-@Model
-class MuscleStimulation {
-    var muscle: String           // Muscle.rawValue
+@Model class MuscleStimulation {
+    var muscle: String
     var stimulationDate: Date
-    var maxIntensity: Double     // 0.0-1.0（刺激度%の最大値/100）
-    var totalSets: Int           // その日の合計セット数（ボリューム係数用）
+    var maxIntensity: Double
+    var totalSets: Int
     var sessionId: UUID
 }
 ```
@@ -226,100 +311,6 @@ class MuscleStimulation {
 
 `Resources/exercises.json` にバンドル同梱。起動時にExerciseStoreに読み込む。
 **80種目、EMG論文ベースで刺激度%を修正済み。**
-
-```swift
-struct ExerciseDefinition: Codable, Identifiable {
-    let id: String
-    let nameEN: String
-    let nameJA: String
-    let category: String
-    let equipment: String
-    let difficulty: String
-    let muscleMapping: [String: Int]  // muscle_id → stimulation % (20-100)
-}
-
-@MainActor
-class ExerciseStore {
-    static let shared = ExerciseStore()
-    private(set) var exercises: [ExerciseDefinition] = []
-    private var exerciseMap: [String: ExerciseDefinition] = [:]
-
-    func load() {
-        guard let url = Bundle.main.url(forResource: "exercises", withExtension: "json"),
-              let data = try? Data(contentsOf: url) else { return }
-        exercises = (try? JSONDecoder().decode([ExerciseDefinition].self, from: data)) ?? []
-        exerciseMap = Dictionary(uniqueKeysWithValues: exercises.map { ($0.id, $0) })
-    }
-
-    func exercise(for id: String) -> ExerciseDefinition? { exerciseMap[id] }
-    func exercises(for category: String) -> [ExerciseDefinition] { exercises.filter { $0.category == category } }
-    func exercises(targeting muscle: String) -> [ExerciseDefinition] {
-        exercises.filter { $0.muscleMapping[muscle] != nil }
-    }
-}
-```
-
----
-
-## カラーパレット
-
-```swift
-extension Color {
-    // 背景
-    static let mmBgPrimary = Color(hex: "#121212")
-    static let mmBgSecondary = Color(hex: "#1E1E1E")
-    static let mmBgCard = Color(hex: "#2A2A2A")
-
-    // テキスト
-    static let mmTextPrimary = Color.white
-    static let mmTextSecondary = Color(hex: "#9E9E9E")
-
-    // アクセント
-    static let mmAccentPrimary = Color(hex: "#00FFB3")    // バイオグリーン
-    static let mmAccentSecondary = Color(hex: "#00D4FF")  // 電光ブルー
-
-    // 筋肉状態（バイオルミネッセンス6段階）
-    static let mmMuscleJustWorked = Color(hex: "#E94560")  // 深紅（回復0-10%）
-    static let mmMuscleCoral = Color(hex: "#F4845F")       // コーラル（10-30%）
-    static let mmMuscleAmber = Color(hex: "#F4A261")       // アンバー（30-50%）
-    static let mmMuscleMint = Color(hex: "#7EC8A0")        // ミント（50-70%）
-    static let mmMuscleBioGreen = Color(hex: "#00FFB3")    // バイオグリーン（70-99%）
-    static let mmMuscleNeglected = Color(hex: "#9B59B6")   // 紫（7日+未刺激）
-}
-```
-
-### 色の計算
-
-```swift
-enum MuscleVisualState {
-    case inactive                                    // 背景に溶け込む
-    case recovering(color: Color, pulse: Bool)       // 回復中
-    case neglected(fast: Bool)                       // 未刺激（fast=14日+）
-}
-
-func muscleVisualState(for muscle: Muscle) -> MuscleVisualState {
-    guard let stim = latestStimulation(for: muscle) else {
-        let days = RecoveryCalculator.daysSinceStimulation(lastKnownDate(for: muscle))
-        if days >= 14 { return .neglected(fast: true) }
-        if days >= 7 { return .neglected(fast: false) }
-        return .inactive
-    }
-
-    let progress = stim.recoveryProgress
-    if progress >= 1.0 { return .inactive }
-
-    let color: Color = switch progress {
-    case 0..<0.1:   .mmMuscleJustWorked
-    case 0.1..<0.3: Color.interpolate(from: .mmMuscleJustWorked, to: .mmMuscleCoral, t: (progress - 0.1) / 0.2)
-    case 0.3..<0.5: Color.interpolate(from: .mmMuscleCoral, to: .mmMuscleAmber, t: (progress - 0.3) / 0.2)
-    case 0.5..<0.7: Color.interpolate(from: .mmMuscleAmber, to: .mmMuscleMint, t: (progress - 0.5) / 0.2)
-    case 0.7..<0.9: Color.interpolate(from: .mmMuscleMint, to: .mmMuscleBioGreen, t: (progress - 0.7) / 0.2)
-    default:        .mmMuscleBioGreen.opacity(max(0.1, (1.0 - progress) * 10))
-    }
-
-    return .recovering(color: color, pulse: progress < 0.1)
-}
-```
 
 ---
 
@@ -330,60 +321,16 @@ TabBar
 ├── ホーム（筋肉マップ）         ← P0
 ├── ワークアウト（記録）          ← P0
 ├── 種目辞典                    ← P1
-└── 履歴（統計）                ← P1
+├── 履歴（マップ/カレンダー切替） ← P1
+└── 設定                        ← P2
 
 Modal / Push
-├── 今日のメニュー提案           ← P0（ワークアウト開始時に表示）
+├── 今日のメニュー提案           ← P0
 ├── ワークアウト実行中           ← P0
 ├── 種目詳細                    ← P1
 ├── 部位詳細（3D）              ← P1
-├── 設定                        ← P1
+├── 履歴マップ部位タップ→ハーフモーダル ← P1
 └── Paywall                     ← P1
-```
-
----
-
-## 今日のメニュー提案ロジック
-
-```swift
-struct MenuSuggestionService {
-    func suggestTodayMenu(
-        muscleStates: [Muscle: MuscleStimulation?],
-        exerciseStore: ExerciseStore
-    ) -> SuggestedMenu {
-        // 1. 回復完了の筋肉を取得
-        // 2. グループ単位で最も長く刺激されてないものを優先
-        // 3. ペアリング（胸+三頭、背中+二頭、肩+体幹、脚単独）
-        // 4. 各グループの主要種目を選出（刺激度%順）
-        // 5. 未刺激7日+があれば1種目追加
-        // 6. 前回の重量・レップをデフォルトセット
-    }
-
-    func pairGroups(primary: MuscleGroup) -> [MuscleGroup] {
-        switch primary {
-        case .chest:     return [.chest, .arms]      // 胸+三頭
-        case .back:      return [.back, .arms]       // 背中+二頭
-        case .shoulders: return [.shoulders, .core]   // 肩+体幹
-        case .lowerBody: return [.lowerBody]          // 脚単独
-        default:         return [primary]
-        }
-    }
-}
-
-struct SuggestedMenu {
-    let primaryGroup: MuscleGroup
-    let reason: String
-    let exercises: [SuggestedExercise]
-    let neglectedWarning: Muscle?
-}
-
-struct SuggestedExercise {
-    let definition: ExerciseDefinition
-    let suggestedSets: Int
-    let suggestedReps: Int
-    let lastWeight: Double?
-    let isNeglectedFix: Bool
-}
 ```
 
 ---
@@ -393,25 +340,9 @@ struct SuggestedExercise {
 ```
 MuscleMap/
 ├── App/
-│   ├── MuscleMapApp.swift
-│   ├── ContentView.swift
-│   └── AppState.swift
 ├── Models/
-│   ├── Muscle.swift
-│   ├── ExerciseDefinition.swift
-│   ├── WorkoutSession.swift
-│   ├── WorkoutSet.swift
-│   └── MuscleStimulation.swift
 ├── Repositories/
-│   ├── ExerciseStore.swift
-│   ├── WorkoutRepository.swift
-│   └── MuscleStateRepository.swift
 ├── ViewModels/
-│   ├── HomeViewModel.swift
-│   ├── WorkoutViewModel.swift
-│   ├── ExerciseListViewModel.swift
-│   ├── MuscleDetailViewModel.swift
-│   └── HistoryViewModel.swift
 ├── Views/
 │   ├── Home/
 │   ├── Workout/
@@ -470,30 +401,9 @@ MuscleMap/
 
 ---
 
-## 3Dフォールバック戦略
-
-```
-Phase 3（Week 4）で3Dモデルの品質を判定:
-レベルA: 21筋肉完全分離 → 理想
-レベルB: 6-8グループ分離 → 現実的
-レベルC: 3D断念 → 2D SVGオンリーでリリース
-```
-
----
-
 ## テスト
 
 - **MUST:** RecoveryCalculator の全メソッドにUnit Test
 - **MUST:** Repository のデータ操作にテスト
 - **MUST:** ExerciseStore のJSON読み込みテスト
 - **SHOULD:** 主要フローのUIテスト
-
----
-
-## 開発フェーズ（6週間）
-
-Phase 1（Week 1）: データモデル + 回復計算 + ExerciseStore
-Phase 2（Week 2-3）: SVG人体図 + ホーム画面 + ワークアウト記録 + 種目辞典
-Phase 3（Week 4）: 3Dモデル調達・統合 + 部位詳細
-Phase 4（Week 5）: 履歴・統計 + RevenueCat + Paywall
-Phase 5（Week 6）: オンボーディング + 設定 + 磨き込み + App Store申請
