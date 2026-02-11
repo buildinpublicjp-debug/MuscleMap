@@ -31,6 +31,9 @@ class AppState {
         didSet { UserDefaults.standard.set(hasSeenDemoAnimation, forKey: "hasSeenDemoAnimation") }
     }
 
+    // タブ選択（クロスビュー遷移用、永続化不要）
+    var selectedTab: Int = 0
+
     // オンボーディング後のPaywall表示済みフラグ（レガシー、現在は初回ワークアウト後に表示）
     var hasSeenPostOnboardingPaywall: Bool = UserDefaults.standard.bool(forKey: "hasSeenPostOnboardingPaywall") {
         didSet { UserDefaults.standard.set(hasSeenPostOnboardingPaywall, forKey: "hasSeenPostOnboardingPaywall") }

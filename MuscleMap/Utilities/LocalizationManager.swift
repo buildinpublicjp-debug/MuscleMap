@@ -194,6 +194,9 @@ enum L10n {
     static var startFreeWorkout: String { loc("自由にトレーニング開始", "Start Free Workout") }
     static var tapMuscleHint: String { loc("筋肉をタップして関連種目を選択", "Tap a muscle to select related exercises") }
     static var addExercise: String { loc("種目を追加", "Add Exercise") }
+    static var addFirstExercise: String { loc("種目を追加して始める", "Add an Exercise to Start") }
+    static var emptyWorkoutTitle: String { loc("ワークアウトを始めましょう", "Let's Start Your Workout") }
+    static var emptyWorkoutHint: String { loc("上のボタンから種目を追加して、セットを記録していきましょう", "Add exercises from the button above and start recording your sets") }
     static var endWorkout: String { loc("ワークアウト終了", "End Workout") }
     static var recordSet: String { loc("セットを記録", "Record Set") }
     static var recorded: String { loc("記録済み", "Recorded") }
@@ -922,6 +925,7 @@ enum L10n {
     static var balanceDiagnosis: String { loc("筋肉バランス診断", "Balance Diagnosis") }
     static var balanceDiagnosisDescription: String { loc("部位ごとの刺激バランスをチェック", "Check stimulation balance by muscle group") }
     static var startFirstWorkout: String { loc("最初のワークアウトを記録しよう！", "Start Your First Workout!") }
+    static var startWorkout: String { loc("ワークアウトを開始", "Start Workout") }
     static var firstWorkoutHint: String { loc("トレーニングを記録すると、ここに統計が表示されます", "Record a workout to see your stats here") }
 
     // MARK: - 種目プレビュー

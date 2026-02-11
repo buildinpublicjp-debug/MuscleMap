@@ -25,10 +25,10 @@ struct ContentView: View {
 // MARK: - メインTabView
 
 private struct MainTabView: View {
-    @State private var selectedTab = 0
+    @State private var appState = AppState.shared
 
     var body: some View {
-        TabView(selection: $selectedTab) {
+        TabView(selection: $appState.selectedTab) {
             HomeView()
                 .tabItem {
                     Label(L10n.home, systemImage: "figure.stand")

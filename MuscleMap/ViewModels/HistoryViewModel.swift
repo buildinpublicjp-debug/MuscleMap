@@ -31,8 +31,20 @@ class HistoryViewModel {
     // カレンダー用（stored property: 毎render再計算を防止）
     var workoutDates: Set<DateComponents> = []
 
+    // カレンダー用：日別の筋肉グループデータ
+    var dailyMuscleGroups: [DateComponents: Set<MuscleGroup>] = [:]
+
     // チャート用（stored property: 毎render再計算を防止）
     var dailyVolumeData: [DailyVolume] = []
+
+    // マップビュー用：選択された期間
+    var selectedPeriod: HistoryPeriod = .week
+
+    // マップビュー用：期間内の筋肉別セット数
+    var periodMuscleSets: [Muscle: Int] = [:]
+
+    // マップビュー用：期間内の統計
+    var periodStats: PeriodStats = .empty
 
     init(modelContext: ModelContext) {
         self.workoutRepo = WorkoutRepository(modelContext: modelContext)
@@ -61,7 +73,15 @@ class HistoryViewModel {
         calculateWeeklyGroupVolume()
         calculateTopExercises()
         calculateWorkoutDates()
+        calculateDailyMuscleGroups()
         calculateDailyVolumeData()
+        calculatePeriodMuscleSets()
+    }
+
+    /// 期間変更時の再計算
+    func updatePeriod(_ period: HistoryPeriod) {
+        selectedPeriod = period
+        calculatePeriodMuscleSets()
     }
 
     /// 無料ユーザーかどうか（UIでロック表示に使用）
@@ -193,6 +213,199 @@ class HistoryViewModel {
         workoutDates = dates
     }
 
+    // MARK: - 日別の筋肉グループ計算
+
+    private func calculateDailyMuscleGroups() {
+        let calendar = Calendar.current
+        var result: [DateComponents: Set<MuscleGroup>] = [:]
+
+        for session in sessions {
+            let components = calendar.dateComponents([.year, .month, .day], from: session.startDate)
+            var groups = result[components] ?? Set<MuscleGroup>()
+
+            for workoutSet in session.sets {
+                guard let exercise = exerciseStore.exercise(for: workoutSet.exerciseId) else { continue }
+                for muscleId in exercise.muscleMapping.keys {
+                    // snake_case → Muscle enum
+                    if let muscle = Muscle(rawValue: muscleId) {
+                        groups.insert(muscle.group)
+                    } else {
+                        // camelCaseからsnake_caseへの変換を試みる
+                        for m in Muscle.allCases {
+                            let snakeCase = m.rawValue.replacingOccurrences(
+                                of: "([a-z])([A-Z])",
+                                with: "$1_$2",
+                                options: .regularExpression
+                            ).lowercased()
+                            if snakeCase == muscleId {
+                                groups.insert(m.group)
+                                break
+                            }
+                        }
+                    }
+                }
+            }
+
+            result[components] = groups
+        }
+
+        dailyMuscleGroups = result
+    }
+
+    // MARK: - 期間内の筋肉別セット数（マップビュー用）
+
+    private func calculatePeriodMuscleSets() {
+        let calendar = Calendar.current
+        let now = Date()
+
+        // 期間に応じたフィルタリング
+        let filteredSessions: [WorkoutSession]
+        switch selectedPeriod {
+        case .week:
+            guard let weekAgo = calendar.date(byAdding: .day, value: -7, to: now) else { return }
+            filteredSessions = sessions.filter { $0.startDate >= weekAgo }
+        case .month:
+            guard let monthAgo = calendar.date(byAdding: .day, value: -30, to: now) else { return }
+            filteredSessions = sessions.filter { $0.startDate >= monthAgo }
+        case .all:
+            filteredSessions = sessions
+        }
+
+        // 筋肉別セット数を計算
+        var muscleSets: [Muscle: Int] = [:]
+        for muscle in Muscle.allCases {
+            muscleSets[muscle] = 0
+        }
+
+        var totalSets = 0
+        var totalVolume = 0.0
+        let trainingDays = Set(filteredSessions.map {
+            calendar.startOfDay(for: $0.startDate)
+        }).count
+
+        for session in filteredSessions {
+            for workoutSet in session.sets {
+                totalSets += 1
+                totalVolume += workoutSet.weight * Double(workoutSet.reps)
+
+                guard let exercise = exerciseStore.exercise(for: workoutSet.exerciseId) else { continue }
+                for muscleId in exercise.muscleMapping.keys {
+                    if let muscle = Muscle(rawValue: muscleId) {
+                        muscleSets[muscle, default: 0] += 1
+                    }
+                }
+            }
+        }
+
+        periodMuscleSets = muscleSets
+        periodStats = PeriodStats(
+            sessionCount: filteredSessions.count,
+            totalSets: totalSets,
+            totalVolume: totalVolume,
+            trainingDays: trainingDays
+        )
+    }
+
+    // MARK: - 筋肉詳細データ取得（ハーフモーダル用）
+
+    func getMuscleHistoryDetail(for muscle: Muscle) -> MuscleHistoryDetail {
+        let calendar = Calendar.current
+        let now = Date()
+
+        // 期間に応じたフィルタリング
+        let filteredSessions: [WorkoutSession]
+        switch selectedPeriod {
+        case .week:
+            guard let weekAgo = calendar.date(byAdding: .day, value: -7, to: now) else {
+                return MuscleHistoryDetail.empty(muscle: muscle)
+            }
+            filteredSessions = sessions.filter { $0.startDate >= weekAgo }
+        case .month:
+            guard let monthAgo = calendar.date(byAdding: .day, value: -30, to: now) else {
+                return MuscleHistoryDetail.empty(muscle: muscle)
+            }
+            filteredSessions = sessions.filter { $0.startDate >= monthAgo }
+        case .all:
+            filteredSessions = sessions
+        }
+
+        // 該当筋肉を刺激する種目とセット数を集計
+        var exerciseSets: [String: Int] = [:]
+        var lastWorkoutDate: Date?
+        var bestSet: (weight: Double, reps: Int)?
+        var dailyMaxWeights: [Date: Double] = [:]  // 日別の最大重量
+
+        for session in filteredSessions {
+            let sessionDay = calendar.startOfDay(for: session.startDate)
+
+            for workoutSet in session.sets {
+                guard let exercise = exerciseStore.exercise(for: workoutSet.exerciseId) else { continue }
+
+                // この種目が該当筋肉を刺激するか確認
+                let stimulatesMuscle = exercise.muscleMapping.keys.contains { muscleId in
+                    muscleId == muscle.rawValue
+                }
+
+                if stimulatesMuscle {
+                    exerciseSets[workoutSet.exerciseId, default: 0] += 1
+
+                    // 最終ワークアウト日を更新
+                    if lastWorkoutDate == nil || session.startDate > lastWorkoutDate! {
+                        lastWorkoutDate = session.startDate
+                    }
+
+                    // ベストセット（最大重量）を更新
+                    if let best = bestSet {
+                        if workoutSet.weight > best.weight {
+                            bestSet = (workoutSet.weight, workoutSet.reps)
+                        }
+                    } else {
+                        bestSet = (workoutSet.weight, workoutSet.reps)
+                    }
+
+                    // 日別の最大重量を更新
+                    if workoutSet.weight > 0 {
+                        dailyMaxWeights[sessionDay] = max(dailyMaxWeights[sessionDay] ?? 0, workoutSet.weight)
+                    }
+                }
+            }
+        }
+
+        // 種目リスト（セット数でソート）
+        let exercises = exerciseSets
+            .sorted { $0.value > $1.value }
+            .compactMap { (exerciseId, sets) -> MuscleExerciseHistory? in
+                guard let exercise = exerciseStore.exercise(for: exerciseId) else { return nil }
+                return MuscleExerciseHistory(exercise: exercise, totalSets: sets)
+            }
+
+        // 重量履歴を作成（日付順にソート、PR判定付き）
+        let sortedDates = dailyMaxWeights.keys.sorted()
+        var runningMax: Double = 0
+        var weightHistory: [MuscleWeightEntry] = []
+
+        for date in sortedDates {
+            let weight = dailyMaxWeights[date]!
+            let isPR = weight > runningMax
+            if isPR {
+                runningMax = weight
+            }
+            weightHistory.append(MuscleWeightEntry(date: date, maxWeight: weight, isPR: isPR))
+        }
+
+        let totalSets = periodMuscleSets[muscle] ?? 0
+
+        return MuscleHistoryDetail(
+            muscle: muscle,
+            totalSets: totalSets,
+            exercises: exercises,
+            lastWorkoutDate: lastWorkoutDate,
+            bestWeight: bestSet?.weight,
+            bestReps: bestSet?.reps,
+            weightHistory: weightHistory
+        )
+    }
+
     // MARK: - 日ごとのボリュームデータ（直近14日）
 
     private func calculateDailyVolumeData() {
@@ -249,4 +462,74 @@ struct DailyVolume: Identifiable {
     let date: Date
     let volume: Double
     var id: Date { date }
+}
+
+// MARK: - 期間選択
+
+enum HistoryPeriod: String, CaseIterable {
+    case week = "7日"
+    case month = "30日"
+    case all = "全期間"
+
+    var englishName: String {
+        switch self {
+        case .week: return "7 Days"
+        case .month: return "30 Days"
+        case .all: return "All Time"
+        }
+    }
+}
+
+// MARK: - 期間内統計
+
+struct PeriodStats {
+    let sessionCount: Int
+    let totalSets: Int
+    let totalVolume: Double
+    let trainingDays: Int
+
+    static let empty = PeriodStats(
+        sessionCount: 0, totalSets: 0, totalVolume: 0, trainingDays: 0
+    )
+}
+
+// MARK: - 筋肉履歴詳細（ハーフモーダル用）
+
+struct MuscleHistoryDetail {
+    let muscle: Muscle
+    let totalSets: Int
+    let exercises: [MuscleExerciseHistory]
+    let lastWorkoutDate: Date?
+    let bestWeight: Double?
+    let bestReps: Int?
+    let weightHistory: [MuscleWeightEntry]  // 日別の重量履歴（チャート用）
+
+    static func empty(muscle: Muscle) -> MuscleHistoryDetail {
+        MuscleHistoryDetail(
+            muscle: muscle,
+            totalSets: 0,
+            exercises: [],
+            lastWorkoutDate: nil,
+            bestWeight: nil,
+            bestReps: nil,
+            weightHistory: []
+        )
+    }
+}
+
+// MARK: - 日別重量エントリ（チャート用）
+
+struct MuscleWeightEntry: Identifiable {
+    let date: Date
+    let maxWeight: Double
+    let isPR: Bool
+
+    var id: Date { date }
+}
+
+struct MuscleExerciseHistory: Identifiable {
+    let exercise: ExerciseDefinition
+    let totalSets: Int
+
+    var id: String { exercise.id }
 }

@@ -398,6 +398,13 @@ private struct ActiveWorkoutView: View {
                     }
                     .padding(.horizontal)
 
+                    // 空状態のガイダンス（種目未選択かつセット未記録）
+                    if viewModel.selectedExercise == nil && viewModel.exerciseSets.isEmpty {
+                        EmptyWorkoutGuidance {
+                            showingExercisePicker = true
+                        }
+                    }
+
                     // 記録済みセット一覧
                     if !viewModel.exerciseSets.isEmpty {
                         RecordedSetsView(
@@ -436,6 +443,55 @@ private struct ActiveWorkoutView: View {
                 Button(L10n.cancel, role: .cancel) {}
             }
         }
+    }
+}
+
+// MARK: - 空状態のガイダンス
+
+private struct EmptyWorkoutGuidance: View {
+    let onAddExercise: () -> Void
+
+    var body: some View {
+        VStack(spacing: 16) {
+            Spacer()
+                .frame(height: 60)
+
+            // アイコン
+            Image(systemName: "dumbbell.fill")
+                .font(.system(size: 48))
+                .foregroundStyle(Color.mmTextSecondary.opacity(0.4))
+
+            // メインテキスト
+            Text(L10n.emptyWorkoutTitle)
+                .font(.headline)
+                .foregroundStyle(Color.mmTextPrimary)
+
+            // サブテキスト
+            Text(L10n.emptyWorkoutHint)
+                .font(.subheadline)
+                .foregroundStyle(Color.mmTextSecondary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 32)
+
+            // 種目追加ボタン（目立つバージョン）
+            Button(action: onAddExercise) {
+                HStack {
+                    Image(systemName: "plus.circle.fill")
+                    Text(L10n.addFirstExercise)
+                }
+                .font(.subheadline.bold())
+                .foregroundStyle(Color.mmBgPrimary)
+                .padding(.horizontal, 24)
+                .padding(.vertical, 12)
+                .background(Color.mmAccentPrimary)
+                .clipShape(Capsule())
+            }
+            .padding(.top, 8)
+
+            Spacer()
+                .frame(height: 60)
+        }
+        .frame(maxWidth: .infinity)
     }
 }
 

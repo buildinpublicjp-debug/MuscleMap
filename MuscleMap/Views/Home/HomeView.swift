@@ -56,9 +56,11 @@ struct HomeView: View {
                                 }
                                 .padding(.horizontal)
                             } else {
-                                // 初回ユーザー向けCTA
-                                FirstWorkoutCTA()
-                                    .padding(.horizontal)
+                                // 初回ユーザー向けCTA（タップでワークアウトタブへ遷移）
+                                FirstWorkoutCTA {
+                                    AppState.shared.selectedTab = 1
+                                }
+                                .padding(.horizontal)
                             }
 
                             // Pro機能バナー（非Proユーザー向け）
@@ -169,25 +171,43 @@ private struct ViewStatsButton: View {
 // MARK: - 初回ユーザー向けCTA
 
 private struct FirstWorkoutCTA: View {
+    let onStartWorkout: () -> Void
+
     var body: some View {
-        VStack(spacing: 12) {
-            Image(systemName: "figure.strengthtraining.traditional")
-                .font(.system(size: 40))
-                .foregroundStyle(Color.mmAccentPrimary)
+        Button(action: onStartWorkout) {
+            VStack(spacing: 12) {
+                Image(systemName: "figure.strengthtraining.traditional")
+                    .font(.system(size: 40))
+                    .foregroundStyle(Color.mmAccentPrimary)
 
-            Text(L10n.startFirstWorkout)
-                .font(.headline)
-                .foregroundStyle(Color.mmTextPrimary)
+                Text(L10n.startFirstWorkout)
+                    .font(.headline)
+                    .foregroundStyle(Color.mmTextPrimary)
 
-            Text(L10n.firstWorkoutHint)
-                .font(.caption)
-                .foregroundStyle(Color.mmTextSecondary)
-                .multilineTextAlignment(.center)
+                Text(L10n.firstWorkoutHint)
+                    .font(.caption)
+                    .foregroundStyle(Color.mmTextSecondary)
+                    .multilineTextAlignment(.center)
+
+                // 開始ボタン
+                HStack {
+                    Image(systemName: "play.fill")
+                    Text(L10n.startWorkout)
+                }
+                .font(.subheadline.bold())
+                .foregroundStyle(Color.mmBgPrimary)
+                .padding(.horizontal, 24)
+                .padding(.vertical, 12)
+                .background(Color.mmAccentPrimary)
+                .clipShape(Capsule())
+                .padding(.top, 8)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 24)
+            .background(Color.mmBgCard)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
         }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 24)
-        .background(Color.mmBgCard)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .buttonStyle(.plain)
     }
 }
 
