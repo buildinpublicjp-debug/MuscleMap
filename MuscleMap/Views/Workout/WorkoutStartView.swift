@@ -519,17 +519,27 @@ private struct SetInputCard: View {
                 .font(.headline)
                 .foregroundStyle(Color.mmTextPrimary)
 
-            // 前回記録
+            // 前回記録（目立つカード表示）
             if let lastW = viewModel.lastWeight, let lastR = viewModel.lastReps {
-                if isBodyweight && lastW == 0 {
-                    Text(L10n.previousRepsOnly(lastR))
-                        .font(.caption)
-                        .foregroundStyle(Color.mmTextSecondary)
-                } else {
-                    Text(L10n.previousRecord(lastW, lastR))
-                        .font(.caption)
-                        .foregroundStyle(Color.mmTextSecondary)
+                HStack(spacing: 8) {
+                    Image(systemName: "clock.arrow.circlepath")
+                        .font(.subheadline)
+                        .foregroundStyle(Color.mmAccentSecondary)
+
+                    if isBodyweight && lastW == 0 {
+                        Text(L10n.previousRepsOnly(lastR))
+                            .font(.subheadline.bold())
+                            .foregroundStyle(Color.mmTextPrimary)
+                    } else {
+                        Text(L10n.previousRecord(lastW, lastR))
+                            .font(.subheadline.bold())
+                            .foregroundStyle(Color.mmTextPrimary)
+                    }
                 }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 10)
+                .background(Color.mmAccentSecondary.opacity(0.15))
+                .clipShape(RoundedRectangle(cornerRadius: 10))
             }
 
             // PR表示（前回記録と違う場合のみ）
@@ -546,8 +556,16 @@ private struct SetInputCard: View {
 
             // セット番号
             Text(L10n.setNumber(viewModel.currentSetNumber))
-                .font(.subheadline.bold())
-                .foregroundStyle(Color.mmAccentSecondary)
+                .font(.title3.bold())
+                .foregroundStyle(Color.mmAccentPrimary)
+
+            // セット間タイマー
+            if viewModel.isRestTimerRunning {
+                RestTimerView(
+                    seconds: viewModel.restTimerSeconds,
+                    onStop: { viewModel.stopRestTimer() }
+                )
+            }
 
             // 重量の提案チップ
             if let lastW = viewModel.lastWeight, lastW > 0, !isBodyweight {
@@ -660,6 +678,49 @@ private struct SetInputCard: View {
         .background(Color.mmBgCard)
         .clipShape(RoundedRectangle(cornerRadius: 16))
         .padding(.horizontal)
+    }
+}
+
+// MARK: - セット間タイマー
+
+private struct RestTimerView: View {
+    let seconds: Int
+    let onStop: () -> Void
+
+    private var formattedTime: String {
+        let mins = seconds / 60
+        let secs = seconds % 60
+        return String(format: "%d:%02d", mins, secs)
+    }
+
+    var body: some View {
+        HStack(spacing: 12) {
+            // タイマー表示
+            HStack(spacing: 6) {
+                Image(systemName: "timer")
+                    .font(.subheadline)
+                Text(formattedTime)
+                    .font(.system(size: 24, weight: .bold, design: .monospaced))
+            }
+            .foregroundStyle(Color.mmAccentPrimary)
+
+            // 停止ボタン
+            Button {
+                onStop()
+                HapticManager.lightTap()
+            } label: {
+                Image(systemName: "stop.fill")
+                    .font(.caption)
+                    .foregroundStyle(Color.mmTextSecondary)
+                    .padding(8)
+                    .background(Color.mmBgSecondary)
+                    .clipShape(Circle())
+            }
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+        .background(Color.mmAccentPrimary.opacity(0.1))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 }
 
@@ -826,20 +887,21 @@ private struct RecordedSetsView: View {
                                 Text(L10n.setNumber(set.setNumber))
                                     .font(.caption)
                                     .foregroundStyle(Color.mmTextSecondary)
+                                    .frame(width: 50, alignment: .leading)
                                 Spacer()
                                 if (entry.exercise.equipment == "自重" || entry.exercise.equipment == "Bodyweight") && set.weight == 0 {
                                     Text(L10n.repsOnly(set.reps))
-                                        .font(.caption.monospaced())
+                                        .font(.subheadline.bold().monospaced())
                                         .foregroundStyle(Color.mmTextPrimary)
                                 } else {
                                     Text(L10n.weightReps(set.weight, set.reps))
-                                        .font(.caption.monospaced())
+                                        .font(.subheadline.bold().monospaced())
                                         .foregroundStyle(Color.mmTextPrimary)
                                 }
                                 // PRマーク（セッション内最大重量）
                                 if isPRSet(set, in: entry.sets) {
                                     Image(systemName: "trophy.fill")
-                                        .font(.caption2)
+                                        .font(.caption)
                                         .foregroundStyle(.yellow)
                                 }
                                 Text(timeFormatter.string(from: set.completedAt))

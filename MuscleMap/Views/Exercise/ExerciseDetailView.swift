@@ -177,9 +177,9 @@ private struct MuscleStimulationBar: View {
             .frame(height: 8)
 
             Text("\(percentage)%")
-                .font(.caption.monospaced())
-                .foregroundStyle(Color.mmTextSecondary)
-                .frame(width: 40, alignment: .trailing)
+                .font(.subheadline.bold().monospacedDigit())
+                .foregroundStyle(barColor)
+                .frame(width: 48, alignment: .trailing)
         }
     }
 

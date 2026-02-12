@@ -297,9 +297,9 @@ private struct GroupVolumeCard: View {
                         .frame(height: 12)
 
                         Text("\(item.sets)")
-                            .font(.caption.bold())
-                            .foregroundStyle(Color.mmTextPrimary)
-                            .frame(width: 24, alignment: .trailing)
+                            .font(.subheadline.bold().monospacedDigit())
+                            .foregroundStyle(Color.mmAccentPrimary)
+                            .frame(width: 32, alignment: .trailing)
                     }
                 }
             }
@@ -361,9 +361,9 @@ private struct TopExercisesCard: View {
 
                     Spacer()
 
-                    Text(L10n.setsLabel(item.count))
-                        .font(.caption.bold())
-                        .foregroundStyle(Color.mmTextSecondary)
+                    Text("\(item.count)")
+                        .font(.title3.bold().monospacedDigit())
+                        .foregroundStyle(Color.mmAccentPrimary)
                 }
                 .padding(.vertical, 4)
 
@@ -527,10 +527,7 @@ private struct HistoryMapView: View {
                     HStack(spacing: 6) {
                         Image(systemName: showFront ? "person.fill" : "person.fill")
                             .font(.caption)
-                        Text(showFront
-                            ? (localization.currentLanguage == .japanese ? "前面" : "Front")
-                            : (localization.currentLanguage == .japanese ? "背面" : "Back")
-                        )
+                        Text(showFront ? L10n.front : L10n.back)
                         .font(.subheadline.weight(.medium))
                     }
                     .foregroundStyle(Color.mmTextPrimary)
@@ -547,10 +544,7 @@ private struct HistoryMapView: View {
                         HStack(spacing: 6) {
                             Image(systemName: "arrow.left.arrow.right")
                                 .font(.caption.weight(.medium))
-                            Text(showFront
-                                ? (localization.currentLanguage == .japanese ? "背面を見る" : "View Back")
-                                : (localization.currentLanguage == .japanese ? "前面を見る" : "View Front")
-                            )
+                            Text(showFront ? L10n.viewBack : L10n.viewFront)
                             .font(.caption.weight(.medium))
                         }
                         .foregroundStyle(Color.mmAccentPrimary)
@@ -566,11 +560,9 @@ private struct HistoryMapView: View {
                     muscleSets: viewModel.periodMuscleSets,
                     showFront: showFront,
                     onMuscleTap: { muscle in
-                        HapticManager.lightTap()
                         onMuscleTap(muscle)
                     }
                 )
-                .aspectRatio(0.6, contentMode: .fit)
                 .frame(maxHeight: 380)
 
                 // 凡例
@@ -653,20 +645,19 @@ private struct HistoryMuscleMapCanvas: View {
             ZStack {
                 ForEach(muscles, id: \.muscle) { entry in
                     let sets = muscleSets[entry.muscle] ?? 0
-                    let path = entry.path(rect)
+                    let fillColor = colorForSets(sets)
 
-                    path
-                        .fill(colorForSets(sets))
-                        .overlay {
-                            path.stroke(Color.mmMuscleBorder.opacity(0.3), lineWidth: 0.5)
-                        }
-                        .contentShape(path)
-                        .onTapGesture {
-                            onMuscleTap(entry.muscle)
-                        }
+                    HistoryMusclePathView(
+                        path: entry.path(rect),
+                        fillColor: fillColor,
+                        muscle: entry.muscle
+                    ) {
+                        onMuscleTap(entry.muscle)
+                    }
                 }
             }
         }
+        .aspectRatio(0.6, contentMode: .fit)
     }
 
     private func colorForSets(_ sets: Int) -> Color {
@@ -688,6 +679,40 @@ private struct HistoryMuscleMapCanvas: View {
         }
     }
 }
+
+// MARK: - 履歴用筋肉パスビュー（タップ対応）
+
+private struct HistoryMusclePathView: View {
+    let path: Path
+    let fillColor: Color
+    let muscle: Muscle
+    let onTap: () -> Void
+
+    @State private var isTapped = false
+
+    var body: some View {
+        path
+            .fill(fillColor)
+            .overlay {
+                path.stroke(Color.mmMuscleBorder.opacity(0.3), lineWidth: 0.5)
+            }
+            .scaleEffect(isTapped ? 1.02 : 1.0)
+            .animation(.easeInOut(duration: 0.15), value: isTapped)
+            .onTapGesture {
+                withAnimation(.easeInOut(duration: 0.1)) {
+                    isTapped = true
+                }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    withAnimation(.easeInOut(duration: 0.1)) {
+                        isTapped = false
+                    }
+                }
+                HapticManager.lightTap()
+                onTap()
+            }
+    }
+}
+
 
 // MARK: - 履歴マップ凡例（改善版）
 
@@ -974,7 +999,7 @@ private struct MuscleHistoryDetailSheet: View {
                         .font(.caption2)
                         .foregroundStyle(Color.mmTextSecondary)
                     Text(detail.lastWorkoutDate.map { formatDate($0) } ?? "-")
-                        .font(.caption.bold())
+                        .font(.subheadline.bold())
                         .foregroundStyle(Color.mmTextPrimary)
                 }
                 .frame(maxWidth: .infinity)
@@ -989,11 +1014,11 @@ private struct MuscleHistoryDetailSheet: View {
                         .foregroundStyle(Color.mmTextSecondary)
                     if let weight = detail.bestWeight, let reps = detail.bestReps {
                         Text("\(Int(weight))kg×\(reps)")
-                            .font(.caption.bold())
-                            .foregroundStyle(Color.mmTextPrimary)
+                            .font(.subheadline.bold())
+                            .foregroundStyle(Color.mmAccentPrimary)
                     } else {
                         Text("-")
-                            .font(.caption.bold())
+                            .font(.subheadline.bold())
                             .foregroundStyle(Color.mmTextSecondary)
                     }
                 }
@@ -1008,8 +1033,8 @@ private struct MuscleHistoryDetailSheet: View {
                         .font(.caption2)
                         .foregroundStyle(Color.mmTextSecondary)
                     Text("\(detail.totalSets)")
-                        .font(.caption.bold())
-                        .foregroundStyle(Color.mmTextPrimary)
+                        .font(.title3.bold())
+                        .foregroundStyle(Color.mmAccentPrimary)
                 }
                 .frame(maxWidth: .infinity)
             }
