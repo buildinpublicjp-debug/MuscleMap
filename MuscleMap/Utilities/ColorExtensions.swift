@@ -19,10 +19,10 @@ extension Color {
     // ブランドカラー
     static let mmBrandPurple = Color(hex: "#A020F0")
 
-    // 筋肉状態（3段階に簡素化）
-    static let mmMuscleFatigued = Color(hex: "#FF6B6B")   // 疲労（0-20%）= 赤
-    static let mmMuscleModerate = Color(hex: "#FFEE58")   // 中間（20-80%）= 黄
-    static let mmMuscleRecovered = Color(hex: "#00E676")  // 回復済み（80-100%）= 緑
+    // 筋肉状態（3段階に簡素化）— 彩度を抑えた落ち着いたトーン
+    static let mmMuscleFatigued = Color(hex: "#E57373")   // 疲労（0-20%）= 落ち着いたコーラル
+    static let mmMuscleModerate = Color(hex: "#FFD54F")   // 中間（20-80%）= 落ち着いたゴールド
+    static let mmMuscleRecovered = Color(hex: "#81C784")  // 回復済み（80-100%）= 落ち着いたセージ
     static let mmMuscleInactive = Color(hex: "#3D3D42")   // 記録なし/完全回復
     static let mmMuscleNeglected = Color(hex: "#B388D4")  // 紫（7日+未刺激）コントラスト比 5.3:1
 
