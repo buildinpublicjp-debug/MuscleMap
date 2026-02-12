@@ -30,6 +30,11 @@ class WorkoutViewModel {
     var lastWeight: Double?
     var lastReps: Int?
 
+    // セット間タイマー
+    var restTimerSeconds: Int = 0
+    var isRestTimerRunning: Bool = false
+    private var restTimer: Timer?
+
     init(modelContext: ModelContext) {
         self.workoutRepo = WorkoutRepository(modelContext: modelContext)
         self.muscleStateRepo = MuscleStateRepository(modelContext: modelContext)
@@ -100,18 +105,31 @@ class WorkoutViewModel {
         }
     }
 
+    // PR達成フラグ（UIからのアニメーション用）
+    var lastSetWasPR: Bool = false
+
     // MARK: セット記録
 
     /// セットを記録（バリデーション済み）
-    func recordSet() {
+    /// - Returns: PR達成かどうか
+    @discardableResult
+    func recordSet() -> Bool {
         guard let session = activeSession,
-              let exercise = selectedExercise else { return }
+              let exercise = selectedExercise else { return false }
 
         // バリデーション: レップ数は最低1回必要
-        guard currentReps >= 1 else { return }
+        guard currentReps >= 1 else { return false }
 
         // バリデーション: 重量は0以上（負の値は0に補正）
         let validatedWeight = max(0, currentWeight)
+
+        // PR判定（セット保存前に確認）
+        let isPR = validatedWeight > 0 && PRManager.shared.checkIsWeightPR(
+            exerciseId: exercise.id,
+            weight: validatedWeight,
+            context: workoutRepo.modelContext
+        )
+        lastSetWasPR = isPR
 
         // セットを保存
         _ = workoutRepo.addSet(
@@ -130,6 +148,11 @@ class WorkoutViewModel {
 
         // セット一覧を更新
         refreshExerciseSets()
+
+        // セット間タイマーを開始
+        startRestTimer()
+
+        return isPR
     }
 
     /// 重量を調整
@@ -140,6 +163,32 @@ class WorkoutViewModel {
     /// レップ数を調整
     func adjustReps(by delta: Int) {
         currentReps = max(1, currentReps + delta)
+    }
+
+    // MARK: セット間タイマー
+
+    /// タイマーを開始
+    func startRestTimer() {
+        restTimerSeconds = 0
+        isRestTimerRunning = true
+        restTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
+            Task { @MainActor in
+                self?.restTimerSeconds += 1
+            }
+        }
+    }
+
+    /// タイマーを停止
+    func stopRestTimer() {
+        restTimer?.invalidate()
+        restTimer = nil
+        isRestTimerRunning = false
+    }
+
+    /// タイマーをリセット
+    func resetRestTimer() {
+        stopRestTimer()
+        restTimerSeconds = 0
     }
 
     /// セットを削除

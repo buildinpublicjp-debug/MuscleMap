@@ -50,4 +50,31 @@ struct HapticManager {
         let generator = UINotificationFeedbackGenerator()
         generator.notificationOccurred(.success)
     }
+
+    /// PR達成時（強い連続バイブレーション）
+    static func prAchieved() {
+        guard AppState.shared.isHapticEnabled else { return }
+        let generator = UINotificationFeedbackGenerator()
+        generator.notificationOccurred(.success)
+        // 連続的な強いインパクトで祝福感を演出
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            let heavy = UIImpactFeedbackGenerator(style: .heavy)
+            heavy.impactOccurred()
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+            let heavy = UIImpactFeedbackGenerator(style: .heavy)
+            heavy.impactOccurred()
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+            let heavy = UIImpactFeedbackGenerator(style: .heavy)
+            heavy.impactOccurred()
+        }
+    }
+
+    /// セット完了時（軽〜中程度のフィードバック）
+    static func setCompleted() {
+        guard AppState.shared.isHapticEnabled else { return }
+        let generator = UIImpactFeedbackGenerator(style: .medium)
+        generator.impactOccurred()
+    }
 }
