@@ -294,6 +294,7 @@ enum L10n {
     static var noSessionsYet: String { loc("まだセッションがありません", "No sessions yet") }
     static var inProgress: String { loc("進行中", "In Progress") }
     static func minutes(_ min: Int) -> String { loc("\(min)分", "\(min) min") }
+    static var lessThanOneMinute: String { loc("<1分", "<1 min") }
     static var andMore: String { loc("他", "more") }
     static func setsLabel(_ count: Int) -> String { loc("\(count)セット", "\(count) sets") }
 
@@ -337,6 +338,7 @@ enum L10n {
     static var appSettings: String { loc("アプリ設定", "App Settings") }
     static var hapticFeedback: String { loc("触覚フィードバック", "Haptic Feedback") }
     static var language: String { loc("言語", "Language") }
+    static var weightUnit: String { loc("重量単位", "Weight Unit") }
     static var data: String { loc("データ", "Data") }
     static var csvImport: String { loc("CSVインポート", "CSV Import") }
     static var dataExport: String { loc("データエクスポート", "Data Export") }
@@ -527,6 +529,9 @@ enum L10n {
 
     // MARK: - メニュー提案理由
     static var letsStartTraining: String { loc("トレーニングを始めましょう", "Let's start training") }
+    static var basedOnRecovery: String { loc("回復状態に基づく提案", "Based on recovery status") }
+    static var suggestionReason: String { loc("提案理由", "Why this menu") }
+    static var suggestedExercises: String { loc("おすすめ種目", "Suggested Exercises") }
     static func groupMostRecovered(_ groupName: String) -> String {
         loc("\(groupName)が最も回復しています", "\(groupName) is most recovered")
     }

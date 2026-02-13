@@ -13,8 +13,12 @@ struct OnboardingV2View: View {
 
             TabView(selection: $currentPage) {
                 // ページ1: 体験（筋肉マップをタップして体験）
-                InteractiveDemoPage()
-                    .tag(0)
+                InteractiveDemoPage {
+                    withAnimation(.easeInOut(duration: 0.5)) {
+                        currentPage = 1
+                    }
+                }
+                .tag(0)
 
                 // ページ2: 目標選択
                 PersonalizationPage {

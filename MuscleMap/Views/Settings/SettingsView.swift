@@ -162,6 +162,24 @@ struct SettingsView: View {
             }
             .listRowBackground(Color.mmBgCard)
 
+            // 重量単位設定
+            HStack(spacing: 12) {
+                Image(systemName: "scalemass")
+                    .foregroundStyle(Color.mmAccentSecondary)
+                Text(L10n.weightUnit)
+                    .font(.subheadline)
+                    .foregroundStyle(Color.mmTextPrimary)
+                Spacer()
+                Picker("", selection: $appState.weightUnit) {
+                    ForEach(WeightUnit.allCases, id: \.self) { unit in
+                        Text(unit.displayName).tag(unit)
+                    }
+                }
+                .pickerStyle(.menu)
+                .tint(Color.mmAccentPrimary)
+            }
+            .listRowBackground(Color.mmBgCard)
+
             // YouTube検索言語設定
             HStack(spacing: 12) {
                 Image(systemName: "play.rectangle.fill")

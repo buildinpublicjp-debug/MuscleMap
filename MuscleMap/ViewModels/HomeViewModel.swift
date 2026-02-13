@@ -21,6 +21,8 @@ class HomeViewModel {
 
     // 筋肉の視覚状態
     var muscleStates: [Muscle: MuscleVisualState] = [:]
+    // 最新の刺激データ（メニュー提案用）
+    var latestStimulations: [Muscle: MuscleStimulation] = [:]
     // 未刺激警告がある筋肉
     var neglectedMuscles: [Muscle] = []
     // 未刺激筋肉の詳細情報（日数付き）
@@ -29,6 +31,14 @@ class HomeViewModel {
     var activeSession: WorkoutSession?
     // 継続日数
     var streakDays: Int = 0
+
+    /// 今日のおすすめメニューを取得
+    func getSuggestedMenu() -> SuggestedMenu {
+        return MenuSuggestionService.suggestTodayMenu(
+            stimulations: latestStimulations,
+            exerciseStore: ExerciseStore.shared
+        )
+    }
 
     init(modelContext: ModelContext) {
         self.muscleStateRepo = MuscleStateRepository(modelContext: modelContext)
@@ -71,6 +81,7 @@ class HomeViewModel {
         muscleStates = states
         neglectedMuscles = neglected
         neglectedMuscleInfos = neglectedInfos
+        latestStimulations = stimulations
 
         // ウィジェットデータを更新
         updateWidgetData(stimulations: stimulations)

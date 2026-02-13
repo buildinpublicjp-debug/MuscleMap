@@ -3,6 +3,8 @@ import SwiftUI
 // MARK: - 価値体験画面（筋肉マップデモ）
 
 struct InteractiveDemoPage: View {
+    let onNext: () -> Void
+
     @State private var tappedMuscles: Set<Muscle> = []
     @State private var showingFront = true
     @State private var appeared = false
@@ -24,10 +26,11 @@ struct InteractiveDemoPage: View {
     var body: some View {
         GeometryReader { geometry in
             let safeArea = geometry.safeAreaInsets
-            // ヘッダー + トグル + 回復カード用のスペースを確保し、残りを筋肉マップに使用
+            // ヘッダー + トグル + 回復カード + ボタン用のスペースを確保し、残りを筋肉マップに使用
             let headerHeight: CGFloat = 100 // タイトル + トグル
             let cardAreaHeight: CGFloat = 100 // 回復情報カード用
-            let mapHeight = geometry.size.height - headerHeight - cardAreaHeight - safeArea.top
+            let buttonAreaHeight: CGFloat = 88 // 次へボタン用（56 + padding）
+            let mapHeight = geometry.size.height - headerHeight - cardAreaHeight - buttonAreaHeight - safeArea.top
 
             VStack(spacing: 0) {
                 // タイトルエリア（コンパクト化）
@@ -114,6 +117,23 @@ struct InteractiveDemoPage: View {
                     }
                 }
                 .frame(height: cardAreaHeight)
+
+                // 次へボタン
+                Button {
+                    HapticManager.lightTap()
+                    onNext()
+                } label: {
+                    Text(L10n.next)
+                        .font(.system(size: 18, weight: .bold))
+                        .foregroundStyle(Color.mmOnboardingBg)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 56)
+                        .background(Color.mmOnboardingAccent)
+                        .clipShape(RoundedRectangle(cornerRadius: 16))
+                }
+                .padding(.horizontal, 24)
+                .padding(.bottom, 16)
+                .opacity(appeared ? 1 : 0)
             }
         }
         .onAppear {
@@ -285,6 +305,6 @@ private struct RecoveryInfoCard: View {
 #Preview {
     ZStack {
         Color.mmOnboardingBg.ignoresSafeArea()
-        InteractiveDemoPage()
+        InteractiveDemoPage(onNext: {})
     }
 }

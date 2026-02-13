@@ -9,6 +9,18 @@ struct DayWorkoutDetailView: View {
     @Environment(\.dismiss) private var dismiss
     private var localization: LocalizationManager { LocalizationManager.shared }
 
+    private var localizedDateString: String {
+        let formatter = DateFormatter()
+        if localization.currentLanguage == .japanese {
+            formatter.locale = Locale(identifier: "ja_JP")
+            formatter.dateFormat = "yyyy年M月d日"
+        } else {
+            formatter.locale = Locale(identifier: "en_US")
+            formatter.dateStyle = .medium
+        }
+        return formatter.string(from: date)
+    }
+
     private var sessions: [WorkoutSession] {
         let calendar = Calendar.current
         let startOfDay = calendar.startOfDay(for: date)
@@ -48,7 +60,7 @@ struct DayWorkoutDetailView: View {
                     }
                 }
             }
-            .navigationTitle(date.formatted(date: .abbreviated, time: .omitted))
+            .navigationTitle(localizedDateString)
             .navigationBarTitleDisplayMode(.inline)
             .toolbarColorScheme(.dark, for: .navigationBar)
             .toolbar {
@@ -72,6 +84,9 @@ private struct SessionDetailCard: View {
         guard let end = session.endDate else { return L10n.inProgress }
         let interval = end.timeIntervalSince(session.startDate)
         let minutes = Int(interval / 60)
+        if minutes < 1 {
+            return L10n.lessThanOneMinute
+        }
         return L10n.minutes(minutes)
     }
 
