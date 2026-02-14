@@ -320,21 +320,25 @@ private struct RelatedExercisesSection: View {
                     selectedExercise = exercise
                 } label: {
                     HStack(spacing: 12) {
-                        // GIFサムネイル or MiniMuscleMap
+                        // サムネイル（小さめ）
                         if ExerciseGifView.hasGif(exerciseId: exercise.id) {
                             ExerciseGifView(exerciseId: exercise.id, size: .thumbnail)
+                                .frame(width: 40, height: 40)
+                                .clipShape(RoundedRectangle(cornerRadius: 6))
                         } else {
                             MiniMuscleMapView(muscleMapping: exercise.muscleMapping)
-                                .frame(width: 56, height: 56)
+                                .frame(width: 40, height: 40)
                                 .background(Color.mmBgPrimary.opacity(0.5))
-                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                                .clipShape(RoundedRectangle(cornerRadius: 6))
                         }
 
                         // 種目情報
-                        VStack(alignment: .leading, spacing: 4) {
+                        VStack(alignment: .leading, spacing: 2) {
                             Text(localization.currentLanguage == .japanese ? exercise.nameJA : exercise.nameEN)
                                 .font(.subheadline.bold())
                                 .foregroundStyle(Color.mmTextPrimary)
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.8)
                             Text(exercise.localizedEquipment)
                                 .font(.caption)
                                 .foregroundStyle(Color.mmTextSecondary)
@@ -345,14 +349,15 @@ private struct RelatedExercisesSection: View {
                         // 刺激度%
                         let percentage = exercise.stimulationPercentage(for: muscle)
                         Text("\(percentage)%")
-                            .font(.title3.monospaced().bold())
+                            .font(.subheadline.monospaced().bold())
                             .foregroundStyle(stimulationColor(percentage))
 
                         Image(systemName: "chevron.right")
-                            .font(.caption)
+                            .font(.caption2)
                             .foregroundStyle(Color.mmTextSecondary)
                     }
-                    .padding(12)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 10)
                     .background(Color.mmBgCard)
                     .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
