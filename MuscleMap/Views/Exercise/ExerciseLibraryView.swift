@@ -221,11 +221,15 @@ private struct ExerciseLibraryRow: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            // ミニ筋肉マップ（ターゲット筋肉をハイライト）
-            MiniMuscleMapView(muscleMapping: exercise.muscleMapping)
-                .frame(width: 50, height: 70)
-                .background(Color.mmBgCard.opacity(0.5))
-                .clipShape(RoundedRectangle(cornerRadius: 6))
+            // GIFサムネイル（存在する場合）またはミニ筋肉マップ
+            if ExerciseGifView.hasGif(exerciseId: exercise.id) {
+                ExerciseGifView(exerciseId: exercise.id, size: .thumbnail)
+            } else {
+                MiniMuscleMapView(muscleMapping: exercise.muscleMapping)
+                    .frame(width: 56, height: 56)
+                    .background(Color.mmBgCard.opacity(0.5))
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+            }
 
             // 種目情報
             VStack(alignment: .leading, spacing: 4) {

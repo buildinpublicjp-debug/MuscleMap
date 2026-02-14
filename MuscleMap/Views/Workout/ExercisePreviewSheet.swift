@@ -112,14 +112,29 @@ struct ExercisePreviewSheet: View {
                 Spacer()
             }
 
-            // ミニマップ（プライマリ/セカンダリ色分け）
-            PreviewMuscleMapView(
-                muscleMapping: exercise.muscleMapping,
-                primaryThreshold: 60
-            )
-            .frame(height: 180)
-            .background(Color.mmBgCard)
-            .clipShape(RoundedRectangle(cornerRadius: 12))
+            // GIF + ミニマップ横並び（GIFがある場合）
+            if ExerciseGifView.hasGif(exerciseId: exercise.id) {
+                HStack(spacing: 10) {
+                    ExerciseGifView(exerciseId: exercise.id, size: .medium)
+
+                    PreviewMuscleMapView(
+                        muscleMapping: exercise.muscleMapping,
+                        primaryThreshold: 60
+                    )
+                    .frame(height: 150)
+                    .background(Color.mmBgCard)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                }
+            } else {
+                // GIFがない場合は従来通りMuscleMap単体
+                PreviewMuscleMapView(
+                    muscleMapping: exercise.muscleMapping,
+                    primaryThreshold: 60
+                )
+                .frame(height: 180)
+                .background(Color.mmBgCard)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+            }
 
             // 凡例
             HStack(spacing: 16) {
