@@ -297,11 +297,15 @@ struct EnhancedExerciseRow: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            // ミニ筋肉マップ
-            MiniMuscleMapView(muscleMapping: exercise.muscleMapping)
-                .frame(width: 44, height: 70)
-                .background(Color.mmBgCard)
-                .clipShape(RoundedRectangle(cornerRadius: 6))
+            // GIFサムネイル or ミニ筋肉マップ
+            if ExerciseGifView.hasGif(exerciseId: exercise.id) {
+                ExerciseGifView(exerciseId: exercise.id, size: .thumbnail)
+            } else {
+                MiniMuscleMapView(muscleMapping: exercise.muscleMapping)
+                    .frame(width: 56, height: 56)
+                    .background(Color.mmBgCard)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+            }
 
             // 種目情報
             VStack(alignment: .leading, spacing: 4) {
