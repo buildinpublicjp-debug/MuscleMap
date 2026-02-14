@@ -121,7 +121,7 @@ struct ExercisePreviewSheet: View {
                         muscleMapping: exercise.muscleMapping,
                         primaryThreshold: 60
                     )
-                    .frame(height: 150)
+                    .frame(height: 120)
                     .background(Color.mmBgCard)
                     .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
@@ -131,7 +131,7 @@ struct ExercisePreviewSheet: View {
                     muscleMapping: exercise.muscleMapping,
                     primaryThreshold: 60
                 )
-                .frame(height: 180)
+                .frame(height: 140)
                 .background(Color.mmBgCard)
                 .clipShape(RoundedRectangle(cornerRadius: 12))
             }
@@ -162,7 +162,7 @@ struct ExercisePreviewSheet: View {
 
     private var targetMusclesSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            // Primary
+            // Primary（最大3つまで表示）
             if !primaryMuscles.isEmpty {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(L10n.primaryTarget)
@@ -170,18 +170,25 @@ struct ExercisePreviewSheet: View {
                         .foregroundStyle(Color.mmMuscleJustWorked)
 
                     FlowLayout(spacing: 6) {
-                        ForEach(primaryMuscles, id: \.self) { muscle in
+                        ForEach(Array(primaryMuscles.prefix(3)), id: \.self) { muscle in
                             MuscleChip(
                                 muscle: muscle,
                                 percentage: exercise.muscleMapping[muscle.rawValue] ?? exercise.muscleMapping[muscle.rawValue.toSnakeCase()] ?? 0,
                                 isPrimary: true
                             )
                         }
+                        if primaryMuscles.count > 3 {
+                            Text("+\(primaryMuscles.count - 3)")
+                                .font(.caption)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4)
+                                .foregroundStyle(Color.mmTextSecondary)
+                        }
                     }
                 }
             }
 
-            // Secondary
+            // Secondary（最大3つまで表示）
             if !secondaryMuscles.isEmpty {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(L10n.secondaryTarget)
@@ -189,12 +196,19 @@ struct ExercisePreviewSheet: View {
                         .foregroundStyle(Color.mmMuscleAmber)
 
                     FlowLayout(spacing: 6) {
-                        ForEach(secondaryMuscles, id: \.self) { muscle in
+                        ForEach(Array(secondaryMuscles.prefix(3)), id: \.self) { muscle in
                             MuscleChip(
                                 muscle: muscle,
                                 percentage: exercise.muscleMapping[muscle.rawValue] ?? exercise.muscleMapping[muscle.rawValue.toSnakeCase()] ?? 0,
                                 isPrimary: false
                             )
+                        }
+                        if secondaryMuscles.count > 3 {
+                            Text("+\(secondaryMuscles.count - 3)")
+                                .font(.caption)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4)
+                                .foregroundStyle(Color.mmTextSecondary)
                         }
                     }
                 }

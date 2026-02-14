@@ -237,9 +237,9 @@ private struct ExerciseLibraryRow: View {
                 ExerciseGifView(exerciseId: exercise.id, size: .thumbnail)
             } else {
                 MiniMuscleMapView(muscleMapping: exercise.muscleMapping)
-                    .frame(width: 56, height: 56)
+                    .frame(width: 44, height: 44)
                     .background(Color.mmBgCard.opacity(0.5))
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .clipShape(RoundedRectangle(cornerRadius: 6))
             }
 
             // 種目情報

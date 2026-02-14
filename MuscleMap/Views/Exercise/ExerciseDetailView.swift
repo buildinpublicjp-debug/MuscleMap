@@ -35,13 +35,38 @@ struct ExerciseDetailView: View {
                             }
                         }
 
-                        // 基本情報
+                        // 基本情報タグ
                         HStack(spacing: 16) {
                             InfoTag(icon: "dumbbell", text: exercise.localizedEquipment)
                             InfoTag(icon: "chart.bar", text: exercise.localizedDifficulty)
                             InfoTag(icon: "tag", text: exercise.localizedCategory)
                             if let pr = prWeight {
                                 InfoTag(icon: "trophy.fill", text: String(format: "%.1f kg", pr), highlight: true)
+                            }
+                        }
+
+                        // ターゲット筋肉（マップ + 刺激度バー統合セクション）
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text(L10n.targetMuscles)
+                                .font(.headline)
+                                .foregroundStyle(Color.mmTextPrimary)
+
+                            ExerciseMuscleMapView(muscleMapping: exercise.muscleMapping)
+                                .frame(height: 240)
+                                .background(Color.mmBgCard)
+                                .clipShape(RoundedRectangle(cornerRadius: 12))
+
+                            // 刺激度バー（マップ直下に配置）
+                            let sorted = exercise.muscleMapping
+                                .sorted { $0.value > $1.value }
+
+                            ForEach(sorted, id: \.key) { muscleId, percentage in
+                                if let muscle = Muscle(rawValue: muscleId) ?? Muscle(snakeCase: muscleId) {
+                                    MuscleStimulationBar(
+                                        muscle: muscle,
+                                        percentage: percentage
+                                    )
+                                }
                             }
                         }
 
@@ -54,7 +79,7 @@ struct ExerciseDetailView: View {
                                 .clipShape(RoundedRectangle(cornerRadius: 12))
                         }
 
-                        // 動画で見る
+                        // 動画で見る（YouTubeボタン）
                         Button {
                             if let url = YouTubeSearchHelper.searchURL(for: exercise) {
                                 UIApplication.shared.open(url)
@@ -74,38 +99,6 @@ struct ExerciseDetailView: View {
                             .padding()
                             .background(Color.mmBgCard)
                             .clipShape(RoundedRectangle(cornerRadius: 12))
-                        }
-
-                        // 筋肉マップ
-                        VStack(alignment: .leading, spacing: 12) {
-                            Text(L10n.targetMuscles)
-                                .font(.headline)
-                                .foregroundStyle(Color.mmTextPrimary)
-
-                            ExerciseMuscleMapView(muscleMapping: exercise.muscleMapping)
-                                .frame(height: 320)
-                                .background(Color.mmBgCard)
-                                .clipShape(RoundedRectangle(cornerRadius: 12))
-                        }
-
-                        // ターゲット筋肉（リスト）
-                        VStack(alignment: .leading, spacing: 12) {
-                            Text(L10n.stimulationLevel)
-                                .font(.headline)
-                                .foregroundStyle(Color.mmTextPrimary)
-
-                            // 刺激度%順にソート
-                            let sorted = exercise.muscleMapping
-                                .sorted { $0.value > $1.value }
-
-                            ForEach(sorted, id: \.key) { muscleId, percentage in
-                                if let muscle = Muscle(rawValue: muscleId) ?? Muscle(snakeCase: muscleId) {
-                                    MuscleStimulationBar(
-                                        muscle: muscle,
-                                        percentage: percentage
-                                    )
-                                }
-                            }
                         }
                     }
                     .padding()
@@ -168,7 +161,9 @@ private struct MuscleStimulationBar: View {
             Text(localization.currentLanguage == .japanese ? muscle.japaneseName : muscle.englishName)
                 .font(.subheadline)
                 .foregroundStyle(Color.mmTextPrimary)
-                .frame(width: 100, alignment: .leading)
+                .frame(minWidth: 80, alignment: .leading)
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
 
             GeometryReader { geo in
                 ZStack(alignment: .leading) {

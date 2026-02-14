@@ -80,8 +80,8 @@ struct ExerciseMuscleMapView: View {
 
     private func colorFor(stimulation: Int) -> Color {
         guard stimulation > 0 else {
-            // 刺激されない筋肉 = 暗いグレー（でも形は見える）
-            return Color.mmTextSecondary.opacity(0.15)
+            // 刺激されない筋肉 = 暗いグレー（シルエットが見える程度）
+            return Color.mmTextSecondary.opacity(0.2)
         }
 
         // 刺激度に応じてグラデーション
