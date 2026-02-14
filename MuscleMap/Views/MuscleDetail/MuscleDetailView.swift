@@ -319,13 +319,24 @@ private struct RelatedExercisesSection: View {
                 Button {
                     selectedExercise = exercise
                 } label: {
-                    HStack {
-                        VStack(alignment: .leading, spacing: 2) {
+                    HStack(spacing: 12) {
+                        // GIFサムネイル or MiniMuscleMap
+                        if ExerciseGifView.hasGif(exerciseId: exercise.id) {
+                            ExerciseGifView(exerciseId: exercise.id, size: .thumbnail)
+                        } else {
+                            MiniMuscleMapView(muscleMapping: exercise.muscleMapping)
+                                .frame(width: 56, height: 56)
+                                .background(Color.mmBgPrimary.opacity(0.5))
+                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                        }
+
+                        // 種目情報
+                        VStack(alignment: .leading, spacing: 4) {
                             Text(localization.currentLanguage == .japanese ? exercise.nameJA : exercise.nameEN)
-                                .font(.subheadline)
+                                .font(.subheadline.bold())
                                 .foregroundStyle(Color.mmTextPrimary)
                             Text(exercise.localizedEquipment)
-                                .font(.caption2)
+                                .font(.caption)
                                 .foregroundStyle(Color.mmTextSecondary)
                         }
 
@@ -334,14 +345,14 @@ private struct RelatedExercisesSection: View {
                         // 刺激度%
                         let percentage = exercise.stimulationPercentage(for: muscle)
                         Text("\(percentage)%")
-                            .font(.subheadline.monospaced().bold())
+                            .font(.title3.monospaced().bold())
                             .foregroundStyle(stimulationColor(percentage))
 
                         Image(systemName: "chevron.right")
                             .font(.caption)
                             .foregroundStyle(Color.mmTextSecondary)
                     }
-                    .padding()
+                    .padding(12)
                     .background(Color.mmBgCard)
                     .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
