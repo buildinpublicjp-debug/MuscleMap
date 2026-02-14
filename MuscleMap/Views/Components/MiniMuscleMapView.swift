@@ -55,6 +55,7 @@ struct MiniMuscleMapView: View {
                 }
             }
         }
+        .aspectRatio(0.6, contentMode: .fit)
     }
 
     // MARK: - 刺激度の取得

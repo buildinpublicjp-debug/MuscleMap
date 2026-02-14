@@ -305,6 +305,7 @@ private struct PreviewMuscleMapView: View {
                 }
             }
         }
+        .aspectRatio(0.6, contentMode: .fit)
     }
 
     private func stimulationFor(_ muscle: Muscle) -> Int {
