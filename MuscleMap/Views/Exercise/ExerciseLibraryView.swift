@@ -219,6 +219,17 @@ private struct ExerciseLibraryRow: View {
     let exercise: ExerciseDefinition
     private var localization: LocalizationManager { LocalizationManager.shared }
 
+    /// 主要ターゲット筋肉（刺激度が最も高い筋肉）
+    private var primaryTarget: (muscle: Muscle, percentage: Int)? {
+        guard let maxEntry = exercise.muscleMapping.max(by: { $0.value < $1.value }) else {
+            return nil
+        }
+        if let muscle = Muscle(rawValue: maxEntry.key) ?? Muscle(snakeCase: maxEntry.key) {
+            return (muscle, maxEntry.value)
+        }
+        return nil
+    }
+
     var body: some View {
         HStack(spacing: 12) {
             // GIFサムネイル（存在する場合）またはミニ筋肉マップ
@@ -244,10 +255,17 @@ private struct ExerciseLibraryRow: View {
                         .foregroundStyle(Color.mmTextSecondary)
                 }
 
-                // 器具と難易度のタグ
-                HStack(spacing: 8) {
+                // 主要ターゲット筋肉 + 器具と難易度のタグ
+                HStack(spacing: 6) {
+                    if let target = primaryTarget {
+                        PrimaryTargetTag(
+                            muscleName: localization.currentLanguage == .japanese
+                                ? target.muscle.japaneseName
+                                : target.muscle.englishName,
+                            percentage: target.percentage
+                        )
+                    }
                     ExerciseTag(text: exercise.localizedEquipment, icon: "dumbbell")
-                    ExerciseTag(text: exercise.localizedDifficulty, icon: "chart.bar")
                 }
             }
 
@@ -258,6 +276,30 @@ private struct ExerciseLibraryRow: View {
                 .foregroundStyle(Color.mmTextSecondary)
         }
         .padding(.vertical, 6)
+    }
+}
+
+// MARK: - 主要ターゲット筋肉タグ
+
+private struct PrimaryTargetTag: View {
+    let muscleName: String
+    let percentage: Int
+
+    var body: some View {
+        HStack(spacing: 3) {
+            Circle()
+                .fill(Color.mmAccentPrimary)
+                .frame(width: 6, height: 6)
+            Text("\(muscleName) \(percentage)%")
+                .lineLimit(1)
+        }
+        .font(.caption2.bold())
+        .foregroundStyle(Color.mmAccentPrimary)
+        .padding(.horizontal, 6)
+        .padding(.vertical, 2)
+        .background(Color.mmAccentPrimary.opacity(0.15))
+        .clipShape(Capsule())
+        .fixedSize()
     }
 }
 

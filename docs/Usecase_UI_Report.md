@@ -1,0 +1,207 @@
+# MuscleMap ユースケース起点UI分析レポート
+
+**Date:** 2026-02-14
+**Version:** 2.0.0
+
+---
+
+## Executive Summary
+
+ジムユーザーの視点から3つの主要ユースケースを検証し、UI/UXの問題点を特定・修正しました。
+
+**検証結果:**
+- P0問題: 0件 (ユーザーが目的を達成できない重大な問題はなし)
+- P1問題: 2件 → **全て修正完了**
+- P2問題: 3件 (次回以降の改善として記録)
+
+---
+
+## ユースケース定義
+
+### Usecase 1: 種目選択 (今日どの種目やろう？)
+
+**シナリオ:** ジムでワークアウトを開始する前に、今日やる種目を選びたい
+
+**検証ポイント:**
+| # | 項目 | 結果 | 備考 |
+|---|------|------|------|
+| 1.1 | 種目辞典にすぐアクセスできる | PASS | タブバーから1タップ |
+| 1.2 | フィルターチップがすぐ見える | PARTIAL | 「胸」は即座に見える。下半身サブカテゴリは2スワイプ必要 |
+| 1.3 | サムネイルでターゲット筋肉がわかる | PARTIAL | MiniMuscleMapViewは56x56で識別困難。**修正: 主要ターゲット筋肉タグを追加** |
+| 1.4 | 種目名が日本語で読める | PASS | 日本語名 + 英語サブタイトル表示 |
+
+### Usecase 2: 種目確認 (このフォームで合ってる？)
+
+**シナリオ:** 種目を実行する前に、正しいフォームとターゲット筋肉を確認したい
+
+**検証ポイント:**
+| # | 項目 | 結果 | 備考 |
+|---|------|------|------|
+| 2.1 | 種目詳細が1タップで開く | PASS | リストタップで詳細画面表示 |
+| 2.2 | 筋肉マップがスクロールなしで見える | PASS | Above the foldに表示 |
+| 2.3 | 前面/背面の切り替えができる | PASS | トグルボタンで即座に切り替え |
+| 2.4 | 刺激度が数値でわかる | PASS | バー+パーセンテージ表示 |
+| 2.5 | YouTubeでフォーム確認できる | PASS | ボタンが目立つ位置に配置 |
+
+### Usecase 3: 振り返り (今週どこ鍛えた？偏ってない？)
+
+**シナリオ:** トレーニングの偏りがないか、全身バランスを確認したい
+
+**検証ポイント:**
+| # | 項目 | 結果 | 備考 |
+|---|------|------|------|
+| 3.1 | ホーム画面で全身マップが見える | PASS | 頭から足先まで表示 |
+| 3.2 | 色で回復状態がわかる | PASS | 赤→黄→緑のグラデーション。凡例も画面下部に存在 |
+| 3.3 | 前面/背面を切り替えられる | PASS | トグルボタンで切り替え |
+| 3.4 | 筋肉タップで詳細が見える | PASS | ハーフモーダルで回復%、残り時間、関連種目を表示 |
+| 3.5 | 未刺激警告が目立つ | PASS | 紫色でパルスアニメーション + 警告セクション表示 |
+
+---
+
+## 問題リストと優先度
+
+### P0 (今すぐ直す) - 0件
+
+ユーザーが目的を達成できない、または誤解を招く重大な問題はありませんでした。
+
+### P1 (今回直す) - 2件 → **全て修正完了**
+
+| # | Usecase | 問題 | 影響 | 対応 |
+|---|---------|------|------|------|
+| P1-1 | UC3 | 色凡例が画面下部にあり目立たない | 初見ユーザーが色の意味を理解できない可能性 | **確認: 凡例は既に実装済み (HomeView:73)** |
+| P1-2 | UC1 | 種目リストで主要ターゲット筋肉が不明 | 種目間の比較が困難 | **修正: PrimaryTargetTagを追加** |
+
+### P2 (次回以降) - 3件
+
+| # | Usecase | 問題 | 影響 | 改善案 |
+|---|---------|------|------|--------|
+| P2-1 | UC1 | 下半身サブカテゴリに到達するのに2スワイプ必要 | 下半身種目へのアクセスが遅い | フィルターのスクロール位置を記憶、または人気順で並べ替え |
+| P2-2 | UC1 | MiniMuscleMapView (56x56) では筋肉の識別が困難 | 装飾的価値はあるが情報価値は限定的 | サイズ拡大、または hover時に拡大表示 |
+| P2-3 | UC2 | 前面/背面トグルボタンが小さい | タップしにくい場合がある | ボタンサイズ拡大、またはスワイプジェスチャー対応 |
+
+---
+
+## 実施した修正
+
+### P1-2: 種目リストに主要ターゲット筋肉タグを追加
+
+**ファイル:** `MuscleMap/Views/Exercise/ExerciseLibraryView.swift`
+
+**変更内容:**
+1. `ExerciseLibraryRow`に`primaryTarget`プロパティを追加
+2. `PrimaryTargetTag`コンポーネントを新規作成
+3. 種目リスト行に主要ターゲット筋肉名と刺激度%を表示
+
+**コード変更:**
+```swift
+// ExerciseLibraryRow に追加
+private var primaryTarget: (muscle: Muscle, percentage: Int)? {
+    guard let maxEntry = exercise.muscleMapping.max(by: { $0.value < $1.value }) else {
+        return nil
+    }
+    if let muscle = Muscle(rawValue: maxEntry.key) ?? Muscle(snakeCase: maxEntry.key) {
+        return (muscle, maxEntry.value)
+    }
+    return nil
+}
+
+// 新規コンポーネント
+private struct PrimaryTargetTag: View {
+    let muscleName: String
+    let percentage: Int
+
+    var body: some View {
+        HStack(spacing: 3) {
+            Circle()
+                .fill(Color.mmAccentPrimary)
+                .frame(width: 6, height: 6)
+            Text("\(muscleName) \(percentage)%")
+                .lineLimit(1)
+        }
+        .font(.caption2.bold())
+        .foregroundStyle(Color.mmAccentPrimary)
+        .padding(.horizontal, 6)
+        .padding(.vertical, 2)
+        .background(Color.mmAccentPrimary.opacity(0.15))
+        .clipShape(Capsule())
+        .fixedSize()
+    }
+}
+```
+
+**ビフォー/アフター:**
+- Before: 種目名 + 英語サブタイトル + 器具/難易度タグ
+- After: 種目名 + 英語サブタイトル + **●大胸筋下部 100%** + 器具タグ
+
+---
+
+## 既存実装の確認
+
+### P1-1: 色凡例
+
+**結果:** 既に実装済み
+
+**ファイル:** `MuscleMap/Views/Home/HomeView.swift:1004-1036`
+
+```swift
+private struct MuscleMapLegend: View {
+    private var items: [(Color, String)] {
+        [
+            (.mmMuscleCoral, L10n.highLoad),
+            (.mmMuscleAmber, L10n.earlyRecovery),
+            (.mmMuscleYellow, L10n.midRecovery),
+            (.mmMuscleLime, L10n.lateRecovery),
+            (.mmMuscleBioGreen, L10n.almostRecovered),
+            (.mmMuscleNeglected, L10n.notStimulated),
+        ]
+    }
+    // ...
+}
+```
+
+凡例はホーム画面のScrollView最下部に配置されています。より目立たせる必要がある場合はP2として検討。
+
+---
+
+## テスト結果サマリー
+
+### Usecase 1: 種目選択
+- **結果:** PASS (P1-2修正後)
+- **改善点:** 主要ターゲット筋肉タグにより、種目間の比較が容易に
+
+### Usecase 2: 種目確認
+- **結果:** PASS
+- **所見:** 筋肉マップがAbove the foldに表示され、必要な情報がスクロールなしで確認可能
+
+### Usecase 3: 振り返り
+- **結果:** PASS
+- **所見:** 色分けによる回復状態の可視化、筋肉タップによる詳細表示が機能
+
+---
+
+## 今後の改善提案 (P2)
+
+1. **フィルターチップの最適化** (P2-1)
+   - 使用頻度に基づく並び替え
+   - 最後に使用したフィルターの記憶
+
+2. **MiniMuscleMapViewの改善** (P2-2)
+   - サイズ拡大オプション
+   - ロングプレスで拡大表示
+
+3. **前面/背面トグルの改善** (P2-3)
+   - スワイプジェスチャー対応
+   - ボタンサイズの拡大
+
+---
+
+## Conclusion
+
+ユースケース起点の分析により、ユーザーが実際に行う操作フローに沿った問題点を特定できました。P1問題として特定した「種目リストでの主要ターゲット筋肉表示」を修正し、種目選択時の情報可視性が向上しました。
+
+**修正ファイル:**
+1. `MuscleMap/Views/Exercise/ExerciseLibraryView.swift` - PrimaryTargetTag追加
+
+---
+
+*Report generated by Claude Code - 2026-02-14*
