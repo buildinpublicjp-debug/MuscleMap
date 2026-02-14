@@ -15,7 +15,6 @@ struct WorkoutCompletionView: View {
     @State private var showingFullBodyConquest = false
     @State private var currentMuscleStates: [Muscle: MuscleVisualState] = [:]
     @State private var isFirstConquest = false
-    @State private var showingFirstWorkoutPaywall = false
     @State private var appState = AppState.shared
 
     private var localization: LocalizationManager { LocalizationManager.shared }
@@ -163,9 +162,6 @@ struct WorkoutCompletionView: View {
                 }
             )
         }
-        .sheet(isPresented: $showingFirstWorkoutPaywall) {
-            PaywallView()
-        }
     }
 
     // MARK: - 初回ワークアウト完了処理
@@ -174,14 +170,6 @@ struct WorkoutCompletionView: View {
         // 初回ワークアウト完了をマーク
         if !appState.hasCompletedFirstWorkout {
             appState.hasCompletedFirstWorkout = true
-
-            // 初回のみペイウォールを表示（少し遅延させてUXを改善）
-            if !appState.hasSeenFirstWorkoutPaywall && !PurchaseManager.shared.isProUser {
-                appState.hasSeenFirstWorkoutPaywall = true
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                    showingFirstWorkoutPaywall = true
-                }
-            }
         }
     }
 

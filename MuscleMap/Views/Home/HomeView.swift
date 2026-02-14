@@ -9,7 +9,6 @@ struct HomeView: View {
     @State private var streakViewModel = StreakViewModel()
     @State private var selectedMuscle: Muscle?
     @State private var showDemo = false
-    @State private var showingPaywall = false
     @State private var showingMilestone = false
     @State private var showingAnalyticsMenu = false
     @State private var showingTodayRecommendation = false
@@ -70,14 +69,6 @@ struct HomeView: View {
                                 .padding(.horizontal)
                             }
 
-                            // Pro機能バナー（非Proユーザー向け）
-                            if !PurchaseManager.shared.isProUser {
-                                ProFeatureBanner(feature: .recovery) {
-                                    showingPaywall = true
-                                }
-                                .padding(.horizontal)
-                            }
-
                             // 凡例
                             MuscleMapLegend()
                                 .padding(.horizontal)
@@ -123,9 +114,6 @@ struct HomeView: View {
             }
             .sheet(item: $selectedMuscle) { muscle in
                 MuscleDetailView(muscle: muscle)
-            }
-            .sheet(isPresented: $showingPaywall) {
-                PaywallView()
             }
             .sheet(isPresented: $showingMilestone) {
                 if let milestone = streakViewModel.achievedMilestone {

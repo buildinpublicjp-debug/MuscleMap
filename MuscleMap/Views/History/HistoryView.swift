@@ -20,7 +20,6 @@ enum HistoryViewMode: String, CaseIterable {
 struct HistoryView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var viewModel: HistoryViewModel?
-    @State private var showingPaywall = false
     @State private var selectedCalendarDate: SelectedDate?
     @State private var selectedMuscle: SelectedMuscle?
     @State private var viewMode: HistoryViewMode = .map
@@ -79,30 +78,11 @@ struct HistoryView: View {
             .navigationTitle(L10n.history)
             .navigationBarTitleDisplayMode(.inline)
             .toolbarColorScheme(.dark, for: .navigationBar)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    if !PurchaseManager.shared.canAccessPremiumFeatures {
-                        Button {
-                            showingPaywall = true
-                        } label: {
-                            HStack(spacing: 4) {
-                                Image(systemName: "sparkles")
-                                Text("Pro")
-                                    .font(.caption.bold())
-                            }
-                            .foregroundStyle(Color.mmAccentPrimary)
-                        }
-                    }
-                }
-            }
             .onAppear {
                 if viewModel == nil {
                     viewModel = HistoryViewModel(modelContext: modelContext)
                 }
                 viewModel?.load()
-            }
-            .sheet(isPresented: $showingPaywall) {
-                PaywallView()
             }
             .sheet(item: $selectedCalendarDate) { selected in
                 DayWorkoutDetailView(date: selected.date)

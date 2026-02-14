@@ -6,39 +6,7 @@ enum KeyManager {
     private static let service = "com.buildinpublic.MuscleMap.keys"
 
     enum KeyType: String {
-        case revenueCat = "revenuecat_api_key"
-    }
-
-    // MARK: - RevenueCat API Key
-
-    /// RevenueCat APIキー
-    /// ReleaseビルドではInfo.plistから読み込み、なければハードコードフォールバック
-    /// DEBUGビルドではプレースホルダーを返す（開発中）
-    private static var obfuscatedRevenueCatKey: String {
-        #if DEBUG
-        return "YOUR_REVENUECAT_API_KEY"
-        #else
-        // Info.plistにキーがあればそちらを優先
-        if let key = Bundle.main.object(forInfoDictionaryKey: "REVENUECAT_API_KEY") as? String,
-           !key.isEmpty {
-            return key
-        }
-        // フォールバック: project.ymlで設定済みのAPIキー
-        return "appl_IzrrBdSVXMDZUylPnwcaJxvdlxb"
-        #endif
-    }
-
-    // MARK: - 初期化
-
-    /// 初回起動時にAPIキーをKeychainにセットアップ
-    static func setupKeysIfNeeded() {
-        // RevenueCat APIキー
-        if getKey(.revenueCat) == nil {
-            let key = obfuscatedRevenueCatKey
-            if key != "YOUR_REVENUECAT_API_KEY" {
-                saveKey(key, for: .revenueCat)
-            }
-        }
+        case generic = "generic_api_key"
     }
 
     // MARK: - CRUD操作
@@ -60,13 +28,5 @@ enum KeyManager {
     /// キーを削除
     static func deleteKey(_ type: KeyType) {
         KeychainHelper.delete(service: service, account: type.rawValue)
-    }
-
-    // MARK: - ヘルパー
-
-    /// RevenueCat APIキーが設定されているか
-    static var hasRevenueCatKey: Bool {
-        guard let key = getKey(.revenueCat) else { return false }
-        return !key.isEmpty && key != "YOUR_REVENUECAT_API_KEY"
     }
 }

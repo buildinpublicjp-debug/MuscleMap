@@ -10,12 +10,6 @@ struct MuscleMapApp: App {
         // 3Dモデルの可用性を判定
         ModelLoader.shared.evaluateModelAvailability()
 
-        // APIキーのセットアップ（Keychain）
-        KeyManager.setupKeysIfNeeded()
-
-        // RevenueCat設定
-        PurchaseManager.shared.configure()
-
         // TabBar外観をダークに設定
         let tabBarAppearance = UITabBarAppearance()
         tabBarAppearance.configureWithOpaqueBackground()

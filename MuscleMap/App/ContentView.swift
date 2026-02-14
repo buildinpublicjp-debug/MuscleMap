@@ -8,9 +8,6 @@ struct ContentView: View {
     var body: some View {
         if appState.hasCompletedOnboarding {
             MainTabView()
-                .task {
-                    await PurchaseManager.shared.checkPremiumStatus()
-                }
         } else {
             OnboardingView {
                 withAnimation {

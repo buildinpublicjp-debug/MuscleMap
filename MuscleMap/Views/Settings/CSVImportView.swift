@@ -13,9 +13,6 @@ struct CSVImportView: View {
     @State private var importState: ImportState = .idle
     @State private var preview: ImportPreview?
     @State private var csvContent: String?
-    @State private var showingPaywall = false
-
-    private let purchaseManager = PurchaseManager.shared
 
     enum ImportState: Equatable {
         case idle
@@ -29,22 +26,6 @@ struct CSVImportView: View {
         ZStack {
             Color.mmBgPrimary.ignoresSafeArea()
 
-            if !purchaseManager.isProUser {
-                // Pro未加入: ロック表示
-                VStack(spacing: 24) {
-                    Spacer()
-                    ProFeatureBanner(feature: .export) {
-                        showingPaywall = true
-                    }
-                    Spacer()
-                }
-                .padding(.horizontal, 24)
-                .sheet(isPresented: $showingPaywall) {
-                    PaywallView()
-                }
-            }
-
-            if purchaseManager.isProUser {
             List {
                 // ファイル選択
                 fileSelectionSection
@@ -67,7 +48,6 @@ struct CSVImportView: View {
             }
             .scrollContentBackground(.hidden)
             .listStyle(.insetGrouped)
-            } // if isProUser
         }
         .navigationTitle(L10n.csvImport)
         .navigationBarTitleDisplayMode(.inline)

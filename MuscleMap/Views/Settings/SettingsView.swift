@@ -4,11 +4,7 @@ import SwiftUI
 
 struct SettingsView: View {
     @State private var appState = AppState.shared
-    @State private var purchaseManager = PurchaseManager.shared
     @State private var localization = LocalizationManager.shared
-    @State private var showingPaywall = false
-    @State private var showingRestoreAlert = false
-    @State private var restoreMessage = ""
     @State private var showingSafari = false
     @State private var safariURL: URL?
     @AppStorage("youtubeSearchLanguage") private var youtubeSearchLanguage: String = "auto"
@@ -19,16 +15,13 @@ struct SettingsView: View {
                 Color.mmBgPrimary.ignoresSafeArea()
 
                 List {
-                    // 1. MuscleMap Pro
-                    premiumSection
-
-                    // 2. 一般
+                    // 1. 一般
                     generalSection
 
-                    // 3. 法的事項
+                    // 2. 法的事項
                     legalSection
 
-                    // 4. アプリについて
+                    // 3. アプリについて
                     aboutSection
                 }
                 .scrollContentBackground(.hidden)
@@ -37,110 +30,16 @@ struct SettingsView: View {
             .navigationTitle(L10n.settings)
             .navigationBarTitleDisplayMode(.inline)
             .toolbarColorScheme(.dark, for: .navigationBar)
-            .sheet(isPresented: $showingPaywall) {
-                PaywallView()
-            }
             .sheet(isPresented: $showingSafari) {
                 if let url = safariURL {
                     SafariView(url: url)
                         .ignoresSafeArea()
                 }
             }
-            .alert(L10n.restoreResult, isPresented: $showingRestoreAlert) {
-                Button(L10n.ok) {}
-            } message: {
-                Text(restoreMessage)
-            }
         }
     }
 
-    // MARK: - 1. MuscleMap Pro
-
-    private var premiumSection: some View {
-        Section {
-            if purchaseManager.isProUser {
-                // Pro加入済み
-                HStack(spacing: 12) {
-                    Image(systemName: "crown.fill")
-                        .foregroundStyle(Color.mmAccentPrimary)
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(L10n.proActive)
-                            .font(.subheadline.bold())
-                            .foregroundStyle(Color.mmTextPrimary)
-                        Text(L10n.premiumUnlocked)
-                            .font(.caption)
-                            .foregroundStyle(Color.mmAccentPrimary)
-                    }
-                }
-                .listRowBackground(Color.mmBgCard)
-
-                // サブスク管理リンク
-                Button {
-                    if let url = URL(string: "https://apps.apple.com/account/subscriptions") {
-                        UIApplication.shared.open(url)
-                    }
-                } label: {
-                    HStack(spacing: 12) {
-                        Image(systemName: "gear")
-                            .foregroundStyle(Color.mmTextSecondary)
-                        Text(L10n.manageSubscription)
-                            .font(.subheadline)
-                            .foregroundStyle(Color.mmTextPrimary)
-                        Spacer()
-                        Image(systemName: "arrow.up.right")
-                            .font(.caption)
-                            .foregroundStyle(Color.mmTextSecondary)
-                    }
-                }
-                .listRowBackground(Color.mmBgCard)
-            } else {
-                // Pro未加入
-                Button {
-                    showingPaywall = true
-                } label: {
-                    HStack(spacing: 12) {
-                        Image(systemName: "crown")
-                            .foregroundStyle(Color.mmAccentPrimary)
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(L10n.proUpgrade)
-                                .font(.subheadline.bold())
-                                .foregroundStyle(Color.mmTextPrimary)
-                            Text(L10n.unlockAllFeatures)
-                                .font(.caption)
-                                .foregroundStyle(Color.mmTextSecondary)
-                        }
-                        Spacer()
-                        Image(systemName: "chevron.right")
-                            .font(.caption)
-                            .foregroundStyle(Color.mmTextSecondary)
-                    }
-                }
-                .listRowBackground(Color.mmBgCard)
-
-                Button {
-                    Task {
-                        let success = await purchaseManager.restorePurchases()
-                        restoreMessage = success ? L10n.purchaseRestored : L10n.noPurchaseFound
-                        showingRestoreAlert = true
-                    }
-                } label: {
-                    HStack(spacing: 12) {
-                        Image(systemName: "arrow.clockwise")
-                            .foregroundStyle(Color.mmTextSecondary)
-                        Text(L10n.restorePurchases)
-                            .font(.subheadline)
-                            .foregroundStyle(Color.mmTextPrimary)
-                    }
-                }
-                .listRowBackground(Color.mmBgCard)
-            }
-        } header: {
-            Text("MuscleMap Pro")
-                .foregroundStyle(Color.mmTextSecondary)
-        }
-    }
-
-    // MARK: - 2. 一般
+    // MARK: - 1. 一般
 
     private var generalSection: some View {
         Section {
@@ -203,7 +102,7 @@ struct SettingsView: View {
         }
     }
 
-    // MARK: - 3. 法的事項
+    // MARK: - 2. 法的事項
 
     private var legalSection: some View {
         Section {
@@ -248,7 +147,7 @@ struct SettingsView: View {
         }
     }
 
-    // MARK: - 4. アプリについて
+    // MARK: - 3. アプリについて
 
     private var aboutSection: some View {
         Section {
