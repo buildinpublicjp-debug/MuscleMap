@@ -682,6 +682,10 @@ enum L10n {
         case "腕（前腕）": return categoryArmsForearms
         case "腕": return categoryArms
         case "体幹": return categoryCore
+        case "下半身（四頭筋）": return loc("下半身（四頭筋）", "Legs (Quads)")
+        case "下半身（ハムストリングス）": return loc("下半身（ハムストリングス）", "Legs (Hamstrings)")
+        case "下半身（臀部）": return loc("下半身（臀部）", "Legs (Glutes)")
+        case "下半身（ふくらはぎ）": return loc("下半身（ふくらはぎ）", "Legs (Calves)")
         case "下半身": return categoryLowerBody
         case "全身": return categoryFullBody
         default: return jaKey

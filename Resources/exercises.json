@@ -149,6 +149,20 @@
     }
   },
   {
+    "id": "machine_incline_press",
+    "nameEN": "Machine Incline Press",
+    "nameJA": "インクラインチェストプレス（マシン）",
+    "category": "胸",
+    "equipment": "マシン",
+    "difficulty": "初級",
+    "muscleMapping": {
+      "chest_upper": 100,
+      "chest_lower": 50,
+      "deltoid_anterior": 60,
+      "triceps": 40
+    }
+  },
+  {
     "id": "deadlift",
     "nameEN": "Deadlift",
     "nameJA": "デッドリフト",
@@ -313,6 +327,34 @@
     }
   },
   {
+    "id": "machine_row",
+    "nameEN": "Machine Row",
+    "nameJA": "ローイングマシン",
+    "category": "背中",
+    "equipment": "マシン",
+    "difficulty": "初級",
+    "muscleMapping": {
+      "lats": 100,
+      "traps_middle_lower": 70,
+      "deltoid_posterior": 40,
+      "biceps": 50
+    }
+  },
+  {
+    "id": "assisted_pull_up",
+    "nameEN": "Assisted Pull Up",
+    "nameJA": "アシストプルアップ（マシン）",
+    "category": "背中",
+    "equipment": "マシン",
+    "difficulty": "初級",
+    "muscleMapping": {
+      "lats": 100,
+      "traps_middle_lower": 40,
+      "biceps": 60,
+      "forearms": 30
+    }
+  },
+  {
     "id": "overhead_press_barbell",
     "nameEN": "Overhead Press (Barbell)",
     "nameJA": "オーバーヘッドプレス",
@@ -417,6 +459,43 @@
     }
   },
   {
+    "id": "machine_shoulder_press",
+    "nameEN": "Machine Shoulder Press",
+    "nameJA": "ショルダープレス（マシン）",
+    "category": "肩",
+    "equipment": "マシン",
+    "difficulty": "初級",
+    "muscleMapping": {
+      "deltoid_anterior": 100,
+      "deltoid_lateral": 60,
+      "triceps": 40
+    }
+  },
+  {
+    "id": "machine_lateral_raise",
+    "nameEN": "Machine Lateral Raise",
+    "nameJA": "サイドレイズ（マシン）",
+    "category": "肩",
+    "equipment": "マシン",
+    "difficulty": "初級",
+    "muscleMapping": {
+      "deltoid_lateral": 100,
+      "traps_upper": 20
+    }
+  },
+  {
+    "id": "machine_rear_delt",
+    "nameEN": "Machine Rear Delt Fly",
+    "nameJA": "リアデルト（マシン）",
+    "category": "肩",
+    "equipment": "マシン",
+    "difficulty": "初級",
+    "muscleMapping": {
+      "deltoid_posterior": 100,
+      "traps_middle_lower": 50
+    }
+  },
+  {
     "id": "barbell_curl",
     "nameEN": "Barbell Curl",
     "nameJA": "バーベルカール",
@@ -501,6 +580,18 @@
     }
   },
   {
+    "id": "machine_bicep_curl",
+    "nameEN": "Machine Bicep Curl",
+    "nameJA": "アームカール（マシン）",
+    "category": "腕（二頭）",
+    "equipment": "マシン",
+    "difficulty": "初級",
+    "muscleMapping": {
+      "biceps": 100,
+      "forearms": 30
+    }
+  },
+  {
     "id": "tricep_pushdown",
     "nameEN": "Tricep Pushdown",
     "nameJA": "トライセプスプッシュダウン",
@@ -566,6 +657,17 @@
     "nameJA": "トライセプスキックバック",
     "category": "腕（三頭）",
     "equipment": "ダンベル",
+    "difficulty": "初級",
+    "muscleMapping": {
+      "triceps": 100
+    }
+  },
+  {
+    "id": "machine_tricep_extension",
+    "nameEN": "Machine Tricep Extension",
+    "nameJA": "トライセプスエクステンション（マシン）",
+    "category": "腕（三頭）",
+    "equipment": "マシン",
     "difficulty": "初級",
     "muscleMapping": {
       "triceps": 100
@@ -727,457 +829,6 @@
     }
   },
   {
-    "id": "barbell_back_squat",
-    "nameEN": "Barbell Back Squat",
-    "nameJA": "バーベルスクワット",
-    "category": "下半身",
-    "equipment": "バーベル",
-    "difficulty": "上級",
-    "muscleMapping": {
-      "erector_spinae": 65,
-      "rectus_abdominis": 30,
-      "glutes": 75,
-      "quadriceps": 100,
-      "hamstrings": 50,
-      "adductors": 40,
-      "gastrocnemius": 30
-    }
-  },
-  {
-    "id": "front_squat",
-    "nameEN": "Front Squat",
-    "nameJA": "フロントスクワット",
-    "category": "下半身",
-    "equipment": "バーベル",
-    "difficulty": "上級",
-    "muscleMapping": {
-      "erector_spinae": 40,
-      "rectus_abdominis": 40,
-      "glutes": 60,
-      "quadriceps": 100,
-      "adductors": 30
-    }
-  },
-  {
-    "id": "goblet_squat",
-    "nameEN": "Goblet Squat",
-    "nameJA": "ゴブレットスクワット",
-    "category": "下半身",
-    "equipment": "ダンベル",
-    "difficulty": "初級",
-    "muscleMapping": {
-      "glutes": 70,
-      "quadriceps": 100,
-      "adductors": 40
-    }
-  },
-  {
-    "id": "leg_press",
-    "nameEN": "Leg Press",
-    "nameJA": "レッグプレス",
-    "category": "下半身",
-    "equipment": "マシン",
-    "difficulty": "初級",
-    "muscleMapping": {
-      "glutes": 70,
-      "quadriceps": 100,
-      "hamstrings": 40,
-      "adductors": 30
-    }
-  },
-  {
-    "id": "hack_squat",
-    "nameEN": "Hack Squat",
-    "nameJA": "ハックスクワット",
-    "category": "下半身",
-    "equipment": "マシン",
-    "difficulty": "中級",
-    "muscleMapping": {
-      "glutes": 60,
-      "quadriceps": 100
-    }
-  },
-  {
-    "id": "leg_extension",
-    "nameEN": "Leg Extension",
-    "nameJA": "レッグエクステンション",
-    "category": "下半身",
-    "equipment": "マシン",
-    "difficulty": "初級",
-    "muscleMapping": {
-      "quadriceps": 100
-    }
-  },
-  {
-    "id": "bulgarian_split_squat",
-    "nameEN": "Bulgarian Split Squat",
-    "nameJA": "ブルガリアンスプリットスクワット",
-    "category": "下半身",
-    "equipment": "ダンベル",
-    "difficulty": "中級",
-    "muscleMapping": {
-      "glutes": 80,
-      "quadriceps": 100,
-      "hamstrings": 40,
-      "adductors": 30,
-      "hip_flexors": 30
-    }
-  },
-  {
-    "id": "walking_lunge",
-    "nameEN": "Walking Lunge",
-    "nameJA": "ウォーキングランジ",
-    "category": "下半身",
-    "equipment": "ダンベル",
-    "difficulty": "中級",
-    "muscleMapping": {
-      "glutes": 80,
-      "quadriceps": 100,
-      "hamstrings": 50,
-      "adductors": 30,
-      "gastrocnemius": 20
-    }
-  },
-  {
-    "id": "step_up",
-    "nameEN": "Step Up",
-    "nameJA": "ステップアップ",
-    "category": "下半身",
-    "equipment": "ダンベル",
-    "difficulty": "初級",
-    "muscleMapping": {
-      "glutes": 80,
-      "quadriceps": 100,
-      "hamstrings": 40
-    }
-  },
-  {
-    "id": "romanian_deadlift",
-    "nameEN": "Romanian Deadlift",
-    "nameJA": "ルーマニアンデッドリフト",
-    "category": "下半身",
-    "equipment": "バーベル",
-    "difficulty": "中級",
-    "muscleMapping": {
-      "erector_spinae": 60,
-      "forearms": 30,
-      "glutes": 80,
-      "hamstrings": 100
-    }
-  },
-  {
-    "id": "stiff_leg_deadlift",
-    "nameEN": "Stiff-Leg Deadlift",
-    "nameJA": "スティッフレッグデッドリフト",
-    "category": "下半身",
-    "equipment": "バーベル",
-    "difficulty": "中級",
-    "muscleMapping": {
-      "erector_spinae": 70,
-      "glutes": 70,
-      "hamstrings": 100
-    }
-  },
-  {
-    "id": "lying_leg_curl",
-    "nameEN": "Lying Leg Curl",
-    "nameJA": "ライイングレッグカール",
-    "category": "下半身",
-    "equipment": "マシン",
-    "difficulty": "初級",
-    "muscleMapping": {
-      "hamstrings": 100,
-      "gastrocnemius": 30
-    }
-  },
-  {
-    "id": "seated_leg_curl",
-    "nameEN": "Seated Leg Curl",
-    "nameJA": "シーテッドレッグカール",
-    "category": "下半身",
-    "equipment": "マシン",
-    "difficulty": "初級",
-    "muscleMapping": {
-      "hamstrings": 100
-    }
-  },
-  {
-    "id": "hip_thrust",
-    "nameEN": "Hip Thrust",
-    "nameJA": "ヒップスラスト",
-    "category": "下半身",
-    "equipment": "バーベル",
-    "difficulty": "中級",
-    "muscleMapping": {
-      "glutes": 100,
-      "hamstrings": 60,
-      "adductors": 30
-    }
-  },
-  {
-    "id": "glute_bridge",
-    "nameEN": "Glute Bridge",
-    "nameJA": "グルートブリッジ",
-    "category": "下半身",
-    "equipment": "自重",
-    "difficulty": "初級",
-    "muscleMapping": {
-      "glutes": 100,
-      "hamstrings": 50
-    }
-  },
-  {
-    "id": "cable_kickback",
-    "nameEN": "Cable Kickback",
-    "nameJA": "ケーブルキックバック",
-    "category": "下半身",
-    "equipment": "ケーブル",
-    "difficulty": "初級",
-    "muscleMapping": {
-      "glutes": 100,
-      "hamstrings": 40
-    }
-  },
-  {
-    "id": "sumo_deadlift",
-    "nameEN": "Sumo Deadlift",
-    "nameJA": "スモウデッドリフト",
-    "category": "下半身",
-    "equipment": "バーベル",
-    "difficulty": "上級",
-    "muscleMapping": {
-      "traps_upper": 30,
-      "erector_spinae": 50,
-      "forearms": 40,
-      "glutes": 100,
-      "quadriceps": 60,
-      "hamstrings": 60,
-      "adductors": 80
-    }
-  },
-  {
-    "id": "adductor_machine",
-    "nameEN": "Adductor Machine",
-    "nameJA": "アダクターマシン（内転）",
-    "category": "下半身",
-    "equipment": "マシン",
-    "difficulty": "初級",
-    "muscleMapping": {
-      "adductors": 100
-    }
-  },
-  {
-    "id": "sumo_squat",
-    "nameEN": "Sumo Squat",
-    "nameJA": "スモウスクワット",
-    "category": "下半身",
-    "equipment": "ダンベル",
-    "difficulty": "初級",
-    "muscleMapping": {
-      "glutes": 70,
-      "quadriceps": 100,
-      "adductors": 80
-    }
-  },
-  {
-    "id": "hip_flexor_raise",
-    "nameEN": "Hip Flexor Raise",
-    "nameJA": "ヒップフレクサーレイズ",
-    "category": "下半身",
-    "equipment": "自重",
-    "difficulty": "初級",
-    "muscleMapping": {
-      "rectus_abdominis": 30,
-      "hip_flexors": 100
-    }
-  },
-  {
-    "id": "knee_drive_cable",
-    "nameEN": "Knee Drive (Cable)",
-    "nameJA": "ケーブルニードライブ",
-    "category": "下半身",
-    "equipment": "ケーブル",
-    "difficulty": "中級",
-    "muscleMapping": {
-      "rectus_abdominis": 40,
-      "quadriceps": 30,
-      "hip_flexors": 100
-    }
-  },
-  {
-    "id": "standing_calf_raise",
-    "nameEN": "Standing Calf Raise",
-    "nameJA": "スタンディングカーフレイズ",
-    "category": "下半身",
-    "equipment": "マシン",
-    "difficulty": "初級",
-    "muscleMapping": {
-      "gastrocnemius": 100,
-      "soleus": 60
-    }
-  },
-  {
-    "id": "seated_calf_raise",
-    "nameEN": "Seated Calf Raise",
-    "nameJA": "シーテッドカーフレイズ",
-    "category": "下半身",
-    "equipment": "マシン",
-    "difficulty": "初級",
-    "muscleMapping": {
-      "gastrocnemius": 30,
-      "soleus": 100
-    }
-  },
-  {
-    "id": "donkey_calf_raise",
-    "nameEN": "Donkey Calf Raise",
-    "nameJA": "ドンキーカーフレイズ",
-    "category": "下半身",
-    "equipment": "マシン",
-    "difficulty": "中級",
-    "muscleMapping": {
-      "gastrocnemius": 100,
-      "soleus": 50
-    }
-  },
-  {
-    "id": "clean_and_press",
-    "nameEN": "Clean and Press",
-    "nameJA": "クリーン＆プレス",
-    "category": "全身",
-    "equipment": "バーベル",
-    "difficulty": "上級",
-    "muscleMapping": {
-      "traps_upper": 70,
-      "erector_spinae": 50,
-      "deltoid_anterior": 70,
-      "triceps": 40,
-      "forearms": 40,
-      "glutes": 60,
-      "quadriceps": 100,
-      "hamstrings": 50,
-      "gastrocnemius": 40
-    }
-  },
-  {
-    "id": "kettlebell_swing",
-    "nameEN": "Kettlebell Swing",
-    "nameJA": "ケトルベルスイング",
-    "category": "全身",
-    "equipment": "ケトルベル",
-    "difficulty": "中級",
-    "muscleMapping": {
-      "erector_spinae": 60,
-      "deltoid_anterior": 40,
-      "forearms": 30,
-      "rectus_abdominis": 40,
-      "glutes": 100,
-      "hamstrings": 80
-    }
-  },
-  {
-    "id": "machine_incline_press",
-    "nameEN": "Machine Incline Press",
-    "nameJA": "インクラインチェストプレス（マシン）",
-    "category": "胸",
-    "equipment": "マシン",
-    "difficulty": "初級",
-    "muscleMapping": {
-      "chest_upper": 100,
-      "chest_lower": 50,
-      "deltoid_anterior": 60,
-      "triceps": 40
-    }
-  },
-  {
-    "id": "machine_row",
-    "nameEN": "Machine Row",
-    "nameJA": "ローイングマシン",
-    "category": "背中",
-    "equipment": "マシン",
-    "difficulty": "初級",
-    "muscleMapping": {
-      "lats": 100,
-      "traps_middle_lower": 70,
-      "deltoid_posterior": 40,
-      "biceps": 50
-    }
-  },
-  {
-    "id": "assisted_pull_up",
-    "nameEN": "Assisted Pull Up",
-    "nameJA": "アシストプルアップ（マシン）",
-    "category": "背中",
-    "equipment": "マシン",
-    "difficulty": "初級",
-    "muscleMapping": {
-      "lats": 100,
-      "traps_middle_lower": 40,
-      "biceps": 60,
-      "forearms": 30
-    }
-  },
-  {
-    "id": "machine_shoulder_press",
-    "nameEN": "Machine Shoulder Press",
-    "nameJA": "ショルダープレス（マシン）",
-    "category": "肩",
-    "equipment": "マシン",
-    "difficulty": "初級",
-    "muscleMapping": {
-      "deltoid_anterior": 100,
-      "deltoid_lateral": 60,
-      "triceps": 40
-    }
-  },
-  {
-    "id": "machine_lateral_raise",
-    "nameEN": "Machine Lateral Raise",
-    "nameJA": "サイドレイズ（マシン）",
-    "category": "肩",
-    "equipment": "マシン",
-    "difficulty": "初級",
-    "muscleMapping": {
-      "deltoid_lateral": 100,
-      "traps_upper": 20
-    }
-  },
-  {
-    "id": "machine_rear_delt",
-    "nameEN": "Machine Rear Delt Fly",
-    "nameJA": "リアデルト（マシン）",
-    "category": "肩",
-    "equipment": "マシン",
-    "difficulty": "初級",
-    "muscleMapping": {
-      "deltoid_posterior": 100,
-      "traps_middle_lower": 50
-    }
-  },
-  {
-    "id": "machine_bicep_curl",
-    "nameEN": "Machine Bicep Curl",
-    "nameJA": "アームカール（マシン）",
-    "category": "腕（二頭）",
-    "equipment": "マシン",
-    "difficulty": "初級",
-    "muscleMapping": {
-      "biceps": 100,
-      "forearms": 30
-    }
-  },
-  {
-    "id": "machine_tricep_extension",
-    "nameEN": "Machine Tricep Extension",
-    "nameJA": "トライセプスエクステンション（マシン）",
-    "category": "腕（三頭）",
-    "equipment": "マシン",
-    "difficulty": "初級",
-    "muscleMapping": {
-      "triceps": 100
-    }
-  },
-  {
     "id": "machine_crunch",
     "nameEN": "Machine Crunch",
     "nameJA": "アブドミナルクランチ（マシン）",
@@ -1202,10 +853,276 @@
     }
   },
   {
+    "id": "barbell_back_squat",
+    "nameEN": "Barbell Back Squat",
+    "nameJA": "バーベルスクワット",
+    "category": "下半身（四頭筋）",
+    "equipment": "バーベル",
+    "difficulty": "上級",
+    "muscleMapping": {
+      "erector_spinae": 65,
+      "rectus_abdominis": 30,
+      "glutes": 75,
+      "quadriceps": 100,
+      "hamstrings": 50,
+      "adductors": 40,
+      "gastrocnemius": 30
+    }
+  },
+  {
+    "id": "front_squat",
+    "nameEN": "Front Squat",
+    "nameJA": "フロントスクワット",
+    "category": "下半身（四頭筋）",
+    "equipment": "バーベル",
+    "difficulty": "上級",
+    "muscleMapping": {
+      "erector_spinae": 40,
+      "rectus_abdominis": 40,
+      "glutes": 60,
+      "quadriceps": 100,
+      "adductors": 30
+    }
+  },
+  {
+    "id": "goblet_squat",
+    "nameEN": "Goblet Squat",
+    "nameJA": "ゴブレットスクワット",
+    "category": "下半身（四頭筋）",
+    "equipment": "ダンベル",
+    "difficulty": "初級",
+    "muscleMapping": {
+      "glutes": 70,
+      "quadriceps": 100,
+      "adductors": 40
+    }
+  },
+  {
+    "id": "leg_press",
+    "nameEN": "Leg Press",
+    "nameJA": "レッグプレス",
+    "category": "下半身（四頭筋）",
+    "equipment": "マシン",
+    "difficulty": "初級",
+    "muscleMapping": {
+      "glutes": 70,
+      "quadriceps": 100,
+      "hamstrings": 40,
+      "adductors": 30
+    }
+  },
+  {
+    "id": "hack_squat",
+    "nameEN": "Hack Squat",
+    "nameJA": "ハックスクワット",
+    "category": "下半身（四頭筋）",
+    "equipment": "マシン",
+    "difficulty": "中級",
+    "muscleMapping": {
+      "glutes": 60,
+      "quadriceps": 100
+    }
+  },
+  {
+    "id": "leg_extension",
+    "nameEN": "Leg Extension",
+    "nameJA": "レッグエクステンション",
+    "category": "下半身（四頭筋）",
+    "equipment": "マシン",
+    "difficulty": "初級",
+    "muscleMapping": {
+      "quadriceps": 100
+    }
+  },
+  {
+    "id": "bulgarian_split_squat",
+    "nameEN": "Bulgarian Split Squat",
+    "nameJA": "ブルガリアンスプリットスクワット",
+    "category": "下半身（四頭筋）",
+    "equipment": "ダンベル",
+    "difficulty": "中級",
+    "muscleMapping": {
+      "glutes": 80,
+      "quadriceps": 100,
+      "hamstrings": 40,
+      "adductors": 30,
+      "hip_flexors": 30
+    }
+  },
+  {
+    "id": "walking_lunge",
+    "nameEN": "Walking Lunge",
+    "nameJA": "ウォーキングランジ",
+    "category": "下半身（四頭筋）",
+    "equipment": "ダンベル",
+    "difficulty": "中級",
+    "muscleMapping": {
+      "glutes": 80,
+      "quadriceps": 100,
+      "hamstrings": 50,
+      "adductors": 30,
+      "gastrocnemius": 20
+    }
+  },
+  {
+    "id": "step_up",
+    "nameEN": "Step Up",
+    "nameJA": "ステップアップ",
+    "category": "下半身（四頭筋）",
+    "equipment": "ダンベル",
+    "difficulty": "初級",
+    "muscleMapping": {
+      "glutes": 80,
+      "quadriceps": 100,
+      "hamstrings": 40
+    }
+  },
+  {
+    "id": "sumo_squat",
+    "nameEN": "Sumo Squat",
+    "nameJA": "スモウスクワット",
+    "category": "下半身（四頭筋）",
+    "equipment": "ダンベル",
+    "difficulty": "初級",
+    "muscleMapping": {
+      "glutes": 70,
+      "quadriceps": 100,
+      "adductors": 80
+    }
+  },
+  {
+    "id": "smith_squat",
+    "nameEN": "Smith Machine Squat",
+    "nameJA": "スミスマシンスクワット",
+    "category": "下半身（四頭筋）",
+    "equipment": "マシン",
+    "difficulty": "中級",
+    "muscleMapping": {
+      "quadriceps": 100,
+      "glutes": 70,
+      "hamstrings": 40
+    }
+  },
+  {
+    "id": "romanian_deadlift",
+    "nameEN": "Romanian Deadlift",
+    "nameJA": "ルーマニアンデッドリフト",
+    "category": "下半身（ハムストリングス）",
+    "equipment": "バーベル",
+    "difficulty": "中級",
+    "muscleMapping": {
+      "erector_spinae": 60,
+      "forearms": 30,
+      "glutes": 80,
+      "hamstrings": 100
+    }
+  },
+  {
+    "id": "stiff_leg_deadlift",
+    "nameEN": "Stiff-Leg Deadlift",
+    "nameJA": "スティッフレッグデッドリフト",
+    "category": "下半身（ハムストリングス）",
+    "equipment": "バーベル",
+    "difficulty": "中級",
+    "muscleMapping": {
+      "erector_spinae": 70,
+      "glutes": 70,
+      "hamstrings": 100
+    }
+  },
+  {
+    "id": "lying_leg_curl",
+    "nameEN": "Lying Leg Curl",
+    "nameJA": "ライイングレッグカール",
+    "category": "下半身（ハムストリングス）",
+    "equipment": "マシン",
+    "difficulty": "初級",
+    "muscleMapping": {
+      "hamstrings": 100,
+      "gastrocnemius": 30
+    }
+  },
+  {
+    "id": "seated_leg_curl",
+    "nameEN": "Seated Leg Curl",
+    "nameJA": "シーテッドレッグカール",
+    "category": "下半身（ハムストリングス）",
+    "equipment": "マシン",
+    "difficulty": "初級",
+    "muscleMapping": {
+      "hamstrings": 100
+    }
+  },
+  {
+    "id": "hip_thrust",
+    "nameEN": "Hip Thrust",
+    "nameJA": "ヒップスラスト",
+    "category": "下半身（臀部）",
+    "equipment": "バーベル",
+    "difficulty": "中級",
+    "muscleMapping": {
+      "glutes": 100,
+      "hamstrings": 60,
+      "adductors": 30
+    }
+  },
+  {
+    "id": "glute_bridge",
+    "nameEN": "Glute Bridge",
+    "nameJA": "グルートブリッジ",
+    "category": "下半身（臀部）",
+    "equipment": "自重",
+    "difficulty": "初級",
+    "muscleMapping": {
+      "glutes": 100,
+      "hamstrings": 50
+    }
+  },
+  {
+    "id": "cable_kickback",
+    "nameEN": "Cable Kickback",
+    "nameJA": "ケーブルキックバック",
+    "category": "下半身（臀部）",
+    "equipment": "ケーブル",
+    "difficulty": "初級",
+    "muscleMapping": {
+      "glutes": 100,
+      "hamstrings": 40
+    }
+  },
+  {
+    "id": "sumo_deadlift",
+    "nameEN": "Sumo Deadlift",
+    "nameJA": "スモウデッドリフト",
+    "category": "下半身（臀部）",
+    "equipment": "バーベル",
+    "difficulty": "上級",
+    "muscleMapping": {
+      "traps_upper": 30,
+      "erector_spinae": 50,
+      "forearms": 40,
+      "glutes": 100,
+      "quadriceps": 60,
+      "hamstrings": 60,
+      "adductors": 80
+    }
+  },
+  {
+    "id": "adductor_machine",
+    "nameEN": "Adductor Machine",
+    "nameJA": "アダクターマシン（内転）",
+    "category": "下半身（臀部）",
+    "equipment": "マシン",
+    "difficulty": "初級",
+    "muscleMapping": {
+      "adductors": 100
+    }
+  },
+  {
     "id": "hip_abductor",
     "nameEN": "Hip Abductor Machine",
     "nameJA": "アブダクターマシン（外転）",
-    "category": "下半身",
+    "category": "下半身（臀部）",
     "equipment": "マシン",
     "difficulty": "初級",
     "muscleMapping": {
@@ -1216,7 +1133,7 @@
     "id": "glute_drive",
     "nameEN": "Glute Drive Machine",
     "nameJA": "グルートドライブ（マシン）",
-    "category": "下半身",
+    "category": "下半身（臀部）",
     "equipment": "マシン",
     "difficulty": "初級",
     "muscleMapping": {
@@ -1225,16 +1142,78 @@
     }
   },
   {
-    "id": "smith_squat",
-    "nameEN": "Smith Machine Squat",
-    "nameJA": "スミスマシンスクワット",
-    "category": "下半身",
+    "id": "standing_calf_raise",
+    "nameEN": "Standing Calf Raise",
+    "nameJA": "スタンディングカーフレイズ",
+    "category": "下半身（ふくらはぎ）",
     "equipment": "マシン",
+    "difficulty": "初級",
+    "muscleMapping": {
+      "gastrocnemius": 100,
+      "soleus": 60
+    }
+  },
+  {
+    "id": "seated_calf_raise",
+    "nameEN": "Seated Calf Raise",
+    "nameJA": "シーテッドカーフレイズ",
+    "category": "下半身（ふくらはぎ）",
+    "equipment": "マシン",
+    "difficulty": "初級",
+    "muscleMapping": {
+      "gastrocnemius": 30,
+      "soleus": 100
+    }
+  },
+  {
+    "id": "kettlebell_swing",
+    "nameEN": "Kettlebell Swing",
+    "nameJA": "ケトルベルスイング",
+    "category": "全身",
+    "equipment": "ケトルベル",
     "difficulty": "中級",
     "muscleMapping": {
-      "quadriceps": 100,
+      "erector_spinae": 60,
+      "deltoid_anterior": 40,
+      "forearms": 30,
+      "rectus_abdominis": 40,
+      "glutes": 100,
+      "hamstrings": 80
+    }
+  },
+  {
+    "id": "burpee",
+    "nameEN": "Burpee",
+    "nameJA": "バーピー",
+    "category": "全身",
+    "equipment": "自重",
+    "difficulty": "中級",
+    "muscleMapping": {
+      "chest_upper": 30,
+      "chest_lower": 40,
+      "deltoid_anterior": 40,
+      "triceps": 35,
+      "rectus_abdominis": 60,
+      "obliques": 30,
       "glutes": 70,
-      "hamstrings": 40
+      "quadriceps": 100,
+      "hamstrings": 45,
+      "hip_flexors": 55,
+      "gastrocnemius": 50,
+      "soleus": 30
+    }
+  },
+  {
+    "id": "bicycle_crunch",
+    "nameEN": "Bicycle Crunch",
+    "nameJA": "バイシクルクランチ",
+    "category": "体幹",
+    "equipment": "自重",
+    "difficulty": "初級",
+    "muscleMapping": {
+      "rectus_abdominis": 80,
+      "obliques": 100,
+      "hip_flexors": 60
     }
   }
 ]
