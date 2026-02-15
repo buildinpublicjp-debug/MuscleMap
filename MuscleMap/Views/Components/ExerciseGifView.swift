@@ -49,29 +49,13 @@ struct ExerciseGifView: View {
 
     var body: some View {
         if let gifData = Self.loadGifData(exerciseId: exerciseId) {
-            Group {
-                if size == .fullWidth {
-                    // 画面幅いっぱい表示（GIF元のアスペクト比を尊重）
-                    GifImageView(
-                        gifData: gifData,
-                        animate: size.shouldAnimate
-                    )
-                    .frame(maxWidth: .infinity)
-                    .aspectRatio(contentMode: .fit)
-                    .background(gifBackgroundColor)
-                    .clipShape(RoundedRectangle(cornerRadius: size.cornerRadius))
-                } else {
-                    // 固定サイズ表示（サムネイル - 正方形にクロップ）
-                    GifImageView(
-                        gifData: gifData,
-                        animate: size.shouldAnimate
-                    )
-                    .frame(width: size.dimension, height: size.dimension)
-                    .clipped()
-                    .background(gifBackgroundColor)
-                    .clipShape(RoundedRectangle(cornerRadius: size.cornerRadius))
-                }
-            }
+            // 全サイズ共通: アスペクト比を維持して全体表示
+            // サイズ制御は呼び出し元に任せる
+            GifImageView(
+                gifData: gifData,
+                animate: size.shouldAnimate
+            )
+            .aspectRatio(contentMode: .fit)
         }
     }
 
