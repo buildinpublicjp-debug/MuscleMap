@@ -49,13 +49,17 @@ struct ExerciseGifView: View {
 
     var body: some View {
         if let gifData = Self.loadGifData(exerciseId: exerciseId) {
-            // 全サイズ共通: アスペクト比を維持して全体表示
-            // サイズ制御は呼び出し元に任せる
-            GifImageView(
-                gifData: gifData,
-                animate: size.shouldAnimate
-            )
-            .aspectRatio(contentMode: .fit)
+            if size.shouldAnimate {
+                // アニメーション表示（UIViewRepresentable使用）
+                GifImageView(gifData: gifData)
+            } else {
+                // 静止画表示（SwiftUI Image使用 - 確実にscaledToFit）
+                if let firstFrame = UIImage.gifFirstFrame(data: gifData) {
+                    Image(uiImage: firstFrame)
+                        .resizable()
+                        .scaledToFit()
+                }
+            }
         }
     }
 
@@ -82,31 +86,27 @@ struct ExerciseGifView: View {
     }
 }
 
-// MARK: - UIKit GIF ImageView (UIViewRepresentable)
+// MARK: - UIKit GIF ImageView (UIViewRepresentable) - アニメーション専用
 
 private struct GifImageView: UIViewRepresentable {
     let gifData: Data
-    let animate: Bool
 
     func makeUIView(context: Context) -> UIImageView {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFit
         imageView.clipsToBounds = true
         imageView.backgroundColor = .clear
+        // Auto Layout対応: 親のサイズにフィット
+        imageView.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        imageView.setContentHuggingPriority(.defaultLow, for: .vertical)
+        imageView.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        imageView.setContentCompressionResistancePriority(.defaultLow, for: .vertical)
         return imageView
     }
 
     func updateUIView(_ imageView: UIImageView, context: Context) {
-        if animate {
-            // アニメーションGIF表示
-            if let animatedImage = UIImage.gif(data: gifData) {
-                imageView.image = animatedImage
-            }
-        } else {
-            // 静止画（最初のフレーム）
-            if let staticImage = UIImage.gifFirstFrame(data: gifData) {
-                imageView.image = staticImage
-            }
+        if let animatedImage = UIImage.gif(data: gifData) {
+            imageView.image = animatedImage
         }
     }
 }
