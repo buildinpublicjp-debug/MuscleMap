@@ -20,28 +20,16 @@ struct ExerciseDetailView: View {
                 Color.mmBgPrimary.ignoresSafeArea()
 
                 ScrollView {
-                    VStack(alignment: .leading, spacing: 24) {
-                        // ヘッダー
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text(localization.currentLanguage == .japanese ? exercise.nameJA : exercise.nameEN)
-                                .font(.title2.bold())
-                                .foregroundStyle(Color.mmTextPrimary)
-
-                            // 日本語モード時のみ英語名サブタイトルを表示
-                            if localization.currentLanguage == .japanese {
-                                Text(exercise.nameEN)
-                                    .font(.subheadline)
-                                    .foregroundStyle(Color.mmTextSecondary)
-                            }
-                        }
-
-                        // 基本情報タグ
-                        HStack(spacing: 16) {
-                            InfoTag(icon: "dumbbell", text: exercise.localizedEquipment)
-                            InfoTag(icon: "chart.bar", text: exercise.localizedDifficulty)
-                            InfoTag(icon: "tag", text: exercise.localizedCategory)
-                            if let pr = prWeight {
-                                InfoTag(icon: "trophy.fill", text: String(format: "%.1f kg", pr), highlight: true)
+                    VStack(alignment: .leading, spacing: 16) {
+                        // 基本情報タグ（コンパクトに）
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 8) {
+                                InfoTag(icon: "dumbbell", text: exercise.localizedEquipment)
+                                InfoTag(icon: "chart.bar", text: exercise.localizedDifficulty)
+                                InfoTag(icon: "tag", text: exercise.localizedCategory)
+                                if let pr = prWeight {
+                                    InfoTag(icon: "trophy.fill", text: String(format: "%.1f kg", pr), highlight: true)
+                                }
                             }
                         }
 
@@ -106,7 +94,6 @@ struct ExerciseDetailView: View {
                     .padding()
                 }
             }
-            .navigationTitle(localization.currentLanguage == .japanese ? exercise.nameJA : exercise.nameEN)
             .navigationBarTitleDisplayMode(.inline)
             .toolbarColorScheme(.dark, for: .navigationBar)
             .toolbar {
@@ -118,6 +105,13 @@ struct ExerciseDetailView: View {
                         Image(systemName: favorites.isFavorite(exercise.id) ? "star.fill" : "star")
                             .foregroundStyle(favorites.isFavorite(exercise.id) ? Color.mmMuscleModerate : Color.mmTextSecondary)
                     }
+                }
+                ToolbarItem(placement: .principal) {
+                    Text(localization.currentLanguage == .japanese ? exercise.nameJA : exercise.nameEN)
+                        .font(.headline)
+                        .foregroundStyle(Color.mmTextPrimary)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button(L10n.close) { dismiss() }

@@ -7,25 +7,25 @@ enum ExerciseGifSize {
     case fullWidth  // 画面幅 - ExerciseDetailView用
     case large      // 200pt - 詳細プレビュー用
     case medium     // 150pt - ExercisePreviewSheet用
-    case listRow    // 80pt - リスト行用（静止画）
-    case thumbnail  // 56pt - 小さいサムネイル用（静止画）
+    case listRow    // 64pt - リスト行用（静止画）
+    case thumbnail  // 48pt - 小さいサムネイル用（静止画）
 
     var dimension: CGFloat {
         switch self {
         case .fullWidth: return 280
         case .large: return 200
         case .medium: return 150
-        case .listRow: return 80
-        case .thumbnail: return 56
+        case .listRow: return 64
+        case .thumbnail: return 48
         }
     }
 
     var cornerRadius: CGFloat {
         switch self {
-        case .fullWidth: return 16
+        case .fullWidth: return 12
         case .large, .medium: return 12
-        case .listRow: return 10
-        case .thumbnail: return 8
+        case .listRow: return 8
+        case .thumbnail: return 6
         }
     }
 

@@ -328,14 +328,14 @@ private struct RelatedExercisesSection: View {
                     selectedExercise = exercise
                 } label: {
                     HStack(spacing: 12) {
-                        // GIFサムネイル（80pt）
+                        // GIFサムネイル（64pt）
                         if ExerciseGifView.hasGif(exerciseId: exercise.id) {
                             ExerciseGifView(exerciseId: exercise.id, size: .listRow)
                         } else {
                             MiniMuscleMapView(muscleMapping: exercise.muscleMapping)
-                                .frame(width: 80, height: 80)
+                                .frame(width: 64, height: 64)
                                 .background(Color(white: 0.95))
-                                .clipShape(RoundedRectangle(cornerRadius: 10))
+                                .clipShape(RoundedRectangle(cornerRadius: 8))
                         }
 
                         // 種目情報
