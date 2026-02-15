@@ -19,6 +19,13 @@ struct MuscleDetailView: View {
                 if let vm = viewModel {
                     ScrollView {
                         VStack(spacing: 8) {
+                            // 3D/2Dビジュアル
+                            Muscle3DView(
+                                muscle: muscle,
+                                visualState: vm.recoveryStatus.visualState
+                            )
+                            .padding(.horizontal)
+
                             // 回復ステータスカード（コンパクト版）
                             RecoveryStatusCard(viewModel: vm)
                                 .padding(.horizontal)
