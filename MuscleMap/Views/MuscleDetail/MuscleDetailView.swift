@@ -18,15 +18,8 @@ struct MuscleDetailView: View {
 
                 if let vm = viewModel {
                     ScrollView {
-                        VStack(spacing: 24) {
-                            // 3D/2Dビジュアル
-                            Muscle3DView(
-                                muscle: muscle,
-                                visualState: vm.recoveryStatus.visualState
-                            )
-                            .padding(.horizontal)
-
-                            // 回復ステータスカード
+                        VStack(spacing: 16) {
+                            // 回復ステータスカード（コンパクト版）
                             RecoveryStatusCard(viewModel: vm)
                                 .padding(.horizontal)
 
@@ -45,7 +38,7 @@ struct MuscleDetailView: View {
                                 )
                             }
                         }
-                        .padding(.vertical)
+                        .padding(.vertical, 8)
                     }
                 }
             }
@@ -318,60 +311,63 @@ private struct RelatedExercisesSection: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text(L10n.relatedExercises)
-                .font(.headline)
-                .foregroundStyle(Color.mmTextPrimary)
-                .padding(.horizontal)
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text(L10n.relatedExercises)
+                    .font(.headline)
+                    .foregroundStyle(Color.mmTextPrimary)
+                Spacer()
+                Text("\(exercises.count)\(L10n.exerciseUnit)")
+                    .font(.caption)
+                    .foregroundStyle(Color.mmTextSecondary)
+            }
+            .padding(.horizontal)
 
             ForEach(exercises.prefix(10)) { exercise in
                 Button {
                     selectedExercise = exercise
                 } label: {
                     HStack(spacing: 12) {
-                        // GIFサムネイル or MiniMuscleMap
+                        // GIFサムネイル（80pt）
                         if ExerciseGifView.hasGif(exerciseId: exercise.id) {
-                            ExerciseGifView(exerciseId: exercise.id, size: .thumbnail)
+                            ExerciseGifView(exerciseId: exercise.id, size: .listRow)
                         } else {
                             MiniMuscleMapView(muscleMapping: exercise.muscleMapping)
-                                .frame(width: 56, height: 56)
-                                .background(Color.mmBgPrimary.opacity(0.5))
-                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                                .frame(width: 80, height: 80)
+                                .background(Color(white: 0.95))
+                                .clipShape(RoundedRectangle(cornerRadius: 10))
                         }
 
                         // 種目情報
-                        VStack(alignment: .leading, spacing: 2) {
+                        VStack(alignment: .leading, spacing: 4) {
                             Text(localization.currentLanguage == .japanese ? exercise.nameJA : exercise.nameEN)
                                 .font(.subheadline.bold())
                                 .foregroundStyle(Color.mmTextPrimary)
-                                .lineLimit(1)
+                                .lineLimit(2)
                                 .minimumScaleFactor(0.8)
 
-                            HStack(spacing: 8) {
-                                Text(exercise.localizedEquipment)
-                                    .font(.caption)
-                                    .foregroundStyle(Color.mmTextSecondary)
+                            Text(exercise.localizedEquipment)
+                                .font(.caption)
+                                .foregroundStyle(Color.mmTextSecondary)
 
-                                if let record = lastRecord(for: exercise.id) {
-                                    Text(L10n.lastRecordLabel(record.weight, record.reps))
-                                        .font(.caption.monospaced())
-                                        .foregroundStyle(Color.mmAccentPrimary)
-                                } else {
-                                    Text(L10n.noRecord)
-                                        .font(.caption)
-                                        .foregroundStyle(Color.mmTextSecondary.opacity(0.6))
-                                }
+                            if let record = lastRecord(for: exercise.id) {
+                                Text(L10n.lastRecordLabel(record.weight, record.reps))
+                                    .font(.caption.bold().monospaced())
+                                    .foregroundStyle(Color.mmAccentPrimary)
+                            } else {
+                                Text(L10n.noRecord)
+                                    .font(.caption)
+                                    .foregroundStyle(Color.mmTextSecondary.opacity(0.6))
                             }
                         }
 
                         Spacer()
 
                         Image(systemName: "chevron.right")
-                            .font(.caption2)
+                            .font(.caption)
                             .foregroundStyle(Color.mmTextSecondary)
                     }
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 12)
+                    .padding(12)
                     .background(Color.mmBgCard)
                     .clipShape(RoundedRectangle(cornerRadius: 12))
                 }

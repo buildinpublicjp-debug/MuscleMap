@@ -72,11 +72,13 @@ struct ExerciseDetailView: View {
 
                         // GIFアニメーション（存在する場合のみ表示）
                         if ExerciseGifView.hasGif(exerciseId: exercise.id) {
-                            ExerciseGifView(exerciseId: exercise.id, size: .large)
-                                .frame(maxWidth: .infinity)
-                                .padding()
-                                .background(Color.mmBgCard)
-                                .clipShape(RoundedRectangle(cornerRadius: 12))
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text(L10n.exerciseAnimation)
+                                    .font(.headline)
+                                    .foregroundStyle(Color.mmTextPrimary)
+
+                                ExerciseGifView(exerciseId: exercise.id, size: .fullWidth)
+                            }
                         }
 
                         // 動画で見る（YouTubeボタン）

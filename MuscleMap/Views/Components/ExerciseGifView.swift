@@ -4,32 +4,41 @@ import UIKit
 // MARK: - GIF表示サイズ
 
 enum ExerciseGifSize {
-    case large      // 200pt - ExerciseDetailView用
+    case fullWidth  // 画面幅 - ExerciseDetailView用
+    case large      // 200pt - 詳細プレビュー用
     case medium     // 150pt - ExercisePreviewSheet用
-    case thumbnail  // 56pt - リスト用（静止画）
+    case listRow    // 80pt - リスト行用（静止画）
+    case thumbnail  // 56pt - 小さいサムネイル用（静止画）
 
     var dimension: CGFloat {
         switch self {
+        case .fullWidth: return 280
         case .large: return 200
         case .medium: return 150
+        case .listRow: return 80
         case .thumbnail: return 56
         }
     }
 
     var cornerRadius: CGFloat {
         switch self {
+        case .fullWidth: return 16
         case .large, .medium: return 12
+        case .listRow: return 10
         case .thumbnail: return 8
         }
     }
 
     var shouldAnimate: Bool {
         switch self {
-        case .large, .medium: return true
-        case .thumbnail: return false
+        case .fullWidth, .large, .medium: return true
+        case .listRow, .thumbnail: return false
         }
     }
 }
+
+// MARK: - GIF背景色（白背景GIF用）
+private let gifBackgroundColor = Color(white: 0.95)
 
 // MARK: - ExerciseGifView
 
@@ -40,12 +49,25 @@ struct ExerciseGifView: View {
 
     var body: some View {
         if let gifData = Self.loadGifData(exerciseId: exerciseId) {
-            GifImageView(
-                gifData: gifData,
-                animate: size.shouldAnimate
-            )
-            .frame(width: size.dimension, height: size.dimension)
-            .background(Color.mmBgCard)
+            Group {
+                if size == .fullWidth {
+                    // 画面幅いっぱい表示
+                    GifImageView(
+                        gifData: gifData,
+                        animate: size.shouldAnimate
+                    )
+                    .frame(maxWidth: .infinity)
+                    .aspectRatio(1.0, contentMode: .fit)
+                } else {
+                    // 固定サイズ表示
+                    GifImageView(
+                        gifData: gifData,
+                        animate: size.shouldAnimate
+                    )
+                    .frame(width: size.dimension, height: size.dimension)
+                }
+            }
+            .background(gifBackgroundColor)
             .clipShape(RoundedRectangle(cornerRadius: size.cornerRadius))
         }
     }
@@ -181,61 +203,37 @@ extension UIImage {
     ZStack {
         Color.mmBgPrimary.ignoresSafeArea()
 
-        VStack(spacing: 20) {
-            // Large size preview
-            VStack {
-                Text("Large (200pt)")
-                    .font(.caption)
-                    .foregroundStyle(Color.mmTextSecondary)
-
-                if ExerciseGifView.hasGif(exerciseId: "barbell_bench_press") {
-                    ExerciseGifView(exerciseId: "barbell_bench_press", size: .large)
-                } else {
-                    Text("No GIF available")
+        ScrollView {
+            VStack(spacing: 20) {
+                // Full width preview
+                VStack {
+                    Text("Full Width")
                         .font(.caption)
                         .foregroundStyle(Color.mmTextSecondary)
-                        .frame(width: 200, height: 200)
-                        .background(Color.mmBgCard)
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
+
+                    ExerciseGifView(exerciseId: "barbell_bench_press", size: .fullWidth)
+                        .padding(.horizontal)
                 }
-            }
 
-            // Medium size preview
-            VStack {
-                Text("Medium (150pt)")
-                    .font(.caption)
-                    .foregroundStyle(Color.mmTextSecondary)
-
-                if ExerciseGifView.hasGif(exerciseId: "barbell_bench_press") {
-                    ExerciseGifView(exerciseId: "barbell_bench_press", size: .medium)
-                } else {
-                    Text("No GIF")
-                        .font(.caption2)
+                // List row size preview
+                VStack {
+                    Text("List Row (80pt)")
+                        .font(.caption)
                         .foregroundStyle(Color.mmTextSecondary)
-                        .frame(width: 150, height: 150)
-                        .background(Color.mmBgCard)
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
+
+                    ExerciseGifView(exerciseId: "barbell_bench_press", size: .listRow)
                 }
-            }
 
-            // Thumbnail size preview
-            VStack {
-                Text("Thumbnail (56pt)")
-                    .font(.caption)
-                    .foregroundStyle(Color.mmTextSecondary)
+                // Thumbnail size preview
+                VStack {
+                    Text("Thumbnail (56pt)")
+                        .font(.caption)
+                        .foregroundStyle(Color.mmTextSecondary)
 
-                if ExerciseGifView.hasGif(exerciseId: "barbell_bench_press") {
                     ExerciseGifView(exerciseId: "barbell_bench_press", size: .thumbnail)
-                } else {
-                    Text("--")
-                        .font(.caption2)
-                        .foregroundStyle(Color.mmTextSecondary)
-                        .frame(width: 56, height: 56)
-                        .background(Color.mmBgCard)
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
                 }
             }
+            .padding()
         }
-        .padding()
     }
 }

@@ -325,6 +325,8 @@ enum L10n {
     static var relatedExercises: String { loc("関連種目", "Related Exercises") }
     static var recentRecords: String { loc("直近の記録", "Recent Records") }
     static var noRecord: String { loc("記録なし", "No record") }
+    static var exerciseUnit: String { loc("種目", " exercises") }
+    static var exerciseAnimation: String { loc("動作アニメーション", "Exercise Animation") }
     static func lastRecordLabel(_ weight: Double, _ reps: Int) -> String {
         loc("前回: \(String(format: "%.0f", weight))kg × \(reps)",
             "Last: \(String(format: "%.0f", weight))kg × \(reps)")
