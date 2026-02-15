@@ -266,10 +266,19 @@ private struct MuscleExercisePickerSheet: View {
     let muscle: Muscle
     let onSelect: (ExerciseDefinition) -> Void
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var modelContext
     private var localization: LocalizationManager { LocalizationManager.shared }
 
     private var relatedExercises: [ExerciseDefinition] {
         ExerciseStore.shared.exercises(targeting: muscle)
+    }
+
+    private func lastRecord(for exerciseId: String) -> WorkoutSet? {
+        let descriptor = FetchDescriptor<WorkoutSet>(
+            predicate: #Predicate { $0.exerciseId == exerciseId },
+            sortBy: [SortDescriptor(\.completedAt, order: .reverse)]
+        )
+        return try? modelContext.fetch(descriptor).first
     }
 
     var body: some View {
@@ -291,27 +300,42 @@ private struct MuscleExercisePickerSheet: View {
                         Button {
                             onSelect(exercise)
                         } label: {
-                            HStack {
+                            HStack(spacing: 12) {
+                                // GIFサムネイル or ミニ筋肉マップ
+                                if ExerciseGifView.hasGif(exerciseId: exercise.id) {
+                                    ExerciseGifView(exerciseId: exercise.id, size: .thumbnail)
+                                } else {
+                                    MiniMuscleMapView(muscleMapping: exercise.muscleMapping)
+                                        .frame(width: 56, height: 56)
+                                        .background(Color.mmBgCard)
+                                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                                }
+
                                 VStack(alignment: .leading, spacing: 4) {
                                     Text(localization.currentLanguage == .japanese ? exercise.nameJA : exercise.nameEN)
                                         .font(.subheadline.bold())
                                         .foregroundStyle(Color.mmTextPrimary)
+                                        .lineLimit(1)
+                                        .minimumScaleFactor(0.8)
 
                                     HStack(spacing: 8) {
-                                        Label(exercise.localizedEquipment, systemImage: "dumbbell")
-                                        Label(exercise.localizedDifficulty, systemImage: "chart.bar")
+                                        Text(exercise.localizedEquipment)
+                                            .font(.caption2)
+                                            .foregroundStyle(Color.mmTextSecondary)
+
+                                        if let record = lastRecord(for: exercise.id) {
+                                            Text(L10n.lastRecordLabel(record.weight, record.reps))
+                                                .font(.caption.monospaced())
+                                                .foregroundStyle(Color.mmAccentPrimary)
+                                        } else {
+                                            Text(L10n.noRecord)
+                                                .font(.caption)
+                                                .foregroundStyle(Color.mmTextSecondary.opacity(0.6))
+                                        }
                                     }
-                                    .font(.caption2)
-                                    .foregroundStyle(Color.mmTextSecondary)
                                 }
 
                                 Spacer()
-
-                                // 刺激度%
-                                let percentage = exercise.stimulationPercentage(for: muscle)
-                                Text("\(percentage)%")
-                                    .font(.subheadline.monospaced().bold())
-                                    .foregroundStyle(stimulationColor(percentage))
 
                                 Image(systemName: "chevron.right")
                                     .font(.caption)
@@ -336,14 +360,6 @@ private struct MuscleExercisePickerSheet: View {
             }
         }
         .presentationDetents([.medium, .large])
-    }
-
-    private func stimulationColor(_ percentage: Int) -> Color {
-        switch percentage {
-        case 80...: return .mmMuscleJustWorked
-        case 50..<80: return .mmMuscleAmber
-        default: return .mmMuscleLime
-        }
     }
 }
 
