@@ -1,0 +1,163 @@
+{
+  "/Users/og3939397/MuscleMap/build/SourcePackages/checkouts/purchases-ios-spm/Sources/Purchasing/Purchases/PurchasesType.swift" : {
+    "const-values" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/PurchasesType.swiftconstvalues",
+    "dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/PurchasesType.d",
+    "diagnostics" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/PurchasesType.dia",
+    "object" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/PurchasesType.o",
+    "swift-dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/PurchasesType.swiftdeps"
+  },
+  "/Users/og3939397/MuscleMap/build/SourcePackages/checkouts/purchases-ios-spm/Sources/Purchasing/Purchases/TransactionMetadataSyncHelper.swift" : {
+    "const-values" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/TransactionMetadataSyncHelper.swiftconstvalues",
+    "dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/TransactionMetadataSyncHelper.d",
+    "diagnostics" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/TransactionMetadataSyncHelper.dia",
+    "object" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/TransactionMetadataSyncHelper.o",
+    "swift-dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/TransactionMetadataSyncHelper.swiftdeps"
+  },
+  "/Users/og3939397/MuscleMap/build/SourcePackages/checkouts/purchases-ios-spm/Sources/Purchasing/Purchases/TransactionNotifications.swift" : {
+    "const-values" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/TransactionNotifications.swiftconstvalues",
+    "dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/TransactionNotifications.d",
+    "diagnostics" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/TransactionNotifications.dia",
+    "object" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/TransactionNotifications.o",
+    "swift-dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/TransactionNotifications.swiftdeps"
+  },
+  "/Users/og3939397/MuscleMap/build/SourcePackages/checkouts/purchases-ios-spm/Sources/Purchasing/Purchases/TransactionPoster.swift" : {
+    "const-values" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/TransactionPoster.swiftconstvalues",
+    "dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/TransactionPoster.d",
+    "diagnostics" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/TransactionPoster.dia",
+    "object" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/TransactionPoster.o",
+    "swift-dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/TransactionPoster.swiftdeps"
+  },
+  "/Users/og3939397/MuscleMap/build/SourcePackages/checkouts/purchases-ios-spm/Sources/Purchasing/ReceiptFetcher.swift" : {
+    "const-values" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/ReceiptFetcher.swiftconstvalues",
+    "dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/ReceiptFetcher.d",
+    "diagnostics" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/ReceiptFetcher.dia",
+    "object" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/ReceiptFetcher.o",
+    "swift-dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/ReceiptFetcher.swiftdeps"
+  },
+  "/Users/og3939397/MuscleMap/build/SourcePackages/checkouts/purchases-ios-spm/Sources/Purchasing/ReceiptRefreshPolicy.swift" : {
+    "const-values" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/ReceiptRefreshPolicy.swiftconstvalues",
+    "dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/ReceiptRefreshPolicy.d",
+    "diagnostics" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/ReceiptRefreshPolicy.dia",
+    "object" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/ReceiptRefreshPolicy.o",
+    "swift-dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/ReceiptRefreshPolicy.swiftdeps"
+  },
+  "/Users/og3939397/MuscleMap/build/SourcePackages/checkouts/purchases-ios-spm/Sources/Purchasing/SimulatedStore/SimulatedStoreProduct.swift" : {
+    "const-values" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/SimulatedStoreProduct.swiftconstvalues",
+    "dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/SimulatedStoreProduct.d",
+    "diagnostics" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/SimulatedStoreProduct.dia",
+    "object" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/SimulatedStoreProduct.o",
+    "swift-dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/SimulatedStoreProduct.swiftdeps"
+  },
+  "/Users/og3939397/MuscleMap/build/SourcePackages/checkouts/purchases-ios-spm/Sources/Purchasing/SimulatedStore/SimulatedStoreProductsManager.swift" : {
+    "const-values" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/SimulatedStoreProductsManager.swiftconstvalues",
+    "dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/SimulatedStoreProductsManager.d",
+    "diagnostics" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/SimulatedStoreProductsManager.dia",
+    "object" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/SimulatedStoreProductsManager.o",
+    "swift-dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/SimulatedStoreProductsManager.swiftdeps"
+  },
+  "/Users/og3939397/MuscleMap/build/SourcePackages/checkouts/purchases-ios-spm/Sources/Purchasing/SimulatedStore/SimulatedStorePurchaseHandler.swift" : {
+    "const-values" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/SimulatedStorePurchaseHandler.swiftconstvalues",
+    "dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/SimulatedStorePurchaseHandler.d",
+    "diagnostics" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/SimulatedStorePurchaseHandler.dia",
+    "object" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/SimulatedStorePurchaseHandler.o",
+    "swift-dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/SimulatedStorePurchaseHandler.swiftdeps"
+  },
+  "/Users/og3939397/MuscleMap/build/SourcePackages/checkouts/purchases-ios-spm/Sources/Purchasing/SimulatedStore/SimulatedStorePurchaseUI.swift" : {
+    "const-values" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/SimulatedStorePurchaseUI.swiftconstvalues",
+    "dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/SimulatedStorePurchaseUI.d",
+    "diagnostics" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/SimulatedStorePurchaseUI.dia",
+    "object" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/SimulatedStorePurchaseUI.o",
+    "swift-dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/SimulatedStorePurchaseUI.swiftdeps"
+  },
+  "/Users/og3939397/MuscleMap/build/SourcePackages/checkouts/purchases-ios-spm/Sources/Purchasing/SimulatedStore/SimulatedStoreTransaction.swift" : {
+    "const-values" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/SimulatedStoreTransaction.swiftconstvalues",
+    "dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/SimulatedStoreTransaction.d",
+    "diagnostics" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/SimulatedStoreTransaction.dia",
+    "object" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/SimulatedStoreTransaction.o",
+    "swift-dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/SimulatedStoreTransaction.swiftdeps"
+  },
+  "/Users/og3939397/MuscleMap/build/SourcePackages/checkouts/purchases-ios-spm/Sources/Purchasing/SimulatedStore/WebBillingProduct+SimulatedStoreProduct.swift" : {
+    "const-values" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/WebBillingProduct+SimulatedStoreProduct.swiftconstvalues",
+    "dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/WebBillingProduct+SimulatedStoreProduct.d",
+    "diagnostics" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/WebBillingProduct+SimulatedStoreProduct.dia",
+    "object" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/WebBillingProduct+SimulatedStoreProduct.o",
+    "swift-dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/WebBillingProduct+SimulatedStoreProduct.swiftdeps"
+  },
+  "/Users/og3939397/MuscleMap/build/SourcePackages/checkouts/purchases-ios-spm/Sources/Purchasing/StoreKit1/PaymentQueueWrapper.swift" : {
+    "const-values" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/PaymentQueueWrapper.swiftconstvalues",
+    "dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/PaymentQueueWrapper.d",
+    "diagnostics" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/PaymentQueueWrapper.dia",
+    "object" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/PaymentQueueWrapper.o",
+    "swift-dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/PaymentQueueWrapper.swiftdeps"
+  },
+  "/Users/og3939397/MuscleMap/build/SourcePackages/checkouts/purchases-ios-spm/Sources/Purchasing/StoreKit1/ProductsFetcherSK1.swift" : {
+    "const-values" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/ProductsFetcherSK1.swiftconstvalues",
+    "dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/ProductsFetcherSK1.d",
+    "diagnostics" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/ProductsFetcherSK1.dia",
+    "object" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/ProductsFetcherSK1.o",
+    "swift-dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/ProductsFetcherSK1.swiftdeps"
+  },
+  "/Users/og3939397/MuscleMap/build/SourcePackages/checkouts/purchases-ios-spm/Sources/Purchasing/StoreKit1/StoreKit1Wrapper.swift" : {
+    "const-values" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/StoreKit1Wrapper.swiftconstvalues",
+    "dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/StoreKit1Wrapper.d",
+    "diagnostics" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/StoreKit1Wrapper.dia",
+    "object" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/StoreKit1Wrapper.o",
+    "swift-dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/StoreKit1Wrapper.swiftdeps"
+  },
+  "/Users/og3939397/MuscleMap/build/SourcePackages/checkouts/purchases-ios-spm/Sources/Purchasing/StoreKit1/StoreKitRequestFetcher.swift" : {
+    "const-values" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/StoreKitRequestFetcher.swiftconstvalues",
+    "dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/StoreKitRequestFetcher.d",
+    "diagnostics" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/StoreKitRequestFetcher.dia",
+    "object" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/StoreKitRequestFetcher.o",
+    "swift-dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/StoreKitRequestFetcher.swiftdeps"
+  },
+  "/Users/og3939397/MuscleMap/build/SourcePackages/checkouts/purchases-ios-spm/Sources/Purchasing/StoreKit2/Observer Mode/StoreKit2ObserverModePurchaseDetector.swift" : {
+    "const-values" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/StoreKit2ObserverModePurchaseDetector.swiftconstvalues",
+    "dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/StoreKit2ObserverModePurchaseDetector.d",
+    "diagnostics" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/StoreKit2ObserverModePurchaseDetector.dia",
+    "object" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/StoreKit2ObserverModePurchaseDetector.o",
+    "swift-dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/StoreKit2ObserverModePurchaseDetector.swiftdeps"
+  },
+  "/Users/og3939397/MuscleMap/build/SourcePackages/checkouts/purchases-ios-spm/Sources/Purchasing/StoreKit2/ProductsFetcherSK2.swift" : {
+    "const-values" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/ProductsFetcherSK2.swiftconstvalues",
+    "dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/ProductsFetcherSK2.d",
+    "diagnostics" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/ProductsFetcherSK2.dia",
+    "object" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/ProductsFetcherSK2.o",
+    "swift-dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/ProductsFetcherSK2.swiftdeps"
+  },
+  "/Users/og3939397/MuscleMap/build/SourcePackages/checkouts/purchases-ios-spm/Sources/Purchasing/StoreKit2/SK2AppTransaction.swift" : {
+    "const-values" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/SK2AppTransaction.swiftconstvalues",
+    "dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/SK2AppTransaction.d",
+    "diagnostics" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/SK2AppTransaction.dia",
+    "object" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/SK2AppTransaction.o",
+    "swift-dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/SK2AppTransaction.swiftdeps"
+  },
+  "/Users/og3939397/MuscleMap/build/SourcePackages/checkouts/purchases-ios-spm/Sources/Purchasing/StoreKit2/SK2BeginRefundRequestHelper.swift" : {
+    "const-values" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/SK2BeginRefundRequestHelper.swiftconstvalues",
+    "dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/SK2BeginRefundRequestHelper.d",
+    "diagnostics" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/SK2BeginRefundRequestHelper.dia",
+    "object" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/SK2BeginRefundRequestHelper.o",
+    "swift-dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/SK2BeginRefundRequestHelper.swiftdeps"
+  },
+  "/Users/og3939397/MuscleMap/build/SourcePackages/checkouts/purchases-ios-spm/Sources/Purchasing/StoreKit2/StoreKit2PromotionalOfferPurchaseOptions.swift" : {
+    "const-values" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/StoreKit2PromotionalOfferPurchaseOptions.swiftconstvalues",
+    "dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/StoreKit2PromotionalOfferPurchaseOptions.d",
+    "diagnostics" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/StoreKit2PromotionalOfferPurchaseOptions.dia",
+    "object" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/StoreKit2PromotionalOfferPurchaseOptions.o",
+    "swift-dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/StoreKit2PromotionalOfferPurchaseOptions.swiftdeps"
+  },
+  "/Users/og3939397/MuscleMap/build/SourcePackages/checkouts/purchases-ios-spm/Sources/Purchasing/StoreKit2/StoreKit2PurchaseIntentListener.swift" : {
+    "const-values" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/StoreKit2PurchaseIntentListener.swiftconstvalues",
+    "dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/StoreKit2PurchaseIntentListener.d",
+    "diagnostics" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/StoreKit2PurchaseIntentListener.dia",
+    "object" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/StoreKit2PurchaseIntentListener.o",
+    "swift-dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/StoreKit2PurchaseIntentListener.swiftdeps"
+  },
+  "/Users/og3939397/MuscleMap/build/SourcePackages/checkouts/purchases-ios-spm/Sources/Purchasing/StoreKit2/StoreKit2Receipt.swift" : {
+    "const-values" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/StoreKit2Receipt.swiftconstvalues",
+    "dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/StoreKit2Receipt.d",
+    "diagnostics" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/StoreKit2Receipt.dia",
+    "object" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/StoreKit2Receipt.o",
+    "swift-dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/RevenueCat.build/Debug-iphonesimulator/RevenueCat.build/Objects-normal/arm64/StoreKit2Receipt.swiftdeps"
+  }
+}

@@ -1,0 +1,72 @@
+{
+  "/Users/og3939397/MuscleMap/MuscleMap/Models/WorkoutSession.swift" : {
+    "const-values" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/WorkoutSession.swiftconstvalues",
+    "dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/WorkoutSession.d",
+    "diagnostics" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/WorkoutSession.dia",
+    "object" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/WorkoutSession.o",
+    "swift-dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/WorkoutSession.swiftdeps"
+  },
+  "/Users/og3939397/MuscleMap/MuscleMap/Models/WorkoutSet.swift" : {
+    "const-values" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/WorkoutSet.swiftconstvalues",
+    "dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/WorkoutSet.d",
+    "diagnostics" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/WorkoutSet.dia",
+    "object" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/WorkoutSet.o",
+    "swift-dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/WorkoutSet.swiftdeps"
+  },
+  "/Users/og3939397/MuscleMap/MuscleMap/Repositories/WorkoutRepository.swift" : {
+    "const-values" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/WorkoutRepository.swiftconstvalues",
+    "dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/WorkoutRepository.d",
+    "diagnostics" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/WorkoutRepository.dia",
+    "object" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/WorkoutRepository.o",
+    "swift-dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/WorkoutRepository.swiftdeps"
+  },
+  "/Users/og3939397/MuscleMap/MuscleMap/Utilities/WidgetDataProvider.swift" : {
+    "const-values" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/WidgetDataProvider.swiftconstvalues",
+    "dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/WidgetDataProvider.d",
+    "diagnostics" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/WidgetDataProvider.dia",
+    "object" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/WidgetDataProvider.o",
+    "swift-dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/WidgetDataProvider.swiftdeps"
+  },
+  "/Users/og3939397/MuscleMap/MuscleMap/ViewModels/WeeklySummaryViewModel.swift" : {
+    "const-values" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/WeeklySummaryViewModel.swiftconstvalues",
+    "dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/WeeklySummaryViewModel.d",
+    "diagnostics" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/WeeklySummaryViewModel.dia",
+    "object" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/WeeklySummaryViewModel.o",
+    "swift-dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/WeeklySummaryViewModel.swiftdeps"
+  },
+  "/Users/og3939397/MuscleMap/MuscleMap/ViewModels/WorkoutViewModel.swift" : {
+    "const-values" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/WorkoutViewModel.swiftconstvalues",
+    "dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/WorkoutViewModel.d",
+    "diagnostics" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/WorkoutViewModel.dia",
+    "object" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/WorkoutViewModel.o",
+    "swift-dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/WorkoutViewModel.swiftdeps"
+  },
+  "/Users/og3939397/MuscleMap/MuscleMap/Views/Home/WeeklySummaryView.swift" : {
+    "const-values" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/WeeklySummaryView.swiftconstvalues",
+    "dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/WeeklySummaryView.d",
+    "diagnostics" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/WeeklySummaryView.dia",
+    "object" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/WeeklySummaryView.o",
+    "swift-dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/WeeklySummaryView.swiftdeps"
+  },
+  "/Users/og3939397/MuscleMap/MuscleMap/Views/Workout/WorkoutCompletionView.swift" : {
+    "const-values" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/WorkoutCompletionView.swiftconstvalues",
+    "dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/WorkoutCompletionView.d",
+    "diagnostics" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/WorkoutCompletionView.dia",
+    "object" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/WorkoutCompletionView.o",
+    "swift-dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/WorkoutCompletionView.swiftdeps"
+  },
+  "/Users/og3939397/MuscleMap/MuscleMap/Views/Workout/WorkoutStartView.swift" : {
+    "const-values" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/WorkoutStartView.swiftconstvalues",
+    "dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/WorkoutStartView.d",
+    "diagnostics" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/WorkoutStartView.dia",
+    "object" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/WorkoutStartView.o",
+    "swift-dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/WorkoutStartView.swiftdeps"
+  },
+  "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/DerivedSources/GeneratedAssetSymbols.swift" : {
+    "const-values" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/GeneratedAssetSymbols.swiftconstvalues",
+    "dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/GeneratedAssetSymbols.d",
+    "diagnostics" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/GeneratedAssetSymbols.dia",
+    "object" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/GeneratedAssetSymbols.o",
+    "swift-dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/GeneratedAssetSymbols.swiftdeps"
+  }
+}

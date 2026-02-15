@@ -1,0 +1,72 @@
+{
+  "/Users/og3939397/MuscleMap/MuscleMap/App/MuscleMapApp.swift" : {
+    "const-values" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/MuscleMapApp.swiftconstvalues",
+    "dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/MuscleMapApp.d",
+    "diagnostics" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/MuscleMapApp.dia",
+    "object" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/MuscleMapApp.o",
+    "swift-dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/MuscleMapApp.swiftdeps"
+  },
+  "/Users/og3939397/MuscleMap/MuscleMap/Models/MuscleStimulation.swift" : {
+    "const-values" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/MuscleStimulation.swiftconstvalues",
+    "dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/MuscleStimulation.d",
+    "diagnostics" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/MuscleStimulation.dia",
+    "object" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/MuscleStimulation.o",
+    "swift-dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/MuscleStimulation.swiftdeps"
+  },
+  "/Users/og3939397/MuscleMap/MuscleMap/Repositories/MuscleStateRepository.swift" : {
+    "const-values" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/MuscleStateRepository.swiftconstvalues",
+    "dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/MuscleStateRepository.d",
+    "diagnostics" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/MuscleStateRepository.dia",
+    "object" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/MuscleStateRepository.o",
+    "swift-dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/MuscleStateRepository.swiftdeps"
+  },
+  "/Users/og3939397/MuscleMap/MuscleMap/ViewModels/MuscleDetailViewModel.swift" : {
+    "const-values" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/MuscleDetailViewModel.swiftconstvalues",
+    "dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/MuscleDetailViewModel.d",
+    "diagnostics" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/MuscleDetailViewModel.dia",
+    "object" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/MuscleDetailViewModel.o",
+    "swift-dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/MuscleDetailViewModel.swiftdeps"
+  },
+  "/Users/og3939397/MuscleMap/MuscleMap/ViewModels/MuscleHeatmapViewModel.swift" : {
+    "const-values" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/MuscleHeatmapViewModel.swiftconstvalues",
+    "dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/MuscleHeatmapViewModel.d",
+    "diagnostics" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/MuscleHeatmapViewModel.dia",
+    "object" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/MuscleHeatmapViewModel.o",
+    "swift-dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/MuscleHeatmapViewModel.swiftdeps"
+  },
+  "/Users/og3939397/MuscleMap/MuscleMap/ViewModels/MuscleJourneyViewModel.swift" : {
+    "const-values" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/MuscleJourneyViewModel.swiftconstvalues",
+    "dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/MuscleJourneyViewModel.d",
+    "diagnostics" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/MuscleJourneyViewModel.dia",
+    "object" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/MuscleJourneyViewModel.o",
+    "swift-dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/MuscleJourneyViewModel.swiftdeps"
+  },
+  "/Users/og3939397/MuscleMap/MuscleMap/Views/Home/MuscleHeatmapView.swift" : {
+    "const-values" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/MuscleHeatmapView.swiftconstvalues",
+    "dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/MuscleHeatmapView.d",
+    "diagnostics" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/MuscleHeatmapView.dia",
+    "object" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/MuscleHeatmapView.o",
+    "swift-dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/MuscleHeatmapView.swiftdeps"
+  },
+  "/Users/og3939397/MuscleMap/MuscleMap/Views/Home/MuscleJourneyView.swift" : {
+    "const-values" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/MuscleJourneyView.swiftconstvalues",
+    "dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/MuscleJourneyView.d",
+    "diagnostics" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/MuscleJourneyView.dia",
+    "object" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/MuscleJourneyView.o",
+    "swift-dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/MuscleJourneyView.swiftdeps"
+  },
+  "/Users/og3939397/MuscleMap/MuscleMap/Views/Home/MuscleMapView.swift" : {
+    "const-values" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/MuscleMapView.swiftconstvalues",
+    "dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/MuscleMapView.d",
+    "diagnostics" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/MuscleMapView.dia",
+    "object" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/MuscleMapView.o",
+    "swift-dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/MuscleMapView.swiftdeps"
+  },
+  "/Users/og3939397/MuscleMap/MuscleMap/Views/Home/MusclePathData.swift" : {
+    "const-values" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/MusclePathData.swiftconstvalues",
+    "dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/MusclePathData.d",
+    "diagnostics" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/MusclePathData.dia",
+    "object" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/MusclePathData.o",
+    "swift-dependencies" : "/Users/og3939397/MuscleMap/build/Build/Intermediates.noindex/MuscleMap.build/Debug-iphonesimulator/MuscleMap.build/Objects-normal/arm64/MusclePathData.swiftdeps"
+  }
+}

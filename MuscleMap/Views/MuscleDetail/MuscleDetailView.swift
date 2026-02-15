@@ -329,18 +329,6 @@ private struct RelatedExercisesSection: View {
                     selectedExercise = exercise
                 } label: {
                     HStack(spacing: 12) {
-                        // サムネイル
-                        if ExerciseGifView.hasGif(exerciseId: exercise.id) {
-                            ExerciseGifView(exerciseId: exercise.id, size: .thumbnail)
-                                .frame(width: 40, height: 40)
-                                .clipShape(RoundedRectangle(cornerRadius: 6))
-                        } else {
-                            MiniMuscleMapView(muscleMapping: exercise.muscleMapping)
-                                .frame(width: 40, height: 40)
-                                .background(Color.mmBgPrimary.opacity(0.5))
-                                .clipShape(RoundedRectangle(cornerRadius: 6))
-                        }
-
                         // 種目情報
                         VStack(alignment: .leading, spacing: 2) {
                             Text(localization.currentLanguage == .japanese ? exercise.nameJA : exercise.nameEN)

@@ -247,12 +247,15 @@ private struct ExerciseLibraryRow: View {
                 Text(localization.currentLanguage == .japanese ? exercise.nameJA : exercise.nameEN)
                     .font(.subheadline.bold())
                     .foregroundStyle(Color.mmTextPrimary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
 
                 // 日本語モード時のみ英語名サブタイトルを表示
                 if localization.currentLanguage == .japanese {
                     Text(exercise.nameEN)
                         .font(.caption)
                         .foregroundStyle(Color.mmTextSecondary)
+                        .lineLimit(1)
                 }
 
                 // 主要ターゲット筋肉 + 器具と難易度のタグ

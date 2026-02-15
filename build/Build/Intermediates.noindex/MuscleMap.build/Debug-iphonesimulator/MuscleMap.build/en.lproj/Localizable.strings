@@ -1,0 +1,404 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>%lld種目</key>
+	<string>%lld exercises</string>
+	<key>%lld部位</key>
+	<string>%lld muscles</string>
+	<key>14日間の無料トライアル後、¥7,800/年で自動更新</key>
+	<string>Auto-renews at ¥7,800/yr after 14-day free trial</string>
+	<key>21の筋肉の回復状態を
+リアルタイムで可視化</key>
+	<string>Visualize recovery status
+of 21 muscles in real-time</string>
+	<key>3D筋肉ビュー</key>
+	<string>3D Muscle View</string>
+	<key>7日間の無料トライアル後、¥980/月で自動更新</key>
+	<string>Auto-renews at ¥980/mo after 7-day free trial</string>
+	<key>80種目のEMGベース刺激マッピングで
+科学的なトレーニング管理</key>
+	<string>Scientific training management with
+80 EMG-based exercise mappings</string>
+	<key>CSV形式でバックアップ</key>
+	<string>Backup in CSV format</string>
+	<key>MuscleMap</key>
+	<string>MuscleMap</string>
+	<key>MuscleMap Premium</key>
+	<string>MuscleMap Premium</string>
+	<key>MuscleMap — 筋肉の状態が見える。だから、迷わない。</key>
+	<string>MuscleMap — See your muscles. Train with confidence.</string>
+	<key>OK</key>
+	<string>OK</string>
+	<key>Premium</key>
+	<string>Premium</string>
+	<key>Premiumにアップグレード</key>
+	<string>Upgrade to Premium</string>
+	<key>RealityKitで部位を立体表示</key>
+	<string>3D display with RealityKit</string>
+	<key>kg</key>
+	<string>kg</string>
+	<key>kg (加重)</key>
+	<string>kg (added)</string>
+	<key>★ お気に入り</key>
+	<string>★ Favorites</string>
+	<key>★ お気に入り種目</key>
+	<string>★ Favorites</string>
+	<key>あなたについて教えてください</key>
+	<string>Tell us about yourself</string>
+	<key>あなたに合ったメニューを提案します</key>
+	<string>We'll suggest menus tailored for you</string>
+	<key>おすすめ</key>
+	<string>Best Value</string>
+	<key>お気に入りがありません</key>
+	<string>No Favorites</string>
+	<key>このセットを削除しますか？</key>
+	<string>Delete this set?</string>
+	<key>すべて</key>
+	<string>All</string>
+	<key>ほぼ回復</key>
+	<string>Nearly Recovered</string>
+	<key>まだセッションがありません</key>
+	<string>No sessions yet</string>
+	<key>よく行う種目 Top5</key>
+	<string>Top 5 Exercises</string>
+	<key>アプリ情報</key>
+	<string>App Info</string>
+	<key>アプリ設定</key>
+	<string>App Settings</string>
+	<key>キャンセル</key>
+	<string>Cancel</string>
+	<key>グループ</key>
+	<string>Group</string>
+	<key>サイズ</key>
+	<string>Size</string>
+	<key>ジムで開いた瞬間にスタートできる。
+未刺激の部位も見逃しません。</key>
+	<string>Start the moment you open at the gym.
+Never miss neglected muscles.</string>
+	<key>スキップ</key>
+	<string>Skip</string>
+	<key>セッション</key>
+	<string>Sessions</string>
+	<key>セッション履歴</key>
+	<string>Session History</string>
+	<key>セットを記録</key>
+	<string>Record Set</string>
+	<key>セット数</key>
+	<string>Sets</string>
+	<key>セット数・ボリューム・部位カバー率を
+チャートで確認。</key>
+	<string>Check sets, volume &amp; muscle coverage
+with charts.</string>
+	<key>ダイエット</key>
+	<string>Weight Loss</string>
+	<key>データ</key>
+	<string>Data</string>
+	<key>データなし</key>
+	<string>No Data</string>
+	<key>データエクスポート</key>
+	<string>Data Export</string>
+	<key>トレーニングの目標は？</key>
+	<string>What's your training goal?</string>
+	<key>トレーニング後の筋肉は色で回復度を表示。
+赤→緑へのグラデーションで一目瞭然。</key>
+	<string>Post-workout muscles show recovery with color.
+Red→Green gradient at a glance.</string>
+	<key>トレーニング歴1〜3年</key>
+	<string>1-3 years of training</string>
+	<key>トレーニング歴1年未満</key>
+	<string>Less than 1 year of training</string>
+	<key>トレーニング歴3年以上</key>
+	<string>3+ years of training</string>
+	<key>トレーニング経験</key>
+	<string>Training Experience</string>
+	<key>トレ日数</key>
+	<string>Training Days</string>
+	<key>ニックネーム</key>
+	<string>Nickname</string>
+	<key>ニックネーム（任意）</key>
+	<string>Nickname (optional)</string>
+	<key>ハムストリングス</key>
+	<string>Hamstrings</string>
+	<key>バージョン</key>
+	<string>Version</string>
+	<key>ヒラメ筋</key>
+	<string>Soleus</string>
+	<key>フォームのポイント</key>
+	<string>Form Tips</string>
+	<key>プライバシーポリシー</key>
+	<string>Privacy Policy</string>
+	<key>プレミアム</key>
+	<string>Premium</string>
+	<key>メニュー提案</key>
+	<string>Menu Suggestions</string>
+	<key>メニュー提案+</key>
+	<string>Menu Suggest+</string>
+	<key>ワークアウト</key>
+	<string>Workout</string>
+	<key>ワークアウトを終了しますか？</key>
+	<string>End this workout?</string>
+	<key>ワークアウト終了</key>
+	<string>End Workout</string>
+	<key>ワークアウト記録</key>
+	<string>Workout Recording</string>
+	<key>三角筋中部</key>
+	<string>Side Delts</string>
+	<key>三角筋前部</key>
+	<string>Front Delts</string>
+	<key>三角筋後部</key>
+	<string>Rear Delts</string>
+	<key>上級者</key>
+	<string>Advanced</string>
+	<key>上腕三頭筋</key>
+	<string>Triceps</string>
+	<key>上腕二頭筋</key>
+	<string>Biceps</string>
+	<key>下半身</key>
+	<string>Lower Body</string>
+	<key>中 (50-79%)</key>
+	<string>Mid (50-79%)</string>
+	<key>中筋群</key>
+	<string>Medium</string>
+	<key>中級者</key>
+	<string>Intermediate</string>
+	<key>今日のおすすめ</key>
+	<string>Today's Recommendation</string>
+	<key>今月のサマリー</key>
+	<string>This Month's Summary</string>
+	<key>今週のサマリー</key>
+	<string>This Week's Summary</string>
+	<key>低 (1-49%)</key>
+	<string>Low (1-49%)</string>
+	<key>体幹</key>
+	<string>Core</string>
+	<key>体脂肪を落としたい</key>
+	<string>Reduce body fat</string>
+	<key>健康的な体を維持したい</key>
+	<string>Maintain a healthy body</string>
+	<key>健康維持</key>
+	<string>Health</string>
+	<key>僧帽筋上部</key>
+	<string>Upper Traps</string>
+	<key>僧帽筋中部・下部</key>
+	<string>Mid/Lower Traps</string>
+	<key>全機能がアンロックされています</key>
+	<string>All features unlocked</string>
+	<key>全機能をアンロック</key>
+	<string>Unlock all features</string>
+	<key>全機能をアンロックして
+トレーニングを最適化</key>
+	<string>Unlock all features
+and optimize your training</string>
+	<key>内転筋群</key>
+	<string>Adductors</string>
+	<key>初心者</key>
+	<string>Beginner</string>
+	<key>利用規約</key>
+	<string>Terms of Use</string>
+	<key>刺激度</key>
+	<string>Stimulation</string>
+	<key>削除</key>
+	<string>Delete</string>
+	<key>削除する</key>
+	<string>Delete</string>
+	<key>前腕筋群</key>
+	<string>Forearms</string>
+	<key>前面</key>
+	<string>Front</string>
+	<key>前面を見る</key>
+	<string>View Front</string>
+	<key>加重する</key>
+	<string>Add Weight</string>
+	<key>動画で見る</key>
+	<string>Watch Video</string>
+	<key>回</key>
+	<string>reps</string>
+	<key>回復データから
+今日のベストメニューを自動提案</key>
+	<string>Auto-suggest today's best menu
+from recovery data</string>
+	<key>回復トラッキング</key>
+	<string>Recovery Tracking</string>
+	<key>回復中</key>
+	<string>Recovering</string>
+	<key>回復予定</key>
+	<string>Recovery ETA</string>
+	<key>回復初期</key>
+	<string>Early Recovery</string>
+	<key>回復完了</key>
+	<string>Fully Recovered</string>
+	<key>回復後期</key>
+	<string>Late Recovery</string>
+	<key>基本情報</key>
+	<string>Basic Info</string>
+	<key>基準回復</key>
+	<string>Base Recovery</string>
+	<key>大筋群</key>
+	<string>Large</string>
+	<key>大胸筋上部</key>
+	<string>Upper Chest</string>
+	<key>大胸筋下部</key>
+	<string>Lower Chest</string>
+	<key>大腿四頭筋</key>
+	<string>Quads</string>
+	<key>始める</key>
+	<string>Get Started</string>
+	<key>完全回復 — トレーニング可能</key>
+	<string>Fully Recovered — Ready to train</string>
+	<key>対象筋肉</key>
+	<string>Target Muscles</string>
+	<key>小筋群</key>
+	<string>Small</string>
+	<key>履歴</key>
+	<string>History</string>
+	<key>年額</key>
+	<string>Yearly</string>
+	<key>年額プランで始める（おすすめ）</key>
+	<string>Start Annual Plan (Best Value)</string>
+	<key>広背筋</key>
+	<string>Lats</string>
+	<key>復元できる購入が見つかりませんでした。</key>
+	<string>No purchases found to restore.</string>
+	<key>復元結果</key>
+	<string>Restore Result</string>
+	<key>成長を記録・分析</key>
+	<string>Track &amp; Analyze Growth</string>
+	<key>日別ボリューム（14日間）</key>
+	<string>Daily Volume (14 days)</string>
+	<key>時間</key>
+	<string>hours</string>
+	<key>最終刺激</key>
+	<string>Last Trained</string>
+	<key>月あたり ¥650</key>
+	<string>¥650/month</string>
+	<key>月間</key>
+	<string>Monthly</string>
+	<key>月間トレンド、グループ別分析</key>
+	<string>Monthly trends, group analysis</string>
+	<key>月額</key>
+	<string>Monthly</string>
+	<key>月額プランで始める</key>
+	<string>Start Monthly Plan</string>
+	<key>未刺激</key>
+	<string>Neglected</string>
+	<key>未刺激 — 14日以上</key>
+	<string>Neglected — 14+ days</string>
+	<key>未刺激 — 7日以上</key>
+	<string>Neglected — 7+ days</string>
+	<key>未刺激の部位</key>
+	<string>Neglected Muscles</string>
+	<key>機能</key>
+	<string>Features</string>
+	<key>次へ</key>
+	<string>Next</string>
+	<key>登録種目数</key>
+	<string>Registered Exercises</string>
+	<key>直近の記録</key>
+	<string>Recent Records</string>
+	<key>種目を検索</key>
+	<string>Search exercises</string>
+	<key>種目を追加</key>
+	<string>Add Exercise</string>
+	<key>種目を選択</key>
+	<string>Select Exercise</string>
+	<key>種目詳細画面の☆ボタンで
+お気に入りに追加できます</key>
+	<string>Tap the ☆ button in exercise details
+to add favorites</string>
+	<key>種目辞典</key>
+	<string>Exercise Library</string>
+	<key>筋力アップ</key>
+	<string>Strength</string>
+	<key>筋肉の状態が見える</key>
+	<string>See Your Muscle Status</string>
+	<key>筋肉を大きくしたい</key>
+	<string>Build bigger muscles</string>
+	<key>筋肉マップ（2D）</key>
+	<string>Muscle Map (2D)</string>
+	<key>筋肥大</key>
+	<string>Muscle Growth</string>
+	<key>総ボリューム</key>
+	<string>Total Volume</string>
+	<key>肩</key>
+	<string>Shoulders</string>
+	<key>背中</key>
+	<string>Back</string>
+	<key>背面</key>
+	<string>Back</string>
+	<key>背面を見る</key>
+	<string>View Back</string>
+	<key>胸</key>
+	<string>Chest</string>
+	<key>脊柱起立筋</key>
+	<string>Erector Spinae</string>
+	<key>腓腹筋</key>
+	<string>Calves</string>
+	<key>腕</key>
+	<string>Arms</string>
+	<key>腸腰筋</key>
+	<string>Hip Flexors</string>
+	<key>腹斜筋</key>
+	<string>Obliques</string>
+	<key>腹直筋</key>
+	<string>Abs</string>
+	<key>臀筋群</key>
+	<string>Glutes</string>
+	<key>自由にトレーニング開始</key>
+	<string>Start Free Training</string>
+	<key>自重</key>
+	<string>Bodyweight</string>
+	<key>触覚フィードバック</key>
+	<string>Haptic Feedback</string>
+	<key>記録を保存して終了</key>
+	<string>Save &amp; End</string>
+	<key>記録を破棄して終了</key>
+	<string>Discard &amp; End</string>
+	<key>記録済み</key>
+	<string>Recorded</string>
+	<key>設定</key>
+	<string>Settings</string>
+	<key>詳細統計</key>
+	<string>Detailed Stats</string>
+	<key>説明</key>
+	<string>Description</string>
+	<key>買い切り</key>
+	<string>Lifetime</string>
+	<key>買い切りプランで購入</key>
+	<string>Purchase Lifetime Plan</string>
+	<key>購入が復元されました。</key>
+	<string>Purchases have been restored.</string>
+	<key>購入を完了できませんでした。しばらく後にお試しください。</key>
+	<string>Purchase could not be completed. Please try again later.</string>
+	<key>購入を復元</key>
+	<string>Restore Purchases</string>
+	<key>購入エラー</key>
+	<string>Purchase Error</string>
+	<key>迷わないメニュー提案</key>
+	<string>Smart Menu Suggestions</string>
+	<key>追跡筋肉数</key>
+	<string>Tracked Muscles</string>
+	<key>週間</key>
+	<string>Weekly</string>
+	<key>進行中</key>
+	<string>In Progress</string>
+	<key>部位カバー率</key>
+	<string>Muscle Coverage</string>
+	<key>部位別セット数（今週）</key>
+	<string>Sets by Muscle Group (This Week)</string>
+	<key>重い重量を扱えるようになりたい</key>
+	<string>Lift heavier weights</string>
+	<key>閉じる</key>
+	<string>Close</string>
+	<key>関連種目（刺激度%順）</key>
+	<string>Related Exercises (by stimulation %)</string>
+	<key>高 (80%+)</key>
+	<string>High (80%+)</string>
+	<key>高度なメニュー最適化</key>
+	<string>Advanced menu optimization</string>
+	<key>高負荷</key>
+	<string>High Load</string>
+	<key>高負荷 — 休息が必要</key>
+	<string>High Load — Rest needed</string>
+</dict>
+</plist>
