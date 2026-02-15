@@ -328,20 +328,20 @@ private struct RelatedExercisesSection: View {
                     selectedExercise = exercise
                 } label: {
                     HStack(spacing: 12) {
-                        // GIFサムネイル（72pt、白背景）
+                        // GIFサムネイル（56x80縦長、白背景、全身表示）
                         ZStack {
                             Color.white
                             if ExerciseGifView.hasGif(exerciseId: exercise.id) {
-                                ExerciseGifView(exerciseId: exercise.id, size: .listRow)
-                                    .scaledToFit()
-                                    .padding(4)
+                                ExerciseGifView(exerciseId: exercise.id, size: .thumbnail)
+                                    .aspectRatio(contentMode: .fit)
+                                    .padding(2)
                             } else {
                                 MiniMuscleMapView(muscleMapping: exercise.muscleMapping)
-                                    .scaledToFit()
-                                    .padding(4)
+                                    .aspectRatio(contentMode: .fit)
+                                    .padding(2)
                             }
                         }
-                        .frame(width: 72, height: 72)
+                        .frame(width: 56, height: 80)
                         .clipShape(RoundedRectangle(cornerRadius: 8))
 
                         // 種目情報
