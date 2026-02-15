@@ -322,8 +322,13 @@ enum L10n {
     static var largeMuscle: String { loc("大筋群", "Large") }
     static var mediumMuscle: String { loc("中筋群", "Medium") }
     static var smallMuscle: String { loc("小筋群", "Small") }
-    static var relatedExercises: String { loc("関連種目（刺激度%順）", "Related Exercises (by %)") }
+    static var relatedExercises: String { loc("関連種目", "Related Exercises") }
     static var recentRecords: String { loc("直近の記録", "Recent Records") }
+    static var noRecord: String { loc("記録なし", "No record") }
+    static func lastRecordLabel(_ weight: Double, _ reps: Int) -> String {
+        loc("前回: \(String(format: "%.0f", weight))kg × \(reps)",
+            "Last: \(String(format: "%.0f", weight))kg × \(reps)")
+    }
     static func hoursUnit(_ h: Int) -> String { loc("\(h)時間", "\(h) hours") }
 
     // MARK: - 設定画面

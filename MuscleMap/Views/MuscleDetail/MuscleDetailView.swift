@@ -305,8 +305,17 @@ private struct InfoBlock: View {
 private struct RelatedExercisesSection: View {
     let muscle: Muscle
     let exercises: [ExerciseDefinition]
+    @Environment(\.modelContext) private var modelContext
     @State private var selectedExercise: ExerciseDefinition?
     private var localization: LocalizationManager { LocalizationManager.shared }
+
+    private func lastRecord(for exerciseId: String) -> WorkoutSet? {
+        let descriptor = FetchDescriptor<WorkoutSet>(
+            predicate: #Predicate { $0.exerciseId == exerciseId },
+            sortBy: [SortDescriptor(\.completedAt, order: .reverse)]
+        )
+        return try? modelContext.fetch(descriptor).first
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -320,7 +329,7 @@ private struct RelatedExercisesSection: View {
                     selectedExercise = exercise
                 } label: {
                     HStack(spacing: 12) {
-                        // サムネイル（小さめ）
+                        // サムネイル
                         if ExerciseGifView.hasGif(exerciseId: exercise.id) {
                             ExerciseGifView(exerciseId: exercise.id, size: .thumbnail)
                                 .frame(width: 40, height: 40)
@@ -339,25 +348,32 @@ private struct RelatedExercisesSection: View {
                                 .foregroundStyle(Color.mmTextPrimary)
                                 .lineLimit(1)
                                 .minimumScaleFactor(0.8)
-                            Text(exercise.localizedEquipment)
-                                .font(.caption)
-                                .foregroundStyle(Color.mmTextSecondary)
+
+                            HStack(spacing: 8) {
+                                Text(exercise.localizedEquipment)
+                                    .font(.caption)
+                                    .foregroundStyle(Color.mmTextSecondary)
+
+                                if let record = lastRecord(for: exercise.id) {
+                                    Text(L10n.lastRecordLabel(record.weight, record.reps))
+                                        .font(.caption.monospaced())
+                                        .foregroundStyle(Color.mmAccentPrimary)
+                                } else {
+                                    Text(L10n.noRecord)
+                                        .font(.caption)
+                                        .foregroundStyle(Color.mmTextSecondary.opacity(0.6))
+                                }
+                            }
                         }
 
                         Spacer()
-
-                        // 刺激度%
-                        let percentage = exercise.stimulationPercentage(for: muscle)
-                        Text("\(percentage)%")
-                            .font(.subheadline.monospaced().bold())
-                            .foregroundStyle(stimulationColor(percentage))
 
                         Image(systemName: "chevron.right")
                             .font(.caption2)
                             .foregroundStyle(Color.mmTextSecondary)
                     }
                     .padding(.horizontal, 16)
-                    .padding(.vertical, 10)
+                    .padding(.vertical, 12)
                     .background(Color.mmBgCard)
                     .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
@@ -366,14 +382,6 @@ private struct RelatedExercisesSection: View {
         }
         .sheet(item: $selectedExercise) { exercise in
             ExerciseDetailView(exercise: exercise)
-        }
-    }
-
-    private func stimulationColor(_ percentage: Int) -> Color {
-        switch percentage {
-        case 80...: return .mmMuscleJustWorked
-        case 50..<80: return .mmMuscleAmber
-        default: return .mmMuscleLime
         }
     }
 }
