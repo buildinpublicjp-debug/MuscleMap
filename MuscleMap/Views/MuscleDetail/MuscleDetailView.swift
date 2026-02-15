@@ -334,7 +334,7 @@ private struct RelatedExercisesSection: View {
                         } else {
                             MiniMuscleMapView(muscleMapping: exercise.muscleMapping)
                                 .frame(width: 64, height: 64)
-                                .background(Color(white: 0.95))
+                                .background(Color(.systemGray6))
                                 .clipShape(RoundedRectangle(cornerRadius: 8))
                         }
 
