@@ -24,7 +24,7 @@ struct Muscle3DView: View {
                 fallback2DView
             }
         }
-        .frame(height: 280)
+        .frame(height: 200)
         .clipShape(RoundedRectangle(cornerRadius: 16))
     }
 
@@ -110,7 +110,7 @@ struct Muscle3DView: View {
                     ForEach(muscleEntries, id: \.muscle) { entry in
                         if entry.muscle == muscle {
                             entry.path(fullRect)
-                                .stroke(highlightColor.opacity(0.6), lineWidth: 1.5)
+                                .stroke(highlightColor.opacity(0.8), lineWidth: 2.0)
                         }
                     }
                 }
