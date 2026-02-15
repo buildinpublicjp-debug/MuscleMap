@@ -327,45 +327,49 @@ private struct RelatedExercisesSection: View {
                 Button {
                     selectedExercise = exercise
                 } label: {
-                    HStack(spacing: 16) {
-                        // GIFサムネイル（100x75横長、白背景、大きく表示）
+                    VStack(alignment: .leading, spacing: 8) {
+                        // GIF - デカく表示（画面幅いっぱい × 高さ160）
                         ZStack {
                             Color.white
                             if ExerciseGifView.hasGif(exerciseId: exercise.id) {
                                 ExerciseGifView(exerciseId: exercise.id, size: .thumbnail)
-                                    .scaledToFit()
+                                    .aspectRatio(contentMode: .fit)
+                                    .padding(8)
                             } else {
                                 MiniMuscleMapView(muscleMapping: exercise.muscleMapping)
-                                    .scaledToFit()
+                                    .aspectRatio(contentMode: .fit)
+                                    .padding(8)
                             }
                         }
-                        .frame(width: 100, height: 75)
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 160)
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
 
-                        // 種目情報
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(localization.currentLanguage == .japanese ? exercise.nameJA : exercise.nameEN)
-                                .font(.subheadline.bold())
-                                .foregroundStyle(Color.mmTextPrimary)
-                                .lineLimit(2)
-                                .minimumScaleFactor(0.8)
+                        // 種目名 + 情報
+                        HStack {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(localization.currentLanguage == .japanese ? exercise.nameJA : exercise.nameEN)
+                                    .font(.subheadline.bold())
+                                    .foregroundStyle(Color.mmTextPrimary)
+                                    .lineLimit(1)
 
-                            Text(exercise.localizedEquipment)
-                                .font(.caption)
-                                .foregroundStyle(Color.mmTextSecondary)
+                                Text(exercise.localizedEquipment)
+                                    .font(.caption)
+                                    .foregroundStyle(Color.mmTextSecondary)
+                            }
+
+                            Spacer()
 
                             if let record = lastRecord(for: exercise.id) {
                                 Text(L10n.lastRecordLabel(record.weight, record.reps))
                                     .font(.caption.monospaced().bold())
                                     .foregroundStyle(Color.mmAccentPrimary)
                             }
+
+                            Image(systemName: "chevron.right")
+                                .font(.caption)
+                                .foregroundStyle(Color.mmTextSecondary)
                         }
-
-                        Spacer()
-
-                        Image(systemName: "chevron.right")
-                            .font(.caption)
-                            .foregroundStyle(Color.mmTextSecondary)
                     }
                     .padding(12)
                     .background(Color.mmBgCard)
