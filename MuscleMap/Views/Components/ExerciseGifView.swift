@@ -37,9 +37,12 @@ enum ExerciseGifSize {
     }
 }
 
+// MARK: - GIF背景色（白背景GIF用）
+private let gifBackgroundColor = Color(white: 0.95)
+
 // MARK: - ExerciseGifView
 
-/// GymVisual GIFアニメーションを表示するコンポーネント（透明背景GIF対応）
+/// GymVisual GIFアニメーションを表示するコンポーネント
 struct ExerciseGifView: View {
     let exerciseId: String
     let size: ExerciseGifSize
@@ -48,24 +51,24 @@ struct ExerciseGifView: View {
         if let gifData = Self.loadGifData(exerciseId: exerciseId) {
             Group {
                 if size == .fullWidth {
-                    // 画面幅いっぱい表示（カード内にパディング付き）
+                    // 画面幅いっぱい表示（GIF元のアスペクト比を尊重）
                     GifImageView(
                         gifData: gifData,
                         animate: size.shouldAnimate
                     )
                     .frame(maxWidth: .infinity)
-                    .aspectRatio(1.0, contentMode: .fit)
-                    .padding(16)
-                    .background(Color(.systemGray6))
+                    .aspectRatio(contentMode: .fit)
+                    .background(gifBackgroundColor)
                     .clipShape(RoundedRectangle(cornerRadius: size.cornerRadius))
                 } else {
-                    // 固定サイズ表示（サムネイル）
+                    // 固定サイズ表示（サムネイル - 正方形にクロップ）
                     GifImageView(
                         gifData: gifData,
                         animate: size.shouldAnimate
                     )
                     .frame(width: size.dimension, height: size.dimension)
-                    .background(Color(.systemGray6))
+                    .clipped()
+                    .background(gifBackgroundColor)
                     .clipShape(RoundedRectangle(cornerRadius: size.cornerRadius))
                 }
             }
