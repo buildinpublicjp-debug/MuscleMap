@@ -335,22 +335,16 @@ private struct RelatedExercisesSection: View {
                     selectedExercise = exercise
                 } label: {
                     VStack(alignment: .leading, spacing: 8) {
-                        // GIF - デカく表示（画面幅いっぱい × 高さ160）
-                        ZStack {
-                            Color.white
-                            if ExerciseGifView.hasGif(exerciseId: exercise.id) {
-                                ExerciseGifView(exerciseId: exercise.id, size: .thumbnail)
-                                    .aspectRatio(contentMode: .fit)
-                                    .padding(8)
-                            } else {
-                                MiniMuscleMapView(muscleMapping: exercise.muscleMapping)
-                                    .aspectRatio(contentMode: .fit)
-                                    .padding(8)
-                            }
+                        // GIF - カード型表示
+                        if ExerciseGifView.hasGif(exerciseId: exercise.id) {
+                            ExerciseGifView(exerciseId: exercise.id, size: .card)
+                        } else {
+                            MiniMuscleMapView(muscleMapping: exercise.muscleMapping)
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 120)
+                                .background(Color.mmBgPrimary.opacity(0.5))
+                                .clipShape(RoundedRectangle(cornerRadius: 10))
                         }
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 160)
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
 
                         // 種目名 + 情報
                         HStack {

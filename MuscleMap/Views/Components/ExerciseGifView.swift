@@ -4,41 +4,14 @@ import UIKit
 // MARK: - GIF表示サイズ
 
 enum ExerciseGifSize {
-    case fullWidth  // 画面幅 - ExerciseDetailView用
-    case large      // 200pt - 詳細プレビュー用
-    case medium     // 150pt - ExercisePreviewSheet用
-    case listRow    // 64pt - リスト行用（静止画）
-    case thumbnail  // 48pt - 小さいサムネイル用（静止画）
-
-    var dimension: CGFloat {
-        switch self {
-        case .fullWidth: return 280
-        case .large: return 200
-        case .medium: return 150
-        case .listRow: return 64
-        case .thumbnail: return 48
-        }
-    }
-
-    var cornerRadius: CGFloat {
-        switch self {
-        case .fullWidth: return 12
-        case .large, .medium: return 12
-        case .listRow: return 8
-        case .thumbnail: return 6
-        }
-    }
+    case fullWidth    // ExerciseDetailView用（アニメーション）
+    case card         // MuscleDetailView カード型リスト用（静止画）
+    case thumbnail    // ExerciseLibraryView等のリスト行用（静止画）
 
     var shouldAnimate: Bool {
-        switch self {
-        case .fullWidth, .large, .medium: return true
-        case .listRow, .thumbnail: return false
-        }
+        self == .fullWidth
     }
 }
-
-// MARK: - GIF背景色（白背景GIF用）
-private let gifBackgroundColor = Color(white: 0.95)
 
 // MARK: - ExerciseGifView
 
@@ -49,15 +22,38 @@ struct ExerciseGifView: View {
 
     var body: some View {
         if let gifData = Self.loadGifData(exerciseId: exerciseId) {
-            if size.shouldAnimate {
-                // アニメーション表示（UIViewRepresentable使用）
+            switch size {
+            case .fullWidth:
+                // アニメーションGIF（ExerciseDetailView用）
                 GifImageView(gifData: gifData)
-            } else {
-                // 静止画表示（SwiftUI Image使用 - 確実にscaledToFit）
+                    .aspectRatio(contentMode: .fit)
+                    .frame(maxWidth: .infinity)
+                    .frame(maxHeight: 300)
+                    .background(Color.white)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+
+            case .card:
+                // カード型サムネイル（MuscleDetailView用）
                 if let firstFrame = UIImage.gifFirstFrame(data: gifData) {
                     Image(uiImage: firstFrame)
                         .resizable()
                         .scaledToFit()
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 160)
+                        .background(Color.white)
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                }
+
+            case .thumbnail:
+                // リスト行用サムネイル（ExerciseLibraryView用）
+                if let firstFrame = UIImage.gifFirstFrame(data: gifData) {
+                    Image(uiImage: firstFrame)
+                        .resizable()
+                        .scaledToFit()
+                        .padding(4)
+                        .frame(width: 80, height: 60)
+                        .background(Color.white)
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
                 }
             }
         }
@@ -194,7 +190,7 @@ extension UIImage {
             VStack(spacing: 20) {
                 // Full width preview
                 VStack {
-                    Text("Full Width")
+                    Text("Full Width (animated)")
                         .font(.caption)
                         .foregroundStyle(Color.mmTextSecondary)
 
@@ -202,18 +198,19 @@ extension UIImage {
                         .padding(.horizontal)
                 }
 
-                // List row size preview
+                // Card size preview
                 VStack {
-                    Text("List Row (80pt)")
+                    Text("Card (160pt height)")
                         .font(.caption)
                         .foregroundStyle(Color.mmTextSecondary)
 
-                    ExerciseGifView(exerciseId: "barbell_bench_press", size: .listRow)
+                    ExerciseGifView(exerciseId: "barbell_bench_press", size: .card)
+                        .padding(.horizontal)
                 }
 
                 // Thumbnail size preview
                 VStack {
-                    Text("Thumbnail (56pt)")
+                    Text("Thumbnail (80x60)")
                         .font(.caption)
                         .foregroundStyle(Color.mmTextSecondary)
 

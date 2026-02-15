@@ -115,7 +115,7 @@ struct ExercisePreviewSheet: View {
             // GIF + ミニマップ横並び（GIFがある場合）
             if ExerciseGifView.hasGif(exerciseId: exercise.id) {
                 HStack(spacing: 10) {
-                    ExerciseGifView(exerciseId: exercise.id, size: .medium)
+                    ExerciseGifView(exerciseId: exercise.id, size: .card)
 
                     PreviewMuscleMapView(
                         muscleMapping: exercise.muscleMapping,
