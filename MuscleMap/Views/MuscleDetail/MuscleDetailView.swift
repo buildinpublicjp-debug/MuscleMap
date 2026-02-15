@@ -327,8 +327,8 @@ private struct RelatedExercisesSection: View {
                 Button {
                     selectedExercise = exercise
                 } label: {
-                    HStack(spacing: 12) {
-                        // GIFサムネイル（80x80、白背景、全体縮小表示）
+                    HStack(spacing: 16) {
+                        // GIFサムネイル（100x75横長、白背景、大きく表示）
                         ZStack {
                             Color.white
                             if ExerciseGifView.hasGif(exerciseId: exercise.id) {
@@ -339,15 +339,16 @@ private struct RelatedExercisesSection: View {
                                     .scaledToFit()
                             }
                         }
-                        .frame(width: 80, height: 80)
+                        .frame(width: 100, height: 75)
                         .clipShape(RoundedRectangle(cornerRadius: 8))
 
                         // 種目情報
-                        VStack(alignment: .leading, spacing: 3) {
+                        VStack(alignment: .leading, spacing: 4) {
                             Text(localization.currentLanguage == .japanese ? exercise.nameJA : exercise.nameEN)
                                 .font(.subheadline.bold())
                                 .foregroundStyle(Color.mmTextPrimary)
-                                .lineLimit(1)
+                                .lineLimit(2)
+                                .minimumScaleFactor(0.8)
 
                             Text(exercise.localizedEquipment)
                                 .font(.caption)
@@ -355,12 +356,8 @@ private struct RelatedExercisesSection: View {
 
                             if let record = lastRecord(for: exercise.id) {
                                 Text(L10n.lastRecordLabel(record.weight, record.reps))
-                                    .font(.caption.bold().monospaced())
+                                    .font(.caption.monospaced().bold())
                                     .foregroundStyle(Color.mmAccentPrimary)
-                            } else {
-                                Text(L10n.noRecord)
-                                    .font(.caption)
-                                    .foregroundStyle(Color.mmTextSecondary.opacity(0.6))
                             }
                         }
 
@@ -370,7 +367,7 @@ private struct RelatedExercisesSection: View {
                             .font(.caption)
                             .foregroundStyle(Color.mmTextSecondary)
                     }
-                    .padding(10)
+                    .padding(12)
                     .background(Color.mmBgCard)
                     .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
