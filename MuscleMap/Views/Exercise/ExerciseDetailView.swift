@@ -21,6 +21,11 @@ struct ExerciseDetailView: View {
 
                 ScrollView {
                     VStack(alignment: .leading, spacing: 16) {
+                        // GIFアニメーション（トップに配置、存在する場合のみ）
+                        if ExerciseGifView.hasGif(exerciseId: exercise.id) {
+                            ExerciseGifView(exerciseId: exercise.id, size: .fullWidth)
+                        }
+
                         // 基本情報タグ（コンパクトに）
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 8) {
@@ -55,27 +60,6 @@ struct ExerciseDetailView: View {
                                         percentage: percentage
                                     )
                                 }
-                            }
-                        }
-
-                        // GIFアニメーション（存在する場合のみ表示）
-                        if ExerciseGifView.hasGif(exerciseId: exercise.id) {
-                            VStack(alignment: .leading, spacing: 8) {
-                                Text(L10n.exerciseAnimation)
-                                    .font(.headline)
-                                    .foregroundStyle(Color.mmTextPrimary)
-
-                                // 白いカードに収める（高さ300pt最大）
-                                RoundedRectangle(cornerRadius: 12)
-                                    .fill(Color(white: 0.95))
-                                    .frame(maxWidth: .infinity)
-                                    .frame(height: 300)
-                                    .overlay(
-                                        ExerciseGifView(exerciseId: exercise.id, size: .fullWidth)
-                                            .scaledToFit()
-                                            .padding(8)
-                                    )
-                                    .clipShape(RoundedRectangle(cornerRadius: 12))
                             }
                         }
 
