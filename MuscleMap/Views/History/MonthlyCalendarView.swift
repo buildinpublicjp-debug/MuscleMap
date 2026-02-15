@@ -28,6 +28,10 @@ struct MonthlyCalendarView: View {
         return formatter.veryShortWeekdaySymbols
     }()
 
+    private var hasAnyWorkout: Bool {
+        !workoutDates.isEmpty
+    }
+
     var body: some View {
         VStack(spacing: 16) {
             // 月ナビゲーション
@@ -38,10 +42,42 @@ struct MonthlyCalendarView: View {
 
             // カレンダーグリッド
             calendarGrid
+
+            // カラー凡例（ワークアウトがある場合のみ表示）
+            if hasAnyWorkout {
+                muscleGroupLegend
+            }
         }
         .padding()
         .background(Color.mmBgCard)
         .clipShape(RoundedRectangle(cornerRadius: 16))
+    }
+
+    // MARK: - 筋肉グループ凡例
+
+    private var muscleGroupLegend: some View {
+        let allGroups: [(MuscleGroup, String)] = [
+            (.chest, L10n.categoryChest),
+            (.back, L10n.categoryBack),
+            (.shoulders, L10n.categoryShoulders),
+            (.arms, L10n.categoryArms),
+            (.core, L10n.coreType),
+            (.lowerBody, L10n.lowerBody)
+        ]
+
+        return HStack(spacing: 8) {
+            ForEach(allGroups, id: \.0) { group, name in
+                HStack(spacing: 3) {
+                    RoundedRectangle(cornerRadius: 2)
+                        .fill(muscleGroupColor(group))
+                        .frame(width: 8, height: 8)
+                    Text(name)
+                        .font(.system(size: 9))
+                        .foregroundStyle(Color.mmTextSecondary)
+                }
+            }
+        }
+        .padding(.top, 4)
     }
 
     // MARK: - 月ナビゲーション
