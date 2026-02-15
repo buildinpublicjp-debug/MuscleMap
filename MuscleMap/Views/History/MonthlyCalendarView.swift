@@ -186,6 +186,19 @@ struct MonthlyCalendarView: View {
     }
 }
 
+// MARK: - 筋肉グループ色ヘルパー（カレンダー共通）
+
+private func muscleGroupColor(_ group: MuscleGroup) -> Color {
+    switch group {
+    case .chest: return .mmMuscleJustWorked      // 赤系
+    case .back: return .mmAccentSecondary        // 青系
+    case .shoulders: return .mmMuscleAmber       // 黄系
+    case .arms: return .mmMuscleCoral            // オレンジ系
+    case .core: return .mmMuscleLime             // 黄緑系
+    case .lowerBody: return .mmAccentPrimary     // 緑系
+    }
+}
+
 // MARK: - 日付セル
 
 private struct DayCell: View {
@@ -198,19 +211,8 @@ private struct DayCell: View {
 
     private let calendar = Calendar.current
 
-    // 筋肉グループの表示順と色
+    // 筋肉グループの表示順
     private static let groupOrder: [MuscleGroup] = [.chest, .back, .shoulders, .arms, .core, .lowerBody]
-
-    private static func colorFor(_ group: MuscleGroup) -> Color {
-        switch group {
-        case .chest: return .mmMuscleJustWorked      // 赤系
-        case .back: return .mmAccentSecondary        // 青系
-        case .shoulders: return .mmMuscleAmber      // 黄系
-        case .arms: return .mmMuscleCoral           // オレンジ系
-        case .core: return .mmMuscleLime            // 黄緑系
-        case .lowerBody: return .mmAccentPrimary    // 緑系
-        }
-    }
 
     var body: some View {
         Button(action: action) {
@@ -247,7 +249,7 @@ private struct DayCell: View {
         return HStack(spacing: 2) {
             ForEach(sortedGroups.prefix(4), id: \.self) { group in
                 Circle()
-                    .fill(Self.colorFor(group))
+                    .fill(muscleGroupColor(group))
                     .frame(width: 5, height: 5)
             }
         }
@@ -262,7 +264,7 @@ private struct DayCell: View {
             HStack(spacing: 1) {
                 ForEach(sortedGroups, id: \.self) { group in
                     RoundedRectangle(cornerRadius: 2)
-                        .fill(Self.colorFor(group))
+                        .fill(muscleGroupColor(group))
                 }
             }
         }
@@ -292,96 +294,25 @@ private struct DayCell: View {
     }
 }
 
-// MARK: - マイクロ筋肉アイコン（カレンダー用）
+// MARK: - マイクロ筋肉アイコン（カレンダー用 - カラードットグリッド）
 
 private struct MicroMuscleIcon: View {
     let muscleGroups: Set<MuscleGroup>
 
-    // グループごとの色
-    private func colorFor(_ group: MuscleGroup) -> Color {
-        switch group {
-        case .chest: return .mmMuscleJustWorked
-        case .back: return .mmAccentSecondary
-        case .shoulders: return .mmMuscleAmber
-        case .arms: return .mmMuscleCoral
-        case .core: return .mmMuscleLime
-        case .lowerBody: return .mmAccentPrimary
-        }
-    }
+    // 表示順（重要度順）
+    private static let groupOrder: [MuscleGroup] = [.chest, .back, .shoulders, .arms, .core, .lowerBody]
 
     var body: some View {
-        // 簡略化人体シルエット（前面ベース）
-        GeometryReader { geo in
-            let w = geo.size.width
-            let h = geo.size.height
+        let activeGroups = Self.groupOrder.filter { muscleGroups.contains($0) }
 
-            ZStack {
-                // 胸 (上半身中央)
-                if muscleGroups.contains(.chest) {
-                    RoundedRectangle(cornerRadius: 1)
-                        .fill(colorFor(.chest))
-                        .frame(width: w * 0.5, height: h * 0.2)
-                        .position(x: w * 0.5, y: h * 0.25)
-                }
-
-                // 背中 (胸の後ろ、少しずらして表示)
-                if muscleGroups.contains(.back) {
-                    RoundedRectangle(cornerRadius: 1)
-                        .fill(colorFor(.back))
-                        .frame(width: w * 0.45, height: h * 0.18)
-                        .position(x: w * 0.5, y: h * 0.28)
-                        .opacity(muscleGroups.contains(.chest) ? 0.7 : 1.0)
-                }
-
-                // 肩 (左右)
-                if muscleGroups.contains(.shoulders) {
-                    HStack(spacing: w * 0.35) {
-                        Circle()
-                            .fill(colorFor(.shoulders))
-                            .frame(width: w * 0.2, height: w * 0.2)
-                        Circle()
-                            .fill(colorFor(.shoulders))
-                            .frame(width: w * 0.2, height: w * 0.2)
-                    }
-                    .position(x: w * 0.5, y: h * 0.15)
-                }
-
-                // 腕 (左右)
-                if muscleGroups.contains(.arms) {
-                    HStack(spacing: w * 0.4) {
-                        RoundedRectangle(cornerRadius: 1)
-                            .fill(colorFor(.arms))
-                            .frame(width: w * 0.12, height: h * 0.25)
-                        RoundedRectangle(cornerRadius: 1)
-                            .fill(colorFor(.arms))
-                            .frame(width: w * 0.12, height: h * 0.25)
-                    }
-                    .position(x: w * 0.5, y: h * 0.35)
-                }
-
-                // 体幹 (中央)
-                if muscleGroups.contains(.core) {
-                    RoundedRectangle(cornerRadius: 1)
-                        .fill(colorFor(.core))
-                        .frame(width: w * 0.3, height: h * 0.15)
-                        .position(x: w * 0.5, y: h * 0.48)
-                }
-
-                // 下半身 (下部)
-                if muscleGroups.contains(.lowerBody) {
-                    HStack(spacing: w * 0.1) {
-                        RoundedRectangle(cornerRadius: 1)
-                            .fill(colorFor(.lowerBody))
-                            .frame(width: w * 0.18, height: h * 0.35)
-                        RoundedRectangle(cornerRadius: 1)
-                            .fill(colorFor(.lowerBody))
-                            .frame(width: w * 0.18, height: h * 0.35)
-                    }
-                    .position(x: w * 0.5, y: h * 0.75)
-                }
+        HStack(spacing: 2) {
+            ForEach(activeGroups.prefix(4), id: \.self) { group in
+                RoundedRectangle(cornerRadius: 2)
+                    .fill(muscleGroupColor(group))
+                    .frame(width: 6, height: 6)
             }
         }
-        .frame(width: 24, height: 28)
+        .frame(height: 10)
     }
 }
 
