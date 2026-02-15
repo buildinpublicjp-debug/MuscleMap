@@ -65,7 +65,17 @@ struct ExerciseDetailView: View {
                                     .font(.headline)
                                     .foregroundStyle(Color.mmTextPrimary)
 
-                                ExerciseGifView(exerciseId: exercise.id, size: .fullWidth)
+                                // 白いカードに収める（高さ300pt最大）
+                                RoundedRectangle(cornerRadius: 12)
+                                    .fill(Color(white: 0.95))
+                                    .frame(maxWidth: .infinity)
+                                    .frame(height: 300)
+                                    .overlay(
+                                        ExerciseGifView(exerciseId: exercise.id, size: .fullWidth)
+                                            .scaledToFit()
+                                            .padding(8)
+                                    )
+                                    .clipShape(RoundedRectangle(cornerRadius: 12))
                             }
                         }
 
