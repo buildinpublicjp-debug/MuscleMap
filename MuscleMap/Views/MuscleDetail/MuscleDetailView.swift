@@ -18,7 +18,7 @@ struct MuscleDetailView: View {
 
                 if let vm = viewModel {
                     ScrollView {
-                        VStack(spacing: 16) {
+                        VStack(spacing: 8) {
                             // 回復ステータスカード（コンパクト版）
                             RecoveryStatusCard(viewModel: vm)
                                 .padding(.horizontal)
@@ -311,7 +311,7 @@ private struct RelatedExercisesSection: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 4) {
             HStack {
                 Text(L10n.relatedExercises)
                     .font(.headline)
@@ -328,23 +328,28 @@ private struct RelatedExercisesSection: View {
                     selectedExercise = exercise
                 } label: {
                     HStack(spacing: 12) {
-                        // GIFサムネイル（64pt）
-                        if ExerciseGifView.hasGif(exerciseId: exercise.id) {
-                            ExerciseGifView(exerciseId: exercise.id, size: .listRow)
-                        } else {
-                            MiniMuscleMapView(muscleMapping: exercise.muscleMapping)
-                                .frame(width: 64, height: 64)
-                                .background(Color(white: 0.95))
-                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                        // GIFサムネイル（72pt、白背景）
+                        ZStack {
+                            Color.white
+                            if ExerciseGifView.hasGif(exerciseId: exercise.id) {
+                                ExerciseGifView(exerciseId: exercise.id, size: .listRow)
+                                    .scaledToFit()
+                                    .padding(4)
+                            } else {
+                                MiniMuscleMapView(muscleMapping: exercise.muscleMapping)
+                                    .scaledToFit()
+                                    .padding(4)
+                            }
                         }
+                        .frame(width: 72, height: 72)
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
 
                         // 種目情報
-                        VStack(alignment: .leading, spacing: 4) {
+                        VStack(alignment: .leading, spacing: 3) {
                             Text(localization.currentLanguage == .japanese ? exercise.nameJA : exercise.nameEN)
                                 .font(.subheadline.bold())
                                 .foregroundStyle(Color.mmTextPrimary)
-                                .lineLimit(2)
-                                .minimumScaleFactor(0.8)
+                                .lineLimit(1)
 
                             Text(exercise.localizedEquipment)
                                 .font(.caption)
@@ -367,7 +372,7 @@ private struct RelatedExercisesSection: View {
                             .font(.caption)
                             .foregroundStyle(Color.mmTextSecondary)
                     }
-                    .padding(12)
+                    .padding(10)
                     .background(Color.mmBgCard)
                     .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
