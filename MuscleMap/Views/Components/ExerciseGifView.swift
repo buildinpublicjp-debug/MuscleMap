@@ -31,6 +31,10 @@ struct ExerciseGifView: View {
                     .frame(maxHeight: 300)
                     .background(Color.white)
                     .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color.mmBorder.opacity(0.3), lineWidth: 1)
+                    )
 
             case .card:
                 // カード型サムネイル（MuscleDetailView用）
@@ -42,6 +46,10 @@ struct ExerciseGifView: View {
                         .frame(height: 160)
                         .background(Color.white)
                         .clipShape(RoundedRectangle(cornerRadius: 10))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(Color.mmBorder.opacity(0.3), lineWidth: 1)
+                        )
                 }
 
             case .thumbnail:
@@ -54,6 +62,10 @@ struct ExerciseGifView: View {
                         .frame(width: 120, height: 90)
                         .background(Color.white)
                         .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(Color.mmBorder.opacity(0.3), lineWidth: 1)
+                        )
                 }
             }
         }
