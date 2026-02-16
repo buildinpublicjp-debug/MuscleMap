@@ -109,15 +109,26 @@ class WorkoutRepository {
             .sorted { $0.setNumber < $1.setNumber }
     }
 
-    /// 指定種目の前回の記録（直近セッションから）
+    /// 指定種目の前回の記録（直近セッションの第1セットを返す）
+    /// 疲労で後半セットは重量が下がりやすいため、第1セットを基準にする
     func fetchLastRecord(exerciseId: String) -> WorkoutSet? {
+        // まず直近のセットを取得してセッションを特定
         var descriptor = FetchDescriptor<WorkoutSet>(
             predicate: #Predicate { $0.exerciseId == exerciseId },
             sortBy: [SortDescriptor(\.completedAt, order: .reverse)]
         )
         descriptor.fetchLimit = 1
         do {
-            return try modelContext.fetch(descriptor).first
+            guard let latestSet = try modelContext.fetch(descriptor).first,
+                  let session = latestSet.session else {
+                return nil
+            }
+            // そのセッションの第1セットを返す
+            let firstSet = session.sets
+                .filter { $0.exerciseId == exerciseId }
+                .sorted { $0.setNumber < $1.setNumber }
+                .first
+            return firstSet ?? latestSet
         } catch {
             #if DEBUG
             print("[WorkoutRepository] Failed to fetch last record: \(error)")
