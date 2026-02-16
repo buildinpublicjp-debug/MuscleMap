@@ -5,56 +5,44 @@ import SwiftUI
 struct ExerciseMuscleMapView: View {
     /// 筋肉ID → 刺激度% (0-100)
     let muscleMapping: [String: Int]
-    
-    @State private var showingFront = true
-    
+
     var body: some View {
         VStack(spacing: 8) {
-            // 切り替えラベル
+            // 前面・背面の横並びラベル
             HStack {
-                Text(showingFront ? L10n.front : L10n.back)
+                Text(L10n.front)
                     .font(.caption.bold())
                     .foregroundStyle(Color.mmTextSecondary)
-                Spacer()
-                Button {
-                    withAnimation(.easeInOut(duration: 0.3)) {
-                        showingFront.toggle()
-                    }
-                } label: {
-                    HStack(spacing: 4) {
-                        Image(systemName: "arrow.left.arrow.right")
-                        Text(showingFront ? L10n.viewBack : L10n.viewFront)
-                    }
-                    .font(.caption2)
-                    .foregroundStyle(Color.mmAccentSecondary)
-                }
+                    .frame(maxWidth: .infinity)
+                Text(L10n.back)
+                    .font(.caption.bold())
+                    .foregroundStyle(Color.mmTextSecondary)
+                    .frame(maxWidth: .infinity)
             }
             .padding(.horizontal, 8)
-            
-            // 筋肉マップ
-            GeometryReader { geo in
-                let rect = CGRect(origin: .zero, size: geo.size)
 
-                ZStack {
-                    // 全ての筋肉を表示（刺激されない筋肉も薄く表示）
-                    let muscles = showingFront
-                        ? MusclePathData.frontMuscles
-                        : MusclePathData.backMuscles
+            // 前面・背面の横並び筋肉マップ
+            HStack(spacing: 8) {
+                // 前面マップ
+                SingleBodyMapView(
+                    muscleMapping: muscleMapping,
+                    muscles: MusclePathData.frontMuscles,
+                    stimulationFor: stimulationFor,
+                    colorFor: colorFor
+                )
+                .frame(height: 200)
 
-                    ForEach(muscles, id: \.muscle) { entry in
-                        let stimulation = stimulationFor(entry.muscle)
-                        let path = entry.path(rect)
-
-                        path
-                            .fill(colorFor(stimulation: stimulation))
-                        // 境界線（筋肉の形がわかるように）
-                        path
-                            .stroke(Color.mmMuscleBorder.opacity(0.4), lineWidth: 0.8)
-                    }
-                }
+                // 背面マップ
+                SingleBodyMapView(
+                    muscleMapping: muscleMapping,
+                    muscles: MusclePathData.backMuscles,
+                    stimulationFor: stimulationFor,
+                    colorFor: colorFor
+                )
+                .frame(height: 200)
             }
-            .aspectRatio(0.6, contentMode: .fit)
-            
+            .padding(.horizontal, 8)
+
             // 凡例
             legendView
         }
@@ -111,6 +99,34 @@ struct ExerciseMuscleMapView: View {
         .font(.caption2)
         .padding(.vertical, 8)
         .padding(.horizontal, 12)
+    }
+}
+
+// MARK: - 単一ボディマップビュー（前面または背面）
+
+private struct SingleBodyMapView: View {
+    let muscleMapping: [String: Int]
+    let muscles: [(muscle: Muscle, path: (CGRect) -> Path)]
+    let stimulationFor: (Muscle) -> Int
+    let colorFor: (Int) -> Color
+
+    var body: some View {
+        GeometryReader { geo in
+            let rect = CGRect(origin: .zero, size: geo.size)
+
+            ZStack {
+                ForEach(muscles, id: \.muscle) { entry in
+                    let stimulation = stimulationFor(entry.muscle)
+                    let path = entry.path(rect)
+
+                    path
+                        .fill(colorFor(stimulation))
+                    path
+                        .stroke(Color.mmMuscleBorder.opacity(0.4), lineWidth: 0.8)
+                }
+            }
+        }
+        .aspectRatio(0.6, contentMode: .fit)
     }
 }
 
