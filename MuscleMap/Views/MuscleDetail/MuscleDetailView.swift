@@ -353,6 +353,7 @@ private struct RelatedExercisesSection: View {
                                     .font(.subheadline.bold())
                                     .foregroundStyle(Color.mmTextPrimary)
                                     .lineLimit(1)
+                                    .minimumScaleFactor(0.7)
 
                                 Text(exercise.localizedEquipment)
                                     .font(.caption)
@@ -404,6 +405,7 @@ private struct RecentHistorySection: View {
                         .font(.caption)
                         .foregroundStyle(Color.mmTextPrimary)
                         .lineLimit(1)
+                        .minimumScaleFactor(0.7)
 
                     Spacer()
 

@@ -229,6 +229,7 @@ private struct FavoriteExercisesSection: View {
                                     .font(.subheadline.bold())
                                     .foregroundStyle(Color.mmTextPrimary)
                                     .lineLimit(1)
+                                    .minimumScaleFactor(0.6)
 
                                 HStack(spacing: 4) {
                                     Image(systemName: "dumbbell")
@@ -321,6 +322,7 @@ private struct MuscleExercisePickerSheet: View {
                                                     .font(.subheadline.bold())
                                                     .foregroundStyle(Color.mmTextPrimary)
                                                     .lineLimit(1)
+                                                    .minimumScaleFactor(0.7)
                                                 Text(exercise.localizedEquipment)
                                                     .font(.caption)
                                                     .foregroundStyle(Color.mmTextSecondary)

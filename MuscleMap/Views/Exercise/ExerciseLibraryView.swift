@@ -256,6 +256,7 @@ private struct ExerciseLibraryRow: View {
                         .font(.caption)
                         .foregroundStyle(Color.mmTextSecondary)
                         .lineLimit(1)
+                        .minimumScaleFactor(0.8)
                 }
 
                 // 主要ターゲット筋肉 + 器具と難易度のタグ

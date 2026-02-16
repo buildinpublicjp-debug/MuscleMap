@@ -454,6 +454,7 @@ private struct SessionRowView: View {
                     .font(.subheadline)
                     .foregroundStyle(Color.mmTextPrimary)
                     .lineLimit(1)
+                    .minimumScaleFactor(0.7)
 
                 HStack(spacing: 16) {
                     Label(L10n.setsLabel(session.sets.count), systemImage: "number")
@@ -1138,6 +1139,7 @@ private struct MuscleHistoryDetailSheet: View {
                             .font(.subheadline.weight(.medium))
                             .foregroundStyle(Color.mmTextPrimary)
                             .lineLimit(1)
+                            .minimumScaleFactor(0.7)
 
                             Text(item.exercise.localizedEquipment)
                                 .font(.caption2)
