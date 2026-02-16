@@ -137,6 +137,7 @@ enum L10n {
     static var skip: String { loc("スキップ", "Skip") }
     static var done: String { loc("完了", "Done") }
     static var edit: String { loc("編集", "Edit") }
+    static var editSet: String { loc("セットを編集", "Edit Set") }
     static var add: String { loc("追加", "Add") }
     static var confirm: String { loc("確認", "Confirm") }
     static var error: String { loc("エラー", "Error") }

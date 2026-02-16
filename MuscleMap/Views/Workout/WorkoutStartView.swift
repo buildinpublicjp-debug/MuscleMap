@@ -371,6 +371,7 @@ private struct ActiveWorkoutView: View {
     let onWorkoutCompleted: (WorkoutSession) -> Void
 
     @State private var showingEndConfirm = false
+    @State private var editingSet: WorkoutSet?
     @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
@@ -426,6 +427,12 @@ private struct ActiveWorkoutView: View {
                     if !viewModel.exerciseSets.isEmpty {
                         RecordedSetsView(
                             exerciseSets: viewModel.exerciseSets,
+                            onSelectExercise: { exercise in
+                                viewModel.selectExercise(exercise)
+                            },
+                            onEditSet: { set in
+                                editingSet = set
+                            },
                             onDeleteSet: { set in
                                 viewModel.deleteSet(set)
                             }
@@ -463,6 +470,122 @@ private struct ActiveWorkoutView: View {
                 // バックグラウンドから復帰時にタイマーを補正
                 if newPhase == .active {
                     viewModel.recalculateRestTimerAfterBackground()
+                }
+            }
+            .sheet(item: $editingSet) { set in
+                SetEditSheet(
+                    workoutSet: set,
+                    onSave: { weight, reps in
+                        set.weight = weight
+                        set.reps = reps
+                        editingSet = nil
+                    },
+                    onCancel: {
+                        editingSet = nil
+                    }
+                )
+                .presentationDetents([.height(280)])
+            }
+        }
+    }
+}
+
+// MARK: - セット編集シート
+
+private struct SetEditSheet: View {
+    let workoutSet: WorkoutSet
+    let onSave: (Double, Int) -> Void
+    let onCancel: () -> Void
+
+    @State private var editWeight: Double
+    @State private var editReps: Int
+
+    init(workoutSet: WorkoutSet, onSave: @escaping (Double, Int) -> Void, onCancel: @escaping () -> Void) {
+        self.workoutSet = workoutSet
+        self.onSave = onSave
+        self.onCancel = onCancel
+        _editWeight = State(initialValue: workoutSet.weight)
+        _editReps = State(initialValue: workoutSet.reps)
+    }
+
+    var body: some View {
+        NavigationStack {
+            VStack(spacing: 24) {
+                // 重量入力
+                VStack(spacing: 8) {
+                    Text(L10n.kg)
+                        .font(.caption)
+                        .foregroundStyle(Color.mmTextSecondary)
+                    HStack(spacing: 16) {
+                        Button {
+                            editWeight = max(0, editWeight - 2.5)
+                        } label: {
+                            Image(systemName: "minus.circle.fill")
+                                .font(.title)
+                                .foregroundStyle(Color.mmAccentPrimary)
+                        }
+                        Text(String(format: "%.2f", editWeight))
+                            .font(.system(size: 32, weight: .bold, design: .monospaced))
+                            .foregroundStyle(Color.mmTextPrimary)
+                            .frame(minWidth: 100)
+                        Button {
+                            editWeight += 2.5
+                        } label: {
+                            Image(systemName: "plus.circle.fill")
+                                .font(.title)
+                                .foregroundStyle(Color.mmAccentPrimary)
+                        }
+                    }
+                }
+
+                // レップ数入力
+                VStack(spacing: 8) {
+                    Text(L10n.reps)
+                        .font(.caption)
+                        .foregroundStyle(Color.mmTextSecondary)
+                    HStack(spacing: 16) {
+                        Button {
+                            editReps = max(1, editReps - 1)
+                        } label: {
+                            Image(systemName: "minus.circle.fill")
+                                .font(.title)
+                                .foregroundStyle(Color.mmAccentPrimary)
+                        }
+                        Text("\(editReps)")
+                            .font(.system(size: 32, weight: .bold, design: .monospaced))
+                            .foregroundStyle(Color.mmTextPrimary)
+                            .frame(minWidth: 60)
+                        Button {
+                            editReps += 1
+                        } label: {
+                            Image(systemName: "plus.circle.fill")
+                                .font(.title)
+                                .foregroundStyle(Color.mmAccentPrimary)
+                        }
+                    }
+                }
+
+                Spacer()
+            }
+            .padding(.top, 24)
+            .background(Color.mmBgSecondary)
+            .navigationTitle(L10n.editSet)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbarColorScheme(.dark, for: .navigationBar)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button(L10n.cancel) {
+                        onCancel()
+                    }
+                    .foregroundStyle(Color.mmTextSecondary)
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(L10n.save) {
+                        HapticManager.lightTap()
+                        onSave(editWeight, editReps)
+                    }
+                    .foregroundStyle(Color.mmAccentPrimary)
+                    .fontWeight(.bold)
                 }
             }
         }
@@ -992,6 +1115,8 @@ private struct WeightStepperButton: View {
 
 private struct RecordedSetsView: View {
     let exerciseSets: [(exercise: ExerciseDefinition, sets: [WorkoutSet])]
+    let onSelectExercise: (ExerciseDefinition) -> Void
+    let onEditSet: (WorkoutSet) -> Void
     let onDeleteSet: (WorkoutSet) -> Void
     private var localization: LocalizationManager { LocalizationManager.shared }
 
@@ -1021,12 +1146,24 @@ private struct RecordedSetsView: View {
 
             ForEach(exerciseSets, id: \.exercise.id) { entry in
                 VStack(alignment: .leading, spacing: 0) {
-                    Text(localization.currentLanguage == .japanese ? entry.exercise.nameJA : entry.exercise.nameEN)
-                        .font(.subheadline.bold())
-                        .foregroundStyle(Color.mmTextPrimary)
-                        .padding(.horizontal)
-                        .padding(.top, 12)
-                        .padding(.bottom, 4)
+                    // 種目名（タップで遷移）
+                    Button {
+                        HapticManager.lightTap()
+                        onSelectExercise(entry.exercise)
+                    } label: {
+                        HStack {
+                            Text(localization.currentLanguage == .japanese ? entry.exercise.nameJA : entry.exercise.nameEN)
+                                .font(.subheadline.bold())
+                                .foregroundStyle(Color.mmTextPrimary)
+                            Spacer()
+                            Image(systemName: "plus.circle.fill")
+                                .font(.subheadline)
+                                .foregroundStyle(Color.mmAccentPrimary)
+                        }
+                    }
+                    .padding(.horizontal)
+                    .padding(.top, 12)
+                    .padding(.bottom, 4)
 
                     List {
                         ForEach(entry.sets, id: \.id) { set in
@@ -1064,6 +1201,13 @@ private struct RecordedSetsView: View {
                                 } label: {
                                     Label(L10n.delete, systemImage: "trash")
                                 }
+                                Button {
+                                    HapticManager.lightTap()
+                                    onEditSet(set)
+                                } label: {
+                                    Label(L10n.edit, systemImage: "pencil")
+                                }
+                                .tint(Color.mmAccentSecondary)
                             }
                         }
                     }
