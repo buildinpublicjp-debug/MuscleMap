@@ -538,65 +538,84 @@ private struct SetInputCard: View {
 
     var body: some View {
         ScrollView {
-        VStack(spacing: 16) {
-            // 種目名
-            Text(localization.currentLanguage == .japanese ? exercise.nameJA : exercise.nameEN)
-                .font(.headline)
-                .foregroundStyle(Color.mmTextPrimary)
+        VStack(spacing: 12) {
+            // 種目名 + セット番号（コンパクトヘッダー）
+            HStack {
+                Text(localization.currentLanguage == .japanese ? exercise.nameJA : exercise.nameEN)
+                    .font(.headline)
+                    .foregroundStyle(Color.mmTextPrimary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
 
-            // GIFアニメーション（フォーム確認用）
-            if ExerciseGifView.hasGif(exerciseId: exercise.id) {
-                ExerciseGifView(exerciseId: exercise.id, size: .fullWidth)
-                    .frame(maxHeight: 180)
-                    .padding(.horizontal, 8)
+                Spacer()
+
+                Text(L10n.setNumber(viewModel.currentSetNumber))
+                    .font(.subheadline.bold())
+                    .foregroundStyle(Color.mmAccentPrimary)
             }
 
-            // 前回記録（目立つカード表示）
+            // GIFアニメーション（タイマー・PR オーバーレイ付き）
+            if ExerciseGifView.hasGif(exerciseId: exercise.id) {
+                ZStack(alignment: .topTrailing) {
+                    ZStack(alignment: .bottomTrailing) {
+                        ExerciseGifView(exerciseId: exercise.id, size: .fullWidth)
+                            .frame(maxHeight: 150)
+
+                        // PR表示（GIF右下にオーバーレイ）
+                        if let pr = prWeight, !isBodyweight {
+                            HStack(spacing: 2) {
+                                Image(systemName: "trophy.fill")
+                                    .font(.caption2)
+                                    .foregroundStyle(.yellow)
+                                Text("\(pr, specifier: "%.1f")kg")
+                                    .font(.caption2.bold())
+                                    .foregroundStyle(Color.mmTextPrimary)
+                            }
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(Color.black.opacity(0.6))
+                            .clipShape(Capsule())
+                            .padding(8)
+                        }
+                    }
+
+                    // タイマー（GIF右上にオーバーレイ）
+                    if viewModel.isRestTimerRunning {
+                        CompactTimerBadge(
+                            seconds: viewModel.restTimerSeconds,
+                            onStop: { viewModel.stopRestTimer() }
+                        )
+                        .padding(8)
+                    }
+                }
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+            } else {
+                // GIFがない場合のタイマー表示
+                if viewModel.isRestTimerRunning {
+                    CompactTimerBadge(
+                        seconds: viewModel.restTimerSeconds,
+                        onStop: { viewModel.stopRestTimer() }
+                    )
+                }
+            }
+
+            // 前回記録（コンパクト表示）
             if let lastW = viewModel.lastWeight, let lastR = viewModel.lastReps {
-                HStack(spacing: 8) {
+                HStack(spacing: 6) {
                     Image(systemName: "clock.arrow.circlepath")
-                        .font(.subheadline)
+                        .font(.caption)
                         .foregroundStyle(Color.mmAccentSecondary)
 
                     if isBodyweight && lastW == 0 {
                         Text(L10n.previousRepsOnly(lastR))
-                            .font(.subheadline.bold())
-                            .foregroundStyle(Color.mmTextPrimary)
+                            .font(.caption.bold())
+                            .foregroundStyle(Color.mmTextSecondary)
                     } else {
                         Text(L10n.previousRecord(lastW, lastR))
-                            .font(.subheadline.bold())
-                            .foregroundStyle(Color.mmTextPrimary)
+                            .font(.caption.bold())
+                            .foregroundStyle(Color.mmTextSecondary)
                     }
                 }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 10)
-                .background(Color.mmAccentSecondary.opacity(0.15))
-                .clipShape(RoundedRectangle(cornerRadius: 10))
-            }
-
-            // PR表示（前回記録と違う場合のみ）
-            if let pr = prWeight, pr != viewModel.lastWeight, !isBodyweight {
-                HStack(spacing: 4) {
-                    Image(systemName: "trophy.fill")
-                        .font(.caption2)
-                        .foregroundStyle(.yellow)
-                    Text("PR: \(pr, specifier: "%.1f")kg")
-                        .font(.caption)
-                        .foregroundStyle(Color.mmTextSecondary)
-                }
-            }
-
-            // セット番号
-            Text(L10n.setNumber(viewModel.currentSetNumber))
-                .font(.title3.bold())
-                .foregroundStyle(Color.mmAccentPrimary)
-
-            // セット間タイマー
-            if viewModel.isRestTimerRunning {
-                RestTimerView(
-                    seconds: viewModel.restTimerSeconds,
-                    onStop: { viewModel.stopRestTimer() }
-                )
             }
 
             // 重量の提案チップ
@@ -817,6 +836,38 @@ private struct RestTimerView: View {
         .padding(.vertical, 12)
         .background(Color.mmAccentPrimary.opacity(0.1))
         .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+}
+
+// MARK: - コンパクトタイマーバッジ（GIFオーバーレイ用）
+
+private struct CompactTimerBadge: View {
+    let seconds: Int
+    let onStop: () -> Void
+
+    private var formattedTime: String {
+        let mins = seconds / 60
+        let secs = seconds % 60
+        return String(format: "%d:%02d", mins, secs)
+    }
+
+    var body: some View {
+        Button {
+            onStop()
+            HapticManager.lightTap()
+        } label: {
+            HStack(spacing: 4) {
+                Image(systemName: "timer")
+                    .font(.caption2)
+                Text(formattedTime)
+                    .font(.system(size: 14, weight: .bold, design: .monospaced))
+            }
+            .foregroundStyle(Color.mmTextPrimary)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 6)
+            .background(Color.black.opacity(0.7))
+            .clipShape(Capsule())
+        }
     }
 }
 
