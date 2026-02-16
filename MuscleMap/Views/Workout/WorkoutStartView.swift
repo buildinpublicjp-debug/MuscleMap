@@ -371,6 +371,7 @@ private struct ActiveWorkoutView: View {
     let onWorkoutCompleted: (WorkoutSession) -> Void
 
     @State private var showingEndConfirm = false
+    @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
         VStack(spacing: 0) {
@@ -457,6 +458,12 @@ private struct ActiveWorkoutView: View {
                     viewModel.discardSession()
                 }
                 Button(L10n.cancel, role: .cancel) {}
+            }
+            .onChange(of: scenePhase) { _, newPhase in
+                // バックグラウンドから復帰時にタイマーを補正
+                if newPhase == .active {
+                    viewModel.recalculateRestTimerAfterBackground()
+                }
             }
         }
     }

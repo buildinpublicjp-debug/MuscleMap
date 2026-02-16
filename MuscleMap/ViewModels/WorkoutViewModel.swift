@@ -34,6 +34,7 @@ class WorkoutViewModel {
     var restTimerSeconds: Int = 0
     var isRestTimerRunning: Bool = false
     private var restTimer: Timer?
+    private var restTimerStartDate: Date?  // バックグラウンド復帰時の補正用
 
     init(modelContext: ModelContext) {
         self.workoutRepo = WorkoutRepository(modelContext: modelContext)
@@ -169,6 +170,7 @@ class WorkoutViewModel {
 
     /// タイマーを開始
     func startRestTimer() {
+        restTimerStartDate = Date()
         restTimerSeconds = 0
         isRestTimerRunning = true
         restTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
@@ -183,12 +185,20 @@ class WorkoutViewModel {
         restTimer?.invalidate()
         restTimer = nil
         isRestTimerRunning = false
+        restTimerStartDate = nil
     }
 
     /// タイマーをリセット
     func resetRestTimer() {
         stopRestTimer()
         restTimerSeconds = 0
+        restTimerStartDate = nil
+    }
+
+    /// バックグラウンド復帰時にタイマーを補正
+    func recalculateRestTimerAfterBackground() {
+        guard isRestTimerRunning, let startDate = restTimerStartDate else { return }
+        restTimerSeconds = Int(Date().timeIntervalSince(startDate))
     }
 
     /// セットを削除
