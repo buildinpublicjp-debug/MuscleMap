@@ -1,36 +1,88 @@
 import SwiftUI
 
-// MARK: - カラーパレット（バイオモニター × G-SHOCK）
+// MARK: - カラーパレット（バイオモニター × G-SHOCK）ライト/ダーク対応
 
 extension Color {
-    // 背景
-    static let mmBgPrimary = Color(hex: "#121212")
-    static let mmBgSecondary = Color(hex: "#1E1E1E")
-    static let mmBgCard = Color(hex: "#2A2A2A")
+    // MARK: - 背景（アダプティブ）
 
-    // テキスト（WCAG AA準拠）
-    static let mmTextPrimary = Color.white
-    static let mmTextSecondary = Color(hex: "#B0B0B0")    // コントラスト比 7.4:1
+    static let mmBgPrimary = Color(UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor(hex: "#121212")
+            : UIColor(hex: "#F5F5F7")
+    })
 
-    // アクセント
-    static let mmAccentPrimary = Color(hex: "#00FFB3")    // バイオグリーン
-    static let mmAccentSecondary = Color(hex: "#00D4FF")  // 電光ブルー
+    static let mmBgSecondary = Color(UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor(hex: "#1E1E1E")
+            : UIColor(hex: "#EBEBF0")
+    })
 
-    // ブランドカラー
+    static let mmBgCard = Color(UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor(hex: "#2A2A2A")
+            : UIColor(hex: "#FFFFFF")
+    })
+
+    // MARK: - テキスト（アダプティブ）
+
+    static let mmTextPrimary = Color(UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor.white
+            : UIColor(hex: "#1C1C1E")
+    })
+
+    static let mmTextSecondary = Color(UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor(hex: "#B0B0B0")
+            : UIColor(hex: "#6C6C70")
+    })
+
+    // MARK: - アクセント（Light/Dark共通で視認性十分）
+
+    static let mmAccentPrimary = Color(UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor(hex: "#00FFB3")    // バイオグリーン
+            : UIColor(hex: "#00CC8F")    // 少し暗めのグリーン（白背景用）
+    })
+
+    static let mmAccentSecondary = Color(UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor(hex: "#00D4FF")    // 電光ブルー
+            : UIColor(hex: "#00A8CC")    // 少し暗めのブルー（白背景用）
+    })
+
+    // MARK: - ブランドカラー
+
     static let mmBrandPurple = Color(hex: "#A020F0")
 
-    // 筋肉状態（3段階に簡素化）— 彩度を抑えた落ち着いたトーン
+    // MARK: - 筋肉状態（3段階に簡素化）— 彩度を抑えた落ち着いたトーン（Light/Dark共通）
+
     static let mmMuscleFatigued = Color(hex: "#E57373")   // 疲労（0-20%）= 落ち着いたコーラル
     static let mmMuscleModerate = Color(hex: "#FFD54F")   // 中間（20-80%）= 落ち着いたゴールド
     static let mmMuscleRecovered = Color(hex: "#81C784")  // 回復済み（80-100%）= 落ち着いたセージ
-    static let mmMuscleInactive = Color(hex: "#3D3D42")   // 記録なし/完全回復
-    static let mmMuscleNeglected = Color(hex: "#B388D4")  // 紫（7日+未刺激）コントラスト比 5.3:1
+    static let mmMuscleInactive = Color(UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor(hex: "#3D3D42")
+            : UIColor(hex: "#E5E5EA")
+    })
+    static let mmMuscleNeglected = Color(hex: "#B388D4")  // 紫（7日+未刺激）
 
-    // 境界線（WCAG準拠）
-    static let mmBorder = Color(hex: "#808080")           // コントラスト比 4.1:1
-    static let mmMuscleActiveBorder = Color(hex: "#FFFFFF")
+    // MARK: - 境界線（アダプティブ）
 
-    // 旧名との互換エイリアス（移行期間中のみ）
+    static let mmBorder = Color(UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor(hex: "#808080")
+            : UIColor(hex: "#C7C7CC")
+    })
+
+    static let mmMuscleActiveBorder = Color(UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor.white
+            : UIColor(hex: "#1C1C1E")
+    })
+
+    // MARK: - 旧名との互換エイリアス
+
     static let mmMuscleCoral = mmMuscleFatigued
     static let mmMuscleAmber = mmMuscleModerate
     static let mmMuscleYellow = mmMuscleModerate
@@ -40,7 +92,7 @@ extension Color {
     static let mmMuscleJustWorked = mmMuscleFatigued
 }
 
-// MARK: - Hex初期化
+// MARK: - Color Hex初期化
 
 extension Color {
     init(hex: String) {
@@ -64,6 +116,20 @@ extension Color {
             r = 0; g = 0; b = 0; a = 1.0
         }
         self.init(.sRGB, red: r, green: g, blue: b, opacity: a)
+    }
+}
+
+// MARK: - UIColor Hex初期化
+
+extension UIColor {
+    convenience init(hex: String) {
+        let hex = hex.trimmingCharacters(in: CharacterSet(charactersIn: "#"))
+        var int: UInt64 = 0
+        Scanner(string: hex).scanHexInt64(&int)
+        let r = CGFloat((int >> 16) & 0xFF) / 255.0
+        let g = CGFloat((int >> 8) & 0xFF) / 255.0
+        let b = CGFloat(int & 0xFF) / 255.0
+        self.init(red: r, green: g, blue: b, alpha: 1.0)
     }
 }
 

@@ -346,6 +346,7 @@ enum L10n {
     static var hapticFeedback: String { loc("触覚フィードバック", "Haptic Feedback") }
     static var language: String { loc("言語", "Language") }
     static var weightUnit: String { loc("重量単位", "Weight Unit") }
+    static var theme: String { loc("テーマ", "Theme") }
     static var data: String { loc("データ", "Data") }
     static var csvImport: String { loc("CSVインポート", "CSV Import") }
     static var dataExport: String { loc("データエクスポート", "Data Export") }

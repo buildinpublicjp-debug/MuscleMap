@@ -5,6 +5,7 @@ import SwiftUI
 struct SettingsView: View {
     @State private var appState = AppState.shared
     @State private var localization = LocalizationManager.shared
+    @State private var themeManager = ThemeManager.shared
     @State private var showingSafari = false
     @State private var safariURL: URL?
     @AppStorage("youtubeSearchLanguage") private var youtubeSearchLanguage: String = "auto"
@@ -72,6 +73,24 @@ struct SettingsView: View {
                 Picker("", selection: $appState.weightUnit) {
                     ForEach(WeightUnit.allCases, id: \.self) { unit in
                         Text(unit.displayName).tag(unit)
+                    }
+                }
+                .pickerStyle(.menu)
+                .tint(Color.mmAccentPrimary)
+            }
+            .listRowBackground(Color.mmBgCard)
+
+            // テーマ設定
+            HStack(spacing: 12) {
+                Image(systemName: "paintbrush")
+                    .foregroundStyle(Color.mmBrandPurple)
+                Text(L10n.theme)
+                    .font(.subheadline)
+                    .foregroundStyle(Color.mmTextPrimary)
+                Spacer()
+                Picker("", selection: $themeManager.currentTheme) {
+                    ForEach(AppTheme.allCases, id: \.self) { theme in
+                        Text(theme.displayName).tag(theme)
                     }
                 }
                 .pickerStyle(.menu)

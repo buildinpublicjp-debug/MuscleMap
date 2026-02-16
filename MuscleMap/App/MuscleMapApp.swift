@@ -10,7 +10,24 @@ struct MuscleMapApp: App {
         // 3Dモデルの可用性を判定
         ModelLoader.shared.evaluateModelAvailability()
 
-        // TabBar外観をダークに設定
+        // 初回起動時の外観設定
+        configureAppearance()
+    }
+
+    var body: some Scene {
+        WindowGroup {
+            RootView()
+        }
+        .modelContainer(for: [
+            WorkoutSession.self,
+            WorkoutSet.self,
+            MuscleStimulation.self
+        ])
+    }
+
+    /// UIKit外観を設定
+    private func configureAppearance() {
+        // TabBar外観
         let tabBarAppearance = UITabBarAppearance()
         tabBarAppearance.configureWithOpaqueBackground()
         tabBarAppearance.backgroundColor = UIColor(Color.mmBgSecondary)
@@ -21,20 +38,18 @@ struct MuscleMapApp: App {
         let navAppearance = UINavigationBarAppearance()
         navAppearance.configureWithOpaqueBackground()
         navAppearance.backgroundColor = UIColor(Color.mmBgPrimary)
-        navAppearance.titleTextAttributes = [.foregroundColor: UIColor.white]
         UINavigationBar.appearance().standardAppearance = navAppearance
         UINavigationBar.appearance().scrollEdgeAppearance = navAppearance
     }
+}
 
-    var body: some Scene {
-        WindowGroup {
-            ContentView()
-                .preferredColorScheme(.dark)
-        }
-        .modelContainer(for: [
-            WorkoutSession.self,
-            WorkoutSet.self,
-            MuscleStimulation.self
-        ])
+// MARK: - ルートビュー（テーマ監視）
+
+struct RootView: View {
+    @State private var themeManager = ThemeManager.shared
+
+    var body: some View {
+        ContentView()
+            .preferredColorScheme(themeManager.currentTheme.colorScheme)
     }
 }

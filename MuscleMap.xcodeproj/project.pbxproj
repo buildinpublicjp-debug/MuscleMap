@@ -29,6 +29,7 @@
 		38FF8BD300356973DD5C3165 /* CSVParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 281B4D0C19399AF581AAEC00 /* CSVParser.swift */; };
 		3ADCDEAFEA6C0E962EC5C3AD /* ImportDataConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BCC6B908DD79252499174F4 /* ImportDataConverter.swift */; };
 		3EDDCA712A0B8E4A7415899B /* LocalizationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91C8FDD5228CC86C3A148EBA /* LocalizationManager.swift */; };
+		TM001A2B3C4D5E6F7890ABCD /* ThemeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = TM002A2B3C4D5E6F7890ABCD /* ThemeManager.swift */; };
 		40E81C3981BED26536D6A824 /* MuscleStimulation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C736DECFDE0A06C7CA97F4E /* MuscleStimulation.swift */; };
 		500CF787262050CC495BF14D /* MuscleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FF01BFBC85F09E4AC3175C4 /* MuscleTests.swift */; };
 		58C4B3B57CDAAB06995959D6 /* MuscleBalanceDiagnosisView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11C0F4511390853FFA62C464 /* MuscleBalanceDiagnosisView.swift */; };
@@ -188,6 +189,7 @@
 		8F49E2D1636F7157790215EB /* ColorCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorCalculator.swift; sourceTree = "<group>"; };
 		9098D5CD12276919C4D8E50B /* WidgetSharedTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetSharedTypes.swift; sourceTree = "<group>"; };
 		91C8FDD5228CC86C3A148EBA /* LocalizationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalizationManager.swift; sourceTree = "<group>"; };
+		TM002A2B3C4D5E6F7890ABCD /* ThemeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeManager.swift; sourceTree = "<group>"; };
 		95E15F4939F5CC681A1FD0D2 /* MuscleMap.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MuscleMap.entitlements; sourceTree = "<group>"; };
 		964A1D43DEFE1F775E05AE10 /* ExerciseDescriptions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseDescriptions.swift; sourceTree = "<group>"; };
 		97C1051BF6F39CF7C365258E /* RecoveryCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecoveryCalculator.swift; sourceTree = "<group>"; };
@@ -264,6 +266,7 @@
 				2A1FA14BC36B9C6CA887533B /* LegalURL.swift */,
 				91C8FDD5228CC86C3A148EBA /* LocalizationManager.swift */,
 				E75A1388B2C55CA9AA59D915 /* MenuSuggestionService.swift */,
+				TM002A2B3C4D5E6F7890ABCD /* ThemeManager.swift */,
 				FB8FC4CC2B04B8D324DD7100 /* ModelLoader.swift */,
 				B04E06EA374E74AAD225DB8C /* PRManager.swift */,
 				97C1051BF6F39CF7C365258E /* RecoveryCalculator.swift */,
@@ -655,6 +658,7 @@
 				662D5CBA07EFBBA0FA088CD9 /* LegalURL.swift in Sources */,
 				3EDDCA712A0B8E4A7415899B /* LocalizationManager.swift in Sources */,
 				D352F429F17B8DB95A9E9867 /* MenuSuggestionService.swift in Sources */,
+				TM001A2B3C4D5E6F7890ABCD /* ThemeManager.swift in Sources */,
 				9BB6E56E51225B390FB48C6A /* MiniMuscleMapView.swift in Sources */,
 				9BC8F1A2D3E4B5C6F7890ABC /* ExerciseGifView.swift in Sources */,
 				7E3C09EC3460040859630DA1 /* ModelLoader.swift in Sources */,
