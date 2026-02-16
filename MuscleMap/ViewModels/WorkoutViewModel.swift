@@ -232,7 +232,7 @@ class WorkoutViewModel {
             guard let exercise = exerciseStore.exercise(for: exerciseId) else { return nil }
             let sortedSets = sets.sorted { $0.setNumber < $1.setNumber }
             return (exercise: exercise, sets: sortedSets)
-        }.sorted { ($0.sets.first?.completedAt ?? .distantPast) < ($1.sets.first?.completedAt ?? .distantPast) }
+        }.sorted { ($0.sets.first?.completedAt ?? .distantPast) > ($1.sets.first?.completedAt ?? .distantPast) }
     }
 
     /// ウィジェットデータを最新の筋肉状態で更新
