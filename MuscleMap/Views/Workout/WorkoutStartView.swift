@@ -528,11 +528,19 @@ private struct SetInputCard: View {
     }
 
     var body: some View {
+        ScrollView {
         VStack(spacing: 16) {
             // 種目名
             Text(localization.currentLanguage == .japanese ? exercise.nameJA : exercise.nameEN)
                 .font(.headline)
                 .foregroundStyle(Color.mmTextPrimary)
+
+            // GIFアニメーション（フォーム確認用）
+            if ExerciseGifView.hasGif(exerciseId: exercise.id) {
+                ExerciseGifView(exerciseId: exercise.id, size: .fullWidth)
+                    .frame(maxHeight: 180)
+                    .padding(.horizontal, 8)
+            }
 
             // 前回記録（目立つカード表示）
             if let lastW = viewModel.lastWeight, let lastR = viewModel.lastReps {
@@ -703,6 +711,7 @@ private struct SetInputCard: View {
             }
         }
         .padding()
+        }
         .background(Color.mmBgCard)
         .clipShape(RoundedRectangle(cornerRadius: 16))
         .padding(.horizontal)
