@@ -321,12 +321,14 @@ struct EnhancedExerciseRow: View {
                     .foregroundStyle(Color.mmTextSecondary)
                     .lineLimit(1)
 
-                // メタ情報
+                // メタ情報（器具 + メインターゲット）
                 HStack(spacing: 8) {
                     Label(exercise.localizedEquipment, systemImage: "dumbbell")
-                    Label(exercise.localizedDifficulty, systemImage: "chart.bar")
                     if let primary = exercise.primaryMuscle {
-                        Text(localization.currentLanguage == .japanese ? primary.japaneseName : primary.englishName)
+                        Label(
+                            localization.currentLanguage == .japanese ? primary.japaneseName : primary.englishName,
+                            systemImage: "figure.strengthtraining.traditional"
+                        )
                     }
                 }
                 .font(.caption2)

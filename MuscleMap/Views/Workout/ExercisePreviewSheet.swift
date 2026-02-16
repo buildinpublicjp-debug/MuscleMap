@@ -91,10 +91,9 @@ struct ExercisePreviewSheet: View {
                 .font(.subheadline)
                 .foregroundStyle(Color.mmTextSecondary)
 
-            // 基本情報タグ
+            // 基本情報タグ（器具のみ、難易度は詳細画面で確認）
             HStack(spacing: 8) {
                 InfoChip(icon: "dumbbell", text: exercise.localizedEquipment)
-                InfoChip(icon: "chart.bar", text: exercise.localizedDifficulty)
             }
             .padding(.top, 8)
         }
