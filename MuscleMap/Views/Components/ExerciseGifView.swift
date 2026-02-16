@@ -4,12 +4,13 @@ import UIKit
 // MARK: - GIF表示サイズ
 
 enum ExerciseGifSize {
-    case fullWidth    // ExerciseDetailView用（アニメーション）
-    case card         // MuscleDetailView カード型リスト用（静止画）
-    case thumbnail    // ExerciseLibraryView等のリスト行用（静止画）
+    case fullWidth     // ExerciseDetailView用（アニメーション、maxHeight: 300）
+    case previewCard   // ExercisePreviewSheet用（アニメーション、height: 120）
+    case card          // MuscleDetailView カード型リスト用（静止画、height: 160）
+    case thumbnail     // ExerciseLibraryView等のリスト行用（静止画、120x90）
 
     var shouldAnimate: Bool {
-        self == .fullWidth
+        self == .fullWidth || self == .previewCard
     }
 }
 
@@ -33,6 +34,19 @@ struct ExerciseGifView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 12))
                     .overlay(
                         RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color.mmBorder.opacity(0.3), lineWidth: 1)
+                    )
+
+            case .previewCard:
+                // アニメーションGIF（ExercisePreviewSheet用、コンパクト）
+                GifImageView(gifData: gifData)
+                    .aspectRatio(contentMode: .fit)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 120)
+                    .background(Color.white)
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 10)
                             .stroke(Color.mmBorder.opacity(0.3), lineWidth: 1)
                     )
 
