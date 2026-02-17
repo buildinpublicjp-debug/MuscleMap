@@ -11,7 +11,12 @@
       "chest_lower": 100,
       "deltoid_anterior": 50,
       "triceps": 40
-    }
+    },
+    "nameZH": "杠铃卧推",
+    "nameKO": "바벨 벤치프레스",
+    "nameES": "Press de banca con barra",
+    "nameFR": "Développé couché barre",
+    "nameDE": "Langhantel-Bankdrücken"
   },
   {
     "id": "incline_barbell_bench_press",
@@ -25,7 +30,12 @@
       "chest_lower": 40,
       "deltoid_anterior": 60,
       "triceps": 40
-    }
+    },
+    "nameZH": "上斜杠铃卧推",
+    "nameKO": "인클라인 바벨 벤치프레스",
+    "nameES": "Press inclinado con barra",
+    "nameFR": "Développé incliné barre",
+    "nameDE": "Schrägbank-Langhanteldrücken"
   },
   {
     "id": "decline_barbell_bench_press",
@@ -38,7 +48,12 @@
       "chest_upper": 30,
       "chest_lower": 100,
       "triceps": 40
-    }
+    },
+    "nameZH": "下斜杠铃卧推",
+    "nameKO": "디클라인 바벨 벤치프레스",
+    "nameES": "Press declinado con barra",
+    "nameFR": "Développé décliné barre",
+    "nameDE": "Negativ-Bankdrücken"
   },
   {
     "id": "dumbbell_bench_press",
@@ -52,7 +67,12 @@
       "chest_lower": 100,
       "deltoid_anterior": 50,
       "triceps": 40
-    }
+    },
+    "nameZH": "哑铃卧推",
+    "nameKO": "덤벨 벤치프레스",
+    "nameES": "Press de banca con mancuernas",
+    "nameFR": "Développé couché haltères",
+    "nameDE": "Kurzhantel-Bankdrücken"
   },
   {
     "id": "incline_dumbbell_press",
@@ -66,7 +86,12 @@
       "chest_lower": 40,
       "deltoid_anterior": 60,
       "triceps": 40
-    }
+    },
+    "nameZH": "上斜哑铃卧推",
+    "nameKO": "인클라인 덤벨 프레스",
+    "nameES": "Press inclinado con mancuernas",
+    "nameFR": "Développé incliné haltères",
+    "nameDE": "Schrägbank-Kurzhanteldrücken"
   },
   {
     "id": "dumbbell_fly",
@@ -79,7 +104,12 @@
       "chest_upper": 80,
       "chest_lower": 100,
       "deltoid_anterior": 30
-    }
+    },
+    "nameZH": "哑铃飞鸟",
+    "nameKO": "덤벨 플라이",
+    "nameES": "Aperturas con mancuernas",
+    "nameFR": "Écarté couché haltères",
+    "nameDE": "Kurzhantel-Fliegende"
   },
   {
     "id": "cable_crossover",
@@ -92,7 +122,12 @@
       "chest_upper": 60,
       "chest_lower": 100,
       "deltoid_anterior": 30
-    }
+    },
+    "nameZH": "绳索夹胸",
+    "nameKO": "케이블 크로스오버",
+    "nameES": "Cruce de cables",
+    "nameFR": "Écarté à la poulie",
+    "nameDE": "Kabelzug-Crossover"
   },
   {
     "id": "push_up",
@@ -107,7 +142,12 @@
       "deltoid_anterior": 40,
       "triceps": 50,
       "rectus_abdominis": 20
-    }
+    },
+    "nameZH": "俯卧撑",
+    "nameKO": "푸쉬업",
+    "nameES": "Flexiones",
+    "nameFR": "Pompes",
+    "nameDE": "Liegestütz"
   },
   {
     "id": "chest_dip",
@@ -120,7 +160,12 @@
       "chest_lower": 100,
       "deltoid_anterior": 40,
       "triceps": 70
-    }
+    },
+    "nameZH": "双杠臂屈伸（胸）",
+    "nameKO": "체스트 딥",
+    "nameES": "Fondos de pecho",
+    "nameFR": "Dips pectoraux",
+    "nameDE": "Brust-Dips"
   },
   {
     "id": "pec_deck_machine",
@@ -132,7 +177,12 @@
     "muscleMapping": {
       "chest_upper": 80,
       "chest_lower": 100
-    }
+    },
+    "nameZH": "蝴蝶机",
+    "nameKO": "펙덱 머신",
+    "nameES": "Máquina pec deck",
+    "nameFR": "Pec deck machine",
+    "nameDE": "Pec-Deck-Maschine"
   },
   {
     "id": "machine_chest_press",
@@ -146,7 +196,12 @@
       "chest_lower": 100,
       "deltoid_anterior": 50,
       "triceps": 40
-    }
+    },
+    "nameZH": "器械推胸",
+    "nameKO": "머신 체스트 프레스",
+    "nameES": "Press de pecho en máquina",
+    "nameFR": "Presse pectorale",
+    "nameDE": "Brustpresse-Maschine"
   },
   {
     "id": "machine_incline_press",
@@ -160,7 +215,12 @@
       "chest_lower": 50,
       "deltoid_anterior": 60,
       "triceps": 40
-    }
+    },
+    "nameZH": "器械上斜推胸",
+    "nameKO": "머신 인클라인 프레스",
+    "nameES": "Press inclinado en máquina",
+    "nameFR": "Presse inclinée machine",
+    "nameDE": "Schrägbank-Maschine"
   },
   {
     "id": "deadlift",
@@ -178,7 +238,12 @@
       "glutes": 85,
       "quadriceps": 75,
       "hamstrings": 65
-    }
+    },
+    "nameZH": "硬拉",
+    "nameKO": "데드리프트",
+    "nameES": "Peso muerto",
+    "nameFR": "Soulevé de terre",
+    "nameDE": "Kreuzheben"
   },
   {
     "id": "barbell_bent_over_row",
@@ -194,7 +259,12 @@
       "deltoid_posterior": 50,
       "biceps": 50,
       "forearms": 30
-    }
+    },
+    "nameZH": "杠铃俯身划船",
+    "nameKO": "바벨 벤트오버 로우",
+    "nameES": "Remo inclinado con barra",
+    "nameFR": "Rowing penché barre",
+    "nameDE": "Vorgebeugtes Langhantel-Rudern"
   },
   {
     "id": "dumbbell_row",
@@ -209,7 +279,12 @@
       "deltoid_posterior": 50,
       "biceps": 50,
       "forearms": 30
-    }
+    },
+    "nameZH": "哑铃划船",
+    "nameKO": "덤벨 로우",
+    "nameES": "Remo con mancuerna",
+    "nameFR": "Rowing haltère",
+    "nameDE": "Kurzhantel-Rudern"
   },
   {
     "id": "lat_pulldown",
@@ -224,7 +299,12 @@
       "deltoid_posterior": 30,
       "biceps": 60,
       "forearms": 30
-    }
+    },
+    "nameZH": "高位下拉",
+    "nameKO": "랫 풀다운",
+    "nameES": "Jalón al pecho",
+    "nameFR": "Tirage vertical",
+    "nameDE": "Latzug"
   },
   {
     "id": "pull_up",
@@ -240,7 +320,12 @@
       "biceps": 70,
       "forearms": 40,
       "rectus_abdominis": 20
-    }
+    },
+    "nameZH": "引体向上",
+    "nameKO": "풀업",
+    "nameES": "Dominadas",
+    "nameFR": "Tractions",
+    "nameDE": "Klimmzüge"
   },
   {
     "id": "chin_up",
@@ -254,7 +339,12 @@
       "traps_middle_lower": 30,
       "biceps": 100,
       "forearms": 40
-    }
+    },
+    "nameZH": "反握引体向上",
+    "nameKO": "친업",
+    "nameES": "Dominadas supinas",
+    "nameFR": "Tractions supination",
+    "nameDE": "Klimmzüge Untergriff"
   },
   {
     "id": "seated_cable_row",
@@ -269,7 +359,12 @@
       "erector_spinae": 30,
       "deltoid_posterior": 40,
       "biceps": 50
-    }
+    },
+    "nameZH": "坐姿绳索划船",
+    "nameKO": "시티드 케이블 로우",
+    "nameES": "Remo en polea sentado",
+    "nameFR": "Tirage horizontal assis",
+    "nameDE": "Sitzend Kabelrudern"
   },
   {
     "id": "t_bar_row",
@@ -285,7 +380,12 @@
       "deltoid_posterior": 40,
       "biceps": 50,
       "forearms": 30
-    }
+    },
+    "nameZH": "T杠划船",
+    "nameKO": "T바 로우",
+    "nameES": "Remo T-bar",
+    "nameFR": "Rowing T-bar",
+    "nameDE": "T-Bar-Rudern"
   },
   {
     "id": "face_pull",
@@ -298,7 +398,12 @@
       "traps_upper": 40,
       "traps_middle_lower": 80,
       "deltoid_posterior": 100
-    }
+    },
+    "nameZH": "面拉",
+    "nameKO": "페이스 풀",
+    "nameES": "Face pull",
+    "nameFR": "Face pull",
+    "nameDE": "Face Pull"
   },
   {
     "id": "hyperextension",
@@ -311,7 +416,12 @@
       "erector_spinae": 100,
       "glutes": 60,
       "hamstrings": 50
-    }
+    },
+    "nameZH": "山羊挺身",
+    "nameKO": "하이퍼익스텐션",
+    "nameES": "Hiperextensión",
+    "nameFR": "Hyperextension",
+    "nameDE": "Hyperextension"
   },
   {
     "id": "barbell_shrug",
@@ -324,7 +434,12 @@
       "traps_upper": 100,
       "traps_middle_lower": 40,
       "forearms": 30
-    }
+    },
+    "nameZH": "杠铃耸肩",
+    "nameKO": "바벨 슈러그",
+    "nameES": "Encogimientos con barra",
+    "nameFR": "Haussements barre",
+    "nameDE": "Langhantel-Schulterheben"
   },
   {
     "id": "machine_row",
@@ -338,7 +453,12 @@
       "traps_middle_lower": 70,
       "deltoid_posterior": 40,
       "biceps": 50
-    }
+    },
+    "nameZH": "器械划船",
+    "nameKO": "머신 로우",
+    "nameES": "Remo en máquina",
+    "nameFR": "Rowing machine",
+    "nameDE": "Maschinen-Rudern"
   },
   {
     "id": "assisted_pull_up",
@@ -352,7 +472,12 @@
       "traps_middle_lower": 40,
       "biceps": 60,
       "forearms": 30
-    }
+    },
+    "nameZH": "辅助引体向上",
+    "nameKO": "어시스트 풀업",
+    "nameES": "Dominadas asistidas",
+    "nameFR": "Tractions assistées",
+    "nameDE": "Unterstützte Klimmzüge"
   },
   {
     "id": "overhead_press_barbell",
@@ -366,7 +491,12 @@
       "deltoid_anterior": 100,
       "deltoid_lateral": 60,
       "triceps": 50
-    }
+    },
+    "nameZH": "杠铃过头推举",
+    "nameKO": "오버헤드 프레스 (바벨)",
+    "nameES": "Press militar con barra",
+    "nameFR": "Développé militaire barre",
+    "nameDE": "Langhantel-Schulterdrücken"
   },
   {
     "id": "dumbbell_shoulder_press",
@@ -380,7 +510,12 @@
       "deltoid_anterior": 100,
       "deltoid_lateral": 70,
       "triceps": 50
-    }
+    },
+    "nameZH": "哑铃肩推",
+    "nameKO": "덤벨 숄더 프레스",
+    "nameES": "Press de hombros con mancuernas",
+    "nameFR": "Développé épaules haltères",
+    "nameDE": "Kurzhantel-Schulterdrücken"
   },
   {
     "id": "lateral_raise",
@@ -392,7 +527,12 @@
     "muscleMapping": {
       "traps_upper": 30,
       "deltoid_lateral": 100
-    }
+    },
+    "nameZH": "侧平举",
+    "nameKO": "레터럴 레이즈",
+    "nameES": "Elevaciones laterales",
+    "nameFR": "Élévations latérales",
+    "nameDE": "Seitheben"
   },
   {
     "id": "front_raise",
@@ -404,7 +544,12 @@
     "muscleMapping": {
       "chest_upper": 30,
       "deltoid_anterior": 100
-    }
+    },
+    "nameZH": "前平举",
+    "nameKO": "프론트 레이즈",
+    "nameES": "Elevaciones frontales",
+    "nameFR": "Élévations frontales",
+    "nameDE": "Frontheben"
   },
   {
     "id": "rear_delt_fly",
@@ -416,7 +561,12 @@
     "muscleMapping": {
       "traps_middle_lower": 50,
       "deltoid_posterior": 100
-    }
+    },
+    "nameZH": "俯身飞鸟",
+    "nameKO": "리어 델트 플라이",
+    "nameES": "Aperturas posteriores",
+    "nameFR": "Oiseau",
+    "nameDE": "Hintere Schulter-Fliegende"
   },
   {
     "id": "arnold_press",
@@ -430,7 +580,12 @@
       "deltoid_lateral": 80,
       "deltoid_posterior": 40,
       "triceps": 40
-    }
+    },
+    "nameZH": "阿诺德推举",
+    "nameKO": "아놀드 프레스",
+    "nameES": "Press Arnold",
+    "nameFR": "Arnold press",
+    "nameDE": "Arnold-Presse"
   },
   {
     "id": "upright_row",
@@ -444,7 +599,12 @@
       "deltoid_lateral": 100,
       "biceps": 30,
       "forearms": 30
-    }
+    },
+    "nameZH": "直立划船",
+    "nameKO": "업라이트 로우",
+    "nameES": "Remo al mentón",
+    "nameFR": "Rowing menton",
+    "nameDE": "Aufrechtes Rudern"
   },
   {
     "id": "cable_lateral_raise",
@@ -456,7 +616,12 @@
     "muscleMapping": {
       "traps_upper": 20,
       "deltoid_lateral": 100
-    }
+    },
+    "nameZH": "绳索侧平举",
+    "nameKO": "케이블 레터럴 레이즈",
+    "nameES": "Elevaciones laterales en polea",
+    "nameFR": "Élévations latérales poulie",
+    "nameDE": "Kabel-Seitheben"
   },
   {
     "id": "machine_shoulder_press",
@@ -469,7 +634,12 @@
       "deltoid_anterior": 100,
       "deltoid_lateral": 60,
       "triceps": 40
-    }
+    },
+    "nameZH": "器械肩推",
+    "nameKO": "머신 숄더 프레스",
+    "nameES": "Press de hombros en máquina",
+    "nameFR": "Presse épaules",
+    "nameDE": "Schulterdrück-Maschine"
   },
   {
     "id": "machine_lateral_raise",
@@ -481,7 +651,12 @@
     "muscleMapping": {
       "deltoid_lateral": 100,
       "traps_upper": 20
-    }
+    },
+    "nameZH": "器械侧平举",
+    "nameKO": "머신 레터럴 레이즈",
+    "nameES": "Elevaciones laterales en máquina",
+    "nameFR": "Élévations latérales machine",
+    "nameDE": "Maschinen-Seitheben"
   },
   {
     "id": "machine_rear_delt",
@@ -493,7 +668,12 @@
     "muscleMapping": {
       "deltoid_posterior": 100,
       "traps_middle_lower": 50
-    }
+    },
+    "nameZH": "器械后三角飞鸟",
+    "nameKO": "머신 리어 델트 플라이",
+    "nameES": "Aperturas posteriores en máquina",
+    "nameFR": "Oiseau machine",
+    "nameDE": "Maschinen-Hinterschulter"
   },
   {
     "id": "barbell_curl",
@@ -505,7 +685,12 @@
     "muscleMapping": {
       "biceps": 100,
       "forearms": 40
-    }
+    },
+    "nameZH": "杠铃弯举",
+    "nameKO": "바벨 컬",
+    "nameES": "Curl con barra",
+    "nameFR": "Curl barre",
+    "nameDE": "Langhantel-Curl"
   },
   {
     "id": "dumbbell_curl",
@@ -517,7 +702,12 @@
     "muscleMapping": {
       "biceps": 100,
       "forearms": 40
-    }
+    },
+    "nameZH": "哑铃弯举",
+    "nameKO": "덤벨 컬",
+    "nameES": "Curl con mancuernas",
+    "nameFR": "Curl haltères",
+    "nameDE": "Kurzhantel-Curl"
   },
   {
     "id": "hammer_curl",
@@ -529,7 +719,12 @@
     "muscleMapping": {
       "biceps": 100,
       "forearms": 70
-    }
+    },
+    "nameZH": "锤式弯举",
+    "nameKO": "해머 컬",
+    "nameES": "Curl martillo",
+    "nameFR": "Curl marteau",
+    "nameDE": "Hammer-Curl"
   },
   {
     "id": "preacher_curl",
@@ -541,7 +736,12 @@
     "muscleMapping": {
       "biceps": 100,
       "forearms": 30
-    }
+    },
+    "nameZH": "牧师凳弯举",
+    "nameKO": "프리처 컬",
+    "nameES": "Curl predicador",
+    "nameFR": "Curl pupitre",
+    "nameDE": "Scott-Curl"
   },
   {
     "id": "concentration_curl",
@@ -553,7 +753,12 @@
     "muscleMapping": {
       "biceps": 100,
       "forearms": 20
-    }
+    },
+    "nameZH": "集中弯举",
+    "nameKO": "컨센트레이션 컬",
+    "nameES": "Curl concentrado",
+    "nameFR": "Curl concentré",
+    "nameDE": "Konzentrations-Curl"
   },
   {
     "id": "cable_curl",
@@ -565,7 +770,12 @@
     "muscleMapping": {
       "biceps": 100,
       "forearms": 30
-    }
+    },
+    "nameZH": "绳索弯举",
+    "nameKO": "케이블 컬",
+    "nameES": "Curl en polea",
+    "nameFR": "Curl poulie",
+    "nameDE": "Kabel-Curl"
   },
   {
     "id": "incline_dumbbell_curl",
@@ -577,7 +787,12 @@
     "muscleMapping": {
       "biceps": 100,
       "forearms": 30
-    }
+    },
+    "nameZH": "上斜哑铃弯举",
+    "nameKO": "인클라인 덤벨 컬",
+    "nameES": "Curl inclinado",
+    "nameFR": "Curl incliné",
+    "nameDE": "Schrägbank-Curl"
   },
   {
     "id": "machine_bicep_curl",
@@ -589,7 +804,12 @@
     "muscleMapping": {
       "biceps": 100,
       "forearms": 30
-    }
+    },
+    "nameZH": "器械二头弯举",
+    "nameKO": "머신 바이셉 컬",
+    "nameES": "Curl de bíceps en máquina",
+    "nameFR": "Curl biceps machine",
+    "nameDE": "Bizeps-Maschine"
   },
   {
     "id": "tricep_pushdown",
@@ -600,7 +820,12 @@
     "difficulty": "初級",
     "muscleMapping": {
       "triceps": 100
-    }
+    },
+    "nameZH": "三头下压",
+    "nameKO": "트라이셉 푸시다운",
+    "nameES": "Empuje de tríceps",
+    "nameFR": "Extension triceps poulie",
+    "nameDE": "Trizeps-Drücken"
   },
   {
     "id": "overhead_tricep_extension",
@@ -611,7 +836,12 @@
     "difficulty": "初級",
     "muscleMapping": {
       "triceps": 100
-    }
+    },
+    "nameZH": "过头三头伸展",
+    "nameKO": "오버헤드 트라이셉 익스텐션",
+    "nameES": "Extensión de tríceps sobre la cabeza",
+    "nameFR": "Extension triceps au-dessus de la tête",
+    "nameDE": "Trizeps-Überkopfstrecken"
   },
   {
     "id": "skull_crusher",
@@ -623,7 +853,12 @@
     "muscleMapping": {
       "deltoid_anterior": 20,
       "triceps": 100
-    }
+    },
+    "nameZH": "颅骨粉碎者",
+    "nameKO": "스컬 크러셔",
+    "nameES": "Rompecráneos",
+    "nameFR": "Barre au front",
+    "nameDE": "Stirndrücken"
   },
   {
     "id": "close_grip_bench_press",
@@ -636,7 +871,12 @@
       "chest_lower": 60,
       "deltoid_anterior": 40,
       "triceps": 100
-    }
+    },
+    "nameZH": "窄握卧推",
+    "nameKO": "클로즈 그립 벤치프레스",
+    "nameES": "Press de banca agarre cerrado",
+    "nameFR": "Développé couché serré",
+    "nameDE": "Enges Bankdrücken"
   },
   {
     "id": "tricep_dip",
@@ -649,7 +889,12 @@
       "chest_lower": 50,
       "deltoid_anterior": 40,
       "triceps": 100
-    }
+    },
+    "nameZH": "三头臂屈伸",
+    "nameKO": "트라이셉 딥",
+    "nameES": "Fondos de tríceps",
+    "nameFR": "Dips triceps",
+    "nameDE": "Trizeps-Dips"
   },
   {
     "id": "tricep_kickback",
@@ -660,7 +905,12 @@
     "difficulty": "初級",
     "muscleMapping": {
       "triceps": 100
-    }
+    },
+    "nameZH": "三头后踢",
+    "nameKO": "트라이셉 킥백",
+    "nameES": "Kickback de tríceps",
+    "nameFR": "Kickback triceps",
+    "nameDE": "Trizeps-Kickback"
   },
   {
     "id": "machine_tricep_extension",
@@ -671,7 +921,12 @@
     "difficulty": "初級",
     "muscleMapping": {
       "triceps": 100
-    }
+    },
+    "nameZH": "器械三头伸展",
+    "nameKO": "머신 트라이셉 익스텐션",
+    "nameES": "Extensión de tríceps en máquina",
+    "nameFR": "Extension triceps machine",
+    "nameDE": "Trizeps-Maschine"
   },
   {
     "id": "wrist_curl",
@@ -682,7 +937,12 @@
     "difficulty": "初級",
     "muscleMapping": {
       "forearms": 100
-    }
+    },
+    "nameZH": "腕弯举",
+    "nameKO": "리스트 컬",
+    "nameES": "Curl de muñeca",
+    "nameFR": "Curl de poignet",
+    "nameDE": "Handgelenk-Curl"
   },
   {
     "id": "reverse_wrist_curl",
@@ -693,7 +953,12 @@
     "difficulty": "初級",
     "muscleMapping": {
       "forearms": 100
-    }
+    },
+    "nameZH": "反握腕弯举",
+    "nameKO": "리버스 리스트 컬",
+    "nameES": "Curl de muñeca inverso",
+    "nameFR": "Curl de poignet inversé",
+    "nameDE": "Reverse Handgelenk-Curl"
   },
   {
     "id": "farmer's_walk",
@@ -709,7 +974,12 @@
       "obliques": 30,
       "gastrocnemius": 20,
       "soleus": 20
-    }
+    },
+    "nameZH": "农夫行走",
+    "nameKO": "파머스 워크",
+    "nameES": "Paseo del granjero",
+    "nameFR": "Marche du fermier",
+    "nameDE": "Farmers Walk"
   },
   {
     "id": "crunch",
@@ -720,7 +990,12 @@
     "difficulty": "初級",
     "muscleMapping": {
       "rectus_abdominis": 100
-    }
+    },
+    "nameZH": "卷腹",
+    "nameKO": "크런치",
+    "nameES": "Crunch",
+    "nameFR": "Crunch",
+    "nameDE": "Crunch"
   },
   {
     "id": "sit_up",
@@ -732,7 +1007,12 @@
     "muscleMapping": {
       "rectus_abdominis": 100,
       "hip_flexors": 50
-    }
+    },
+    "nameZH": "仰卧起坐",
+    "nameKO": "싯업",
+    "nameES": "Sit up",
+    "nameFR": "Sit up",
+    "nameDE": "Sit-Up"
   },
   {
     "id": "hanging_leg_raise",
@@ -746,7 +1026,12 @@
       "rectus_abdominis": 80,
       "obliques": 30,
       "hip_flexors": 100
-    }
+    },
+    "nameZH": "悬垂抬腿",
+    "nameKO": "행잉 레그 레이즈",
+    "nameES": "Elevación de piernas colgado",
+    "nameFR": "Relevé de jambes suspendu",
+    "nameDE": "Hängendes Beinheben"
   },
   {
     "id": "plank",
@@ -760,7 +1045,12 @@
       "deltoid_anterior": 20,
       "rectus_abdominis": 100,
       "obliques": 60
-    }
+    },
+    "nameZH": "平板支撑",
+    "nameKO": "플랭크",
+    "nameES": "Plancha",
+    "nameFR": "Planche",
+    "nameDE": "Plank"
   },
   {
     "id": "side_plank",
@@ -772,7 +1062,12 @@
     "muscleMapping": {
       "rectus_abdominis": 40,
       "obliques": 100
-    }
+    },
+    "nameZH": "侧平板支撑",
+    "nameKO": "사이드 플랭크",
+    "nameES": "Plancha lateral",
+    "nameFR": "Planche latérale",
+    "nameDE": "Seitlicher Plank"
   },
   {
     "id": "russian_twist",
@@ -785,7 +1080,12 @@
       "rectus_abdominis": 60,
       "obliques": 100,
       "hip_flexors": 30
-    }
+    },
+    "nameZH": "俄罗斯转体",
+    "nameKO": "러시안 트위스트",
+    "nameES": "Giro ruso",
+    "nameFR": "Twist russe",
+    "nameDE": "Russian Twist"
   },
   {
     "id": "cable_woodchop",
@@ -798,7 +1098,12 @@
       "deltoid_anterior": 30,
       "rectus_abdominis": 50,
       "obliques": 100
-    }
+    },
+    "nameZH": "绳索伐木",
+    "nameKO": "케이블 우드찹",
+    "nameES": "Corte de leñador",
+    "nameFR": "Bûcheron câble",
+    "nameDE": "Kabel-Holzhacker"
   },
   {
     "id": "ab_roller",
@@ -812,7 +1117,12 @@
       "deltoid_anterior": 20,
       "rectus_abdominis": 100,
       "obliques": 40
-    }
+    },
+    "nameZH": "腹肌轮",
+    "nameKO": "앱 롤러",
+    "nameES": "Rueda abdominal",
+    "nameFR": "Roue abdominale",
+    "nameDE": "Ab-Roller"
   },
   {
     "id": "mountain_climber",
@@ -826,7 +1136,12 @@
       "rectus_abdominis": 100,
       "quadriceps": 30,
       "hip_flexors": 70
-    }
+    },
+    "nameZH": "登山者",
+    "nameKO": "마운틴 클라이머",
+    "nameES": "Escalador",
+    "nameFR": "Mountain climber",
+    "nameDE": "Mountain Climber"
   },
   {
     "id": "machine_crunch",
@@ -838,7 +1153,12 @@
     "muscleMapping": {
       "rectus_abdominis": 100,
       "obliques": 30
-    }
+    },
+    "nameZH": "器械卷腹",
+    "nameKO": "머신 크런치",
+    "nameES": "Crunch en máquina",
+    "nameFR": "Crunch machine",
+    "nameDE": "Crunch-Maschine"
   },
   {
     "id": "torso_rotation",
@@ -850,7 +1170,12 @@
     "muscleMapping": {
       "obliques": 100,
       "rectus_abdominis": 40
-    }
+    },
+    "nameZH": "躯干旋转机",
+    "nameKO": "토르소 로테이션 머신",
+    "nameES": "Máquina de rotación de torso",
+    "nameFR": "Machine de rotation du tronc",
+    "nameDE": "Rumpfrotations-Maschine"
   },
   {
     "id": "barbell_back_squat",
@@ -867,7 +1192,12 @@
       "hamstrings": 50,
       "adductors": 40,
       "gastrocnemius": 30
-    }
+    },
+    "nameZH": "杠铃背蹲",
+    "nameKO": "바벨 백 스쿼트",
+    "nameES": "Sentadilla trasera con barra",
+    "nameFR": "Back squat barre",
+    "nameDE": "Langhantel-Kniebeuge"
   },
   {
     "id": "front_squat",
@@ -882,7 +1212,12 @@
       "glutes": 60,
       "quadriceps": 100,
       "adductors": 30
-    }
+    },
+    "nameZH": "前蹲",
+    "nameKO": "프론트 스쿼트",
+    "nameES": "Sentadilla frontal",
+    "nameFR": "Front squat",
+    "nameDE": "Frontkniebeuge"
   },
   {
     "id": "goblet_squat",
@@ -895,7 +1230,12 @@
       "glutes": 70,
       "quadriceps": 100,
       "adductors": 40
-    }
+    },
+    "nameZH": "高脚杯深蹲",
+    "nameKO": "고블렛 스쿼트",
+    "nameES": "Sentadilla goblet",
+    "nameFR": "Goblet squat",
+    "nameDE": "Goblet-Kniebeuge"
   },
   {
     "id": "leg_press",
@@ -909,7 +1249,12 @@
       "quadriceps": 100,
       "hamstrings": 40,
       "adductors": 30
-    }
+    },
+    "nameZH": "腿举",
+    "nameKO": "레그 프레스",
+    "nameES": "Prensa de piernas",
+    "nameFR": "Presse à cuisses",
+    "nameDE": "Beinpresse"
   },
   {
     "id": "hack_squat",
@@ -921,7 +1266,12 @@
     "muscleMapping": {
       "glutes": 60,
       "quadriceps": 100
-    }
+    },
+    "nameZH": "哈克深蹲",
+    "nameKO": "핵 스쿼트",
+    "nameES": "Sentadilla hack",
+    "nameFR": "Hack squat",
+    "nameDE": "Hackenschmidt-Kniebeuge"
   },
   {
     "id": "leg_extension",
@@ -932,7 +1282,12 @@
     "difficulty": "初級",
     "muscleMapping": {
       "quadriceps": 100
-    }
+    },
+    "nameZH": "腿伸展",
+    "nameKO": "레그 익스텐션",
+    "nameES": "Extensión de piernas",
+    "nameFR": "Extension de jambes",
+    "nameDE": "Beinstrecken"
   },
   {
     "id": "bulgarian_split_squat",
@@ -947,7 +1302,12 @@
       "hamstrings": 40,
       "adductors": 30,
       "hip_flexors": 30
-    }
+    },
+    "nameZH": "保加利亚分腿蹲",
+    "nameKO": "불가리안 스플릿 스쿼트",
+    "nameES": "Sentadilla búlgara",
+    "nameFR": "Squat bulgare",
+    "nameDE": "Bulgarische Kniebeuge"
   },
   {
     "id": "walking_lunge",
@@ -962,7 +1322,12 @@
       "hamstrings": 50,
       "adductors": 30,
       "gastrocnemius": 20
-    }
+    },
+    "nameZH": "行走弓步",
+    "nameKO": "워킹 런지",
+    "nameES": "Zancada caminando",
+    "nameFR": "Fente marchée",
+    "nameDE": "Walking Lunges"
   },
   {
     "id": "step_up",
@@ -975,7 +1340,12 @@
       "glutes": 80,
       "quadriceps": 100,
       "hamstrings": 40
-    }
+    },
+    "nameZH": "登台阶",
+    "nameKO": "스텝업",
+    "nameES": "Step up",
+    "nameFR": "Step up",
+    "nameDE": "Step-Up"
   },
   {
     "id": "sumo_squat",
@@ -988,7 +1358,12 @@
       "glutes": 70,
       "quadriceps": 100,
       "adductors": 80
-    }
+    },
+    "nameZH": "相扑深蹲",
+    "nameKO": "스모 스쿼트",
+    "nameES": "Sentadilla sumo",
+    "nameFR": "Squat sumo",
+    "nameDE": "Sumo-Kniebeuge"
   },
   {
     "id": "smith_squat",
@@ -1001,7 +1376,12 @@
       "quadriceps": 100,
       "glutes": 70,
       "hamstrings": 40
-    }
+    },
+    "nameZH": "史密斯深蹲",
+    "nameKO": "스미스 머신 스쿼트",
+    "nameES": "Sentadilla Smith",
+    "nameFR": "Squat Smith",
+    "nameDE": "Smith-Maschinen-Kniebeuge"
   },
   {
     "id": "romanian_deadlift",
@@ -1015,7 +1395,12 @@
       "forearms": 30,
       "glutes": 80,
       "hamstrings": 100
-    }
+    },
+    "nameZH": "罗马尼亚硬拉",
+    "nameKO": "루마니안 데드리프트",
+    "nameES": "Peso muerto rumano",
+    "nameFR": "Soulevé de terre roumain",
+    "nameDE": "Rumänisches Kreuzheben"
   },
   {
     "id": "stiff_leg_deadlift",
@@ -1028,7 +1413,12 @@
       "erector_spinae": 70,
       "glutes": 70,
       "hamstrings": 100
-    }
+    },
+    "nameZH": "直腿硬拉",
+    "nameKO": "스티프 레그 데드리프트",
+    "nameES": "Peso muerto piernas rígidas",
+    "nameFR": "Soulevé jambes tendues",
+    "nameDE": "Gestrecktes Kreuzheben"
   },
   {
     "id": "lying_leg_curl",
@@ -1040,7 +1430,12 @@
     "muscleMapping": {
       "hamstrings": 100,
       "gastrocnemius": 30
-    }
+    },
+    "nameZH": "俯卧腿弯举",
+    "nameKO": "라잉 레그 컬",
+    "nameES": "Curl de piernas acostado",
+    "nameFR": "Leg curl couché",
+    "nameDE": "Liegend Beincurl"
   },
   {
     "id": "seated_leg_curl",
@@ -1051,7 +1446,12 @@
     "difficulty": "初級",
     "muscleMapping": {
       "hamstrings": 100
-    }
+    },
+    "nameZH": "坐姿腿弯举",
+    "nameKO": "시티드 레그 컬",
+    "nameES": "Curl de piernas sentado",
+    "nameFR": "Leg curl assis",
+    "nameDE": "Sitzend Beincurl"
   },
   {
     "id": "hip_thrust",
@@ -1064,7 +1464,12 @@
       "glutes": 100,
       "hamstrings": 60,
       "adductors": 30
-    }
+    },
+    "nameZH": "臀推",
+    "nameKO": "힙 쓰러스트",
+    "nameES": "Empuje de cadera",
+    "nameFR": "Hip thrust",
+    "nameDE": "Hip Thrust"
   },
   {
     "id": "glute_bridge",
@@ -1076,7 +1481,12 @@
     "muscleMapping": {
       "glutes": 100,
       "hamstrings": 50
-    }
+    },
+    "nameZH": "臀桥",
+    "nameKO": "글루트 브릿지",
+    "nameES": "Puente de glúteos",
+    "nameFR": "Pont fessier",
+    "nameDE": "Glute-Brücke"
   },
   {
     "id": "cable_kickback",
@@ -1088,7 +1498,12 @@
     "muscleMapping": {
       "glutes": 100,
       "hamstrings": 40
-    }
+    },
+    "nameZH": "绳索臀部后踢",
+    "nameKO": "케이블 킥백",
+    "nameES": "Kickback en polea",
+    "nameFR": "Kickback câble",
+    "nameDE": "Kabel-Kickback"
   },
   {
     "id": "sumo_deadlift",
@@ -1105,7 +1520,12 @@
       "quadriceps": 60,
       "hamstrings": 60,
       "adductors": 80
-    }
+    },
+    "nameZH": "相扑硬拉",
+    "nameKO": "스모 데드리프트",
+    "nameES": "Peso muerto sumo",
+    "nameFR": "Soulevé de terre sumo",
+    "nameDE": "Sumo-Kreuzheben"
   },
   {
     "id": "adductor_machine",
@@ -1116,7 +1536,12 @@
     "difficulty": "初級",
     "muscleMapping": {
       "adductors": 100
-    }
+    },
+    "nameZH": "内收肌机",
+    "nameKO": "어덕터 머신",
+    "nameES": "Máquina de aductores",
+    "nameFR": "Machine adducteurs",
+    "nameDE": "Adduktoren-Maschine"
   },
   {
     "id": "hip_abductor",
@@ -1127,7 +1552,12 @@
     "difficulty": "初級",
     "muscleMapping": {
       "glutes": 100
-    }
+    },
+    "nameZH": "髋外展机",
+    "nameKO": "힙 앱덕터 머신",
+    "nameES": "Máquina abductora de cadera",
+    "nameFR": "Machine abducteur de hanche",
+    "nameDE": "Hüftabduktoren-Maschine"
   },
   {
     "id": "glute_drive",
@@ -1139,7 +1569,12 @@
     "muscleMapping": {
       "glutes": 100,
       "hamstrings": 50
-    }
+    },
+    "nameZH": "臀推机",
+    "nameKO": "글루트 드라이브 머신",
+    "nameES": "Máquina de glúteos",
+    "nameFR": "Machine glute drive",
+    "nameDE": "Gesäß-Maschine"
   },
   {
     "id": "standing_calf_raise",
@@ -1151,7 +1586,12 @@
     "muscleMapping": {
       "gastrocnemius": 100,
       "soleus": 60
-    }
+    },
+    "nameZH": "站姿提踵",
+    "nameKO": "스탠딩 카프 레이즈",
+    "nameES": "Elevación de talones de pie",
+    "nameFR": "Mollets debout",
+    "nameDE": "Wadenheben stehend"
   },
   {
     "id": "seated_calf_raise",
@@ -1163,7 +1603,12 @@
     "muscleMapping": {
       "gastrocnemius": 30,
       "soleus": 100
-    }
+    },
+    "nameZH": "坐姿提踵",
+    "nameKO": "시티드 카프 레이즈",
+    "nameES": "Elevación de talones sentado",
+    "nameFR": "Mollets assis",
+    "nameDE": "Wadenheben sitzend"
   },
   {
     "id": "kettlebell_swing",
@@ -1179,7 +1624,12 @@
       "rectus_abdominis": 40,
       "glutes": 100,
       "hamstrings": 80
-    }
+    },
+    "nameZH": "壶铃摆动",
+    "nameKO": "케틀벨 스윙",
+    "nameES": "Balanceo de kettlebell",
+    "nameFR": "Kettlebell swing",
+    "nameDE": "Kettlebell-Swing"
   },
   {
     "id": "burpee",
@@ -1201,7 +1651,12 @@
       "hip_flexors": 55,
       "gastrocnemius": 50,
       "soleus": 30
-    }
+    },
+    "nameZH": "波比跳",
+    "nameKO": "버피",
+    "nameES": "Burpee",
+    "nameFR": "Burpee",
+    "nameDE": "Burpee"
   },
   {
     "id": "bicycle_crunch",
@@ -1214,6 +1669,11 @@
       "rectus_abdominis": 80,
       "obliques": 100,
       "hip_flexors": 60
-    }
+    },
+    "nameZH": "自行车卷腹",
+    "nameKO": "바이시클 크런치",
+    "nameES": "Crunch bicicleta",
+    "nameFR": "Crunch vélo",
+    "nameDE": "Fahrrad-Crunch"
   }
 ]

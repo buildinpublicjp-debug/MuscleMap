@@ -6,6 +6,11 @@ struct ExerciseDefinition: Codable, Identifiable, Hashable {
     let id: String
     let nameEN: String
     let nameJA: String
+    let nameZH: String?  // 中国語（簡体字）
+    let nameKO: String?  // 韓国語
+    let nameES: String?  // スペイン語
+    let nameFR: String?  // フランス語
+    let nameDE: String?  // ドイツ語
     let category: String
     let equipment: String
     let difficulty: String
@@ -34,6 +39,26 @@ struct ExerciseDefinition: Codable, Identifiable, Hashable {
 // MARK: - ローカライズ済みプロパティ
 
 extension ExerciseDefinition {
+    /// ローカライズされた種目名
+    @MainActor var localizedName: String {
+        switch LocalizationManager.shared.currentLanguage {
+        case .japanese:
+            return nameJA
+        case .english:
+            return nameEN
+        case .chineseSimplified:
+            return nameZH ?? nameEN
+        case .korean:
+            return nameKO ?? nameEN
+        case .spanish:
+            return nameES ?? nameEN
+        case .french:
+            return nameFR ?? nameEN
+        case .german:
+            return nameDE ?? nameEN
+        }
+    }
+
     /// ローカライズされたカテゴリ名
     @MainActor var localizedCategory: String {
         L10n.localizedCategory(category)
