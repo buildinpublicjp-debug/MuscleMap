@@ -65,7 +65,7 @@ struct StimulatedMusclesSection: View {
                     muscleMapping: muscleMapping,
                     showFront: true
                 )
-                .aspectRatio(0.5, contentMode: .fit)
+                .aspectRatio(0.6, contentMode: .fit)
                 .frame(maxWidth: .infinity)
                 .frame(height: 220)
 
@@ -74,7 +74,7 @@ struct StimulatedMusclesSection: View {
                     muscleMapping: muscleMapping,
                     showFront: false
                 )
-                .aspectRatio(0.5, contentMode: .fit)
+                .aspectRatio(0.6, contentMode: .fit)
                 .frame(maxWidth: .infinity)
                 .frame(height: 220)
             }
