@@ -88,4 +88,21 @@ final class ExerciseStore {
     func exercises(withEquipment equipment: String) -> [ExerciseDefinition] {
         exercises.filter { $0.equipment == equipment }
     }
+
+    // MARK: Watch同期用
+
+    /// Watch同期用にWatchExerciseInfoリストをJSONデータとして書き出す
+    func exportForWatch() -> Data? {
+        let watchExercises = exercises.map { ex in
+            WatchExerciseInfo(
+                id: ex.id,
+                nameEN: ex.nameEN,
+                nameJA: ex.nameJA,
+                category: ex.category,
+                equipment: ex.equipment,
+                muscleMapping: ex.muscleMapping
+            )
+        }
+        return try? JSONEncoder().encode(watchExercises)
+    }
 }

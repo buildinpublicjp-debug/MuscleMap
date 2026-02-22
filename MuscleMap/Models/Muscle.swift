@@ -88,10 +88,14 @@ enum Muscle: String, CaseIterable, Codable, Identifiable {
     }
 
     /// ローカライズ名（現在の言語設定に応じて返す）
+    #if os(watchOS)
+    var localizedName: String { japaneseName }
+    #else
     @MainActor
     var localizedName: String {
         LocalizationManager.shared.currentLanguage == .japanese ? japaneseName : englishName
     }
+    #endif
 
     // 所属グループ
     var group: MuscleGroup {
@@ -169,10 +173,14 @@ enum MuscleGroup: String, CaseIterable, Codable, Identifiable {
     }
 
     /// ローカライズ名（現在の言語設定に応じて返す）
+    #if os(watchOS)
+    var localizedName: String { japaneseName }
+    #else
     @MainActor
     var localizedName: String {
         LocalizationManager.shared.currentLanguage == .japanese ? japaneseName : englishName
     }
+    #endif
 
     /// このグループに属する筋肉一覧
     var muscles: [Muscle] {

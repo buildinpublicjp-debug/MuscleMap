@@ -38,6 +38,7 @@ struct ExerciseDefinition: Codable, Identifiable, Hashable {
 
 // MARK: - ローカライズ済みプロパティ
 
+#if !os(watchOS)
 extension ExerciseDefinition {
     /// ローカライズされた種目名
     @MainActor var localizedName: String {
@@ -74,3 +75,4 @@ extension ExerciseDefinition {
         L10n.localizedDifficulty(difficulty)
     }
 }
+#endif

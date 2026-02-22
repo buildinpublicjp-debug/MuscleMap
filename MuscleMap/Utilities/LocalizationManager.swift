@@ -410,14 +410,6 @@ enum L10n {
     static func hoursUnit(_ h: Int) -> String { loc("\(h)時間", "\(h) hours", zhHans: "\(h)小时", ko: "\(h)시간", es: "\(h) horas", fr: "\(h) heures", de: "\(h) Stunden") }
 
     // MARK: - 設定画面
-    static var premium: String { loc("プレミアム", "Premium", zhHans: "高级版", ko: "프리미엄", es: "Premium", fr: "Premium", de: "Premium") }
-    static var premiumUnlocked: String { loc("全機能がアンロックされています", "All features unlocked", zhHans: "所有功能已解锁", ko: "모든 기능 잠금 해제됨", es: "Todas las funciones desbloqueadas", fr: "Toutes les fonctionnalités débloquées", de: "Alle Funktionen freigeschaltet") }
-    static var upgradeToPremium: String { loc("Premiumにアップグレード", "Upgrade to Premium", zhHans: "升级到高级版", ko: "프리미엄으로 업그레이드", es: "Actualizar a Premium", fr: "Passer à Premium", de: "Auf Premium upgraden") }
-    static var unlockAllFeatures: String { loc("全機能をアンロック", "Unlock all features", zhHans: "解锁所有功能", ko: "모든 기능 잠금 해제", es: "Desbloquear todas las funciones", fr: "Débloquer toutes les fonctionnalités", de: "Alle Funktionen freischalten") }
-    static var restorePurchases: String { loc("購入を復元", "Restore Purchases", zhHans: "恢复购买", ko: "구매 복원", es: "Restaurar compras", fr: "Restaurer les achats", de: "Käufe wiederherstellen") }
-    static var restoreResult: String { loc("復元結果", "Restore Result", zhHans: "恢复结果", ko: "복원 결과", es: "Resultado de restauración", fr: "Résultat de la restauration", de: "Wiederherstellungsergebnis") }
-    static var purchaseRestored: String { loc("購入が復元されました。", "Purchase restored.", zhHans: "购买已恢复。", ko: "구매가 복원되었습니다.", es: "Compra restaurada.", fr: "Achat restauré.", de: "Kauf wiederhergestellt.") }
-    static var noPurchaseFound: String { loc("復元できる購入が見つかりませんでした。", "No purchase found to restore.", zhHans: "未找到可恢复的购买。", ko: "복원할 구매를 찾을 수 없습니다.", es: "No se encontró ninguna compra para restaurar.", fr: "Aucun achat trouvé à restaurer.", de: "Kein Kauf zum Wiederherstellen gefunden.") }
     static var appSettings: String { loc("アプリ設定", "App Settings", zhHans: "应用设置", ko: "앱 설정", es: "Ajustes de la app", fr: "Paramètres de l'app", de: "App-Einstellungen") }
     static var hapticFeedback: String { loc("触覚フィードバック", "Haptic Feedback", zhHans: "触觉反馈", ko: "햅틱 피드백", es: "Retroalimentación háptica", fr: "Retour haptique", de: "Haptisches Feedback") }
     static var language: String { loc("言語", "Language", zhHans: "语言", ko: "언어", es: "Idioma", fr: "Langue", de: "Sprache") }
@@ -485,107 +477,6 @@ enum L10n {
     static var nickname: String { loc("ニックネーム", "Nickname") }
     static var trainingExperience: String { loc("トレーニング経験", "Training Experience") }
 
-    // MARK: - ペイウォール
-    static var paywallHeadline: String {
-        // 「最大化する。」が単独改行されないよう調整
-        loc("科学の力で、\nあなたの努力を最大化する。",
-            "Maximize your effort\nwith science.")
-    }
-    static var paywallFeatureRecovery: String {
-        loc("EMGベースの回復予測", "EMG-based recovery prediction")
-    }
-    static var paywallFeatureWidget: String {
-        loc("ホームスクリーンウィジェット", "Home screen widget")
-    }
-    static var paywallFeatureHistory: String {
-        loc("無制限の履歴閲覧", "Unlimited history access")
-    }
-    static var paywallFeatureExport: String {
-        loc("データエクスポート（CSV）", "Data export (CSV)")
-    }
-    static var planMonthly: String { loc("月額", "Monthly") }
-    static var planAnnual: String { loc("年額", "Annual") }
-    static var planLifetime: String { loc("買い切り", "Lifetime") }
-    static var mostPopular: String { loc("一番人気", "Most Popular") }
-    static var startFreeTrial: String {
-        loc("7日間無料でProを体験する", "Start 7-Day Free Trial")
-    }
-    static var cancelAnytime: String {
-        loc("いつでもキャンセル可能", "Cancel anytime")
-    }
-    static var proUpgrade: String {
-        loc("MuscleMap Proにアップグレード", "Upgrade to MuscleMap Pro")
-    }
-    static var proActive: String { loc("Pro ✓", "Pro ✓") }
-    static var proFeatureLocked: String {
-        loc("Proにアップグレード", "Upgrade to Pro")
-    }
-    static var monthlyPrice: String { loc("¥480/月", "¥480/mo") }
-    static var annualPrice: String { loc("¥3,800/年", "¥3,800/yr") }
-    static var lifetimePrice: String { loc("¥7,800", "¥7,800") }
-    static var lifetimeLabel: String { loc("生涯アクセス", "Lifetime access") }
-    static var annualPerMonth: String { loc("月あたり約¥317", "~¥317/month") }
-    static var purchaseError: String { loc("購入エラー", "Purchase Error") }
-    static var purchaseErrorMessage: String {
-        loc("購入を完了できませんでした。しばらく後にお試しください。",
-            "Could not complete purchase. Please try again later.")
-    }
-    static var muscleMaplPremium: String { loc("MuscleMap Pro", "MuscleMap Pro") }
-    static var unlockAndOptimize: String {
-        loc("全機能をアンロックして\nトレーニングを最適化",
-            "Unlock all features\nand optimize your training")
-    }
-    static var features: String { loc("機能", "Features") }
-    static var free: String { loc("Free", "Free") }
-    static var premiumLabel: String { loc("Pro", "Pro") }
-    static var monthlyPlan: String { loc("月額", "Monthly") }
-    static var annualPlan: String { loc("年額", "Annual") }
-    static var lifetimePlan: String { loc("買い切り", "Lifetime") }
-    static var recommendedBadge: String { loc("おすすめ", "Recommended") }
-    static var perMonthPrice: String { loc("月あたり約¥317", "~¥317/month") }
-    static var startMonthlyPlan: String { loc("月額プランで始める", "Start Monthly Plan") }
-    static var startAnnualPlan: String { loc("年額プランで始める（おすすめ）", "Start Annual Plan (Recommended)") }
-    static var purchaseLifetime: String { loc("買い切りプランで購入", "Purchase Lifetime") }
-    static var monthlyTrialNote: String {
-        loc("7日間の無料トライアル後、¥480/月で自動更新",
-            "7-day free trial, then ¥480/month auto-renews")
-    }
-    static var annualTrialNote: String {
-        loc("7日間の無料トライアル後、¥3,800/年で自動更新",
-            "7-day free trial, then ¥3,800/year auto-renews")
-    }
-    static var manageSubscription: String {
-        loc("サブスクリプションを管理", "Manage Subscription")
-    }
-    static var subscriptionDisclosure: String {
-        loc("サブスクリプションは確認後にApple IDアカウントに課金されます。無料トライアル期間終了の24時間前までにキャンセルしない限り、自動的に更新されます。アカウント設定から管理・キャンセルできます。",
-            "Payment will be charged to your Apple ID account after confirmation. Subscription automatically renews unless canceled at least 24 hours before the end of the free trial period. You can manage and cancel in Account Settings.")
-    }
-
-    // ペイウォール機能名
-    static var featureMuscleMap2D: String { loc("筋肉マップ（2D）", "Muscle Map (2D)") }
-    static var featureWorkoutRecord: String { loc("ワークアウト記録", "Workout Recording") }
-    static var featureRecoveryTracking: String { loc("回復トラッキング", "Recovery Tracking") }
-    static var featureMenuSuggestion: String { loc("メニュー提案", "Menu Suggestions") }
-    static var featureDetailedStats: String { loc("詳細統計", "Detailed Statistics") }
-    static var feature3DView: String { loc("3D筋肉ビュー", "3D Muscle View") }
-    static var featureMenuSuggestionPlus: String { loc("メニュー提案+", "Menu Suggestions+") }
-    static var featureDataExport: String { loc("データエクスポート", "Data Export") }
-
-    // Pro機能ロック
-    static var proFeatureRecovery: String {
-        loc("EMG回復計算はPro機能です", "EMG recovery calculation is a Pro feature")
-    }
-    static var proFeatureWidget: String {
-        loc("ウィジェットはPro機能です", "Widgets are a Pro feature")
-    }
-    static var proFeatureUnlimitedHistory: String {
-        loc("30日以上の履歴はPro機能です", "History beyond 30 days is a Pro feature")
-    }
-    static var proFeatureExport: String {
-        loc("データエクスポートはPro機能です", "Data export is a Pro feature")
-    }
-
     // MARK: - 部位名（カテゴリ）
     static var categoryChest: String { loc("胸", "Chest") }
     static var categoryBack: String { loc("背中", "Back") }
@@ -615,6 +506,10 @@ enum L10n {
     static var followAppLanguage: String { loc("アプリの言語に合わせる", "Follow App Language") }
     static var searchInJapanese: String { loc("日本語で検索", "Search in Japanese") }
     static var searchInEnglish: String { loc("英語で検索", "Search in English") }
+
+    // MARK: - レストタイマー設定
+    static var restTimerDuration: String { loc("レストタイマー", "Rest Timer", zhHans: "休息计时器", ko: "휴식 타이머", es: "Temporizador de descanso", fr: "Minuteur de repos", de: "Pausentimer") }
+    static var seconds: String { loc("秒", "s", zhHans: "秒", ko: "초", es: "s", fr: "s", de: "s") }
 
     // MARK: - メニュー提案理由
     static var letsStartTraining: String { loc("トレーニングを始めましょう", "Let's start training") }
