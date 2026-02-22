@@ -3,13 +3,9 @@ options:
   bundleIdPrefix: com.buildinpublic
   deploymentTarget:
     iOS: "17.0"
+    watchOS: "10.0"
   xcodeVersion: "16.2"
   generateEmptyDirectories: true
-
-packages:
-  RevenueCat:
-    url: https://github.com/RevenueCat/purchases-ios-spm.git
-    majorVersion: 5.0.0
 
 targets:
   MuscleMap:
@@ -19,11 +15,15 @@ targets:
       - path: MuscleMap
         excludes:
           - "**/.DS_Store"
-      - path: Resources
+      - path: Shared
+      - path: Resources/exercises.json
         buildPhase: resources
+      - path: Resources/3DModels
+        buildPhase: resources
+      - path: Resources/exercises_gif
+        buildPhase: resources
+        type: folder
     dependencies:
-      - package: RevenueCat
-        product: RevenueCat
       - target: MuscleMapWidgetExtension
     entitlements:
       path: MuscleMap/MuscleMap.entitlements
@@ -39,7 +39,7 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.buildinpublic.MuscleMap
         MARKETING_VERSION: "1.0.0"
-        CURRENT_PROJECT_VERSION: "2"
+        CURRENT_PROJECT_VERSION: "4"
         SWIFT_VERSION: "5.9"
         INFOPLIST_GENERATION_ENABLED: true
         GENERATE_INFOPLIST_FILE: true
@@ -48,7 +48,6 @@ targets:
         INFOPLIST_KEY_UISupportedInterfaceOrientations: "UIInterfaceOrientationPortrait"
         INFOPLIST_KEY_UIRequiresFullScreen: true
         INFOPLIST_KEY_CFBundleDisplayName: "MuscleMap"
-        INFOPLIST_KEY_REVENUECAT_API_KEY: "appl_IzrrBdSVXMDZUylPnwcaJxvdlxb"
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
 
   MuscleMapWidgetExtension:
@@ -77,8 +76,33 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.buildinpublic.MuscleMap.widget
         MARKETING_VERSION: "1.0.0"
-        CURRENT_PROJECT_VERSION: "2"
+        CURRENT_PROJECT_VERSION: "4"
         SWIFT_VERSION: "5.9"
+
+  MuscleMapWatch:
+    type: application
+    platform: watchOS
+    sources:
+      - path: MuscleMapWatch
+        excludes:
+          - "**/.DS_Store"
+      - path: Shared
+      - path: MuscleMap/Models/Muscle.swift
+      - path: MuscleMap/Models/ExerciseDefinition.swift
+      - path: Resources/exercises.json
+        buildPhase: resources
+    entitlements:
+      path: MuscleMapWatch/MuscleMapWatch.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.com.buildinpublic.MuscleMap
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.buildinpublic.MuscleMap.watchkitapp
+        INFOPLIST_KEY_WKCompanionAppBundleIdentifier: com.buildinpublic.MuscleMap
+        WATCHOS_DEPLOYMENT_TARGET: "10.0"
+        SWIFT_VERSION: "5.9"
+        GENERATE_INFOPLIST_FILE: true
 
   MuscleMapTests:
     type: bundle.unit-test
@@ -87,7 +111,7 @@ targets:
       - path: MuscleMapTests
         excludes:
           - "**/.DS_Store"
-      - path: Resources
+      - path: Resources/exercises.json
         buildPhase: resources
     dependencies:
       - target: MuscleMap

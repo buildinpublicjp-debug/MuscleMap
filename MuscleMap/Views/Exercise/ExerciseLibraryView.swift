@@ -237,7 +237,7 @@ private struct ExerciseLibraryRow: View {
                 ExerciseGifView(exerciseId: exercise.id, size: .thumbnail)
             } else {
                 MiniMuscleMapView(muscleMapping: exercise.muscleMapping)
-                    .frame(width: 120, height: 90)
+                    .frame(width: 80, height: 60)
                     .background(Color.mmBgPrimary.opacity(0.5))
                     .clipShape(RoundedRectangle(cornerRadius: 8))
             }
@@ -247,8 +247,8 @@ private struct ExerciseLibraryRow: View {
                 Text(localization.currentLanguage == .japanese ? exercise.nameJA : exercise.nameEN)
                     .font(.subheadline.bold())
                     .foregroundStyle(Color.mmTextPrimary)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.8)
+                    .lineLimit(2)
+                    .fixedSize(horizontal: false, vertical: true)
 
                 // 日本語モード時のみ英語名サブタイトルを表示
                 if localization.currentLanguage == .japanese {
@@ -256,7 +256,6 @@ private struct ExerciseLibraryRow: View {
                         .font(.caption)
                         .foregroundStyle(Color.mmTextSecondary)
                         .lineLimit(1)
-                        .minimumScaleFactor(0.8)
                 }
 
                 // 主要ターゲット筋肉 + 器具と難易度のタグ
@@ -273,7 +272,7 @@ private struct ExerciseLibraryRow: View {
                 }
             }
 
-            Spacer()
+            Spacer(minLength: 4)
 
             Image(systemName: "chevron.right")
                 .font(.caption)

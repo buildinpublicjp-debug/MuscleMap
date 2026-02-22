@@ -73,7 +73,7 @@ struct ExerciseGifView: View {
                         .resizable()
                         .scaledToFit()
                         .padding(4)
-                        .frame(width: 120, height: 90)
+                        .frame(width: 80, height: 60)
                         .background(Color.white)
                         .clipShape(RoundedRectangle(cornerRadius: 8))
                         .overlay(
