@@ -219,13 +219,12 @@ private struct ExerciseLibraryRow: View {
     let exercise: ExerciseDefinition
     private var localization: LocalizationManager { LocalizationManager.shared }
 
-    /// 主要ターゲットの筋肉グループ（刺激度が最も高い筋肉のグループ）
-    private var primaryMuscleGroup: MuscleGroup? {
-        guard let maxEntry = exercise.muscleMapping.max(by: { $0.value < $1.value }),
-              let muscle = Muscle(rawValue: maxEntry.key) ?? Muscle(snakeCase: maxEntry.key) else {
+    /// 主要ターゲットの筋肉（刺激度が最も高い筋肉）
+    private var primaryMuscle: Muscle? {
+        guard let maxEntry = exercise.muscleMapping.max(by: { $0.value < $1.value }) else {
             return nil
         }
-        return muscle.group
+        return Muscle(rawValue: maxEntry.key) ?? Muscle(snakeCase: maxEntry.key)
     }
 
     var body: some View {
@@ -248,10 +247,14 @@ private struct ExerciseLibraryRow: View {
                     .lineLimit(2)
                     .fixedSize(horizontal: false, vertical: true)
 
-                // 筋肉グループ + 器具タグ
+                // 筋肉名 + 器具タグ
                 HStack(spacing: 6) {
-                    if let group = primaryMuscleGroup {
-                        MuscleGroupTag(groupName: group.localizedName)
+                    if let muscle = primaryMuscle {
+                        PrimaryMuscleTag(
+                            muscleName: localization.currentLanguage == .japanese
+                                ? muscle.japaneseName
+                                : muscle.englishName
+                        )
                     }
                     ExerciseTag(text: exercise.localizedEquipment, icon: "dumbbell")
                 }
@@ -267,17 +270,17 @@ private struct ExerciseLibraryRow: View {
     }
 }
 
-// MARK: - 筋肉グループタグ
+// MARK: - 主要筋肉タグ
 
-private struct MuscleGroupTag: View {
-    let groupName: String
+private struct PrimaryMuscleTag: View {
+    let muscleName: String
 
     var body: some View {
         HStack(spacing: 3) {
             Circle()
                 .fill(Color.mmAccentPrimary)
                 .frame(width: 6, height: 6)
-            Text(groupName)
+            Text(muscleName)
                 .lineLimit(1)
         }
         .font(.caption2.bold())
