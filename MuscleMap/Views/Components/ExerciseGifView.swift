@@ -7,7 +7,7 @@ enum ExerciseGifSize {
     case fullWidth     // ExerciseDetailView用（アニメーション、maxHeight: 300）
     case previewCard   // ExercisePreviewSheet用（アニメーション、height: 120）
     case card          // MuscleDetailView カード型リスト用（静止画、height: 160）
-    case thumbnail     // ExerciseLibraryView等のリスト行用（静止画、120x90）
+    case thumbnail     // ExerciseLibraryView等のリスト行用（静止画、100x75）
 
     var shouldAnimate: Bool {
         self == .fullWidth || self == .previewCard
@@ -73,7 +73,7 @@ struct ExerciseGifView: View {
                         .resizable()
                         .scaledToFit()
                         .padding(4)
-                        .frame(width: 80, height: 60)
+                        .frame(width: 100, height: 75)
                         .background(Color.white)
                         .clipShape(RoundedRectangle(cornerRadius: 8))
                         .overlay(
@@ -236,7 +236,7 @@ extension UIImage {
 
                 // Thumbnail size preview
                 VStack {
-                    Text("Thumbnail (80x60)")
+                    Text("Thumbnail (100x75)")
                         .font(.caption)
                         .foregroundStyle(Color.mmTextSecondary)
 
