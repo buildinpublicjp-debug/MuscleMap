@@ -31,10 +31,13 @@ class WorkoutViewModel {
     var lastReps: Int?
 
     // セット間タイマー
-    var restTimerSeconds: Int = 0
+    var restTimerSeconds: Int = 0                // カウントダウン中: 残り秒数, オーバータイム: 経過秒数
     var isRestTimerRunning: Bool = false
+    var isRestTimerOvertime: Bool = false         // カウントダウン完了後のオーバータイム状態
     private var restTimer: Timer?
-    private var restTimerStartDate: Date?  // バックグラウンド復帰時の補正用
+    private var restTimerStartDate: Date?         // バックグラウンド復帰時の補正用
+    private var restTimerDuration: Int = 90       // このタイマーセッションの設定秒数
+    private var hasPlayedCompletionHaptic: Bool = false
 
     init(modelContext: ModelContext) {
         self.workoutRepo = WorkoutRepository(modelContext: modelContext)
@@ -168,14 +171,43 @@ class WorkoutViewModel {
 
     // MARK: セット間タイマー
 
-    /// タイマーを開始
+    /// タイマーを開始（カウントダウン → 0到達でハプティック → オーバータイムへ）
     func startRestTimer() {
+        restTimer?.invalidate()
         restTimerStartDate = Date()
-        restTimerSeconds = 0
+        restTimerDuration = AppState.shared.defaultRestTimerDuration
+        restTimerSeconds = restTimerDuration
         isRestTimerRunning = true
+        isRestTimerOvertime = false
+        hasPlayedCompletionHaptic = false
+
         restTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
             Task { @MainActor in
-                self?.restTimerSeconds += 1
+                self?.tickRestTimer()
+            }
+        }
+    }
+
+    /// タイマーの1秒ごとの処理
+    private func tickRestTimer() {
+        guard isRestTimerRunning, let startDate = restTimerStartDate else { return }
+
+        let elapsed = Int(Date().timeIntervalSince(startDate))
+
+        if elapsed < restTimerDuration {
+            // カウントダウン中
+            restTimerSeconds = restTimerDuration - elapsed
+            isRestTimerOvertime = false
+        } else {
+            // オーバータイム
+            restTimerSeconds = elapsed - restTimerDuration
+            if !isRestTimerOvertime {
+                isRestTimerOvertime = true
+            }
+            // 完了ハプティック（1回だけ）
+            if !hasPlayedCompletionHaptic {
+                hasPlayedCompletionHaptic = true
+                HapticManager.restTimerCompleted()
             }
         }
     }
@@ -185,6 +217,7 @@ class WorkoutViewModel {
         restTimer?.invalidate()
         restTimer = nil
         isRestTimerRunning = false
+        isRestTimerOvertime = false
         restTimerStartDate = nil
     }
 
@@ -197,8 +230,8 @@ class WorkoutViewModel {
 
     /// バックグラウンド復帰時にタイマーを補正
     func recalculateRestTimerAfterBackground() {
-        guard isRestTimerRunning, let startDate = restTimerStartDate else { return }
-        restTimerSeconds = Int(Date().timeIntervalSince(startDate))
+        guard isRestTimerRunning, restTimerStartDate != nil else { return }
+        tickRestTimer()
     }
 
     /// セットを削除

@@ -2,27 +2,41 @@ import SwiftUI
 
 // MARK: - ワークアウトタイマー関連コンポーネント
 
-/// レストタイマー（フルスクリーン）
+/// レストタイマー（フルサイズ）
 struct RestTimerView: View {
     let seconds: Int
+    let isOvertime: Bool
     let onStop: () -> Void
 
     private var formattedTime: String {
         let mins = seconds / 60
         let secs = seconds % 60
+        if isOvertime {
+            return "+\(String(format: "%d:%02d", mins, secs))"
+        }
         return String(format: "%d:%02d", mins, secs)
+    }
+
+    private var timerColor: Color {
+        if isOvertime {
+            return Color.red.opacity(0.8)
+        } else if seconds <= 10 {
+            return Color.yellow
+        } else {
+            return Color.mmAccentPrimary
+        }
     }
 
     var body: some View {
         HStack(spacing: 12) {
             // タイマー表示
             HStack(spacing: 6) {
-                Image(systemName: "timer")
+                Image(systemName: isOvertime ? "exclamationmark.timer" : "timer")
                     .font(.subheadline)
                 Text(formattedTime)
                     .font(.system(size: 24, weight: .bold, design: .monospaced))
             }
-            .foregroundStyle(Color.mmAccentPrimary)
+            .foregroundStyle(timerColor)
 
             // 停止ボタン
             Button {
@@ -39,7 +53,7 @@ struct RestTimerView: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
-        .background(Color.mmAccentPrimary.opacity(0.1))
+        .background(timerColor.opacity(0.1))
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 }
@@ -49,12 +63,26 @@ struct RestTimerView: View {
 /// コンパクトタイマーバッジ
 struct CompactTimerBadge: View {
     let seconds: Int
+    let isOvertime: Bool
     let onStop: () -> Void
 
     private var formattedTime: String {
         let mins = seconds / 60
         let secs = seconds % 60
+        if isOvertime {
+            return "+\(String(format: "%d:%02d", mins, secs))"
+        }
         return String(format: "%d:%02d", mins, secs)
+    }
+
+    private var badgeColor: Color {
+        if isOvertime {
+            return Color.red.opacity(0.8)
+        } else if seconds <= 10 {
+            return Color.yellow
+        } else {
+            return Color.mmAccentPrimary
+        }
     }
 
     var body: some View {
@@ -63,12 +91,12 @@ struct CompactTimerBadge: View {
             HapticManager.lightTap()
         } label: {
             HStack(spacing: 4) {
-                Image(systemName: "timer")
+                Image(systemName: isOvertime ? "exclamationmark.timer" : "timer")
                     .font(.caption2)
                 Text(formattedTime)
                     .font(.system(size: 14, weight: .bold, design: .monospaced))
             }
-            .foregroundStyle(Color.mmTextPrimary)
+            .foregroundStyle(isOvertime ? badgeColor : Color.mmTextPrimary)
             .padding(.horizontal, 10)
             .padding(.vertical, 6)
             .background(Color.black.opacity(0.7))
@@ -83,10 +111,13 @@ struct CompactTimerBadge: View {
     ZStack {
         Color.mmBgPrimary.ignoresSafeArea()
         VStack(spacing: 20) {
-            RestTimerView(seconds: 90) {
+            RestTimerView(seconds: 90, isOvertime: false) {
                 print("Timer stopped")
             }
-            RestTimerView(seconds: 5) {
+            RestTimerView(seconds: 5, isOvertime: false) {
+                print("Timer stopped")
+            }
+            RestTimerView(seconds: 15, isOvertime: true) {
                 print("Timer stopped")
             }
         }
@@ -97,10 +128,13 @@ struct CompactTimerBadge: View {
     ZStack {
         Color.mmBgPrimary.ignoresSafeArea()
         VStack(spacing: 20) {
-            CompactTimerBadge(seconds: 90) {
+            CompactTimerBadge(seconds: 90, isOvertime: false) {
                 print("Timer stopped")
             }
-            CompactTimerBadge(seconds: 5) {
+            CompactTimerBadge(seconds: 5, isOvertime: false) {
+                print("Timer stopped")
+            }
+            CompactTimerBadge(seconds: 15, isOvertime: true) {
                 print("Timer stopped")
             }
         }

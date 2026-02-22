@@ -67,6 +67,7 @@ struct SetInputCard: View {
                     if viewModel.isRestTimerRunning {
                         CompactTimerBadge(
                             seconds: viewModel.restTimerSeconds,
+                            isOvertime: viewModel.isRestTimerOvertime,
                             onStop: { viewModel.stopRestTimer() }
                         )
                         .padding(8)
@@ -78,6 +79,7 @@ struct SetInputCard: View {
                 if viewModel.isRestTimerRunning {
                     CompactTimerBadge(
                         seconds: viewModel.restTimerSeconds,
+                        isOvertime: viewModel.isRestTimerOvertime,
                         onStop: { viewModel.stopRestTimer() }
                     )
                 }

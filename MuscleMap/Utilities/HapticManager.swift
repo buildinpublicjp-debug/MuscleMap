@@ -77,4 +77,15 @@ struct HapticManager {
         let generator = UIImpactFeedbackGenerator(style: .medium)
         generator.impactOccurred()
     }
+
+    /// レストタイマー完了時（カウントダウン到達）
+    static func restTimerCompleted() {
+        guard AppState.shared.isHapticEnabled else { return }
+        let generator = UINotificationFeedbackGenerator()
+        generator.notificationOccurred(.success)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+            let impact = UIImpactFeedbackGenerator(style: .heavy)
+            impact.impactOccurred()
+        }
+    }
 }

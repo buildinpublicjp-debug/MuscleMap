@@ -76,6 +76,11 @@ class AppState {
         didSet { UserDefaults.standard.set(isNotificationEnabled, forKey: "isNotificationEnabled") }
     }
 
+    // レストタイマーのデフォルト時間（秒）
+    var defaultRestTimerDuration: Int = (UserDefaults.standard.object(forKey: "defaultRestTimerDuration") as? Int) ?? 90 {
+        didSet { UserDefaults.standard.set(defaultRestTimerDuration, forKey: "defaultRestTimerDuration") }
+    }
+
     // ユーザープロフィール
     var userProfile: UserProfile = UserProfile.load() {
         didSet { userProfile.save() }

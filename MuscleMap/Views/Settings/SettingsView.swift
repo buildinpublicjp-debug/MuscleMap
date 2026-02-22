@@ -98,6 +98,27 @@ struct SettingsView: View {
             }
             .listRowBackground(Color.mmBgCard)
 
+            // レストタイマー設定
+            HStack(spacing: 12) {
+                Image(systemName: "timer")
+                    .foregroundStyle(Color.mmAccentSecondary)
+                Text(L10n.restTimerDuration)
+                    .font(.subheadline)
+                    .foregroundStyle(Color.mmTextPrimary)
+                Spacer()
+                Picker("", selection: $appState.defaultRestTimerDuration) {
+                    Text("30\(L10n.seconds)").tag(30)
+                    Text("60\(L10n.seconds)").tag(60)
+                    Text("90\(L10n.seconds)").tag(90)
+                    Text("120\(L10n.seconds)").tag(120)
+                    Text("180\(L10n.seconds)").tag(180)
+                    Text("300\(L10n.seconds)").tag(300)
+                }
+                .pickerStyle(.menu)
+                .tint(Color.mmAccentPrimary)
+            }
+            .listRowBackground(Color.mmBgCard)
+
             // YouTube検索言語設定
             HStack(spacing: 12) {
                 Image(systemName: "play.rectangle.fill")
