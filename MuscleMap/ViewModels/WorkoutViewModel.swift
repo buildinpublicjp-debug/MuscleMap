@@ -59,6 +59,9 @@ class WorkoutViewModel {
 
     /// セッションを終了（記録を保存）
     func endSession() {
+        // [Fix #4] セッション終了時にレストタイマーを停止
+        stopRestTimer()
+
         guard let session = activeSession else { return }
         workoutRepo.endSession(session)
         activeSession = nil
@@ -70,6 +73,9 @@ class WorkoutViewModel {
 
     /// セッションを破棄（記録と筋肉刺激を削除）
     func discardSession() {
+        // [Fix #4] セッション破棄時にレストタイマーを停止
+        stopRestTimer()
+
         guard let session = activeSession else { return }
         muscleStateRepo.deleteStimulations(sessionId: session.id)
         workoutRepo.discardSession(session)

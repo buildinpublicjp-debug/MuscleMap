@@ -57,17 +57,18 @@ class AppState {
         didSet { UserDefaults.standard.set(isHapticEnabled, forKey: "isHapticEnabled") }
     }
 
-    // 重量単位設定（kg/lb）- 言語に基づくデフォルト
+    // [Fix #6] 重量単位設定（kg/lb）- 地域に基づくデフォルト
+    // US/リベリア/ミャンマーのみ lb、それ以外は kg
     var weightUnit: WeightUnit = {
         // ユーザーが明示的に設定済みの場合はその値を使用
         if let rawValue = UserDefaults.standard.string(forKey: "weightUnit"),
            let unit = WeightUnit(rawValue: rawValue) {
             return unit
         }
-        // 未設定の場合は言語に基づいてデフォルトを決定
-        // 日本語 → kg、英語 → lb
-        let preferredLanguage = Locale.preferredLanguages.first ?? "en"
-        return preferredLanguage.hasPrefix("ja") ? .kg : .lb
+        // 未設定の場合は地域に基づいてデフォルトを決定
+        let region = Locale.current.region?.identifier ?? ""
+        let imperialRegions = ["US", "LR", "MM"]
+        return imperialRegions.contains(region) ? .lb : .kg
     }() {
         didSet { UserDefaults.standard.set(weightUnit.rawValue, forKey: "weightUnit") }
     }

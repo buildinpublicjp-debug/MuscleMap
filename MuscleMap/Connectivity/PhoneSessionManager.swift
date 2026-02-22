@@ -8,7 +8,7 @@ import SwiftData
 final class PhoneSessionManager: NSObject {
     static let shared = PhoneSessionManager()
 
-    /// WatchDataProcessorに渡すModelContext（AppDelegate等で設定する）
+    /// WatchDataProcessorに渡すModelContext（RootView.onAppearで設定する）
     var modelContext: ModelContext?
 
     /// Watch接続状態
@@ -106,7 +106,8 @@ final class PhoneSessionManager: NSObject {
 
     // MARK: - 前回記録の検索（sendMessageリプライ用）
 
-    /// 指定エクササイズの直近セットを返す
+    /// [Fix #3] 指定エクササイズの直近セッションの第1セットを返す
+    /// WorkoutRepository.fetchLastRecord と同じロジック（疲労で後半セットは重量が下がるため第1セット基準）
     private func fetchLastRecord(exerciseId: String) -> [String: Any]? {
         guard let modelContext else {
             #if DEBUG
@@ -115,21 +116,31 @@ final class PhoneSessionManager: NSObject {
             return nil
         }
 
-        let descriptor = FetchDescriptor<WorkoutSet>(
+        // まず直近のセットを取得してセッションを特定
+        var descriptor = FetchDescriptor<WorkoutSet>(
             predicate: #Predicate { $0.exerciseId == exerciseId },
             sortBy: [SortDescriptor(\.completedAt, order: .reverse)]
         )
+        descriptor.fetchLimit = 1
 
         do {
-            guard let lastSet = try modelContext.fetch(descriptor).first else {
+            guard let latestSet = try modelContext.fetch(descriptor).first,
+                  let session = latestSet.session else {
                 return nil
             }
+
+            // そのセッションの第1セットを返す（WorkoutRepositoryと同じロジック）
+            let firstSet = session.sets
+                .filter { $0.exerciseId == exerciseId }
+                .sorted { $0.setNumber < $1.setNumber }
+                .first ?? latestSet
+
             return [
-                "exerciseId": lastSet.exerciseId,
-                "weight": lastSet.weight,
-                "reps": lastSet.reps,
-                "setNumber": lastSet.setNumber,
-                "completedAt": lastSet.completedAt.timeIntervalSince1970
+                "exerciseId": firstSet.exerciseId,
+                "weight": firstSet.weight,
+                "reps": firstSet.reps,
+                "setNumber": firstSet.setNumber,
+                "completedAt": firstSet.completedAt.timeIntervalSince1970
             ]
         } catch {
             #if DEBUG

@@ -15,7 +15,7 @@ struct MuscleMapApp: App {
         _ = PhoneSessionManager.shared
 
         // 初回起動時の外観設定
-        configureAppearance()
+        MuscleMapApp.configureAppearance()
     }
 
     var body: some Scene {
@@ -30,7 +30,7 @@ struct MuscleMapApp: App {
     }
 
     /// UIKit外観を設定
-    private func configureAppearance() {
+    static func configureAppearance() {
         // TabBar外観
         let tabBarAppearance = UITabBarAppearance()
         tabBarAppearance.configureWithOpaqueBackground()
@@ -57,11 +57,20 @@ struct RootView: View {
         ContentView()
             .preferredColorScheme(themeManager.currentTheme.colorScheme)
             .onAppear {
+                // [Fix #2] Watch連携用にModelContextを設定
+                PhoneSessionManager.shared.modelContext = modelContext
+
+                #if DEBUG
                 seedDemoDataIfNeeded(context: modelContext)
+                #endif
+            }
+            .onChange(of: themeManager.currentTheme) { _, _ in
+                // [Fix #5] テーマ変更時にUIKit外観を再設定
+                MuscleMapApp.configureAppearance()
             }
     }
 
-    /// スクショ用デモデータを1回だけ投入
+    /// スクショ用デモデータを1回だけ投入（DEBUGビルドのみ）
     private func seedDemoDataIfNeeded(context: ModelContext) {
         let key = "hasSeededScreenshotData_v3"
         guard !UserDefaults.standard.bool(forKey: key) else { return }
