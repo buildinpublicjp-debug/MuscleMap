@@ -40,19 +40,11 @@ struct ExercisePreviewSheet: View {
 
                 ScrollView {
                     VStack(spacing: 20) {
-                        // 種目名
                         exerciseNameSection
-
-                        // ミニ筋肉マップ
                         muscleMapSection
-
-                        // 対象筋肉リスト
                         targetMusclesSection
-
-                        // YouTubeボタン
                         youtubeButtonSection
 
-                        // この種目を追加ボタン（ワークアウトフローからの場合のみ）
                         if onAddExercise != nil {
                             addExerciseButton
                         }
@@ -91,7 +83,6 @@ struct ExercisePreviewSheet: View {
                 .font(.subheadline)
                 .foregroundStyle(Color.mmTextSecondary)
 
-            // 基本情報タグ（器具のみ、難易度は詳細画面で確認）
             HStack(spacing: 8) {
                 InfoChip(icon: "dumbbell", text: exercise.localizedEquipment)
             }
@@ -103,7 +94,6 @@ struct ExercisePreviewSheet: View {
 
     private var muscleMapSection: some View {
         VStack(spacing: 8) {
-            // ラベル
             HStack {
                 Text(L10n.targetMuscles)
                     .font(.caption.bold())
@@ -111,7 +101,6 @@ struct ExercisePreviewSheet: View {
                 Spacer()
             }
 
-            // GIF + ミニマップ横並び（GIFがある場合）
             if ExerciseGifView.hasGif(exerciseId: exercise.id) {
                 HStack(spacing: 10) {
                     ExerciseGifView(exerciseId: exercise.id, size: .previewCard)
@@ -125,7 +114,6 @@ struct ExercisePreviewSheet: View {
                     .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
             } else {
-                // GIFがない場合は従来通りMuscleMap単体
                 PreviewMuscleMapView(
                     muscleMapping: exercise.muscleMapping,
                     primaryThreshold: 60
@@ -135,7 +123,6 @@ struct ExercisePreviewSheet: View {
                 .clipShape(RoundedRectangle(cornerRadius: 12))
             }
 
-            // 凡例
             HStack(spacing: 16) {
                 HStack(spacing: 4) {
                     Circle()
@@ -161,7 +148,6 @@ struct ExercisePreviewSheet: View {
 
     private var targetMusclesSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            // Primary（最大3つまで表示）
             if !primaryMuscles.isEmpty {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(L10n.primaryTarget)
@@ -187,7 +173,6 @@ struct ExercisePreviewSheet: View {
                 }
             }
 
-            // Secondary（最大3つまで表示）
             if !secondaryMuscles.isEmpty {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(L10n.secondaryTarget)
@@ -317,6 +302,7 @@ private struct PreviewMuscleMapView: View {
                         .stroke(Color.mmMuscleBorder.opacity(0.3), lineWidth: 0.5)
                 }
             }
+            .drawingGroup()
         }
         .aspectRatio(0.6, contentMode: .fit)
     }
@@ -337,7 +323,6 @@ private struct PreviewMuscleMapView: View {
             return Color.mmTextSecondary.opacity(0.15)
         }
 
-        // Primary (60%+) = 赤系、Secondary (<60%) = オレンジ系
         if stimulation >= primaryThreshold {
             return Color.mmMuscleJustWorked.opacity(0.8)
         } else {
