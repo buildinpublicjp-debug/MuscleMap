@@ -75,13 +75,26 @@ struct WorkoutCompletionView: View {
         exercisesDone.map { localization.currentLanguage == .japanese ? $0.nameJA : $0.nameEN }
     }
 
+    private func formatVolume(_ volume: Double) -> String {
+        volume >= 1000 ? String(format: "%.1fk", volume / 1000) : String(format: "%.0f", volume)
+    }
+
     private var shareText: String {
-        """
-        今日のワークアウト完了 💪
-        \(uniqueExercises)種目 | \(totalSets)セット | \(formatVolume(totalVolume))kg
-        \(AppConstants.shareHashtag)
-        \(AppConstants.appStoreURL)
-        """
+        if localization.currentLanguage == .japanese {
+            return """
+            今日のワークアウト完了 💪
+            \(uniqueExercises)種目 | \(totalSets)セット | \(formatVolume(totalVolume))kg
+            \(AppConstants.shareHashtag)
+            \(AppConstants.appStoreURL)
+            """
+        } else {
+            return """
+            Workout Complete 💪
+            \(uniqueExercises) exercises | \(totalSets) sets | \(formatVolume(totalVolume))kg
+            \(AppConstants.shareHashtag)
+            \(AppConstants.appStoreURL)
+            """
+        }
     }
 
     var body: some View {
@@ -241,10 +254,6 @@ struct WorkoutCompletionView: View {
         UIApplication.shared.open(url) { success in
             if success { HapticManager.success() }
         }
-    }
-
-    private func formatVolume(_ volume: Double) -> String {
-        volume >= 1000 ? String(format: "%.1fk", volume / 1000) : String(format: "%.0f", volume)
     }
 }
 

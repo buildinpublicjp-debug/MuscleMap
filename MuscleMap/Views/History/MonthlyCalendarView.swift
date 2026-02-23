@@ -247,9 +247,6 @@ private struct DayCell: View {
 
     private let calendar = Calendar.current
 
-    // 筋肉グループの表示順
-    private static let groupOrder: [MuscleGroup] = [.chest, .back, .shoulders, .arms, .core, .lowerBody]
-
     var body: some View {
         Button(action: action) {
             VStack(spacing: 2) {
@@ -258,9 +255,9 @@ private struct DayCell: View {
                     .fontWeight(isToday ? .bold : .regular)
                     .foregroundStyle(textColor)
 
-                // パターン3: マイクロマップ（簡略化シルエット）
+                // マイクロボディマップ（前面+背面の2体表示）
                 if hasWorkout && !muscleGroups.isEmpty {
-                    MicroMuscleIcon(muscleGroups: muscleGroups)
+                    MicroBodyMapView(muscleGroups: muscleGroups)
                 } else if hasWorkout {
                     // 筋肉グループ情報がない場合は従来の緑ドット
                     Circle()
@@ -268,7 +265,7 @@ private struct DayCell: View {
                         .frame(width: 6, height: 6)
                 } else {
                     Color.clear
-                        .frame(height: 10)
+                        .frame(height: 24)
                 }
             }
             .frame(maxWidth: .infinity)
@@ -276,37 +273,6 @@ private struct DayCell: View {
             .background(backgroundColor)
             .clipShape(RoundedRectangle(cornerRadius: 8))
         }
-    }
-
-    // パターン1: ドットグリッド（最大4つ）
-    private var muscleGroupDots: some View {
-        let sortedGroups = Self.groupOrder.filter { muscleGroups.contains($0) }
-
-        return HStack(spacing: 2) {
-            ForEach(sortedGroups.prefix(4), id: \.self) { group in
-                Circle()
-                    .fill(muscleGroupColor(group))
-                    .frame(width: 5, height: 5)
-            }
-        }
-        .frame(height: 10)
-    }
-
-    // パターン2: カラーバー（セグメント分割）
-    private var muscleGroupBar: some View {
-        let sortedGroups = Self.groupOrder.filter { muscleGroups.contains($0) }
-
-        return GeometryReader { geo in
-            HStack(spacing: 1) {
-                ForEach(sortedGroups, id: \.self) { group in
-                    RoundedRectangle(cornerRadius: 2)
-                        .fill(muscleGroupColor(group))
-                }
-            }
-        }
-        .frame(height: 6)
-        .clipShape(RoundedRectangle(cornerRadius: 3))
-        .padding(.horizontal, 4)
     }
 
     private var textColor: Color {
@@ -327,28 +293,6 @@ private struct DayCell: View {
         } else {
             return Color.clear
         }
-    }
-}
-
-// MARK: - マイクロ筋肉アイコン（カレンダー用 - カラードットグリッド）
-
-private struct MicroMuscleIcon: View {
-    let muscleGroups: Set<MuscleGroup>
-
-    // 表示順（重要度順）
-    private static let groupOrder: [MuscleGroup] = [.chest, .back, .shoulders, .arms, .core, .lowerBody]
-
-    var body: some View {
-        let activeGroups = Self.groupOrder.filter { muscleGroups.contains($0) }
-
-        HStack(spacing: 2) {
-            ForEach(activeGroups.prefix(4), id: \.self) { group in
-                RoundedRectangle(cornerRadius: 2)
-                    .fill(muscleGroupColor(group))
-                    .frame(width: 6, height: 6)
-            }
-        }
-        .frame(height: 10)
     }
 }
 

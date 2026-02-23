@@ -20,9 +20,8 @@ struct HistoryMapView: View {
 
             // 筋肉マップカード
             VStack(spacing: 16) {
-                // 前面/背面トグル（改善版）
+                // 前面/背面トグル
                 HStack {
-                    // 現在の表示面
                     HStack(spacing: 6) {
                         Image(systemName: showFront ? "person.fill" : "person.fill")
                             .font(.caption)
@@ -33,7 +32,6 @@ struct HistoryMapView: View {
 
                     Spacer()
 
-                    // トグルボタン
                     Button {
                         withAnimation(.easeInOut(duration: 0.3)) {
                             showFront.toggle()
@@ -54,7 +52,7 @@ struct HistoryMapView: View {
                     }
                 }
 
-                // 筋肉マップ（ホーム画面と同じ表示品質を維持）
+                // 筋肉マップ
                 HistoryMuscleMapCanvas(
                     muscleSets: viewModel.periodMuscleSets,
                     showFront: showFront,
@@ -77,7 +75,7 @@ struct HistoryMapView: View {
     }
 }
 
-// MARK: - 期間セレクター（改善版）
+// MARK: - 期間セレクター
 
 struct PeriodSelector: View {
     let selectedPeriod: HistoryPeriod
@@ -155,6 +153,7 @@ struct HistoryMuscleMapCanvas: View {
                     }
                 }
             }
+            .drawingGroup()
         }
         .aspectRatio(0.6, contentMode: .fit)
     }
@@ -166,7 +165,6 @@ struct HistoryMuscleMapCanvas: View {
 
         let ratio = Double(sets) / Double(maxSets)
 
-        // セット数に応じたグラデーション
         if ratio < 0.25 {
             return Color.mmMuscleLime.opacity(0.4)
         } else if ratio < 0.5 {
@@ -213,7 +211,7 @@ struct HistoryMusclePathView: View {
 }
 
 
-// MARK: - 履歴マップ凡例（改善版）
+// MARK: - 履歴マップ凡例
 
 struct HistoryMapLegend: View {
     private var localization: LocalizationManager { LocalizationManager.shared }

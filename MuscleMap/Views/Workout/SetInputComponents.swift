@@ -157,9 +157,9 @@ struct SetInputCard: View {
             if !isBodyweight || useAdditionalWeight {
                 HStack(spacing: 16) {
                     WeightStepperButton(systemImage: "minus") {
-                        viewModel.adjustWeight(by: -0.25)  // タップ = 細かく
+                        viewModel.adjustWeight(by: -0.25)
                     } onLongPress: {
-                        viewModel.adjustWeight(by: -2.5)   // 長押し = 大きく
+                        viewModel.adjustWeight(by: -2.5)
                     }
 
                     WeightInputView(
@@ -169,9 +169,9 @@ struct SetInputCard: View {
                     .frame(minWidth: 100)
 
                     WeightStepperButton(systemImage: "plus") {
-                        viewModel.adjustWeight(by: 0.25)   // タップ = 細かく
+                        viewModel.adjustWeight(by: 0.25)
                     } onLongPress: {
-                        viewModel.adjustWeight(by: 2.5)    // 長押し = 大きく
+                        viewModel.adjustWeight(by: 2.5)
                     }
                 }
             }
@@ -205,7 +205,6 @@ struct SetInputCard: View {
                     withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
                         showPRCelebration = true
                     }
-                    // 2秒後に自動で閉じる
                     DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
                         withAnimation(.easeOut(duration: 0.3)) {
                             showPRCelebration = false
@@ -230,7 +229,6 @@ struct SetInputCard: View {
         .clipShape(RoundedRectangle(cornerRadius: 16))
         .padding(.horizontal)
         .overlay {
-            // PR達成祝福オーバーレイ
             if showPRCelebration {
                 PRCelebrationOverlay()
                     .transition(.scale.combined(with: .opacity))
@@ -241,31 +239,28 @@ struct SetInputCard: View {
 
 // MARK: - PR達成祝福オーバーレイ
 
-/// PR達成時の祝福オーバーレイ
 struct PRCelebrationOverlay: View {
     @State private var scale: CGFloat = 0.5
     @State private var rotation: Double = -10
     @State private var opacity: Double = 0
+    private var localization: LocalizationManager { LocalizationManager.shared }
 
     var body: some View {
         ZStack {
-            // 背景のぼかし
             Color.black.opacity(0.6)
                 .ignoresSafeArea()
 
             VStack(spacing: 16) {
-                // トロフィーアイコン
                 Image(systemName: "trophy.fill")
                     .font(.system(size: 60))
                     .foregroundStyle(.yellow)
                     .shadow(color: .yellow.opacity(0.5), radius: 10)
 
-                // PRテキスト
                 Text("🎉 NEW PR! 🎉")
                     .font(.title.bold())
                     .foregroundStyle(.white)
 
-                Text("自己ベスト更新！")
+                Text(localization.currentLanguage == .japanese ? "自己ベスト更新！" : "Personal Record!")
                     .font(.headline)
                     .foregroundStyle(Color.mmAccentPrimary)
             }
@@ -284,10 +279,6 @@ struct PRCelebrationOverlay: View {
 }
 
 // MARK: - Preview
-
-//#Preview {
-//    // Preview requires full app context with Swift Data
-//}
 
 #Preview("PR Celebration") {
     ZStack {

@@ -46,17 +46,15 @@ struct ExerciseMuscleMapView: View {
             // 凡例
             legendView
         }
+        .padding(.vertical, 8)
     }
     
     // MARK: - 刺激度の取得
     
     private func stimulationFor(_ muscle: Muscle) -> Int {
-        // muscle.rawValue は "chestUpper" 形式
-        // muscleMapping のキーは "chest_upper" 形式の可能性があるので両方チェック
         if let value = muscleMapping[muscle.rawValue] {
             return value
         }
-        // スネークケースに変換してチェック
         let snakeCase = muscle.rawValue.toSnakeCase()
         if let value = muscleMapping[snakeCase] {
             return value
@@ -68,12 +66,9 @@ struct ExerciseMuscleMapView: View {
 
     private func colorFor(stimulation: Int) -> Color {
         guard stimulation > 0 else {
-            // 刺激されない筋肉 = 暗いグレー（シルエットが見える程度）
             return Color.mmTextSecondary.opacity(0.2)
         }
 
-        // 刺激度に応じてグラデーション
-        // 低 → 黄緑、中 → 黄、高 → オレンジ/赤
         let opacity = 0.4 + (Double(stimulation) / 100.0) * 0.6
 
         switch stimulation {
@@ -125,6 +120,7 @@ private struct SingleBodyMapView: View {
                         .stroke(Color.mmMuscleBorder.opacity(0.4), lineWidth: 0.8)
                 }
             }
+            .drawingGroup()
         }
         .aspectRatio(0.6, contentMode: .fit)
     }

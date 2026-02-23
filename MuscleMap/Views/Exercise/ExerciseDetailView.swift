@@ -45,7 +45,7 @@ struct ExerciseDetailView: View {
                                 .foregroundStyle(Color.mmTextPrimary)
 
                             ExerciseMuscleMapView(muscleMapping: exercise.muscleMapping)
-                                .frame(height: 240)
+                                .padding(.vertical, 8)
                                 .background(Color.mmBgCard)
                                 .clipShape(RoundedRectangle(cornerRadius: 12))
 

@@ -114,6 +114,8 @@ struct Muscle3DView: View {
                         }
                     }
                 }
+                // drawingGroup でMetal描画 → アンチエイリアスが効く
+                .drawingGroup()
                 .scaleEffect(scale, anchor: .topLeading)
                 .offset(x: offsetX, y: offsetY)
             }

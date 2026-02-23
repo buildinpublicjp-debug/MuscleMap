@@ -219,15 +219,12 @@ private struct ExerciseLibraryRow: View {
     let exercise: ExerciseDefinition
     private var localization: LocalizationManager { LocalizationManager.shared }
 
-    /// 主要ターゲット筋肉（刺激度が最も高い筋肉）
-    private var primaryTarget: (muscle: Muscle, percentage: Int)? {
+    /// 主要ターゲットの筋肉（刺激度が最も高い筋肉）
+    private var primaryMuscle: Muscle? {
         guard let maxEntry = exercise.muscleMapping.max(by: { $0.value < $1.value }) else {
             return nil
         }
-        if let muscle = Muscle(rawValue: maxEntry.key) ?? Muscle(snakeCase: maxEntry.key) {
-            return (muscle, maxEntry.value)
-        }
-        return nil
+        return Muscle(rawValue: maxEntry.key) ?? Muscle(snakeCase: maxEntry.key)
     }
 
     var body: some View {
@@ -237,7 +234,7 @@ private struct ExerciseLibraryRow: View {
                 ExerciseGifView(exerciseId: exercise.id, size: .thumbnail)
             } else {
                 MiniMuscleMapView(muscleMapping: exercise.muscleMapping)
-                    .frame(width: 80, height: 60)
+                    .frame(width: 100, height: 75)
                     .background(Color.mmBgPrimary.opacity(0.5))
                     .clipShape(RoundedRectangle(cornerRadius: 8))
             }
@@ -250,22 +247,13 @@ private struct ExerciseLibraryRow: View {
                     .lineLimit(2)
                     .fixedSize(horizontal: false, vertical: true)
 
-                // 日本語モード時のみ英語名サブタイトルを表示
-                if localization.currentLanguage == .japanese {
-                    Text(exercise.nameEN)
-                        .font(.caption)
-                        .foregroundStyle(Color.mmTextSecondary)
-                        .lineLimit(1)
-                }
-
-                // 主要ターゲット筋肉 + 器具と難易度のタグ
+                // 筋肉名 + 器具タグ
                 HStack(spacing: 6) {
-                    if let target = primaryTarget {
-                        PrimaryTargetTag(
+                    if let muscle = primaryMuscle {
+                        PrimaryMuscleTag(
                             muscleName: localization.currentLanguage == .japanese
-                                ? target.muscle.japaneseName
-                                : target.muscle.englishName,
-                            percentage: target.percentage
+                                ? muscle.japaneseName
+                                : muscle.englishName
                         )
                     }
                     ExerciseTag(text: exercise.localizedEquipment, icon: "dumbbell")
@@ -282,18 +270,17 @@ private struct ExerciseLibraryRow: View {
     }
 }
 
-// MARK: - 主要ターゲット筋肉タグ
+// MARK: - 主要筋肉タグ
 
-private struct PrimaryTargetTag: View {
+private struct PrimaryMuscleTag: View {
     let muscleName: String
-    let percentage: Int
 
     var body: some View {
         HStack(spacing: 3) {
             Circle()
                 .fill(Color.mmAccentPrimary)
                 .frame(width: 6, height: 6)
-            Text("\(muscleName) \(percentage)%")
+            Text(muscleName)
                 .lineLimit(1)
         }
         .font(.caption2.bold())

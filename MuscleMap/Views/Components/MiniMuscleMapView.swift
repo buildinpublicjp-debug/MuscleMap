@@ -14,7 +14,6 @@ struct MiniMuscleMapView: View {
         if let showFront = showFront {
             return showFront
         }
-        // 筋肉マッピングから自動判定
         let frontMuscles = Set(MusclePathData.frontMuscles.map { $0.muscle.rawValue.toSnakeCase() })
         let backMuscles = Set(MusclePathData.backMuscles.map { $0.muscle.rawValue.toSnakeCase() })
 
@@ -38,7 +37,6 @@ struct MiniMuscleMapView: View {
             let rect = CGRect(origin: .zero, size: geo.size)
 
             ZStack {
-                // 全ての筋肉を表示（刺激されない筋肉も薄く表示）
                 let muscles = shouldShowFront
                     ? MusclePathData.frontMuscles
                     : MusclePathData.backMuscles
@@ -49,11 +47,11 @@ struct MiniMuscleMapView: View {
 
                     path
                         .fill(colorFor(stimulation: stimulation))
-                    // 境界線（筋肉の形がわかるように）
                     path
                         .stroke(Color.mmMuscleBorder.opacity(0.3), lineWidth: 0.5)
                 }
             }
+            .drawingGroup()
         }
         .aspectRatio(0.6, contentMode: .fit)
     }
@@ -75,11 +73,9 @@ struct MiniMuscleMapView: View {
 
     private func colorFor(stimulation: Int) -> Color {
         guard stimulation > 0 else {
-            // 刺激されない筋肉 = 暗いグレー（でも形は見える）
             return Color.mmTextSecondary.opacity(0.15)
         }
 
-        // 刺激される筋肉 = 緑系でハイライト
         let opacity = max(0.4, Double(stimulation) / 100.0)
         return Color.mmAccentPrimary.opacity(opacity)
     }
@@ -107,11 +103,11 @@ private extension String {
 // MARK: - 種目適合性バッジ
 
 enum ExerciseCompatibility {
-    case recommended       // 全ての対象筋肉が回復済み
-    case partiallyRecovering  // 一部回復中
-    case recovering        // 主要筋肉が回復中
-    case restSuggested     // 高負荷の筋肉あり（休息推奨）
-    case neutral           // データなし
+    case recommended
+    case partiallyRecovering
+    case recovering
+    case restSuggested
+    case neutral
 
     @MainActor
     var badge: (text: String, color: Color)? {
@@ -134,13 +130,11 @@ enum ExerciseCompatibility {
 
 struct ExerciseCompatibilityCalculator {
 
-    /// 種目の適合性を計算
     static func calculate(
         exercise: ExerciseDefinition,
         muscleStates: [Muscle: MuscleStimulation]
     ) -> ExerciseCompatibility {
         let targetMuscles = exercise.muscleMapping.keys.compactMap { muscleId -> Muscle? in
-            // snake_case → Muscle enum
             for muscle in Muscle.allCases {
                 if muscle.rawValue == muscleId || muscle.rawValue.toSnakeCase() == muscleId {
                     return muscle
@@ -173,29 +167,24 @@ struct ExerciseCompatibilityCalculator {
                     recoveringCount += 1
                 }
             } else {
-                // 刺激記録なし → 回復済みとみなす
                 fullyRecoveredCount += 1
             }
         }
 
         let total = targetMuscles.count
 
-        // 高負荷の筋肉がある場合は休息推奨
         if highLoadCount > 0 {
             return .restSuggested
         }
 
-        // 全て回復済み
         if fullyRecoveredCount == total {
             return .recommended
         }
 
-        // 一部回復中
         if recoveringCount > 0 && fullyRecoveredCount > 0 {
             return .partiallyRecovering
         }
 
-        // 主に回復中
         if recoveringCount > 0 {
             return .recovering
         }
@@ -211,7 +200,6 @@ struct ExerciseCompatibilityCalculator {
         Color.mmBgPrimary.ignoresSafeArea()
 
         HStack(spacing: 20) {
-            // ベンチプレス（胸メイン）
             VStack {
                 MiniMuscleMapView(muscleMapping: [
                     "chest_upper": 65,
@@ -226,7 +214,6 @@ struct ExerciseCompatibilityCalculator {
                     .foregroundStyle(Color.mmTextSecondary)
             }
 
-            // デッドリフト（背中メイン）
             VStack {
                 MiniMuscleMapView(muscleMapping: [
                     "lats": 80,
