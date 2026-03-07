@@ -15,6 +15,7 @@ struct HomeView: View {
     @State private var showingStrengthMap = false
     @State private var showingPaywall = false
     @State private var strengthScores: [String: Double] = [:]
+    @State private var showCoachMark = false
 
     /// ワークアウト履歴があるかどうか
     private var hasWorkoutHistory: Bool {
@@ -36,14 +37,28 @@ struct HomeView: View {
                             )
 
                             // 筋肉マップ（メイン）- ホームの主役
-                            MuscleMapView(
-                                muscleStates: vm.muscleStates,
-                                onMuscleTapped: { muscle in
-                                    selectedMuscle = muscle
-                                },
-                                demoMode: showDemo
-                            )
-                            .frame(maxHeight: 500)
+                            ZStack(alignment: .top) {
+                                MuscleMapView(
+                                    muscleStates: vm.muscleStates,
+                                    onMuscleTapped: { muscle in
+                                        selectedMuscle = muscle
+                                    },
+                                    demoMode: showDemo
+                                )
+                                .frame(maxHeight: 500)
+
+                                // 初回コーチマーク
+                                if showCoachMark {
+                                    HomeCoachMarkView {
+                                        withAnimation(.easeOut(duration: 0.3)) {
+                                            showCoachMark = false
+                                        }
+                                        AppState.shared.hasSeenHomeCoachMark = true
+                                    }
+                                    .transition(.opacity.combined(with: .scale(scale: 0.9)))
+                                    .zIndex(10)
+                                }
+                            }
                             .padding(.horizontal)
 
                             // Strength Map（Pro） — 回復マップの下に配置
@@ -172,6 +187,19 @@ struct HomeView: View {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                         showDemo = true
                         AppState.shared.hasSeenDemoAnimation = true
+                    }
+                }
+
+                // 初回コーチマーク表示判定（WorkoutSet 0件 & 未表示）
+                if !AppState.shared.hasSeenHomeCoachMark {
+                    let descriptor = FetchDescriptor<WorkoutSet>()
+                    let count = (try? modelContext.fetchCount(descriptor)) ?? 0
+                    if count == 0 {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                            withAnimation(.easeIn(duration: 0.3)) {
+                                showCoachMark = true
+                            }
+                        }
                     }
                 }
             }

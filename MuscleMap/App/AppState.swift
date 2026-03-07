@@ -116,6 +116,11 @@ class AppState {
         didSet { UserDefaults.standard.set(fullBodyConquestCount, forKey: "fullBodyConquestCount") }
     }
 
+    // ホーム画面コーチマーク表示済みフラグ
+    var hasSeenHomeCoachMark: Bool = UserDefaults.standard.bool(forKey: "hasSeenHomeCoachMark") {
+        didSet { UserDefaults.standard.set(hasSeenHomeCoachMark, forKey: "hasSeenHomeCoachMark") }
+    }
+
     // アプリバージョン
     var appVersion: String {
         Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0"

@@ -36,6 +36,43 @@ struct MuscleMapLegend: View {
     }
 }
 
+// MARK: - 初回コーチマーク
+
+/// 筋肉マップの上に表示する矢印付きコーチマーク
+/// WorkoutSet 0件のユーザーにのみ1回だけ表示
+struct HomeCoachMarkView: View {
+    let onDismiss: () -> Void
+
+    @State private var arrowOffset: CGFloat = 0
+
+    var body: some View {
+        VStack(spacing: 4) {
+            // テキストバッジ
+            Text("まずワークアウトを記録しよう 👆")
+                .font(.subheadline.bold())
+                .foregroundStyle(Color.mmBgPrimary)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 10)
+                .background(Color.mmAccentPrimary)
+                .clipShape(Capsule())
+
+            // 下向き矢印
+            Image(systemName: "arrowtriangle.down.fill")
+                .font(.caption)
+                .foregroundStyle(Color.mmAccentPrimary)
+                .offset(y: arrowOffset)
+        }
+        .shadow(color: Color.mmAccentPrimary.opacity(0.4), radius: 8, y: 4)
+        .padding(.top, 16)
+        .onTapGesture { onDismiss() }
+        .onAppear {
+            withAnimation(.easeInOut(duration: 0.8).repeatForever(autoreverses: true)) {
+                arrowOffset = 6
+            }
+        }
+    }
+}
+
 // MARK: - FlowLayout（タグ表示用）
 
 struct FlowLayout: Layout {

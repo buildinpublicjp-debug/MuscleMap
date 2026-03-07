@@ -7,15 +7,44 @@ struct StrengthMapView: View {
     let muscleScores: [String: Double]
 
     @State private var showingFront = true
+    @State private var shareImage: UIImage?
 
     var body: some View {
         VStack(spacing: 8) {
-            // ヘッダー: タイトル + 前後切替
+            // ヘッダー: タイトル + 前後切替 + シェアボタン
             HStack {
                 Text(showingFront ? L10n.front : L10n.back)
                     .font(.caption.bold())
                     .foregroundStyle(Color.mmTextSecondary)
                 Spacer()
+
+                // シェアボタン
+                if let image = shareImage {
+                    ShareLink(
+                        item: Image(uiImage: image),
+                        preview: SharePreview(
+                            "私の筋力マップ",
+                            image: Image(uiImage: image)
+                        )
+                    ) {
+                        Image(systemName: "square.and.arrow.up")
+                            .font(.caption)
+                            .foregroundStyle(Color.mmAccentPrimary)
+                    }
+                    .simultaneousGesture(TapGesture().onEnded {
+                        HapticManager.lightTap()
+                    })
+                } else {
+                    Button {
+                        HapticManager.lightTap()
+                        generateAndShare()
+                    } label: {
+                        Image(systemName: "square.and.arrow.up")
+                            .font(.caption)
+                            .foregroundStyle(Color.mmAccentPrimary)
+                    }
+                }
+
                 Button {
                     withAnimation(.easeInOut(duration: 0.3)) {
                         showingFront.toggle()
@@ -61,6 +90,26 @@ struct StrengthMapView: View {
             // トップ3スコア表示
             topMusclesSection
         }
+        .onAppear {
+            generateAndShare()
+        }
+        .onChange(of: muscleScores) {
+            shareImage = nil
+            generateAndShare()
+        }
+    }
+
+    // MARK: - シェア画像生成
+
+    @MainActor
+    private func generateAndShare() {
+        let profile = UserProfile.load()
+        let image = generateStrengthShareImage(
+            scores: muscleScores,
+            userName: profile.nickname,
+            date: Date()
+        )
+        shareImage = image
     }
 
     // MARK: - トップ3筋肉スコア表示
