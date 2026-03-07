@@ -10,7 +10,7 @@ final class PurchaseManager {
     var isLoading: Bool = false
 
     func configure() {
-        Purchases.configure(withAPIKey: "REVENUECAT_API_KEY_HERE")
+        Purchases.configure(withAPIKey: "appl_IzrrBdSVXMDZUylPnwcaJxvdlxb")
         Purchases.shared.delegate = PurchaseDelegate.shared
         Task { await refreshPremiumStatus() }
     }
