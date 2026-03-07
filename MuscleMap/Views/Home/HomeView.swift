@@ -83,15 +83,18 @@ struct HomeView: View {
                                         .frame(maxHeight: 500)
                                         .padding(.horizontal)
                                 }
+                            } else if !PurchaseManager.shared.isPremium {
+                                // 非Proユーザー: ロック済みプレビューバナー
+                                StrengthMapPreviewBanner {
+                                    HapticManager.lightTap()
+                                    showingPaywall = true
+                                }
+                                .padding(.horizontal)
                             } else {
-                                // 切替ボタン
+                                // Proユーザー: Strength Map切替ボタン
                                 Button {
-                                    if PurchaseManager.shared.isPremium {
-                                        loadStrengthScores()
-                                        withAnimation { showingStrengthMap = true }
-                                    } else {
-                                        showingPaywall = true
-                                    }
+                                    loadStrengthScores()
+                                    withAnimation { showingStrengthMap = true }
                                     HapticManager.lightTap()
                                 } label: {
                                     HStack(spacing: 8) {
@@ -101,15 +104,6 @@ struct HomeView: View {
                                             .font(.caption.bold())
                                             .foregroundStyle(Color.mmTextPrimary)
                                         Spacer()
-                                        if !PurchaseManager.shared.isPremium {
-                                            Text("PRO")
-                                                .font(.caption2.bold())
-                                                .foregroundStyle(Color.mmBgPrimary)
-                                                .padding(.horizontal, 8)
-                                                .padding(.vertical, 4)
-                                                .background(Color.mmAccentPrimary)
-                                                .clipShape(Capsule())
-                                        }
                                         Image(systemName: "chevron.right")
                                             .font(.caption2)
                                             .foregroundStyle(Color.mmTextSecondary)

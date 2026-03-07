@@ -73,6 +73,104 @@ struct HomeCoachMarkView: View {
     }
 }
 
+// MARK: - Strength Mapチラ見せバナー（非Proユーザー向け）
+
+/// isPremium == false 時に回復マップ直下に表示するロック済みプレビュー
+struct StrengthMapPreviewBanner: View {
+    let onTap: () -> Void
+
+    /// ダミースコア（プレビュー用の見本データ）
+    private let demoScores: [String: Double] = [
+        "chest_upper": 0.65, "chest_lower": 0.55,
+        "lats": 0.70, "deltoid_anterior": 0.50,
+        "deltoid_lateral": 0.40, "biceps": 0.60,
+        "triceps": 0.55, "quadriceps": 0.75,
+        "hamstrings": 0.45, "glutes": 0.50,
+    ]
+
+    var body: some View {
+        Button(action: onTap) {
+            VStack(spacing: 0) {
+                // ヘッダー
+                HStack(spacing: 8) {
+                    Text("\u{1F4AA}")
+                        .font(.title3)
+                    Text(L10n.strengthMapBannerTitle)
+                        .font(.subheadline.bold())
+                        .foregroundStyle(Color.mmTextPrimary)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
+                    Spacer()
+                }
+                .padding(.horizontal, 16)
+                .padding(.top, 16)
+                .padding(.bottom, 12)
+
+                // ぼかし筋肉マップ プレビュー
+                ZStack {
+                    HStack(spacing: 8) {
+                        demoMapView(muscles: MusclePathData.frontMuscles)
+                        demoMapView(muscles: MusclePathData.backMuscles)
+                    }
+                    .padding(.horizontal, 32)
+                    .blur(radius: 8)
+
+                    // ロックオーバーレイ
+                    VStack(spacing: 8) {
+                        Image(systemName: "lock.fill")
+                            .font(.title2)
+                            .foregroundStyle(Color.mmAccentPrimary)
+
+                        HStack(spacing: 4) {
+                            Text(L10n.unlockWithPro)
+                                .font(.subheadline.bold())
+                                .foregroundStyle(Color.mmAccentPrimary)
+                            Image(systemName: "chevron.right")
+                                .font(.caption.bold())
+                                .foregroundStyle(Color.mmAccentPrimary)
+                        }
+                    }
+                    .padding(.vertical, 12)
+                    .padding(.horizontal, 24)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(Color.mmBgPrimary.opacity(0.85))
+                    )
+                }
+                .frame(height: 160)
+                .clipped()
+                .padding(.bottom, 16)
+            }
+            .background(Color.mmBgCard)
+            .clipShape(RoundedRectangle(cornerRadius: 16))
+        }
+        .buttonStyle(.plain)
+    }
+
+    /// ダミーマップ描画（StrengthMapViewの表示パラメータを流用）
+    private func demoMapView(muscles: [(muscle: Muscle, path: (CGRect) -> Path)]) -> some View {
+        GeometryReader { geo in
+            let rect = CGRect(origin: .zero, size: geo.size)
+            ZStack {
+                ForEach(muscles, id: \.muscle) { entry in
+                    let score = demoScores[entry.muscle.rawValue] ?? 0
+                    let params = StrengthScoreCalculator.shared.displayParams(score: score)
+                    entry.path(rect)
+                        .fill(params.color.opacity(params.opacity))
+                    entry.path(rect)
+                        .stroke(
+                            score > 0
+                                ? params.color.opacity(0.4)
+                                : Color.mmMuscleInactive,
+                            lineWidth: params.strokeWidth * 0.7
+                        )
+                }
+            }
+        }
+        .aspectRatio(0.5, contentMode: .fit)
+    }
+}
+
 // MARK: - FlowLayout（タグ表示用）
 
 struct FlowLayout: Layout {

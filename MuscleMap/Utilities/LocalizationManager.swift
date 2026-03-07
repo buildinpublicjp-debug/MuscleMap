@@ -925,6 +925,10 @@ enum L10n {
     static var prUpdated: String { loc("PR更新！", "PR Updated!", zhHans: "PR刷新！", ko: "PR 갱신!", es: "¡PR actualizado!", fr: "PR mis à jour !", de: "PR aktualisiert!") }
     static var shareStrengthMap: String { loc("Strength Mapをシェア", "Share Strength Map", zhHans: "分享力量图", ko: "Strength Map 공유", es: "Compartir Strength Map", fr: "Partager Strength Map", de: "Strength Map teilen") }
 
+    // MARK: - Strength Mapバナー（Proチラ見せ）
+    static var strengthMapBannerTitle: String { loc("Strength Map — あなたの筋力を可視化", "Strength Map — Visualize Your Strength", zhHans: "Strength Map — 可视化您的力量", ko: "Strength Map — 근력 시각화", es: "Strength Map — Visualiza Tu Fuerza", fr: "Strength Map — Visualisez Votre Force", de: "Strength Map — Visualisiere Deine Kraft") }
+    static var unlockWithPro: String { loc("Pro でアンロック", "Unlock with Pro", zhHans: "通过 Pro 解锁", ko: "Pro로 잠금 해제", es: "Desbloquear con Pro", fr: "Débloquer avec Pro", de: "Mit Pro freischalten") }
+
     // MARK: - 統計・分析メニュー
     static var analyticsMenu: String { loc("統計・分析", "Analytics") }
     static var viewStats: String { loc("統計を見る", "View Stats") }
@@ -942,4 +946,5 @@ enum L10n {
     static var watchFormVideo: String { loc("フォームを動画で確認", "Watch Form Video") }
     static var openInYouTube: String { loc("YouTubeで開く", "Open in YouTube") }
     static var addThisExercise: String { loc("この種目を追加", "Add This Exercise") }
+    static var startWorkoutWithExercise: String { loc("この種目でワークアウト開始", "Start Workout with This Exercise") }
 }
