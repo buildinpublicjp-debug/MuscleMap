@@ -2,7 +2,7 @@ import SwiftUI
 
 // MARK: - ウィジェット用Muscle enum（メインアプリと同一rawValue）
 
-enum Muscle: String, CaseIterable {
+enum Muscle: String, CaseIterable, Codable {
     // 胸（2）
     case chestUpper = "chest_upper"
     case chestLower = "chest_lower"
