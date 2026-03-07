@@ -912,6 +912,19 @@ enum L10n {
             "I've trained for \(trainingDays) days! \(hashtag)\n\(url)")
     }
 
+    // MARK: - 次回おすすめ日
+    static var nextRecommendedDay: String { loc("次回おすすめ日", "Next Best Day", zhHans: "下次推荐日", ko: "다음 추천일", es: "Próximo mejor día", fr: "Prochain jour idéal", de: "Nächster bester Tag") }
+    static func nextBestDateLabel(_ dateStr: String) -> String {
+        loc("\(dateStr)がベスト", "\(dateStr) is best", zhHans: "\(dateStr)最佳", ko: "\(dateStr)이 최적", es: "\(dateStr) es ideal", fr: "\(dateStr) est idéal", de: "\(dateStr) ist ideal")
+    }
+    static var basedOnRecoveryPrediction: String { loc("今日の刺激部位の回復予測から算出", "Based on recovery prediction for today's muscles", zhHans: "基于今日锻炼肌肉恢复预测", ko: "오늘 자극한 근육 회복 예측 기준", es: "Basado en la predicción de recuperación", fr: "Basé sur la prédiction de récupération", de: "Basierend auf der Erholungsprognose") }
+    static var tomorrow: String { loc("明日", "Tomorrow", zhHans: "明天", ko: "내일", es: "Mañana", fr: "Demain", de: "Morgen") }
+    static var today: String { loc("今日", "Today", zhHans: "今天", ko: "오늘", es: "Hoy", fr: "Aujourd'hui", de: "Heute") }
+
+    // MARK: - Strength Mapシェア
+    static var prUpdated: String { loc("PR更新！", "PR Updated!", zhHans: "PR刷新！", ko: "PR 갱신!", es: "¡PR actualizado!", fr: "PR mis à jour !", de: "PR aktualisiert!") }
+    static var shareStrengthMap: String { loc("Strength Mapをシェア", "Share Strength Map", zhHans: "分享力量图", ko: "Strength Map 공유", es: "Compartir Strength Map", fr: "Partager Strength Map", de: "Strength Map teilen") }
+
     // MARK: - 統計・分析メニュー
     static var analyticsMenu: String { loc("統計・分析", "Analytics") }
     static var viewStats: String { loc("統計を見る", "View Stats") }

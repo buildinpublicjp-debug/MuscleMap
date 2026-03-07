@@ -16,6 +16,9 @@ struct WorkoutCompletionView: View {
     @State private var currentMuscleStates: [Muscle: MuscleVisualState] = [:]
     @State private var isFirstConquest = false
     @State private var appState = AppState.shared
+    @State private var hasPRUpdate = false
+    @State private var showingStrengthShareSheet = false
+    @State private var strengthShareImage: UIImage?
 
     private var localization: LocalizationManager { LocalizationManager.shared }
 
@@ -65,6 +68,19 @@ struct WorkoutCompletionView: View {
             }
         }
         return muscleIntensity
+    }
+
+    /// 今回刺激した筋肉とセッション内の推定セット数（回復予測用）
+    private var stimulatedMusclesWithSets: [(muscle: Muscle, totalSets: Int)] {
+        var muscleSets: [Muscle: Int] = [:]
+        for set in session.sets {
+            guard let exercise = ExerciseStore.shared.exercise(for: set.exerciseId) else { continue }
+            for (muscleId, _) in exercise.muscleMapping {
+                guard let muscle = Muscle(rawValue: muscleId) else { continue }
+                muscleSets[muscle, default: 0] += 1
+            }
+        }
+        return muscleSets.map { ($0.key, $0.value) }
     }
 
     private func setsCount(for exerciseId: String) -> Int {
@@ -119,6 +135,23 @@ struct WorkoutCompletionView: View {
                         )
 
                         StimulatedMusclesSection(muscleMapping: stimulatedMuscleMapping)
+
+                        // 次回おすすめ日
+                        if !stimulatedMusclesWithSets.isEmpty {
+                            NextRecommendedDaySection(
+                                stimulatedMuscles: stimulatedMusclesWithSets
+                            )
+                        }
+
+                        // PR更新時のみStrength Mapシェア導線
+                        if hasPRUpdate {
+                            StrengthMapShareSection(
+                                onShareStrengthMap: {
+                                    prepareStrengthShareImage()
+                                    showingStrengthShareSheet = true
+                                }
+                            )
+                        }
 
                         CompletionExerciseList(
                             exercises: exercisesDone,

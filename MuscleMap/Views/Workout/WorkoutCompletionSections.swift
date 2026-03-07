@@ -119,6 +119,128 @@ struct CompletionExerciseList: View {
     }
 }
 
+// MARK: - 次回おすすめ日セクション
+
+struct NextRecommendedDaySection: View {
+    /// 今回刺激した筋肉 → セッション内セット数
+    let stimulatedMuscles: [(muscle: Muscle, totalSets: Int)]
+
+    /// 今日の刺激部位のうち最も回復が遅いものの完全回復日
+    private var recommendedDate: Date {
+        let now = Date()
+        var maxHours: Double = 0
+        for entry in stimulatedMuscles {
+            let hours = RecoveryCalculator.adjustedRecoveryHours(
+                muscle: entry.muscle,
+                totalSets: entry.totalSets
+            )
+            maxHours = max(maxHours, hours)
+        }
+        return now.addingTimeInterval(maxHours * 3600)
+    }
+
+    private var daysUntil: Int {
+        let cal = Calendar.current
+        let today = cal.startOfDay(for: Date())
+        let target = cal.startOfDay(for: recommendedDate)
+        return max(0, cal.dateComponents([.day], from: today, to: target).day ?? 0)
+    }
+
+    private var dateLabel: String {
+        if daysUntil <= 0 { return L10n.today }
+        if daysUntil == 1 { return L10n.tomorrow }
+        let fmt = DateFormatter()
+        fmt.dateFormat = LocalizationManager.shared.currentLanguage == .japanese
+            ? "M月d日（E）"
+            : "MMM d (EEE)"
+        fmt.locale = LocalizationManager.shared.currentLanguage.locale
+        return fmt.string(from: recommendedDate)
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 8) {
+                Image(systemName: "calendar.badge.clock")
+                    .font(.headline)
+                    .foregroundStyle(Color.mmAccentSecondary)
+
+                Text(L10n.nextRecommendedDay)
+                    .font(.headline)
+                    .foregroundStyle(Color.mmTextPrimary)
+            }
+
+            HStack(alignment: .firstTextBaseline, spacing: 4) {
+                Text(dateLabel)
+                    .font(.system(size: 32, weight: .heavy))
+                    .foregroundStyle(Color.mmAccentPrimary)
+
+                if daysUntil > 1 {
+                    Text(L10n.nextBestDateLabel(""))
+                        .font(.subheadline)
+                        .foregroundStyle(Color.mmTextSecondary)
+                }
+            }
+
+            Text(L10n.basedOnRecoveryPrediction)
+                .font(.caption)
+                .foregroundStyle(Color.mmTextSecondary)
+        }
+        .padding()
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color.mmBgCard)
+        .clipShape(RoundedRectangle(cornerRadius: 16))
+    }
+}
+
+// MARK: - Strength Mapシェアボタン（PR更新時のみ表示）
+
+struct StrengthMapShareSection: View {
+    let onShareStrengthMap: () -> Void
+
+    var body: some View {
+        Button(action: onShareStrengthMap) {
+            HStack(spacing: 12) {
+                // アイコン
+                ZStack {
+                    Circle()
+                        .fill(Color.mmAccentSecondary.opacity(0.2))
+                        .frame(width: 44, height: 44)
+                    Image(systemName: "figure.strengthtraining.traditional")
+                        .font(.system(size: 20, weight: .semibold))
+                        .foregroundStyle(Color.mmAccentSecondary)
+                }
+
+                VStack(alignment: .leading, spacing: 2) {
+                    HStack(spacing: 6) {
+                        Text(L10n.prUpdated)
+                            .font(.subheadline.bold())
+                            .foregroundStyle(Color.mmAccentPrimary)
+                    }
+                    Text(L10n.shareStrengthMap)
+                        .font(.headline.bold())
+                        .foregroundStyle(Color.mmTextPrimary)
+                }
+
+                Spacer()
+
+                Image(systemName: "square.and.arrow.up")
+                    .font(.title3)
+                    .foregroundStyle(Color.mmAccentSecondary)
+            }
+            .padding()
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(Color.mmBgCard)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 16)
+                            .stroke(Color.mmAccentSecondary.opacity(0.4), lineWidth: 1.5)
+                    )
+            )
+        }
+        .buttonStyle(.plain)
+    }
+}
+
 // MARK: - 完了ボタンセクション
 
 struct CompletionButtonSection: View {
