@@ -1,7 +1,7 @@
 # MuscleMap - Claude Code Rules
 
-> **v2.5 | 2026-02-11**
-> 筋肉の回復状態を可視化し、最適なトレーニングを導くiOSアプリ
+> **v3.0 | 2026-03-07**
+> 筋肉の回復状態と筋力レベルを可視化し、最適なトレーニングを導くiOSアプリ
 
 ---
 
@@ -15,10 +15,12 @@
 1. 2D SVG筋肉マップで21筋肉の回復状態をリアルタイム表示（ホーム画面）
 2. ボリューム係数付き回復計算（セット数で回復時間が変動）
 3. 7日以上未刺激の筋肉を紫で点滅警告
-4. 今日のメニュー自動提案（回復データからルールベースで生成。ジムで開いた瞬間に始められる）
-5. 80種目のEMGベース刺激度マッピング
+4. 今日のメニュー自動提案（回復データからルールベースで生成）
+5. 92種目のEMGベース刺激度マッピング
 6. 3D部位詳細表示（RealityKit、フォールバックあり）
-7. RevenueCat課金（¥980/月、¥7,800/年、¥12,000買い切り）
+7. Apple Watch companion app（watchOS 10.0+、WatchConnectivity同期）
+8. **[Pro] Strength Map** — PRデータから筋肉の発達レベルを太さで可視化
+9. 課金: PurchaseManager（RevenueCat接続は未実装、isPremium=trueでハードコード中）
 
 **デザイントーン:** 「バイオモニター × G-SHOCK」 — ダーク基調、データが浮かび上がる
 
@@ -28,22 +30,53 @@
 
 | 項目 | 選定 |
 |:---|:---|
-| Platform | iOS 17.0+ |
+| Platform | iOS 17.0+ / watchOS 10.0+ |
 | Language | Swift 5.9+ |
 | UI | SwiftUI |
-| DB | Swift Data |
+| DB | SwiftData |
 | Architecture | MVVM + Repository Pattern |
 | 2D人体図 | SVG（カスタムSwiftUI Path） |
 | 3D表示 | RealityKit |
-| 課金 | **RevenueCat SDK** |
+| 課金 | PurchaseManager.swift（RevenueCat接続予定、現在isPremium=trueで固定） |
 | 3Dモデル | TurboSquid（USDZ） |
 
 ---
 
 ## 必読ドキュメント
 
-1. `docs/PRD/MuscleMap_PRD_v2.1.md` — **最も重要。全仕様が入っている**
-2. `ROADMAP.md` — 開発フェーズとスケジュール
+1. `CLAUDE.md`（このファイル） — **最も重要。全ルールが入っている**
+2. `docs/PRD/MuscleMap_PRD_v2.1.md` — 詳細仕様
+
+---
+
+## 課金状態（重要）
+
+```
+現在の状態:
+- PurchaseManager.swift: isPremium = true にハードコード（開発用）
+- RevenueCat SDK: 未導入（project.ymlに依存なし）
+- Paywall UI: Views/Paywall/PaywallView.swift（実装予定 or 実装中）
+
+本番リリース時に必要な作業:
+1. RevenueCat SDK を project.yml に追加（purchases-ios v5系）
+2. PurchaseManager.swift の isPremium をRevenueCatのentitlement判定に差し替え
+3. App Store ConnectでProduct ID設定
+
+プラン:
+// 月額: ¥590/月
+// 年額: ¥4,900/年（推奨）
+// Entitlement名: "premium"
+```
+
+---
+
+## Pro機能（isPremium == true の場合のみ表示）
+
+| 機能 | 実装状態 | ゲートポイント |
+|:---|:---|:---|
+| Strength Map（筋力可視化マップ） | 実装中 | HomeView の Strength Mapボタン |
+| 分析メニュー（WeeklySummary等） | 将来対応 | AnalyticsMenuView入口 |
+| 履歴タブ | 将来対応 | ContentView Tab 3 |
 
 ---
 
@@ -64,20 +97,22 @@
   - 筋肉マップだけの画面（情報不足）
   - 「今日のおすすめ」がスクロールしないと見えない（優先度違反）
 
+### Strength Map画面（Pro）
+- **ユーザーの期待**: 「自分の筋力レベルが一目でわかる。自慢したい」
+- **焦点**: 各筋肉の太さ = 筋力の強さ。PRが高いほど太く表示される
+- **絶対条件**:
+  - 未記録の筋肉は細く薄く表示（「まだ未開拓」として表現、ネガティブではない）
+  - シェアカードとして書き出せること（Xへの投稿で「0.2秒でこいつやばい」とわかる）
+  - PRが更新されるとリアルタイムで太さが変わること
+
 ### 履歴画面（マップ表示）
 - **ユーザーの期待**: 「最近どこを鍛えた？バランスは？」がわかること
 - **焦点**: 鍛えた部位のハイライト。期間内のトレーニング分布が視覚的にわかること
-- **絶対条件**: 人体図は頭から足先まで完全に表示。ホーム画面と同じ表示品質。切れたり歪んだりしない
-- **注意**: この画面のマップはホーム画面と同じデータを別視点（履歴フィルター）で見せているだけ。見た目の品質はホーム画面と同等でなければならない
+- **絶対条件**: 人体図は頭から足先まで完全に表示
 
 ### 履歴画面（カレンダー表示）
 - **ユーザーの期待**: 「いつトレーニングした？頻度は？」がわかること
 - **焦点**: カレンダー上のトレーニング日が視覚的に目立つこと
-
-### 履歴画面（部位タップ→ハーフモーダル）
-- **ユーザーの期待**: 「この部位、最近どれくらい鍛えた？何の種目で？」が知りたい
-- **焦点**: その部位の統計情報と種目リスト
-- **絶対条件**: 3Dビジュアルは該当部位にズーム。全身表示しない
 
 ### ワークアウト画面
 - **ユーザーの期待**: 「今のセットを素早く記録したい」
@@ -92,12 +127,12 @@
 
 UI実装・修正が完了したら、以下を必ず確認する：
 
-1. **画面の存在目的を満たしているか？** — 技術的に正しくても、ユーザーの期待に応えていなければNG
-2. **ビジュアル要素が切れていないか？** — スクショを撮って、画面端で要素が途切れていないか確認
-3. **同じデータを表示する他画面と品質が同等か？** — ホーム画面のマップと履歴画面のマップは同じ品質でなければならない
-4. **ユーザーになりきって操作してみたか？** — 「自分がジムでこの画面開いたら、欲しい情報がすぐ見えるか？」
-5. **フォント階層が適用されているか？** — 画面内で最も重要な数値を特定し、L3以上（.title3 Bold以上）で表示されているか確認。周囲ラベルとのサイズ比が2.0倍以上か。「全部同じサイズに見える」場合は失敗
-6. **競合と並べて恥ずかしくないか？** — Hevy/Strongのスクショと並べて比較。明らかに見劣りする場合は原因特定して修正
+1. **画面の存在目的を満たしているか？**
+2. **ビジュアル要素が切れていないか？**
+3. **同じデータを表示する他画面と品質が同等か？**
+4. **ユーザーになりきって操作してみたか？**
+5. **フォント階層が適用されているか？**
+6. **競合と並べて恥ずかしくないか？**
 
 ---
 
@@ -119,7 +154,6 @@ UI実装・修正が完了したら、以下を必ず確認する：
 - 部位詳細・種目詳細・ワークアウトサマリーなど、特定対象に焦点を当てる画面では、3Dビジュアルまたは画像を**画面上部の最低1/3（33%）**で大きく表示する
 - リスト形式の画面でも、各行にサムネイル/アイコンを必ず配置。**テキストのみの行は禁止**
 - ハーフモーダルでも同じルールを適用。テキストリストだけのモーダルは作らない
-- 既存の類似画面（例：種目辞典の部位詳細）があれば、**そのコンポーネントを流用**して視覚的一貫性を保つ
 
 ### 情報ヒエラルキー（フォント）
 
@@ -153,130 +187,23 @@ VStack(alignment: .leading) {
 - コンテナ内パディング: `16pt`
 - リスト行の最小高さ: `44pt`（タップ領域確保）
 
-### スペーシング例外の扱い
-
-8ptグリッド（8, 16, 24, 32, 40, 48...）以外の値を使う場合:
-
-1. **理由をコメントに残す**
-   ```swift
-   // 例外: タップ領域確保のため44pt（8の倍数ではないがHIG準拠）
-   .frame(height: 44)
-   ```
-
-2. **同じ例外を全画面で統一する**
-   - 一度44ptを使ったら、全画面の同種要素で44pt
-   - 画面ごとに42ptや46ptにしない
-
-3. **新規画面作成時、既存画面のスペーシングを必ずコピー**
-   - `Grep "padding"` で既存のパディング値を確認
-   - 新しい値を発明しない
-
 ### モーダル / シート
 
 - ハーフモーダルを積極使用（`.presentationDetents([.medium, .large])`）
-- モーダル内に**必ずビジュアル要素**を含める。テキスト+入力だけの無味乾燥モーダル禁止
-- モーダル背景は`.mmBgSecondary`（メイン画面との視覚的区別）
+- モーダル内に**必ずビジュアル要素**を含める
+- モーダル背景は`.mmBgSecondary`
 - 上部に太字タイトル必須
-
-```swift
-.sheet(isPresented: $isShowing) {
-    VStack {
-        Text("部位名")
-            .font(.title2).bold()
-        // 3Dビジュアル（画面の1/3以上）
-        // 統計情報
-        // 種目リスト
-    }
-    .background(Color.mmBgSecondary)
-    .presentationDetents([.medium, .large])
-    .presentationDragIndicator(.visible)
-}
-```
-
-### ハーフモーダルの確認手順
-
-`.presentationDetents([.medium, .large])`を使うハーフモーダルでは:
-
-1. **`.medium`状態で必ずスクショを撮る**（広げる前の状態）
-2. そのスクショを見て自問する:
-   - 「この画面でユーザーが一番知りたい情報は何か？」（画面インテント参照）
-   - 「その情報はスクロールなしで見えるか？」
-3. 見えない場合、何が画面を占有しているか分析して縮小する
-
-⚠️ `.large`状態だけ確認して「OK」とするのは禁止
-⚠️ 3Dビジュアルやグラフが「見た目が良い」だけで大きくしない
 
 ### コンポーネント再利用（検索義務）
 
 新画面・新コンポーネント作成前に**必ず**:
 
-1. `Grep`で以下を検索:
-   - 表示するデータ型（例: `Muscle`, `Exercise`）
-   - 類似のView名（例: `MuscleMap`, `ExerciseCard`）
-
-2. 検索結果を確認:
-   - 流用可能 → パラメータ変更で対応
-   - 流用不可 → **理由を明記**して新規作成
-
-3. 新規作成する場合でも、既存コンポーネントの以下を**必ずコピー**:
-   - `aspectRatio`
-   - `frame`設定
-   - `cornerRadius`
-   - カラー
+1. `Grep`で表示するデータ型や類似View名を検索
+2. 流用可能なら流用。不可なら理由を明記して新規作成
+3. 新規作成でも、既存コンポーネントの`aspectRatio`, `frame`, `cornerRadius`, カラーをコピー
 
 ❌ NG: 「ロジックが違うから新規作成」
 ✅ OK: 「ロジックは別でも、見た目の設定は既存からコピー」
-
-**流用候補を確認するファイル:**
-- 部位ビジュアル → `Views/MuscleDetail/` 配下
-- 3Dモデル表示 → `Utilities/ModelLoader.swift`
-- 統計カード → 既存のサマリー系View
-
-### 同一データの表示一貫性
-
-同じデータ（筋肉マップ、種目カード、統計値など）を別画面で表示する場合:
-
-1. 既存の表示コードを**必ず検索**する（`Grep`で該当コンポーネント名を検索）
-2. レンダリング設定（aspectRatio, frame, font, color）を**コピー**する
-3. ロジックが違っても、**視覚的プロパティは統一**する
-
-❌ NG: 「ロジックが違うから新規作成」
-✅ OK: 「ロジックは別でも、見た目の設定は既存からコピー」
-
-### ビジュアル要素の配置後チェック
-
-画像・SVG・3Dモデルなどを配置した後:
-
-1. **既存の同じ要素と並べて比較**する（スクショを横に並べる）
-2. `aspectRatio`または`scaledToFit()`が設定されているか確認
-3. `GeometryReader`を使う場合は特に注意（親のサイズに引き伸ばされる）
-
-**警告サイン:**
-- `.frame(height: X)` だけで幅の制約がない → 引き伸ばしの可能性
-- `GeometryReader`で`geo.size`をそのまま使用 → アスペクト比崩れの可能性
-
-### マイクロインタラクション（MUST）
-
-ユーザーアクションには**必ず**フィードバックを返す。「何も起きない」状態は禁止。
-
-| アクション | 必須フィードバック |
-|:---|:---|
-| セット完了 | Haptic (medium) + チェックアニメーション |
-| ワークアウト終了 | Haptic (heavy) + サマリー画面遷移 |
-| PR達成 | Haptic (heavy) + 祝福モーダル + 紙吹雪アニメーション |
-| 種目追加 | Haptic (light) + リストにスライドイン |
-| ボタンタップ | Haptic (light) + スケールアニメーション |
-
-**ルール:**
-- Hapticは全アクションで**MUST**（SHOULDではない）
-- アニメーションは0.2〜0.4秒の範囲
-- 通常セット完了も毎回フィードバック（PRだけ特別扱いしない）
-
-### 達成感の演出
-
-- **PR更新時**: アクセントカラーで数値表示 + 「PR」バッジ + 祝福モーダル
-- **連続記録**: ホーム画面に「🔥 N日連続」表示
-- **目標達成**: 専用モーダルシート + 達成バッジ
 
 ### NGパターン（禁止事項）
 
@@ -286,29 +213,8 @@ VStack(alignment: .leading) {
 - ❌ 余白ゼロの詰め込みレイアウト
 - ❌ iOS標準から逸脱したナビゲーション
 - ❌ 純粋な黒（`#000000`）の背景使用
-- ❌ モーダル内でメイン画面と同じ背景色を使う（区別がつかない）
 - ❌ 既存の類似コンポーネントを無視して新規作成する
-- ❌ ビジュアル要素（人体図、3Dモデル等）が画面端で切れている状態で完了とする
-- ❌ 同じデータの表示品質が画面によって異なる（ホームと履歴でマップの品質が違う等）
 - ❌ 彩度100%の蛍光色を使用（状態色は彩度70%以下）
-
-### ビジュアル品質の比較確認プロセス
-
-新画面・大規模UI変更の実装完了後、以下を必ず実行:
-
-1. **競合比較**
-   - Hevy, Strong, Fitbodのスクショを横に並べる
-   - 「並べて恥ずかしくないか？」を自問
-   - 明らかに見劣りする場合は原因を特定して修正
-
-2. **自アプリ内比較**
-   - 既存の類似画面とスクショを並べる
-   - 色、余白、フォントサイズの差異をチェック
-   - 「同じアプリに見えるか？」を確認
-
-3. **3秒ルール**
-   - 画面を3秒見て、「この画面で何をすべきか」がわかるか
-   - わからない場合は情報階層の見直し
 
 ---
 
@@ -327,7 +233,7 @@ VStack(alignment: .leading) {
 | 用途 | コード | 備考 |
 |:---|:---|:---|
 | 主要テキスト | `.mmTextPrimary` | `Color.white` |
-| 補足テキスト | `.mmTextSecondary` | `#B0B0B0`（コントラスト比 7.4:1） |
+| 補足テキスト | `.mmTextSecondary` | `#B0B0B0` |
 
 ### アクセント
 
@@ -337,59 +243,17 @@ VStack(alignment: .leading) {
 | サブアクセント | `.mmAccentSecondary` | `#00D4FF`（電光ブルー） |
 | ブランドパープル | `.mmBrandPurple` | `#A020F0` |
 
-### カラートーンの原則
-
-> **⚠️ 彩度100%の蛍光色は禁止。最大でも彩度70%程度に抑える。**
-
-状態色（筋肉回復など）は彩度を抑え、「ゲーム画面」ではなく「プロのダッシュボード」に見えるトーンを選ぶ。
-
-**判断基準:**
-- アクセントカラー以外は「背景に馴染む」トーンを選ぶ
-- 複数色が同時に表示される場合、互いに喧嘩しないか確認
-- 迷ったら競合アプリ（Hevy, Strong）のスクショと並べて比較
-
-### 筋肉状態カラー（3段階 + 特殊状態）
+### 筋肉状態カラー（回復マップ用）
 
 ⚠️ **色の方向: レッド(疲労) → イエロー → グリーン(回復)。信号機と同じ。**
-⚠️ **彩度を抑えた落ち着いたトーンを使用。蛍光色は使わない。**
 
-| 状態 | コード | Hex | 回復% | 備考 |
-|:---|:---|:---|:---|:---|
-| 疲労 | `.mmMuscleFatigued` | `#E57373` | 0-20% | 落ち着いたコーラル |
-| 中間 | `.mmMuscleModerate` | `#FFD54F` | 20-80% | 落ち着いたゴールド |
-| 回復済み | `.mmMuscleRecovered` | `#81C784` | 80-100% | 落ち着いたセージ |
-| 記録なし | `.mmMuscleInactive` | `#3D3D42` | — | 背景に溶け込む |
-| 未刺激警告 | `.mmMuscleNeglected` | `#B388D4` | 7日+ | 控えめなラベンダー |
-
-### 境界線
-
-| 用途 | コード | Hex |
-|:---|:---|:---|
-| 通常境界線 | `.mmBorder` | `#808080`（コントラスト比 4.1:1） |
-| アクティブ境界線 | `.mmMuscleActiveBorder` | `#FFFFFF` |
-
-### カラー使用ルール
-
-- アクセントカラーは1画面あたり**総面積の15%未満**
-- テキストと背景のコントラスト比は**WCAG AA基準 4.5:1以上**
-- 画面の差別化: メイン画面=`.mmBgPrimary`、モーダル/シート=`.mmBgSecondary`
-
-### 色の計算（ColorCalculator.swift）
-
-```swift
-enum MuscleVisualState: Equatable {
-    case inactive                          // 背景に溶け込む（刺激なし or 完全回復）
-    case recovering(progress: Double)      // 回復中（色とパルスアニメーション）
-    case neglected(fast: Bool)             // 未刺激（fast = 14日以上で高速点滅）
-}
-```
-
-回復進捗に応じて5段階×20%バンドで色を補間:
-- 0-20%: `.mmMuscleFatigued`（赤）
-- 20-40%: 赤→黄 補間
-- 40-60%: 黄
-- 60-80%: 黄→緑 補間
-- 80-100%: `.mmMuscleRecovered`（緑）
+| 状態 | コード | Hex | 回復% |
+|:---|:---|:---|:---|
+| 疲労 | `.mmMuscleFatigued` | `#E57373` | 0-20% |
+| 中間 | `.mmMuscleModerate` | `#FFD54F` | 20-80% |
+| 回復済み | `.mmMuscleRecovered` | `#81C784` | 80-100% |
+| 記録なし | `.mmMuscleInactive` | `#3D3D42` | — |
+| 未刺激警告 | `.mmMuscleNeglected` | `#B388D4` | 7日+ |
 
 ---
 
@@ -429,29 +293,7 @@ enum Muscle: String, CaseIterable, Codable {
 }
 ```
 
-### 回復計算（ボリューム係数付き）
-
-```swift
-struct RecoveryCalculator {
-    static func volumeCoefficient(sets: Int) -> Double {
-        switch sets {
-        case 1:     return 0.7
-        case 2:     return 0.85
-        case 3:     return 1.0
-        case 4:     return 1.1
-        default:    return 1.15
-        }
-    }
-
-    static func recoveryProgress(stimulationDate: Date, muscle: Muscle, totalSets: Int) -> Double {
-        let elapsed = Date().timeIntervalSince(stimulationDate) / 3600
-        let needed = Double(muscle.baseRecoveryHours) * volumeCoefficient(sets: totalSets)
-        return min(1.0, max(0.0, elapsed / needed))
-    }
-}
-```
-
-### Swift Data モデル
+### SwiftData モデル（変更禁止）
 
 ```swift
 @Model class WorkoutSession {
@@ -466,26 +308,59 @@ struct RecoveryCalculator {
 @Model class WorkoutSet {
     var id: UUID
     var session: WorkoutSession?
-    var exerciseId: String
+    var exerciseId: String   // exercises.json の id
     var setNumber: Int
-    var weight: Double
+    var weight: Double       // kg
     var reps: Int
     var completedAt: Date
 }
 
 @Model class MuscleStimulation {
-    var muscle: String
+    var muscle: String       // Muscle.rawValue
     var stimulationDate: Date
-    var maxIntensity: Double
+    var maxIntensity: Double // 0.0-1.0
     var totalSets: Int
-    var sessionId: UUID
+    var sessionId: UUID      // 手動FK（SwiftDataリレーションではない）
 }
+```
+
+### 回復計算
+
+```swift
+// RecoveryCalculator.swift
+static func volumeCoefficient(sets: Int) -> Double
+static func recoveryProgress(stimulationDate: Date, muscle: Muscle, totalSets: Int) -> Double
+```
+
+### PR計算（PRManager.swift）
+
+```swift
+// 推定1RM（Epley式）— Strength Mapの計算に使用
+func estimated1RM(weight: Double, reps: Int) -> Double {
+    guard reps > 1 else { return weight }
+    return weight * (1 + Double(reps) / 30.0)
+}
+```
+
+### Strength Score計算（StrengthScoreCalculator.swift）
+
+```swift
+// 各筋肉のスコア算出フロー:
+// 1. 全WorkoutSetから種目ごとの最大推定1RM（Epley式）を取得
+// 2. strengthRatio = 推定1RM / userBodyweightKg
+// 3. 種目カテゴリ別の閾値テーブルで 0.0〜1.0 にスコア化
+// 4. 筋肉に複数種目が関連する場合は最高スコアを採用
+// 5. スコア→strokeWidth/opacity/colorに変換
+
+// カテゴリA（コンパウンド大筋群）: chest_upper/lower, lats, traps_middle_lower, quadriceps, hamstrings, glutes, erector_spinae
+// カテゴリB（コンパウンド中筋群）: deltoid_*, traps_upper, biceps, triceps
+// カテゴリC（アイソレーション）: forearms, gastrocnemius, soleus, obliques, rectus_abdominis, adductors
 ```
 
 ### 種目データ（exercises.json）
 
 `Resources/exercises.json` にバンドル同梱。起動時にExerciseStoreに読み込む。
-**80種目、EMG論文ベースで刺激度%を修正済み。**
+**92種目、EMG論文ベースで刺激度%を設定済み。7言語対応（日英中韓西仏独）。**
 
 ---
 
@@ -493,61 +368,102 @@ struct RecoveryCalculator {
 
 ```
 TabBar
-├── ホーム（筋肉マップ）         ← P0
-├── ワークアウト（記録）          ← P0
-├── 種目辞典                    ← P1
-├── 履歴（マップ/カレンダー切替） ← P1
-└── 設定                        ← P2
+├── ホーム（筋肉マップ）         ← P0（実装済み）
+├── ワークアウト（記録）          ← P0（実装済み）
+├── 種目辞典                    ← P1（実装済み）
+├── 履歴（マップ/カレンダー切替） ← P1（実装済み）
+└── 設定                        ← P2（実装済み）
 
 Modal / Push
-├── 今日のメニュー提案           ← P0
-├── ワークアウト実行中           ← P0
-├── 種目詳細                    ← P1
-├── 部位詳細（3D）              ← P1
-├── 履歴マップ部位タップ→ハーフモーダル ← P1
-└── Paywall                     ← P1
+├── 今日のメニュー提案           ← P0（実装済み）
+├── ワークアウト実行中           ← P0（実装済み）
+├── 種目詳細                    ← P1（実装済み）
+├── 部位詳細（3D）              ← P1（実装済み）
+├── 分析メニュー（4画面）        ← P1（実装済み、将来Pro化予定）
+├── Strength Map（Pro）         ← 実装中
+└── Paywall                     ← 実装中
 ```
 
 ---
 
-## ファイル構成
+## ファイル構成（実際のディレクトリ）
 
 ```
 MuscleMap/
 ├── App/
+│   ├── MuscleMapApp.swift
+│   ├── ContentView.swift
+│   └── AppState.swift
+├── Connectivity/               # Watch連携
+│   ├── PhoneSessionManager.swift
+│   └── WatchDataProcessor.swift
+├── Data/                       # ローカルキャッシュ系
+│   ├── ExerciseDescriptions.swift
+│   ├── FavoritesManager.swift
+│   └── RecentExercisesManager.swift
 ├── Models/
+│   ├── WorkoutSession.swift
+│   ├── WorkoutSet.swift
+│   ├── MuscleStimulation.swift
+│   ├── Muscle.swift
+│   ├── ExerciseDefinition.swift
+│   └── UserProfile.swift
 ├── Repositories/
+│   ├── WorkoutRepository.swift
+│   └── MuscleStateRepository.swift
 ├── ViewModels/
+│   ├── HomeViewModel.swift
+│   ├── WorkoutViewModel.swift
+│   ├── HistoryViewModel.swift
+│   ├── ExerciseListViewModel.swift
+│   ├── MuscleDetailViewModel.swift
+│   ├── WeeklySummaryViewModel.swift
+│   ├── MuscleBalanceDiagnosisViewModel.swift
+│   ├── MuscleHeatmapViewModel.swift
+│   ├── MuscleJourneyViewModel.swift
+│   └── StreakViewModel.swift
 ├── Views/
-│   ├── Home/
-│   ├── Workout/
-│   ├── Exercise/
-│   ├── MuscleDetail/
-│   ├── History/
-│   ├── Onboarding/
-│   ├── Settings/
-│   └── Paywall/
-├── Resources/
-│   ├── exercises.json
-│   ├── Assets.xcassets
-│   └── 3DModels/
-└── Utilities/
-    ├── RecoveryCalculator.swift
-    ├── MenuSuggestionService.swift
-    ├── ColorCalculator.swift
-    ├── ColorExtensions.swift
-    └── DateExtensions.swift
-```
+│   ├── Components/             # 共通コンポーネント
+│   │   ├── MiniMuscleMapView.swift
+│   │   ├── MicroBodyMapView.swift
+│   │   ├── ExerciseGifView.swift
+│   │   └── ShareCardTemplate.swift
+│   ├── Home/                   # ホーム画面（12ファイル）
+│   ├── Workout/                # ワークアウト記録（14ファイル）
+│   ├── Exercise/               # 種目辞典（3ファイル）
+│   ├── History/                # 履歴（7ファイル）
+│   ├── MuscleDetail/           # 部位詳細（2ファイル）
+│   ├── Onboarding/             # オンボーディング（7ファイル）
+│   ├── Settings/               # 設定（2ファイル）
+│   └── Paywall/                # Paywall（実装中）
+│       └── PaywallView.swift
+├── Utilities/
+│   ├── RecoveryCalculator.swift
+│   ├── PRManager.swift         # 推定1RM（Epley式）含む
+│   ├── PurchaseManager.swift   # isPremium判定（RevenueCat接続予定）
+│   ├── StrengthScoreCalculator.swift  # PRデータ→筋肉スコア変換
+│   ├── MenuSuggestionService.swift
+│   ├── ColorCalculator.swift
+│   ├── ColorExtensions.swift
+│   ├── DateExtensions.swift
+│   ├── HapticManager.swift
+│   ├── ThemeManager.swift
+│   ├── LocalizationManager.swift
+│   ├── ModelLoader.swift
+│   ├── WidgetDataProvider.swift
+│   ├── LegalURL.swift
+│   ├── AppConstants.swift
+│   ├── KeyManager.swift
+│   └── KeychainHelper.swift
+└── Resources/
+    ├── exercises.json          # 92種目
+    ├── Assets.xcassets
+    ├── exercises_gif/          # folder reference
+    └── 3DModels/               # 現在は空
 
----
-
-## 課金（RevenueCat）
-
-```swift
-// Entitlement: "premium"
-// 月額: ¥980/月（7日間トライアル）
-// 年額: ¥7,800/年（14日間トライアル）← 推奨
-// 買い切り: ¥12,000
+MuscleMapWatch/                 # Apple Watch companion
+MuscleMapWidget/                # Widget extension
+Shared/                         # iOS/Watch共有コード
 ```
 
 ---
@@ -556,11 +472,12 @@ MuscleMap/
 
 ### MUST（必須）
 - SwiftUI Only
-- Swift Data でデータ永続化
+- SwiftData でデータ永続化
 - MVVM + Repository Pattern
 - `@Observable` マクロ使用（iOS 17+）
 - `async/await` 使用
 - 日本語コメント
+- 実装前に必ずCLAUDE.mdを読む
 
 ### MUST NOT（禁止）
 - UIKit使用（SwiftUIで代替可能な場合）
@@ -568,11 +485,30 @@ MuscleMap/
 - 200行超のView（分割する）
 - Force Unwrap (`!`) の乱用
 - muscleMapping数値をコードにハードコード（JSONから読む）
+- SwiftDataの`@Model`クラスを無断で変更・追加する
+- `WorkoutSet`に直接`@Query`をViewから書く（ViewModel/Repository経由）
 
 ### SHOULD（推奨）
 - Preview Provider を全Viewに用意
 - 8の倍数でスペーシング
 - Haptic Feedback（セット完了、ワークアウト終了時）
+
+### Pro機能実装時のルール
+- `PurchaseManager.shared.isPremium` で判定
+- isPremiumがfalseの場合は`PaywallView`を`.sheet`で表示
+- Pro機能をゲートする場所は最小限に（ゲートA: HomeViewのStrengthMapボタン、ゲートB: ContentViewのHistoryTab）
+
+---
+
+## マイクロインタラクション（MUST）
+
+| アクション | 必須フィードバック |
+|:---|:---|
+| セット完了 | Haptic (medium) + チェックアニメーション |
+| ワークアウト終了 | Haptic (heavy) + サマリー画面遷移 |
+| PR達成 | Haptic (heavy) + 祝福モーダル + 紙吹雪アニメーション |
+| 種目追加 | Haptic (light) + リストにスライドイン |
+| ボタンタップ | Haptic (light) + スケールアニメーション |
 
 ---
 
