@@ -47,6 +47,7 @@
 		492DA728E0FFDF1190D628F6 /* exercises_gif in Resources */ = {isa = PBXBuildFile; fileRef = 9E6E27C6E404059C75CB21FA /* exercises_gif */; };
 		4EA76E24F9E28C34E8F76894 /* StrengthScoreCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF58E2436694FCC1034988CA /* StrengthScoreCalculator.swift */; };
 		500CF787262050CC495BF14D /* MuscleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FF01BFBC85F09E4AC3175C4 /* MuscleTests.swift */; };
+		56685A0CE86B7382BDB933E6 /* RevenueCat in Frameworks */ = {isa = PBXBuildFile; productRef = A1E8E70E612E47924ADE6A1E /* RevenueCat */; };
 		572029F9E4BFD847D131AA6A /* ActiveWorkoutComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11352BFB3B6716CD2F0BED28 /* ActiveWorkoutComponents.swift */; };
 		5721C1173EDF84A99951A55C /* HomeHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C97EB7081D911A300E71A50 /* HomeHelpers.swift */; };
 		58C4B3B57CDAAB06995959D6 /* MuscleBalanceDiagnosisView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11C0F4511390853FFA62C464 /* MuscleBalanceDiagnosisView.swift */; };
@@ -318,6 +319,17 @@
 		FB8FC4CC2B04B8D324DD7100 /* ModelLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelLoader.swift; sourceTree = "<group>"; };
 		FF93A0C1642FBC94B4E365CC /* WidgetDataProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetDataProvider.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		B29DA5CFFDEBDE44100E436B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				56685A0CE86B7382BDB933E6 /* RevenueCat in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		076E47633D2CE7D441F40AB0 /* Data */ = {
@@ -736,8 +748,6 @@
 			dependencies = (
 			);
 			name = MuscleMapWidgetExtension;
-			packageProductDependencies = (
-			);
 			productName = MuscleMapWidgetExtension;
 			productReference = 115F934EE7680215C2F165C1 /* MuscleMapWidgetExtension.appex */;
 			productType = "com.apple.product-type.app-extension";
@@ -755,8 +765,6 @@
 				E9C4E4D57867FB13FC501691 /* PBXTargetDependency */,
 			);
 			name = MuscleMapTests;
-			packageProductDependencies = (
-			);
 			productName = MuscleMapTests;
 			productReference = 2D178E2488593ED7271BFB64 /* MuscleMapTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
@@ -773,8 +781,6 @@
 			dependencies = (
 			);
 			name = MuscleMapWatch;
-			packageProductDependencies = (
-			);
 			productName = MuscleMapWatch;
 			productReference = AA672F016A539F1C53B8F4DA /* MuscleMapWatch.app */;
 			productType = "com.apple.product-type.application";
@@ -786,6 +792,7 @@
 				4DC2FD184B138BE7B31B1EFE /* Sources */,
 				F933E7DFF371DA3A04AE3464 /* Resources */,
 				60A3D54682B667879073056C /* Embed Foundation Extensions */,
+				B29DA5CFFDEBDE44100E436B /* Frameworks */,
 			);
 			buildRules = (
 			);
@@ -794,6 +801,7 @@
 			);
 			name = MuscleMap;
 			packageProductDependencies = (
+				A1E8E70E612E47924ADE6A1E /* RevenueCat */,
 			);
 			productName = MuscleMap;
 			productReference = 42E895571E0BA26A49A45A33 /* MuscleMap.app */;
@@ -819,7 +827,11 @@
 			);
 			mainGroup = 83E1FA2C0DFA18F990C05867;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				CCC1C741113B37B134A81C52 /* XCRemoteSwiftPackageReference "purchases-ios" */,
+			);
 			preferredProjectObjectVersion = 77;
+			productRefGroup = 2F58A21266E5F9488CB3B0B1 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -1364,6 +1376,25 @@
 			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		CCC1C741113B37B134A81C52 /* XCRemoteSwiftPackageReference "purchases-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/RevenueCat/purchases-ios";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		A1E8E70E612E47924ADE6A1E /* RevenueCat */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CCC1C741113B37B134A81C52 /* XCRemoteSwiftPackageReference "purchases-ios" */;
+			productName = RevenueCat;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 40DD13D39E6CE44FF2E8E223 /* Project object */;
 }

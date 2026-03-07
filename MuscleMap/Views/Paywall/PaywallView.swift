@@ -4,6 +4,7 @@ import SwiftUI
 
 struct PaywallView: View {
     @Environment(\.dismiss) private var dismiss
+    @State private var isPurchasing = false
 
     var body: some View {
         NavigationStack {
@@ -142,9 +143,12 @@ struct PaywallView: View {
 
     private func planButton(title: String, price: String, note: String?, isRecommended: Bool, productId: String) -> some View {
         Button {
-            // TODO: RevenueCat購入処理
-            // Task { await PurchaseManager.shared.purchase(productId: productId) }
             HapticManager.lightTap()
+            Task {
+                isPurchasing = true
+                try? await PurchaseManager.shared.purchase(productId: productId)
+                isPurchasing = false
+            }
         } label: {
             VStack(spacing: 8) {
                 if isRecommended {
@@ -157,18 +161,22 @@ struct PaywallView: View {
                         .clipShape(Capsule())
                 }
 
-                Text(title)
-                    .font(.body.bold())
-                    .foregroundStyle(Color.mmTextPrimary)
+                if PurchaseManager.shared.isLoading {
+                    ProgressView()
+                } else {
+                    Text(title)
+                        .font(.body.bold())
+                        .foregroundStyle(Color.mmTextPrimary)
 
-                Text(price)
-                    .font(.title3.bold())
-                    .foregroundStyle(Color.mmAccentPrimary)
+                    Text(price)
+                        .font(.title3.bold())
+                        .foregroundStyle(Color.mmAccentPrimary)
 
-                if let note {
-                    Text(note)
-                        .font(.caption)
-                        .foregroundStyle(Color.mmTextSecondary)
+                    if let note {
+                        Text(note)
+                            .font(.caption)
+                            .foregroundStyle(Color.mmTextSecondary)
+                    }
                 }
             }
             .frame(maxWidth: .infinity)
@@ -183,15 +191,15 @@ struct PaywallView: View {
                     )
             )
         }
+        .disabled(isPurchasing)
     }
 
     // MARK: - 復元ボタン
 
     private var restoreButton: some View {
         Button {
-            // TODO: RevenueCat復元処理
-            // Task { await PurchaseManager.shared.restore() }
             HapticManager.lightTap()
+            Task { try? await PurchaseManager.shared.restore() }
         } label: {
             Text("購入を復元")
                 .font(.caption)
