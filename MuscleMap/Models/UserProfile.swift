@@ -6,12 +6,31 @@ struct UserProfile: Codable {
     var nickname: String
     var trainingGoal: TrainingGoal
     var experienceLevel: ExperienceLevel
+    /// 体重（kg）。Strength Map計算に使用。未設定時は70kg
+    var weightKg: Double
 
     static let `default` = UserProfile(
         nickname: "",
         trainingGoal: .hypertrophy,
-        experienceLevel: .beginner
+        experienceLevel: .beginner,
+        weightKg: 70.0
     )
+
+    /// 既存ユーザーのデータにweightKgが存在しない場合に対応
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        nickname = try container.decode(String.self, forKey: .nickname)
+        trainingGoal = try container.decode(TrainingGoal.self, forKey: .trainingGoal)
+        experienceLevel = try container.decode(ExperienceLevel.self, forKey: .experienceLevel)
+        weightKg = try container.decodeIfPresent(Double.self, forKey: .weightKg) ?? 70.0
+    }
+
+    init(nickname: String, trainingGoal: TrainingGoal, experienceLevel: ExperienceLevel, weightKg: Double = 70.0) {
+        self.nickname = nickname
+        self.trainingGoal = trainingGoal
+        self.experienceLevel = experienceLevel
+        self.weightKg = weightKg
+    }
 }
 
 // MARK: - トレーニング目標

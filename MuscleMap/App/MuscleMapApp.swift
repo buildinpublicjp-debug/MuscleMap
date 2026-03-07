@@ -14,6 +14,9 @@ struct MuscleMapApp: App {
         // Watch Connectivity セッション開始（shared初期化時にactivateSessionが呼ばれる）
         _ = PhoneSessionManager.shared
 
+        // PurchaseManager初期化（現時点はno-op）
+        PurchaseManager.shared.configure()
+
         // 初回起動時の外観設定
         MuscleMapApp.configureAppearance()
     }

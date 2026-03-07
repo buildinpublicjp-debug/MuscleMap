@@ -12,6 +12,9 @@ struct HomeView: View {
     @State private var showingMilestone = false
     @State private var showingAnalyticsMenu = false
     @State private var showingTodayRecommendation = false
+    @State private var showingStrengthMap = false
+    @State private var showingPaywall = false
+    @State private var strengthScores: [String: Double] = [:]
 
     /// ワークアウト履歴があるかどうか
     private var hasWorkoutHistory: Bool {
@@ -42,6 +45,66 @@ struct HomeView: View {
                             )
                             .frame(maxHeight: 500)
                             .padding(.horizontal)
+
+                            // Strength Map（Pro） — 回復マップの下に配置
+                            if showingStrengthMap {
+                                VStack(spacing: 8) {
+                                    HStack {
+                                        Label("Strength Map", systemImage: "bolt.shield.fill")
+                                            .font(.caption.bold())
+                                            .foregroundStyle(Color.mmAccentPrimary)
+                                        Spacer()
+                                        Button {
+                                            withAnimation { showingStrengthMap = false }
+                                        } label: {
+                                            Text(L10n.viewRecovery)
+                                                .font(.caption2)
+                                                .foregroundStyle(Color.mmAccentSecondary)
+                                        }
+                                    }
+                                    .padding(.horizontal)
+
+                                    StrengthMapView(muscleScores: strengthScores)
+                                        .frame(maxHeight: 500)
+                                        .padding(.horizontal)
+                                }
+                            } else {
+                                // 切替ボタン
+                                Button {
+                                    if PurchaseManager.shared.isPremium {
+                                        loadStrengthScores()
+                                        withAnimation { showingStrengthMap = true }
+                                    } else {
+                                        showingPaywall = true
+                                    }
+                                    HapticManager.lightTap()
+                                } label: {
+                                    HStack(spacing: 8) {
+                                        Image(systemName: "bolt.shield.fill")
+                                            .foregroundStyle(Color.mmAccentPrimary)
+                                        Text("Strength Map")
+                                            .font(.caption.bold())
+                                            .foregroundStyle(Color.mmTextPrimary)
+                                        Spacer()
+                                        if !PurchaseManager.shared.isPremium {
+                                            Text("PRO")
+                                                .font(.caption2.bold())
+                                                .foregroundStyle(Color.mmBgPrimary)
+                                                .padding(.horizontal, 8)
+                                                .padding(.vertical, 4)
+                                                .background(Color.mmAccentPrimary)
+                                                .clipShape(Capsule())
+                                        }
+                                        Image(systemName: "chevron.right")
+                                            .font(.caption2)
+                                            .foregroundStyle(Color.mmTextSecondary)
+                                    }
+                                    .padding(16)
+                                    .background(Color.mmBgCard)
+                                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                                }
+                                .padding(.horizontal)
+                            }
 
                             // 未刺激警告（該当する場合のみ）
                             if !vm.neglectedMuscleInfos.isEmpty {
@@ -134,7 +197,21 @@ struct HomeView: View {
                     TodayRecommendationView(menu: vm.getSuggestedMenu())
                 }
             }
+            .sheet(isPresented: $showingPaywall) {
+                PaywallView()
+            }
         }
+    }
+
+    /// Strength Map用のスコアを計算
+    private func loadStrengthScores() {
+        let descriptor = FetchDescriptor<WorkoutSet>()
+        guard let allSets = try? modelContext.fetch(descriptor) else { return }
+        let bodyweight = AppState.shared.userProfile.weightKg
+        strengthScores = StrengthScoreCalculator.shared.muscleStrengthScores(
+            allSets: allSets,
+            bodyweightKg: bodyweight
+        )
     }
 }
 

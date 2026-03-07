@@ -242,6 +242,7 @@ enum L10n {
     static var back: String { loc("背面", "Back", zhHans: "背面", ko: "후면", es: "Posterior", fr: "Arrière", de: "Hinten") }
     static var viewBack: String { loc("背面を見る", "View Back", zhHans: "查看背面", ko: "후면 보기", es: "Ver posterior", fr: "Voir l'arrière", de: "Rückseite anzeigen") }
     static var viewFront: String { loc("前面を見る", "View Front", zhHans: "查看正面", ko: "전면 보기", es: "Ver frontal", fr: "Voir l'avant", de: "Vorderseite anzeigen") }
+    static var viewRecovery: String { loc("回復マップに戻る", "View Recovery", zhHans: "查看恢复", ko: "회복 보기", es: "Ver recuperación", fr: "Voir récupération", de: "Erholung anzeigen") }
 
     // MARK: - ワークアウト画面
     static var todayRecommendation: String { loc("今日のおすすめ", "Today's Recommendation", zhHans: "今日推荐", ko: "오늘의 추천", es: "Recomendación de hoy", fr: "Recommandation du jour", de: "Heutige Empfehlung") }
