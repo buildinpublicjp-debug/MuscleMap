@@ -187,9 +187,17 @@ struct WorkoutCompletionView: View {
             Button(L10n.shareToOtherApps) { showingShareSheet = true }
             Button(L10n.cancel, role: .cancel) {}
         }
+        .sheet(isPresented: $showingStrengthShareSheet) {
+            if let image = strengthShareImage {
+                ShareSheet(items: [image]) {
+                    HapticManager.success()
+                }
+            }
+        }
         .onAppear {
             checkFullBodyConquest()
             markFirstWorkoutCompleted()
+            checkPRUpdates()
         }
         .fullScreenCover(isPresented: $showingFullBodyConquest) {
             FullBodyConquestView(
@@ -268,6 +276,59 @@ struct WorkoutCompletionView: View {
         if let image = renderer.uiImage {
             renderedImage = image
         }
+    }
+
+    /// 今回のセッションにPR更新が含まれるかチェック
+    private func checkPRUpdates() {
+        // 種目ごとにこのセッション内の最大重量を取得し、
+        // セッション以前の記録と比較
+        var exerciseMaxInSession: [String: Double] = [:]
+        for set in session.sets {
+            let w = set.weight
+            if w > (exerciseMaxInSession[set.exerciseId] ?? 0) {
+                exerciseMaxInSession[set.exerciseId] = w
+            }
+        }
+
+        for (exerciseId, maxWeight) in exerciseMaxInSession {
+            // セッション以前のPR（このセッションのセットを除外して比較）
+            let descriptor = FetchDescriptor<WorkoutSet>(
+                predicate: #Predicate {
+                    $0.exerciseId == exerciseId
+                },
+                sortBy: [SortDescriptor(\.weight, order: .reverse)]
+            )
+            guard let allSets = try? modelContext.fetch(descriptor) else { continue }
+
+            // このセッション以外のセットの最大重量を取得
+            let previousMax = allSets
+                .filter { $0.session?.id != session.id }
+                .first?.weight ?? 0
+
+            if maxWeight > previousMax && previousMax > 0 {
+                hasPRUpdate = true
+                return
+            }
+        }
+    }
+
+    /// Strength Mapシェア画像を生成
+    @MainActor
+    private func prepareStrengthShareImage() {
+        let allSetsDescriptor = FetchDescriptor<WorkoutSet>()
+        guard let allSets = try? modelContext.fetch(allSetsDescriptor) else { return }
+
+        let profile = UserProfile.load()
+        let scores = StrengthScoreCalculator.shared.muscleStrengthScores(
+            allSets: allSets,
+            bodyweightKg: profile.weightKg
+        )
+
+        strengthShareImage = generateStrengthShareImage(
+            scores: scores,
+            userName: profile.nickname,
+            date: Date()
+        )
     }
 
     @MainActor
