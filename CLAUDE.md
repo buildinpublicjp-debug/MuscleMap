@@ -1,6 +1,6 @@
 # MuscleMap - Claude Code Rules
 
-> **v3.0 | 2026-03-07**
+> **v3.1 | 2026-03-07**
 > 筋肉の回復状態と筋力レベルを可視化し、最適なトレーニングを導くiOSアプリ
 
 ---
@@ -20,7 +20,10 @@
 6. 3D部位詳細表示（RealityKit、フォールバックあり）
 7. Apple Watch companion app（watchOS 10.0+、WatchConnectivity同期）
 8. **[Pro] Strength Map** — PRデータから筋肉の発達レベルを太さで可視化
-9. 課金: PurchaseManager（RevenueCat接続は未実装、isPremium=trueでハードコード中）
+9. **Strength Mapシェアカード** — 9:16（1080×1920px @3x）のPNG書き出し。グレードS〜D、Top3ランキング付き
+10. **次回おすすめ日** — ワークアウト完了時に回復予測から次の推奨トレーニング日を表示
+11. **初回コーチマーク** — 初回起動時にホーム画面で操作ガイドを表示（1回限り）
+12. 課金: PurchaseManager（RevenueCat接続は未実装、isPremium=trueでハードコード中）
 
 **デザイントーン:** 「バイオモニター × G-SHOCK」 — ダーク基調、データが浮かび上がる
 
@@ -104,6 +107,24 @@
   - 未記録の筋肉は細く薄く表示（「まだ未開拓」として表現、ネガティブではない）
   - シェアカードとして書き出せること（Xへの投稿で「0.2秒でこいつやばい」とわかる）
   - PRが更新されるとリアルタイムで太さが変わること
+
+### Strength Mapシェアカード
+- **ファイル**: `Views/Home/StrengthShareCard.swift`
+- **仕様**: 360×640pt → @3xで1080×1920px PNG（ImageRenderer）
+- **構成**: ヘッダー(56pt) → 人体図(340pt) → ランキング(140pt) → フッター(64pt)
+- **グレード体系**: S(0.85+) / A+(0.70+) / A(0.55+) / B+(0.40+) / B(0.30+) / C(0.20+) / D
+- **ランキング**: 全21筋肉のスコア上位3をメダル付きで表示
+- **トリガー**: ワークアウト完了画面でPR更新時にシェアボタン表示
+
+### ワークアウト完了 — 追加セクション
+- **次回おすすめ日（NextRecommendedDaySection）**: RecoveryCalculator.adjustedRecoveryHoursで全刺激部位の回復時間を計算し、最も遅い回復日を推奨日として表示
+- **Strength Mapシェア導線（StrengthMapShareSection）**: PR更新時のみ表示。「PR更新！Strength Mapをシェア」ボタンで直接シェアカード書き出し
+
+### ホーム — コーチマーク（HomeCoachMarkView）
+- **ファイル**: `Views/Home/HomeHelpers.swift`
+- **表示条件**: WorkoutSet 0件 かつ `AppState.hasSeenHomeCoachMark == false` の場合のみ
+- **内容**: 「まずワークアウトを記録しよう」+ 下矢印アニメーション
+- **消去**: タップで閉じ、AppStateに記録（1回限り表示）
 
 ### 履歴画面（マップ表示）
 - **ユーザーの期待**: 「最近どこを鍛えた？バランスは？」がわかること
@@ -381,7 +402,9 @@ Modal / Push
 ├── 部位詳細（3D）              ← P1（実装済み）
 ├── 分析メニュー（4画面）        ← P1（実装済み、将来Pro化予定）
 ├── Strength Map（Pro）         ← 実装中
-└── Paywall                     ← 実装中
+├── Strength Mapシェアカード     ← 実装済み（PR更新時にワークアウト完了から呼出）
+├── Paywall                     ← 実装中
+└── Homeコーチマーク             ← 実装済み（初回のみオーバーレイ表示）
 ```
 
 ---
@@ -428,8 +451,13 @@ MuscleMap/
 │   │   ├── MicroBodyMapView.swift
 │   │   ├── ExerciseGifView.swift
 │   │   └── ShareCardTemplate.swift
-│   ├── Home/                   # ホーム画面（12ファイル）
+│   ├── Home/                   # ホーム画面（14ファイル）
+│   │   ├── StrengthMapView.swift     # [Pro] 筋力可視化マップ
+│   │   ├── StrengthShareCard.swift   # Strength Mapシェアカード（@3x PNG生成）
+│   │   └── HomeHelpers.swift         # HomeCoachMarkView含む
 │   ├── Workout/                # ワークアウト記録（14ファイル）
+│   │   ├── WorkoutCompletionView.swift     # 完了画面本体
+│   │   └── WorkoutCompletionSections.swift # NextRecommendedDaySection, StrengthMapShareSection含む
 │   ├── Exercise/               # 種目辞典（3ファイル）
 │   ├── History/                # 履歴（7ファイル）
 │   ├── MuscleDetail/           # 部位詳細（2ファイル）

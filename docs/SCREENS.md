@@ -14,7 +14,7 @@
 | オンボーディング（7ステップ） | Views/Onboarding/ | fullScreen | - |
 | ホーム（回復マップ） | Views/Home/HomeView.swift | Tab 0 | 無料 |
 | ホーム（Strength Map） | Views/Home/StrengthMapView.swift | Tab 0内 | **Pro** |
-| Strength Mapシェアカード | （StrengthMapView内） | sheet | **Pro** |
+| Strength Mapシェアカード | Views/Home/StrengthShareCard.swift | sheet | **Pro** |
 | 分析メニュー | Views/Home/AnalyticsMenuView.swift | sheet | 将来Pro |
 | 週次サマリー | Views/Home/WeeklySummaryView.swift | sheet | 将来Pro |
 | バランス診断 | Views/Home/MuscleBalanceDiagnosis... | sheet | 将来Pro |
@@ -31,6 +31,7 @@
 | 部位詳細（halfModal） | Views/History/ + MuscleDetail/ | halfModal | 無料 |
 | 3D部位詳細 | Views/MuscleDetail/ | push | 無料 |
 | 設定 | Views/Settings/ | Tab 4 | 無料 |
+| ホーム（コーチマーク） | Views/Home/HomeHelpers.swift | overlay | 無料 |
 | Paywall | Views/Paywall/PaywallView.swift | sheet | - |
 
 ---
@@ -218,14 +219,88 @@ PR更新という「特別な瞬間」に感情的なピークを作る。
 - 「シェアしよう」という衝動が一番高まっている瞬間
 
 **表示内容:**
-- 刺激した筋肉をミニ人体図でハイライト
-- 合計セット数・総重量・PR更新数
-- 「次おすすめの日」（回復予測から算出）
-- シェアカードとして書き出しボタン
+- 刺激した筋肉をミニ人体図でハイライト（前面・背面）
+- 合計ボリューム・種目数・セット数・所要時間（CompletionStatsCard）
+- 次回おすすめ日（NextRecommendedDaySection）
+- PR更新時: Strength Mapシェア導線（StrengthMapShareSection）
+- 完了種目リスト（CompletionExerciseList）
+- シェアボタン（Instagram Stories / その他）
+
+**サブセクション詳細:**
+
+#### 次回おすすめ日（NextRecommendedDaySection）
+- **ファイル:** `Views/Workout/WorkoutCompletionSections.swift`
+- **ロジック:** 今回刺激した全筋肉に対して `RecoveryCalculator.adjustedRecoveryHours` を計算し、最も回復が遅い部位の完全回復日を推奨日として表示
+- **表示:** 日付を大きく表示 + 「回復予測に基づく」の補足テキスト
+- **日付フォーマット:** 当日→「今日」、翌日→「明日」、それ以降→「3月10日（月）」形式
+
+#### Strength Mapシェア導線（StrengthMapShareSection）
+- **ファイル:** `Views/Workout/WorkoutCompletionSections.swift`
+- **表示条件:** `hasPRUpdate == true`（今回のセッションでPR更新があった場合のみ）
+- **動作:** タップで `StrengthShareCard` を @3x PNG（1080×1920px）としてレンダリングし、ShareSheetを表示
+- **デザイン:** アイコン + 「PR更新！」バッジ + 「Strength Mapをシェア」テキスト + シェアアイコン
 
 **絶対条件:**
 - 筋肉マップで「今日鍛えたところ」が視覚的に伝わる
 - ホームに戻るボタンが明確
+
+---
+
+### Strength Mapシェアカード（sheet）
+
+**ファイル:** `Views/Home/StrengthShareCard.swift`
+
+**存在理由:**
+「自分の筋力アイデンティティカード」をSNSでシェアするための画像生成View。
+Xへの投稿で「0.2秒でこいつやばい」とわかるデザイン。
+
+**ユーザーの感情・文脈:**
+- PR更新直後の高揚感（「これ見せたい」）
+- 筋力の偏りや強みを可視化して自慢したい
+
+**カード構成（360×640pt → @3x 1080×1920px）:**
+- **ヘッダー（56pt）:** MuscleMapロゴ + 日付
+- **人体図エリア（340pt）:** 前面・背面の筋肉マップ（スコアに応じたstrokeWidth/opacity/color）+ グリッド装飾
+- **ランキング（140pt）:** STRENGTH RANKING — スコア上位3筋肉をメダル(🥇🥈🥉)+バー+%表示
+- **フッター（64pt）:** ユーザー名 + Overall Gradeバッジ
+
+**グレード体系:**
+| グレード | 平均スコア | カラー |
+|:--|:--|:--|
+| S | 0.85+ | mmAccentPrimary |
+| A+ | 0.70+ | #00CC8F |
+| A | 0.55+ | mmAccentSecondary |
+| B+ | 0.40+ | mmMuscleRecovered |
+| B | 0.30+ | mmMuscleModerate |
+| C | 0.20+ | mmTextSecondary |
+| D | 0.20未満 | #808080 |
+
+**トリガー:**
+- ワークアウト完了画面でPR更新時に表示されるStrengthMapShareSectionからの呼び出し
+- StrengthMapView内のシェアボタンからの呼び出し
+
+---
+
+### ホーム — コーチマーク（HomeCoachMarkView）
+
+**ファイル:** `Views/Home/HomeHelpers.swift`
+
+**存在理由:**
+初めてアプリを起動したユーザーに「まずワークアウトを記録しよう」と次のアクションを導く。
+何もデータがない状態で筋肉マップを見ても意味がわからないため。
+
+**ユーザーの感情・文脈:**
+- オンボーディング直後の「で、何すればいい？」状態
+- 空のマップを見て戸惑っている
+
+**表示条件:**
+- `AppState.hasSeenHomeCoachMark == false`（初回のみ）
+- WorkoutSetが0件
+
+**デザイン:**
+- アクセントカラーのカプセルバッジ「まずワークアウトを記録しよう 👆」
+- 下矢印アイコンが上下にアニメーション（repeatForever）
+- タップで閉じ、`AppState.hasSeenHomeCoachMark = true` に設定
 
 ---
 
@@ -462,4 +537,4 @@ PR更新という「特別な瞬間」に感情的なピークを作る。
 
 ---
 
-*最終更新: 2026-03-07*
+*最終更新: 2026-03-07（NextRecommendedDaySection, StrengthMapShareSection, StrengthShareCard, HomeCoachMarkView 追記）*
