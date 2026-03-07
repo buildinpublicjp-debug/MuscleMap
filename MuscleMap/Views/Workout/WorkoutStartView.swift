@@ -61,6 +61,10 @@ struct WorkoutStartView: View {
                     viewModel = WorkoutViewModel(modelContext: modelContext)
                 }
                 loadMuscleStates()
+                handlePendingExercise()
+            }
+            .onChange(of: AppState.shared.pendingExerciseId) {
+                handlePendingExercise()
             }
             .sheet(isPresented: $showingExercisePicker) {
                 ExercisePickerView { exercise in
@@ -90,6 +94,16 @@ struct WorkoutStartView: View {
                 }
             }
         }
+    }
+
+    /// 種目詳細画面から遷移してきた場合、セッション開始 + 種目選択
+    private func handlePendingExercise() {
+        guard let exerciseId = AppState.shared.pendingExerciseId,
+              let vm = viewModel,
+              let exercise = ExerciseStore.shared.exercise(for: exerciseId) else { return }
+        AppState.shared.pendingExerciseId = nil
+        vm.startOrResumeSession()
+        vm.selectExercise(exercise)
     }
 
     private func loadMuscleStates() {

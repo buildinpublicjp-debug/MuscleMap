@@ -138,11 +138,8 @@ enum WidgetDataReader {
 // MARK: - ウィジェット用ローカライズ
 
 enum WidgetL10n {
-    static var recovered: String {
-        WidgetDataReader.isJapanese() ? "回復済み" : "Recovered"
-    }
-    static var recovering: String {
-        WidgetDataReader.isJapanese() ? "回復中" : "Recovering"
+    static var todaysSuggestion: String {
+        WidgetDataReader.isJapanese() ? "今日やるなら" : "Today's Pick"
     }
     static var widgetDescription: String {
         WidgetDataReader.isJapanese() ? "筋肉の回復状態を表示" : "Display muscle recovery status"
@@ -164,17 +161,14 @@ struct SmallWidgetView: View {
     }
 }
 
-// MARK: - Mediumウィジェットビュー（前面 + 背面）
+// MARK: - Mediumウィジェットビュー（前面 + 背面 + 今日の提案）
 
 struct MediumWidgetView: View {
     let entry: MuscleMapEntry
 
-    private var recoveringCount: Int {
-        entry.muscleStates.values.filter { $0.stateType == .recovering }.count
-    }
-
-    private var readyCount: Int {
-        21 - entry.muscleStates.values.filter { $0.stateType == .recovering || $0.stateType == .neglected || $0.stateType == .neglectedSevere }.count
+    /// 今日鍛えるべき部位ペア（最大2つ）
+    private var suggestedPairs: [WidgetTrainingPair] {
+        WidgetSuggestionLogic.suggest(from: entry.muscleStates)
     }
 
     var body: some View {
@@ -187,38 +181,121 @@ struct MediumWidgetView: View {
                 WidgetMuscleMapView(muscleStates: entry.muscleStates, showFront: false)
                     .frame(width: bodyWidth, height: bodyHeight)
 
-                // 情報カラム
+                // 提案カラム
                 VStack(alignment: .leading, spacing: 6) {
                     Spacer()
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(WidgetL10n.recovered)
-                            .font(.system(size: 9))
-                            .foregroundStyle(Color.mmTextSecondary)
-                        Text("\(readyCount)/21")
-                            .font(.system(size: 16, weight: .bold, design: .monospaced))
-                            .foregroundStyle(Color.mmAccentPrimary)
+
+                    Text(WidgetL10n.todaysSuggestion)
+                        .font(.system(size: 9, weight: .medium))
+                        .foregroundStyle(Color.mmTextSecondary)
+
+                    ForEach(suggestedPairs, id: \.label) { pair in
+                        HStack(spacing: 4) {
+                            Circle()
+                                .fill(Color.mmAccentPrimary)
+                                .frame(width: 5, height: 5)
+                            Text(pair.label)
+                                .font(.system(size: 12, weight: .bold))
+                                .foregroundStyle(Color.mmAccentPrimary)
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.7)
+                        }
                     }
 
-                    Rectangle()
-                        .fill(Color.mmMuscleBorder.opacity(0.3))
-                        .frame(height: 1)
-
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(WidgetL10n.recovering)
-                            .font(.system(size: 9))
-                            .foregroundStyle(Color.mmTextSecondary)
-                        Text("\(recoveringCount)")
-                            .font(.system(size: 16, weight: .bold, design: .monospaced))
-                            .foregroundStyle(Color.mmMuscleCoral)
-                    }
                     Spacer()
                 }
-                .frame(maxWidth: .infinity)
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .padding(.vertical, 4)
         .containerBackground(Color.mmBgPrimary, for: .widget)
+    }
+}
+
+// MARK: - ウィジェット用提案ロジック
+
+struct WidgetTrainingPair {
+    let label: String
+}
+
+enum WidgetSuggestionLogic {
+
+    /// 筋肉グループの分類
+    enum Group: String, CaseIterable {
+        case chest, back, shoulders, arms, core, lowerBody
+
+        var muscles: [Muscle] {
+            switch self {
+            case .chest:     return [.chestUpper, .chestLower]
+            case .back:      return [.lats, .trapsUpper, .trapsMiddleLower, .erectorSpinae]
+            case .shoulders: return [.deltoidAnterior, .deltoidLateral, .deltoidPosterior]
+            case .arms:      return [.biceps, .triceps, .forearms]
+            case .core:      return [.rectusAbdominis, .obliques]
+            case .lowerBody: return [.glutes, .quadriceps, .hamstrings, .adductors, .hipFlexors, .gastrocnemius, .soleus]
+            }
+        }
+
+        /// ペアリング表示名（日/英）
+        func pairLabel(isJapanese: Bool) -> String {
+            switch self {
+            case .chest:     return isJapanese ? "胸・三頭筋"   : "Chest & Triceps"
+            case .back:      return isJapanese ? "背中・二頭筋"  : "Back & Biceps"
+            case .shoulders: return isJapanese ? "肩・僧帽筋"   : "Shoulders & Traps"
+            case .arms:      return isJapanese ? "腕・肩"      : "Arms & Shoulders"
+            case .core:      return isJapanese ? "体幹・肩"     : "Core & Shoulders"
+            case .lowerBody: return isJapanese ? "脚"          : "Legs"
+            }
+        }
+    }
+
+    /// 回復状態から「今日やるべき2部位」を算出
+    static func suggest(from states: [String: MuscleMapEntry.MuscleState]) -> [WidgetTrainingPair] {
+        let isJa = WidgetDataReader.isJapanese()
+
+        // 各グループの「刺激の必要度」（高い=回復済み or 未記録→鍛え時）
+        var groupScores: [(group: Group, score: Double)] = []
+        for group in Group.allCases {
+            let muscles = group.muscles
+            var total: Double = 0
+            for muscle in muscles {
+                if let state = states[muscle.rawValue] {
+                    switch state.stateType {
+                    case .inactive:
+                        // 未記録 = 最も刺激が必要
+                        total += 2.0
+                    case .recovering:
+                        // 回復進捗が高いほど刺激可能
+                        total += state.progress
+                    case .neglected, .neglectedSevere:
+                        // 長期未刺激 = 非常に必要
+                        total += 2.5
+                    }
+                } else {
+                    // データなし = 未記録扱い
+                    total += 2.0
+                }
+            }
+            let avg = total / Double(muscles.count)
+            groupScores.append((group, avg))
+        }
+
+        // スコア降順（=より刺激が必要な部位が先）
+        let sorted = groupScores.sorted { $0.score > $1.score }
+
+        // 上位2グループ（重複ペアを避ける）
+        var result: [WidgetTrainingPair] = []
+        var usedGroups: Set<String> = []
+
+        for item in sorted {
+            guard result.count < 2 else { break }
+            guard !usedGroups.contains(item.group.rawValue) else { continue }
+
+            result.append(WidgetTrainingPair(label: item.group.pairLabel(isJapanese: isJa)))
+            usedGroups.insert(item.group.rawValue)
+        }
+
+        return result
     }
 }
 

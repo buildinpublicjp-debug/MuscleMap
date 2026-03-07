@@ -84,6 +84,25 @@ struct ExerciseDetailView: View {
                             .background(Color.mmBgCard)
                             .clipShape(RoundedRectangle(cornerRadius: 12))
                         }
+
+                        // この種目でワークアウト開始ボタン
+                        Button {
+                            AppState.shared.pendingExerciseId = exercise.id
+                            AppState.shared.selectedTab = 1
+                            HapticManager.lightTap()
+                            dismiss()
+                        } label: {
+                            HStack {
+                                Image(systemName: "figure.strengthtraining.traditional")
+                                Text(L10n.startWorkoutWithExercise)
+                            }
+                            .font(.headline)
+                            .foregroundStyle(Color.mmBgPrimary)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 56)
+                            .background(Color.mmAccentPrimary)
+                            .clipShape(RoundedRectangle(cornerRadius: 16))
+                        }
                     }
                     .padding()
                 }

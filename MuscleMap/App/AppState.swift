@@ -95,6 +95,9 @@ class AppState {
     // タブ選択（クロスビュー遷移用、永続化不要）
     var selectedTab: Int = 0
 
+    // 種目詳細 → ワークアウトタブ遷移時に使う種目ID（永続化不要）
+    var pendingExerciseId: String?
+
     // 初回ワークアウト完了フラグ
     var hasCompletedFirstWorkout: Bool = UserDefaults.standard.bool(forKey: "hasCompletedFirstWorkout") {
         didSet { UserDefaults.standard.set(hasCompletedFirstWorkout, forKey: "hasCompletedFirstWorkout") }
