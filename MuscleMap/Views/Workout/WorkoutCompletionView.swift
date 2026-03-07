@@ -262,14 +262,26 @@ struct WorkoutCompletionView: View {
 
     @MainActor
     private func prepareShareImage() {
+        // PR更新情報を取得
+        let prUpdates = PRManager.shared.getSessionPRUpdates(session: session, context: modelContext)
+        let prItems: [SharePRItem] = prUpdates.prefix(2).compactMap { update in
+            guard let exercise = ExerciseStore.shared.exercise(for: update.exerciseId) else { return nil }
+            let name = localization.currentLanguage == .japanese ? exercise.nameJA : exercise.nameEN
+            return SharePRItem(
+                exerciseName: name,
+                previousWeight: update.previousWeight,
+                newWeight: update.newWeight,
+                increasePercent: update.increasePercent
+            )
+        }
+
         let shareView = WorkoutShareCard(
             totalVolume: totalVolume,
             totalSets: totalSets,
             exerciseCount: uniqueExercises,
-            duration: duration,
-            exerciseNames: exerciseNames,
             date: session.startDate,
-            muscleMapping: stimulatedMuscleMapping
+            muscleMapping: stimulatedMuscleMapping,
+            prItems: prItems
         )
         let renderer = ImageRenderer(content: shareView)
         renderer.scale = 3.0

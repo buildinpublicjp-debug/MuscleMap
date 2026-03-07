@@ -6,12 +6,16 @@ import SwiftUI
 struct ShareMuscleMapView: View {
     /// 筋肉ID → 刺激度% (0-100)
     let muscleMapping: [String: Int]
+    /// マップ全体の高さ（呼び出し元で指定可能）
+    var mapHeight: CGFloat = 280
 
-    /// 固定サイズ（ImageRenderer安定性のため）
-    private let mapSize = CGSize(width: 140, height: 280)
+    /// 各マップの幅は高さの0.5倍（人体比率を維持）
+    private var mapSize: CGSize {
+        CGSize(width: mapHeight * 0.5, height: mapHeight)
+    }
 
     var body: some View {
-        HStack(spacing: 20) {
+        HStack(spacing: 16) {
             // 前面
             staticMuscleMap(muscles: MusclePathData.frontMuscles)
                 .frame(width: mapSize.width, height: mapSize.height)
@@ -20,7 +24,7 @@ struct ShareMuscleMapView: View {
             staticMuscleMap(muscles: MusclePathData.backMuscles)
                 .frame(width: mapSize.width, height: mapSize.height)
         }
-        .frame(width: 300, height: 300)
+        .frame(height: mapHeight)
     }
 
     // MARK: - 静的筋肉マップ描画
