@@ -558,6 +558,11 @@ enum L10n {
         loc("回復まであと\(hours)時間", "\(hours)h until recovery", zhHans: "距离恢复还有\(hours)小时", ko: "회복까지 \(hours)시간", es: "\(hours)h para recuperación", fr: "\(hours)h avant récupération", de: "\(hours)h bis zur Erholung")
     }
 
+    // MARK: - 体重入力画面（WeightInputPage）
+    static var weightInputTitle: String { loc("あなたの体重を教えてください", "Tell Us Your Weight") }
+    static var weightInputSubtitle: String { loc("Strength Mapの精度に使用します", "Used to improve Strength Map accuracy") }
+    static var nicknamePlaceholder: String { loc("名前（任意）", "Name (optional)") }
+
     // MARK: - 目標設定画面（PersonalizationPage）
     static var goalPageTitle: String { loc("あなたの目標は？", "What's your goal?") }
     static var goalPageSubtitle: String { loc("最適なトレーニングプランを提案します", "We'll suggest the optimal training plan") }
