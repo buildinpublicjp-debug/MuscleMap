@@ -42,8 +42,8 @@ struct PersonalizationPage: View {
                             }
                             HapticManager.lightTap()
 
-                            // UserDefaultsに保存
-                            UserDefaults.standard.set(goal.rawValue, forKey: "selectedTrainingGoal")
+                            // UserProfileに保存
+                            AppState.shared.userProfile.trainingGoal = goal.toTrainingGoal
                         }
                     )
                     .opacity(cardAppearances[index] ? 1 : 0)
@@ -120,6 +120,16 @@ enum OnboardingGoal: String, CaseIterable, Identifiable {
         case .strength: return L10n.goalStrengthDesc
         case .recovery: return L10n.goalRecoveryDesc
         case .health: return L10n.goalHealthMaintenanceDesc
+        }
+    }
+
+    /// OnboardingGoal → TrainingGoal マッピング
+    var toTrainingGoal: TrainingGoal {
+        switch self {
+        case .muscleGrowth: return .hypertrophy
+        case .strength: return .strength
+        case .recovery: return .diet
+        case .health: return .health
         }
     }
 

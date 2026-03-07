@@ -7,6 +7,7 @@ struct CallToActionPage: View {
 
     @State private var buttonGlow = false
     @State private var cardAppearances: [Bool] = [false, false, false]
+    @State private var strengthHintVisible = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -52,14 +53,39 @@ struct CallToActionPage: View {
             }
             .padding(.horizontal, 24)
 
+            Spacer().frame(height: 24)
+
+            // Strength Map予告ヒント
+            HStack(spacing: 10) {
+                Image(systemName: "chart.bar.doc.horizontal.fill")
+                    .font(.system(size: 16))
+                    .foregroundStyle(Color.mmOnboardingAccent)
+
+                Text(L10n.ctaStrengthMapHint)
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundStyle(Color.mmOnboardingTextSub)
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 10)
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(Color.mmOnboardingAccent.opacity(0.08))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color.mmOnboardingAccent.opacity(0.15), lineWidth: 1)
+                    )
+            )
+            .opacity(strengthHintVisible ? 1 : 0)
+            .offset(y: strengthHintVisible ? 0 : 10)
+
             Spacer()
 
-            // CTAボタン
+            // CTAボタン（「無料ではじめる」）
             Button {
                 HapticManager.lightTap()
                 onComplete()
             } label: {
-                Text(L10n.getStarted)
+                Text(L10n.ctaGetStartedFree)
                     .font(.system(size: 18, weight: .bold))
                     .foregroundStyle(Color.mmOnboardingBg)
                     .frame(maxWidth: .infinity)
@@ -79,6 +105,12 @@ struct CallToActionPage: View {
             }
             .padding(.horizontal, 24)
 
+            // Pro版ヒントテキスト
+            Text(L10n.ctaProHint)
+                .font(.system(size: 12, weight: .regular))
+                .foregroundStyle(Color.mmOnboardingTextSub.opacity(0.7))
+                .padding(.top, 10)
+
             // 利用規約・プライバシーポリシー
             HStack(spacing: 4) {
                 if let termsURL = URL(string: LegalURL.termsOfUse) {
@@ -97,7 +129,7 @@ struct CallToActionPage: View {
             }
             .font(.caption2)
             .foregroundStyle(Color.mmOnboardingTextSub)
-            .padding(.top, 16)
+            .padding(.top, 12)
             .padding(.bottom, 48)
         }
         .onAppear {
@@ -106,6 +138,10 @@ struct CallToActionPage: View {
                 withAnimation(.easeOut(duration: 0.5).delay(Double(index) * 0.15 + 0.2)) {
                     cardAppearances[index] = true
                 }
+            }
+            // Strength Mapヒント表示
+            withAnimation(.easeOut(duration: 0.5).delay(0.8)) {
+                strengthHintVisible = true
             }
             // Button glow animation
             withAnimation(.easeInOut(duration: 1.5).repeatForever(autoreverses: true)) {

@@ -1,6 +1,6 @@
 import SwiftUI
 
-// MARK: - オンボーディングV2（3ページ横スワイプ: 体験 → 目標 → 機能）
+// MARK: - オンボーディングV2（4ページ横スワイプ: 体験 → 目標 → 体重 → 機能）
 
 struct OnboardingV2View: View {
     let onComplete: () -> Void
@@ -28,9 +28,17 @@ struct OnboardingV2View: View {
                 }
                 .tag(1)
 
-                // ページ3: 機能紹介 & 開始
+                // ページ3: 体重・ニックネーム入力
+                WeightInputPage {
+                    withAnimation(.easeInOut(duration: 0.5)) {
+                        currentPage = 3
+                    }
+                }
+                .tag(2)
+
+                // ページ4: 機能紹介 & 開始
                 CallToActionPage(onComplete: onComplete)
-                    .tag(2)
+                    .tag(3)
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
             .animation(.easeInOut(duration: 0.3), value: currentPage)
@@ -39,7 +47,7 @@ struct OnboardingV2View: View {
             VStack {
                 Spacer()
                 HStack(spacing: 8) {
-                    ForEach(0..<3) { index in
+                    ForEach(0..<4) { index in
                         Capsule()
                             .fill(index == currentPage ? Color.mmOnboardingAccent : Color.mmOnboardingTextSub.opacity(0.3))
                             .frame(width: index == currentPage ? 20 : 8, height: 8)

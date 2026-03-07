@@ -535,6 +535,7 @@ enum L10n {
 
     // MARK: - スプラッシュ画面
     static var splashTagline: String { loc("鍛えた筋肉が光る。", "Your trained muscles glow.") }
+    static var splashSubcopy: String { loc("筋肉の回復を可視化する", "Visualize muscle recovery") }
     static var splashContinue: String { loc("始める", "Get Started") }
 
     // MARK: - オンボーディングV2
@@ -591,6 +592,9 @@ enum L10n {
     static var ctaFeature2Desc: String { loc("数タップで完了するワークアウト記録", "Complete workout logging in just a few taps") }
     static var ctaFeature3Title: String { loc("科学的な回復計算", "Scientific Recovery") }
     static var ctaFeature3Desc: String { loc("EMGデータに基づく最適な休息期間", "Optimal rest periods based on EMG data") }
+    static var ctaGetStartedFree: String { loc("無料ではじめる", "Start for Free") }
+    static var ctaStrengthMapHint: String { loc("Strength Mapで筋力を可視化", "Visualize strength with Strength Map") }
+    static var ctaProHint: String { loc("Pro版でさらに詳しく分析", "Unlock deeper analysis with Pro") }
 
     // MARK: - 通知許可画面
     static var notificationTitle: String { loc("回復したらお知らせ", "Get Notified When Recovered") }

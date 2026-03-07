@@ -8,6 +8,7 @@ struct SplashView: View {
     @State private var logoOpacity: Double = 0
     @State private var logoScale: Double = 0.8
     @State private var taglineOpacity: Double = 0
+    @State private var subcopyOpacity: Double = 0
     @State private var muscleMapOpacity: Double = 0
     @State private var muscleGlow: Bool = false
     @State private var showContinue: Bool = false
@@ -20,8 +21,8 @@ struct SplashView: View {
                 Spacer()
 
                 // ロゴエリア
-                VStack(spacing: 16) {
-                    // プレミアムアイコン
+                VStack(spacing: 20) {
+                    // プレミアムアイコン（大きめ）
                     ZStack {
                         // 外側のグロー
                         Circle()
@@ -32,11 +33,11 @@ struct SplashView: View {
                                         Color.mmOnboardingAccent.opacity(0.0)
                                     ],
                                     center: .center,
-                                    startRadius: 40,
-                                    endRadius: 100
+                                    startRadius: 50,
+                                    endRadius: 120
                                 )
                             )
-                            .frame(width: 200, height: 200)
+                            .frame(width: 240, height: 240)
                             .scaleEffect(muscleGlow ? 1.1 : 1.0)
 
                         // 内側の円
@@ -51,11 +52,11 @@ struct SplashView: View {
                                     endPoint: .bottomTrailing
                                 )
                             )
-                            .frame(width: 110, height: 110)
+                            .frame(width: 130, height: 130)
 
-                        // アイコン
+                        // アイコン（大きめ）
                         Image(systemName: "figure.strengthtraining.traditional")
-                            .font(.system(size: 42, weight: .medium))
+                            .font(.system(size: 56, weight: .medium))
                             .foregroundStyle(
                                 LinearGradient(
                                     colors: [Color.mmOnboardingAccent, Color.mmOnboardingAccentDark],
@@ -65,10 +66,16 @@ struct SplashView: View {
                             )
                     }
 
-                    // アプリ名
+                    // アプリ名（大きめ）
                     Text("MuscleMap")
-                        .font(.system(size: 38, weight: .bold))
+                        .font(.system(size: 44, weight: .bold))
                         .foregroundStyle(Color.mmOnboardingTextMain)
+
+                    // サブコピー
+                    Text(L10n.splashSubcopy)
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundStyle(Color.mmOnboardingAccent.opacity(0.8))
+                        .opacity(subcopyOpacity)
                 }
                 .opacity(logoOpacity)
                 .scaleEffect(logoScale)
@@ -121,6 +128,13 @@ struct SplashView: View {
         withAnimation(.easeOut(duration: 0.8)) {
             logoOpacity = 1.0
             logoScale = 1.0
+        }
+
+        // サブコピー表示（0.6秒）
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+            withAnimation(.easeOut(duration: 0.6)) {
+                subcopyOpacity = 1.0
+            }
         }
 
         // 筋肉マップ表示（0.5-1.3秒）
