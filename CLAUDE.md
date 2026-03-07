@@ -1,6 +1,6 @@
 # MuscleMap - Claude Code Rules
 
-> **v3.1 | 2026-03-07**
+> **v3.2 | 2026-03-07**
 > 筋肉の回復状態と筋力レベルを可視化し、最適なトレーニングを導くiOSアプリ
 
 ---
@@ -21,9 +21,11 @@
 7. Apple Watch companion app（watchOS 10.0+、WatchConnectivity同期）
 8. **[Pro] Strength Map** — PRデータから筋肉の発達レベルを太さで可視化
 9. **Strength Mapシェアカード** — 9:16（1080×1920px @3x）のPNG書き出し。グレードS〜D、Top3ランキング付き
-10. **次回おすすめ日** — ワークアウト完了時に回復予測から次の推奨トレーニング日を表示
-11. **初回コーチマーク** — 初回起動時にホーム画面で操作ガイドを表示（1回限り）
-12. 課金: PurchaseManager（RevenueCat接続は未実装、isPremium=trueでハードコード中）
+10. **Workoutシェアカード** — 390×693pt @3x。ボリューム大表示 + PR更新種目の前回比表示（最大2件）。システムカラースキーム準拠
+11. **次回おすすめ日** — ワークアウト完了時に回復予測から次の推奨トレーニング日を表示
+12. **初回コーチマーク** — 初回起動時にホーム画面で操作ガイドを表示（1回限り）
+13. **オンボーディング4ページ化** — SplashView → InteractiveDemo → PersonalizationPage（目標選択→UserProfile連携） → WeightInputPage（体重・ニックネーム） → CallToActionPage → 通知許可
+14. 課金: PurchaseManager（RevenueCat接続は未実装、isPremium=trueでハードコード中）
 
 **デザイントーン:** 「バイオモニター × G-SHOCK」 — ダーク基調、データが浮かび上がる
 
@@ -116,6 +118,21 @@
 - **ランキング**: 全21筋肉のスコア上位3をメダル付きで表示
 - **トリガー**: ワークアウト完了画面でPR更新時にシェアボタン表示
 
+### Workoutシェアカード
+- **ファイル**: `Views/Workout/WorkoutCompletionComponents.swift`（`WorkoutShareCard`）
+- **仕様**: 390×693pt → @3xで1170×2079px PNG（ImageRenderer scale=3.0）
+- **カラースキーム**: システム設定準拠（`.environment(\.colorScheme, .dark)` は使わない）
+- **構成（上→下）:**
+  1. ヘッダー: 「MuscleMap」左 + 日付右
+  2. タイトル: 「WORKOUT COMPLETE」mmAccentPrimaryで中央（tracking: 2）
+  3. 筋肉図（210pt）: 前面・背面を並列（`ShareMuscleMapView(mapHeight: 210)`）
+  4. メインスタット: ボリューム数値を48pt heavyで大きく中央 + 「kg」18pt + 「TOTAL VOLUME」ラベル
+  5. PR更新セクション（条件付き）: PR更新があれば最大2件表示。「種目名  90kg → 100kg  ↑11%」形式。`PRManager.getSessionPRUpdates()` でデータ取得。PR無しなら非表示
+  6. サブスタット: 種目数・セット数を小さく横並び（divider付き）
+  7. フッター: 「MuscleMap」ロゴのみ
+- **データ型**: `SharePRItem { exerciseName, previousWeight, newWeight, increasePercent }`
+- **トリガー**: ワークアウト完了画面のシェアボタン
+
 ### ワークアウト完了 — 追加セクション
 - **次回おすすめ日（NextRecommendedDaySection）**: RecoveryCalculator.adjustedRecoveryHoursで全刺激部位の回復時間を計算し、最も遅い回復日を推奨日として表示
 - **Strength Mapシェア導線（StrengthMapShareSection）**: PR更新時のみ表示。「PR更新！Strength Mapをシェア」ボタンで直接シェアカード書き出し
@@ -125,6 +142,31 @@
 - **表示条件**: WorkoutSet 0件 かつ `AppState.hasSeenHomeCoachMark == false` の場合のみ
 - **内容**: 「まずワークアウトを記録しよう」+ 下矢印アニメーション
 - **消去**: タップで閉じ、AppStateに記録（1回限り表示）
+
+### オンボーディング（4ページ + SplashView + 通知許可）
+- **ファイル**: `Views/Onboarding/`（9ファイル）
+- **フロー:**
+  ```
+  SplashView（2.5秒アニメーション付き）
+      ↓
+  OnboardingV2View（4ページ横スワイプ TabView）:
+    Page 1: InteractiveDemoPage（筋肉をタップして体験）
+    Page 2: PersonalizationPage（目標選択 → UserProfile.trainingGoal に保存）
+    Page 3: WeightInputPage（体重 40-160kg + ニックネーム → UserProfile に保存）
+    Page 4: CallToActionPage（3機能紹介 + Strength Map予告 + CTA「無料ではじめる」）
+      ↓
+  NotificationPermissionView（通知許可）
+      ↓
+  アプリ本体へ
+  ```
+- **SplashView**: ロゴ/アイコン フェードイン → サブコピー → 筋肉マップデモ（順次点灯） → タグライン → 続行ボタン。グローアニメーション付き
+- **PersonalizationPage**: 4目標（筋肥大/筋力/回復/健康）、OnboardingGoal → TrainingGoal マッピング。スプリングアニメーション + staggered fade-in
+- **WeightInputPage**: ニックネームTextField + ドラムロールPicker（kg/lb切替）。AppState.shared.userProfile にリアルタイム保存
+- **CallToActionPage**: 3つの機能カード + Strength Map予告バッジ + グロー付きCTAボタン + 利用規約/プライバシーポリシーリンク
+- **カラーパレット（オンボーディング専用）:**
+  - `.mmOnboardingAccent` = `#00E676`, `.mmOnboardingAccentDark` = `#00B35F`
+  - `.mmOnboardingBg` = `#1A1A1E`, `.mmOnboardingCard` = `#2C2C2E`
+  - `.mmOnboardingTextMain` = white @ 90%, `.mmOnboardingTextSub` = `#8E8E93`
 
 ### 履歴画面（マップ表示）
 - **ユーザーの期待**: 「最近どこを鍛えた？バランスは？」がわかること
@@ -361,6 +403,14 @@ func estimated1RM(weight: Double, reps: Int) -> Double {
     guard reps > 1 else { return weight }
     return weight * (1 + Double(reps) / 30.0)
 }
+
+// 指定セッション以外の過去最大重量を取得（前回比用）
+func getPreviousWeightPR(exerciseId: String, excludingSessionId: UUID, context: ModelContext) -> Double?
+
+// 今回セッションでPR更新した種目一覧を取得（増加率順ソート）
+func getSessionPRUpdates(session: WorkoutSession, context: ModelContext) -> [PRUpdate]
+
+// PRUpdate: exerciseId, previousWeight, newWeight, increasePercent(%)
 ```
 
 ### Strength Score計算（StrengthScoreCalculator.swift）
@@ -395,6 +445,15 @@ TabBar
 ├── 履歴（マップ/カレンダー切替） ← P1（実装済み）
 └── 設定                        ← P2（実装済み）
 
+Onboarding（初回のみ）
+├── SplashView                  ← 実装済み（アニメーション付きスプラッシュ）
+├── OnboardingV2View（4ページ）  ← 実装済み
+│   ├── InteractiveDemoPage     ← 実装済み（筋肉タップ体験）
+│   ├── PersonalizationPage     ← 実装済み（目標選択 → UserProfile連携）
+│   ├── WeightInputPage         ← 実装済み（体重・ニックネーム入力）
+│   └── CallToActionPage        ← 実装済み（機能紹介 + CTA）
+└── NotificationPermissionView  ← 実装済み（通知許可）
+
 Modal / Push
 ├── 今日のメニュー提案           ← P0（実装済み）
 ├── ワークアウト実行中           ← P0（実装済み）
@@ -403,6 +462,7 @@ Modal / Push
 ├── 分析メニュー（4画面）        ← P1（実装済み、将来Pro化予定）
 ├── Strength Map（Pro）         ← 実装中
 ├── Strength Mapシェアカード     ← 実装済み（PR更新時にワークアウト完了から呼出）
+├── Workoutシェアカード          ← 実装済み（PR前回比表示 + システムカラースキーム対応）
 ├── Paywall                     ← 実装中
 └── Homeコーチマーク             ← 実装済み（初回のみオーバーレイ表示）
 ```
@@ -456,18 +516,29 @@ MuscleMap/
 │   │   ├── StrengthShareCard.swift   # Strength Mapシェアカード（@3x PNG生成）
 │   │   └── HomeHelpers.swift         # HomeCoachMarkView含む
 │   ├── Workout/                # ワークアウト記録（14ファイル）
-│   │   ├── WorkoutCompletionView.swift     # 完了画面本体
-│   │   └── WorkoutCompletionSections.swift # NextRecommendedDaySection, StrengthMapShareSection含む
+│   │   ├── WorkoutCompletionView.swift       # 完了画面本体
+│   │   ├── WorkoutCompletionComponents.swift # WorkoutShareCard（PR前回比表示）, StatBox, ShareSheet
+│   │   ├── WorkoutCompletionSections.swift   # NextRecommendedDaySection, StrengthMapShareSection含む
+│   │   └── ShareMuscleMapView.swift          # シェアカード用静的筋肉マップ（mapHeight可変）
 │   ├── Exercise/               # 種目辞典（3ファイル）
 │   ├── History/                # 履歴（7ファイル）
 │   ├── MuscleDetail/           # 部位詳細（2ファイル）
-│   ├── Onboarding/             # オンボーディング（7ファイル）
+│   ├── Onboarding/             # オンボーディング（9ファイル）
+│   │   ├── OnboardingView.swift          # フェーズ管理（Splash→V2→通知）
+│   │   ├── OnboardingV2View.swift        # 4ページ横スワイプ + 専用カラーパレット
+│   │   ├── SplashView.swift              # プレミアムスプラッシュ（アニメーション付き）
+│   │   ├── InteractiveDemoPage.swift     # 筋肉タップ体験
+│   │   ├── PersonalizationPage.swift     # 目標選択（→UserProfile.trainingGoal）
+│   │   ├── WeightInputPage.swift         # 体重・ニックネーム入力（→UserProfile）
+│   │   ├── CallToActionPage.swift        # 機能紹介 + CTA
+│   │   ├── NotificationPermissionView.swift  # 通知許可
+│   │   └── ValuePropositionPage.swift    # （旧ページ、参考保持）
 │   ├── Settings/               # 設定（2ファイル）
 │   └── Paywall/                # Paywall（実装中）
 │       └── PaywallView.swift
 ├── Utilities/
 │   ├── RecoveryCalculator.swift
-│   ├── PRManager.swift         # 推定1RM（Epley式）含む
+│   ├── PRManager.swift         # 推定1RM（Epley式）+ PR前回比取得 + PRUpdate構造体
 │   ├── PurchaseManager.swift   # isPremium判定（RevenueCat接続予定）
 │   ├── StrengthScoreCalculator.swift  # PRデータ→筋肉スコア変換
 │   ├── MenuSuggestionService.swift
@@ -492,6 +563,8 @@ MuscleMap/
 MuscleMapWatch/                 # Apple Watch companion
 MuscleMapWidget/                # Widget extension
 Shared/                         # iOS/Watch共有コード
+scripts/
+└── screenshots/                # App Storeスクショ自動生成パイプライン（準備中）
 ```
 
 ---

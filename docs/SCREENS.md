@@ -11,7 +11,7 @@
 
 | 画面 | ファイル | 種別 | Pro? |
 |:--|:--|:--|:--|
-| オンボーディング（7ステップ） | Views/Onboarding/ | fullScreen | - |
+| オンボーディング（Splash + 4ページ + 通知） | Views/Onboarding/ | fullScreen | - |
 | ホーム（回復マップ） | Views/Home/HomeView.swift | Tab 0 | 無料 |
 | ホーム（Strength Map） | Views/Home/StrengthMapView.swift | Tab 0内 | **Pro** |
 | Strength Mapシェアカード | Views/Home/StrengthShareCard.swift | sheet | **Pro** |
@@ -24,6 +24,7 @@
 | ワークアウト実行中 | Views/Workout/ | fullScreenCover | 無料 |
 | PR祝福モーダル | （Workout内） | overlay | 無料 |
 | ワークアウト完了 | Views/Workout/WorkoutCompletionView.swift | 画面内 | 無料 |
+| Workoutシェアカード | Views/Workout/WorkoutCompletionComponents.swift | ImageRenderer | 無料 |
 | 種目辞典 | Views/Exercise/ | Tab 2 | 無料 |
 | 種目詳細 | Views/Exercise/ | sheet | 無料 |
 | 履歴（マップ） | Views/History/ | Tab 3 | 無料 |
@@ -40,26 +41,70 @@
 
 ---
 
-### オンボーディング（7ステップ）
+### オンボーディング（Splash + 4ページ + 通知許可）
 
-**ファイル:** `Views/Onboarding/`
+**ファイル:** `Views/Onboarding/`（9ファイル）
 
 **存在理由:**
 アプリを初めて開いた人に「これは普通のトレーニングアプリではない」と気づかせる30秒。
 ここで離脱させると二度と戻らない。
 
 **ユーザーの感情推移:**
-1. 「また普通のトレーニングアプリか」（懐疑・疲れ）
-2. 「筋肉マップ？見たことない」（興味）
-3. 「体重とトレーニング頻度を入れる…なるほど」（参加意識）
-4. 「自分の筋肉が光った」（インタラクティブデモで初めて没入）
-5. 「使ってみよう」（完了）
+1. 「おっ、かっこいい」（SplashViewのアニメーションで第一印象を掴む）
+2. 「筋肉マップ？見たことない」（InteractiveDemoPageで興味）
+3. 「自分の目標に合わせてくれるのか」（PersonalizationPageで参加意識）
+4. 「体重とニックネームを入れる…パーソナライズされてる感」（WeightInputPage）
+5. 「機能が充実してる。使ってみよう」（CallToActionPageで完了）
+
+**フロー（OnboardingView がフェーズ管理）:**
+```
+OnboardingPhase.splash → SplashView
+    ↓ (onComplete)
+OnboardingPhase.mainFlow → OnboardingV2View（4ページ TabView）
+  Page 0: InteractiveDemoPage    — 筋肉をタップして光らせる体験
+  Page 1: PersonalizationPage    — 4つの目標から選択 → UserProfile.trainingGoal
+  Page 2: WeightInputPage        — 体重（40-160kg, kg/lb切替）+ ニックネーム → UserProfile
+  Page 3: CallToActionPage       — 3機能紹介 + Strength Map予告 + CTA「無料ではじめる」
+    ↓ (onComplete)
+OnboardingPhase.notification → NotificationPermissionView
+    ↓ (onComplete)
+アプリ本体へ（ContentView）
+```
+
+**SplashView:**
+- アニメーションタイムライン: ロゴ(0-0.8s) → サブコピー(0.6s) → 筋肉マップデモ(0.5s) → グロー(1.0s) → タグライン(1.5s) → 続行ボタン(2.5s)
+- `SplashMuscleMapDemo`: 前面6筋肉→背面4筋肉を順次点灯（0.3s間隔）
+
+**PersonalizationPage:**
+- 4目標: 筋肥大(muscleGrowth) / 筋力(strength) / 回復(recovery) / 健康(health)
+- OnboardingGoal → TrainingGoal マッピング: muscleGrowth→hypertrophy, strength→strength, recovery→diet, health→health
+- 選択時: スプリングアニメーション + `AppState.shared.userProfile.trainingGoal` に保存
+
+**WeightInputPage:**
+- ニックネームTextField + ドラムロールPicker（40-160kg, kg/lb切替）
+- `AppState.shared.userProfile.weightKg` / `.nickname` にリアルタイム保存
+- 次へボタンは常に有効（スキップ可能な設計）
+
+**CallToActionPage:**
+- 3機能カード（staggered fade-in, 0.15s間隔）+ Strength Map予告バッジ
+- CTA「無料ではじめる」: グラデーション背景 + グローアニメーション
+- 利用規約 / プライバシーポリシーリンク付き
+
+**カラーパレット（オンボーディング専用、OnboardingV2View.swift で定義）:**
+| 用途 | コード | Hex |
+|:--|:--|:--|
+| アクセント | `.mmOnboardingAccent` | `#00E676` |
+| アクセント暗 | `.mmOnboardingAccentDark` | `#00B35F` |
+| 背景 | `.mmOnboardingBg` | `#1A1A1E` |
+| カード | `.mmOnboardingCard` | `#2C2C2E` |
+| テキスト主 | `.mmOnboardingTextMain` | white @ 90% |
+| テキスト副 | `.mmOnboardingTextSub` | `#8E8E93` |
 
 **絶対条件:**
 - インタラクティブデモ（筋肉をタップして光る）を必ず含める
-- スキップボタンを目立ちすぎない位置に常時表示
-- プログレスインジケーターで「あと何ステップか」を伝える
+- プログレスインジケーター（4つのカプセル、現在ページ=幅20pt、他=8pt）
 - 最後の「始める」タップ後はアニメーションで本体へ移行
+- 体重・ニックネーム入力はスキップ可能（次へボタン常に有効）
 
 **NGパターン:**
 - テキストだけのスライドが3枚以上続く（見飽きる）
@@ -243,6 +288,50 @@ PR更新という「特別な瞬間」に感情的なピークを作る。
 **絶対条件:**
 - 筋肉マップで「今日鍛えたところ」が視覚的に伝わる
 - ホームに戻るボタンが明確
+
+---
+
+### Workoutシェアカード（ImageRenderer）
+
+**ファイル:** `Views/Workout/WorkoutCompletionComponents.swift`（`WorkoutShareCard`）
+
+**存在理由:**
+ワークアウト完了直後の「今日これだけやった」を1枚の画像にして、InstagramやXに投稿できるカード。
+PR更新があれば前回比を表示し、達成感を最大化する。
+
+**ユーザーの感情・文脈:**
+- ワークアウト直後の達成感（「今日のトレ報告したい」）
+- PR更新時は「記録更新を見せたい」欲求が高い
+- シンプルかつインパクトのある画像が欲しい
+
+**カード構成（390×693pt → @3x 1170×2079px PNG）:**
+1. **上部グラデーションライン（4pt）:** mmAccentPrimary → mmAccentSecondary
+2. **ヘッダー:** 「MuscleMap」左 + 日付（yyyy/MM/dd）右
+3. **タイトル:** 「WORKOUT COMPLETE」（13pt heavy, tracking: 2, mmAccentPrimary）
+4. **筋肉図（210pt）:** 前面・背面を並列（`ShareMuscleMapView(mapHeight: 210)`）。今回刺激した部位を3段階色分け
+5. **メインスタット:** ボリューム数値（48pt heavy, mmAccentPrimary） + 「kg」（18pt） + 「TOTAL VOLUME」ラベル
+6. **PR更新セクション（条件付き）:**
+   - PR更新があれば最大2件表示
+   - 「種目名  90kg → 100kg  ↑11%」形式
+   - `PRManager.getSessionPRUpdates()` でデータ取得
+   - PR無しの場合はセクション非表示
+   - 背景: mmAccentPrimary @ 6% opacity、角丸12pt
+7. **サブスタット:** 種目数・セット数を横並び（divider付き、22pt bold）
+8. **フッター:** 「MuscleMap」ロゴのみ（12pt, secondary @ 50%）
+
+**カラースキーム:** システム設定準拠（`.environment(\.colorScheme, .dark)` は使わない）
+
+**データ型:**
+```swift
+struct SharePRItem {
+    let exerciseName: String     // ローカライズ済み種目名
+    let previousWeight: Double   // 前回PR重量
+    let newWeight: Double        // 今回の新PR重量
+    let increasePercent: Int     // 増加率%
+}
+```
+
+**トリガー:** ワークアウト完了画面のシェアボタン → `prepareShareImage()` → Instagram Stories or ShareSheet
 
 ---
 
@@ -523,6 +612,23 @@ Xへの投稿で「0.2秒でこいつやばい」とわかるデザイン。
 
 ---
 
+## App Storeスクリーンショットパイプライン
+
+**ディレクトリ:** `scripts/screenshots/`
+
+**存在理由:**
+App Store申請用のスクリーンショットを自動生成するためのパイプライン。
+手動スクショの手間を省き、デザイン変更時に一括再生成できる。
+
+**状態:** 準備中（ディレクトリ構造のみ作成済み）
+
+**将来的な構成（計画）:**
+- シミュレータ起動 → 各画面へ遷移 → スクショ撮影 → デバイスフレーム合成
+- 対象デバイス: iPhone 6.7" / 6.1" / iPad
+- 対象画面: ホーム（回復マップ）/ ワークアウト実行中 / 完了画面 / 種目辞典 / Strength Map
+
+---
+
 ## 画面実装時のチェックリスト
 
 新しい画面または既存画面を大幅修正した際に必ず確認：
@@ -537,4 +643,4 @@ Xへの投稿で「0.2秒でこいつやばい」とわかるデザイン。
 
 ---
 
-*最終更新: 2026-03-07（NextRecommendedDaySection, StrengthMapShareSection, StrengthShareCard, HomeCoachMarkView 追記）*
+*最終更新: 2026-03-07（WorkoutShareCard PR前回比表示, オンボーディング4ページ化, WeightInputPage, PersonalizationPage, SplashView/CallToActionPage強化, App Storeスクショパイプライン追記）*
