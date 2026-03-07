@@ -22,6 +22,7 @@ struct HistoryView: View {
     @State private var selectedCalendarDate: SelectedDate?
     @State private var selectedMuscle: SelectedMuscle?
     @State private var viewMode: HistoryViewMode = .map
+    @State private var showingPaywall = false
     private var localization: LocalizationManager { LocalizationManager.shared }
 
     /// シート表示用のラッパー（Identifiable対応）
@@ -61,6 +62,9 @@ struct HistoryView: View {
                                 viewModel: vm,
                                 onMuscleTap: { muscle in
                                     selectedMuscle = SelectedMuscle(muscle: muscle)
+                                },
+                                onProBannerTap: {
+                                    showingPaywall = true
                                 }
                             )
                         case .calendar:
@@ -95,6 +99,9 @@ struct HistoryView: View {
                     .presentationDetents([.medium, .large])
                     .presentationDragIndicator(.visible)
                 }
+            }
+            .sheet(isPresented: $showingPaywall) {
+                PaywallView()
             }
         }
     }

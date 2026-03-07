@@ -938,6 +938,9 @@ enum L10n {
     static var strengthMapBannerTitle: String { loc("Strength Map — あなたの筋力を可視化", "Strength Map — Visualize Your Strength", zhHans: "Strength Map — 可视化您的力量", ko: "Strength Map — 근력 시각화", es: "Strength Map — Visualiza Tu Fuerza", fr: "Strength Map — Visualisez Votre Force", de: "Strength Map — Visualisiere Deine Kraft") }
     static var unlockWithPro: String { loc("Pro でアンロック", "Unlock with Pro", zhHans: "通过 Pro 解锁", ko: "Pro로 잠금 해제", es: "Desbloquear con Pro", fr: "Débloquer avec Pro", de: "Mit Pro freischalten") }
 
+    // MARK: - 種目別推移グラフ（Proロック）
+    static var exerciseTrendTitle: String { loc("種目別推移グラフ", "Exercise Trend Graph", zhHans: "动作趋势图", ko: "종목별 추이 그래프", es: "Gráfico de tendencia", fr: "Graphique de tendance", de: "Übungstrend") }
+
     // MARK: - 統計・分析メニュー
     static var analyticsMenu: String { loc("統計・分析", "Analytics") }
     static var viewStats: String { loc("統計を見る", "View Stats") }

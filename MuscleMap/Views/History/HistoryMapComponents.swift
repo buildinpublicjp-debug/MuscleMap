@@ -5,73 +5,83 @@ import SwiftUI
 struct HistoryMapView: View {
     let viewModel: HistoryViewModel
     let onMuscleTap: (Muscle) -> Void
+    var onProBannerTap: (() -> Void)? = nil
     @State private var showFront = true
     private var localization: LocalizationManager { LocalizationManager.shared }
 
     var body: some View {
-        VStack(spacing: 16) {
-            // 期間セレクター
-            PeriodSelector(
-                selectedPeriod: viewModel.selectedPeriod,
-                onPeriodChanged: { period in
-                    viewModel.updatePeriod(period)
-                }
-            )
-
-            // 筋肉マップカード
+        ScrollView {
             VStack(spacing: 16) {
-                // 前面/背面トグル
-                HStack {
-                    HStack(spacing: 6) {
-                        Image(systemName: showFront ? "person.fill" : "person.fill")
-                            .font(.caption)
-                        Text(showFront ? L10n.front : L10n.back)
-                        .font(.subheadline.weight(.medium))
-                    }
-                    .foregroundStyle(Color.mmTextPrimary)
-
-                    Spacer()
-
-                    Button {
-                        withAnimation(.easeInOut(duration: 0.3)) {
-                            showFront.toggle()
-                        }
-                        HapticManager.lightTap()
-                    } label: {
-                        HStack(spacing: 6) {
-                            Image(systemName: "arrow.left.arrow.right")
-                                .font(.caption.weight(.medium))
-                            Text(showFront ? L10n.viewBack : L10n.viewFront)
-                            .font(.caption.weight(.medium))
-                        }
-                        .foregroundStyle(Color.mmAccentPrimary)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 6)
-                        .background(Color.mmAccentPrimary.opacity(0.15))
-                        .clipShape(Capsule())
-                    }
-                }
-
-                // 筋肉マップ
-                HistoryMuscleMapCanvas(
-                    muscleSets: viewModel.periodMuscleSets,
-                    showFront: showFront,
-                    onMuscleTap: { muscle in
-                        onMuscleTap(muscle)
+                // 期間セレクター
+                PeriodSelector(
+                    selectedPeriod: viewModel.selectedPeriod,
+                    onPeriodChanged: { period in
+                        viewModel.updatePeriod(period)
                     }
                 )
-                .frame(maxHeight: 380)
 
-                // 凡例
-                HistoryMapLegend()
+                // 筋肉マップカード
+                VStack(spacing: 16) {
+                    // 前面/背面トグル
+                    HStack {
+                        HStack(spacing: 6) {
+                            Image(systemName: showFront ? "person.fill" : "person.fill")
+                                .font(.caption)
+                            Text(showFront ? L10n.front : L10n.back)
+                            .font(.subheadline.weight(.medium))
+                        }
+                        .foregroundStyle(Color.mmTextPrimary)
+
+                        Spacer()
+
+                        Button {
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                showFront.toggle()
+                            }
+                            HapticManager.lightTap()
+                        } label: {
+                            HStack(spacing: 6) {
+                                Image(systemName: "arrow.left.arrow.right")
+                                    .font(.caption.weight(.medium))
+                                Text(showFront ? L10n.viewBack : L10n.viewFront)
+                                .font(.caption.weight(.medium))
+                            }
+                            .foregroundStyle(Color.mmAccentPrimary)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
+                            .background(Color.mmAccentPrimary.opacity(0.15))
+                            .clipShape(Capsule())
+                        }
+                    }
+
+                    // 筋肉マップ
+                    HistoryMuscleMapCanvas(
+                        muscleSets: viewModel.periodMuscleSets,
+                        showFront: showFront,
+                        onMuscleTap: { muscle in
+                            onMuscleTap(muscle)
+                        }
+                    )
+                    .frame(maxHeight: 380)
+
+                    // 凡例
+                    HistoryMapLegend()
+                }
+                .padding()
+                .background(Color.mmBgCard)
+                .clipShape(RoundedRectangle(cornerRadius: 16))
+
+                // 種目別推移グラフ（Proロック）
+                if !PurchaseManager.shared.isPremium {
+                    ExerciseTrendProBanner {
+                        onProBannerTap?()
+                    }
+                }
+
+                Spacer(minLength: 0)
             }
             .padding()
-            .background(Color.mmBgCard)
-            .clipShape(RoundedRectangle(cornerRadius: 16))
-
-            Spacer(minLength: 0)
         }
-        .padding()
     }
 }
 
@@ -257,5 +267,124 @@ struct HistoryMapLegend: View {
             }
         }
         .padding(.top, 12)
+    }
+}
+
+// MARK: - 種目別推移グラフ Proロックバナー
+
+/// isPremium == false 時に筋肉マップ直下に表示するロック済みグラフプレビュー
+struct ExerciseTrendProBanner: View {
+    let onTap: () -> Void
+
+    var body: some View {
+        Button(action: onTap) {
+            VStack(spacing: 0) {
+                // ヘッダー
+                HStack(spacing: 8) {
+                    Image(systemName: "chart.xyaxis.line")
+                        .font(.title3)
+                        .foregroundStyle(Color.mmAccentPrimary)
+                    Text(L10n.exerciseTrendTitle)
+                        .font(.subheadline.bold())
+                        .foregroundStyle(Color.mmTextPrimary)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
+                    Spacer()
+                }
+                .padding(.horizontal, 16)
+                .padding(.top, 16)
+                .padding(.bottom, 12)
+
+                // ぼかし折れ線グラフ プレビュー
+                ZStack {
+                    DummyLineChartView()
+                        .padding(.horizontal, 16)
+                        .blur(radius: 8)
+
+                    // ロックオーバーレイ
+                    VStack(spacing: 8) {
+                        Image(systemName: "lock.fill")
+                            .font(.title2)
+                            .foregroundStyle(Color.mmAccentPrimary)
+
+                        HStack(spacing: 4) {
+                            Text(L10n.unlockWithPro)
+                                .font(.subheadline.bold())
+                                .foregroundStyle(Color.mmAccentPrimary)
+                            Image(systemName: "chevron.right")
+                                .font(.caption.bold())
+                                .foregroundStyle(Color.mmAccentPrimary)
+                        }
+                    }
+                    .padding(.vertical, 12)
+                    .padding(.horizontal, 24)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(Color.mmBgPrimary.opacity(0.85))
+                    )
+                }
+                .frame(height: 160)
+                .clipped()
+                .padding(.bottom, 16)
+            }
+            .background(Color.mmBgCard)
+            .clipShape(RoundedRectangle(cornerRadius: 16))
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+// MARK: - ダミー折れ線グラフ（プレビュー用）
+
+/// ぼかし表示用のダミーグラフ。Proロック演出に使用
+private struct DummyLineChartView: View {
+    /// ダミーデータポイント（4系列）
+    private let series: [[CGFloat]] = [
+        [0.3, 0.35, 0.5, 0.45, 0.6, 0.65, 0.7, 0.75],
+        [0.2, 0.25, 0.3, 0.4, 0.35, 0.45, 0.5, 0.55],
+        [0.5, 0.45, 0.55, 0.6, 0.58, 0.7, 0.72, 0.8],
+        [0.15, 0.2, 0.18, 0.25, 0.3, 0.28, 0.35, 0.4],
+    ]
+
+    private let colors: [Color] = [
+        .mmAccentPrimary,
+        .mmAccentSecondary,
+        Color(red: 1.0, green: 0.6, blue: 0.2),
+        .mmBrandPurple,
+    ]
+
+    var body: some View {
+        GeometryReader { geo in
+            let w = geo.size.width
+            let h = geo.size.height
+
+            ZStack {
+                // グリッド線
+                ForEach(0..<4) { i in
+                    let y = h * CGFloat(i) / 3.0
+                    Path { path in
+                        path.move(to: CGPoint(x: 0, y: y))
+                        path.addLine(to: CGPoint(x: w, y: y))
+                    }
+                    .stroke(Color.mmTextSecondary.opacity(0.15), lineWidth: 0.5)
+                }
+
+                // 折れ線
+                ForEach(Array(series.enumerated()), id: \.offset) { idx, points in
+                    Path { path in
+                        for (i, value) in points.enumerated() {
+                            let x = w * CGFloat(i) / CGFloat(points.count - 1)
+                            let y = h * (1.0 - value)
+                            if i == 0 {
+                                path.move(to: CGPoint(x: x, y: y))
+                            } else {
+                                path.addLine(to: CGPoint(x: x, y: y))
+                            }
+                        }
+                    }
+                    .stroke(colors[idx], lineWidth: 2)
+                }
+            }
+        }
     }
 }
