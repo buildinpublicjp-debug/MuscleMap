@@ -19,6 +19,7 @@ struct WorkoutCompletionView: View {
     @State private var hasPRUpdate = false
     @State private var showingStrengthShareSheet = false
     @State private var strengthShareImage: UIImage?
+    @State private var showingPaywall = false
 
     private var localization: LocalizationManager { LocalizationManager.shared }
 
@@ -167,7 +168,10 @@ struct WorkoutCompletionView: View {
                         prepareShareImage()
                         showingShareOptions = true
                     },
-                    onDismiss: onDismiss
+                    onDismiss: onDismiss,
+                    onProTap: {
+                        showingPaywall = true
+                    }
                 )
                 .padding(.horizontal)
                 .padding(.bottom, 16)
@@ -193,6 +197,9 @@ struct WorkoutCompletionView: View {
                     HapticManager.success()
                 }
             }
+        }
+        .sheet(isPresented: $showingPaywall) {
+            PaywallView()
         }
         .onAppear {
             checkFullBodyConquest()
@@ -292,8 +299,6 @@ struct WorkoutCompletionView: View {
 
     /// 今回のセッションにPR更新が含まれるかチェック
     private func checkPRUpdates() {
-        // 種目ごとにこのセッション内の最大重量を取得し、
-        // セッション以前の記録と比較
         var exerciseMaxInSession: [String: Double] = [:]
         for set in session.sets {
             let w = set.weight
@@ -303,7 +308,6 @@ struct WorkoutCompletionView: View {
         }
 
         for (exerciseId, maxWeight) in exerciseMaxInSession {
-            // セッション以前のPR（このセッションのセットを除外して比較）
             let descriptor = FetchDescriptor<WorkoutSet>(
                 predicate: #Predicate {
                     $0.exerciseId == exerciseId
@@ -312,7 +316,6 @@ struct WorkoutCompletionView: View {
             )
             guard let allSets = try? modelContext.fetch(descriptor) else { continue }
 
-            // このセッション以外のセットの最大重量を取得
             let previousMax = allSets
                 .filter { $0.session?.id != session.id }
                 .first?.weight ?? 0

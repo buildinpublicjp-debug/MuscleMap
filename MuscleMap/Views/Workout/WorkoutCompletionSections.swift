@@ -119,6 +119,55 @@ struct CompletionExerciseList: View {
     }
 }
 
+// MARK: - 非Pro常時Paywall誘導バナー
+
+/// 完了画面のExerciseListの下に常時表示（isPremium == false 時のみ）
+struct CompletionProBannerStrip: View {
+    let onTap: () -> Void
+
+    var body: some View {
+        Button(action: onTap) {
+            HStack(spacing: 12) {
+                Image(systemName: "bolt.shield.fill")
+                    .font(.subheadline)
+                    .foregroundStyle(Color.mmAccentPrimary)
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("90日間の変化を記録する")
+                        .font(.subheadline.bold())
+                        .foregroundStyle(Color.mmTextPrimary)
+                    Text("Proで全記録を保存 → 変化を証明")
+                        .font(.caption)
+                        .foregroundStyle(Color.mmTextSecondary)
+                }
+
+                Spacer()
+
+                Text("Pro")
+                    .font(.caption2.bold())
+                    .foregroundStyle(Color.mmBgPrimary)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(Color.mmAccentPrimary)
+                    .clipShape(Capsule())
+
+                Image(systemName: "chevron.right")
+                    .font(.caption2)
+                    .foregroundStyle(Color.mmTextSecondary)
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+            .background(Color.mmBgCard)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(Color.mmAccentPrimary.opacity(0.3), lineWidth: 1)
+            )
+        }
+        .buttonStyle(.plain)
+    }
+}
+
 // MARK: - 次回おすすめ日セクション
 
 struct NextRecommendedDaySection: View {
@@ -246,9 +295,15 @@ struct StrengthMapShareSection: View {
 struct CompletionButtonSection: View {
     let onShare: () -> Void
     let onDismiss: () -> Void
+    var onProTap: (() -> Void)? = nil
 
     var body: some View {
         VStack(spacing: 12) {
+            // 非ProユーザーへのPro訴求バナー
+            if !PurchaseManager.shared.isPremium, let onProTap {
+                CompletionProBannerStrip(onTap: onProTap)
+            }
+
             // シェアボタン
             Button(action: onShare) {
                 HStack {
