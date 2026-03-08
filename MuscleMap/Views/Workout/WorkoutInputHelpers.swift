@@ -51,7 +51,7 @@ struct WeightInputView: View {
                     .font(.system(size: 36, weight: .bold, design: .monospaced))
                     .foregroundStyle(Color.mmTextPrimary)
                     .onTapGesture {
-                        inputText = String(format: "%.2f", weight)
+                        inputText = ""  // 空にしてから編集開始（追記バグ修正）
                         isEditing = true
                         isFocused = true
                         HapticManager.lightTap()
@@ -64,9 +64,12 @@ struct WeightInputView: View {
     }
 
     private func finishEditing() {
-        if let newWeight = Double(inputText.replacingOccurrences(of: ",", with: ".")) {
+        let trimmed = inputText.trimmingCharacters(in: .whitespaces)
+        if !trimmed.isEmpty,
+           let newWeight = Double(trimmed.replacingOccurrences(of: ",", with: ".")) {
             weight = max(0, newWeight)
         }
+        // 空入力の場合は weight をそのまま維持
         isEditing = false
     }
 }
