@@ -20,30 +20,80 @@ final class PurchaseManager {
             let info = try await Purchases.shared.customerInfo()
             isPremium = info.entitlements["premium"]?.isActive == true
         } catch {
-            print("RevenueCat error: \(error)")
+            print("RevenueCat customerInfo error: \(error)")
         }
     }
 
-    func purchase(productId: String) async throws {
+    /// 購入実行。成功時は true を返す。失敗時は PurchaseError を throw。
+    @discardableResult
+    func purchase(productId: String) async throws -> Bool {
         isLoading = true
         defer { isLoading = false }
+
         let offerings = try await Purchases.shared.offerings()
-        guard let offering = offerings.current else { return }
-        let package = productId == "yearly" ? offering.annual : offering.monthly
-        guard let pkg = package else { return }
+        guard let offering = offerings.current else {
+            throw PurchaseError.noOffering
+        }
+
+        // 価格案の特实: offering.annual / monthly ショートカットを使いつつ、
+        // identifierマッチでフォールバック
+        let package: Package?
+        if productId == "yearly" {
+            package = offering.annual
+                ?? offering.availablePackages.first(where: {
+                    $0.storeProduct.productIdentifier.lowercased().contains("year")
+                    || $0.storeProduct.productIdentifier.lowercased().contains("annual")
+                    || $0.packageType == .annual
+                })
+        } else {
+            package = offering.monthly
+                ?? offering.availablePackages.first(where: {
+                    $0.storeProduct.productIdentifier.lowercased().contains("month")
+                    || $0.packageType == .monthly
+                })
+        }
+
+        guard let pkg = package else {
+            throw PurchaseError.packageNotFound
+        }
+
         let result = try await Purchases.shared.purchase(package: pkg)
+
+        // ユーザーが自分でキャンセルした場合は falseを返す（エラーではない）
+        if result.userCancelled { return false }
+
         isPremium = result.customerInfo.entitlements["premium"]?.isActive == true
+        return isPremium
     }
 
-    func restore() async throws {
+    /// 購入復元。成功時は true を返す。失敗時は throw。
+    @discardableResult
+    func restore() async throws -> Bool {
         isLoading = true
         defer { isLoading = false }
         let info = try await Purchases.shared.restorePurchases()
         isPremium = info.entitlements["premium"]?.isActive == true
+        return isPremium
     }
 
     private init() {}
 }
+
+// MARK: - エラー型
+
+enum PurchaseError: LocalizedError {
+    case noOffering
+    case packageNotFound
+
+    var errorDescription: String? {
+        switch self {
+        case .noOffering:      return "購入情報を取得できませんでした。再度お試しください。"
+        case .packageNotFound: return "対象のプランが見つかりませんでした。"
+        }
+    }
+}
+
+// MARK: - Delegate
 
 final class PurchaseDelegate: NSObject, PurchasesDelegate {
     static let shared = PurchaseDelegate()

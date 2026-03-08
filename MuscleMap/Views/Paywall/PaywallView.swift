@@ -4,7 +4,9 @@ import SwiftUI
 
 struct PaywallView: View {
     @Environment(\.dismiss) private var dismiss
-    @State private var isPurchasing = false
+    @State private var errorMessage: String?
+    @State private var showingError = false
+    @State private var showingSuccess = false
 
     var body: some View {
         NavigationStack {
@@ -13,19 +15,31 @@ struct PaywallView: View {
 
                 ScrollView {
                     VStack(spacing: 32) {
-                        // ヒーローセクション
                         heroSection
-
-                        // 機能説明
                         featureSection
-
-                        // プラン選択
                         planSection
-
-                        // 復元ボタン
                         restoreButton
+                        legalText
                     }
                     .padding(.vertical)
+                }
+
+                // 購入中オーバーレイ
+                if PurchaseManager.shared.isLoading {
+                    ZStack {
+                        Color.black.opacity(0.4).ignoresSafeArea()
+                        VStack(spacing: 16) {
+                            ProgressView()
+                                .scaleEffect(1.4)
+                                .tint(Color.mmAccentPrimary)
+                            Text("処理中...")
+                                .font(.subheadline)
+                                .foregroundStyle(Color.mmTextSecondary)
+                        }
+                        .padding(32)
+                        .background(Color.mmBgCard)
+                        .clipShape(RoundedRectangle(cornerRadius: 16))
+                    }
                 }
             }
             .navigationTitle("MuscleMap Pro")
@@ -37,13 +51,22 @@ struct PaywallView: View {
                         .foregroundStyle(Color.mmAccentPrimary)
                 }
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        dismiss()
-                    } label: {
+                    Button { dismiss() } label: {
                         Image(systemName: "xmark.circle.fill")
                             .foregroundStyle(Color.mmTextSecondary)
                     }
+                    .disabled(PurchaseManager.shared.isLoading)
                 }
+            }
+            .alert("購入エラー", isPresented: $showingError) {
+                Button("OK") {}
+            } message: {
+                Text(errorMessage ?? "不明なエラーが発生しました。")
+            }
+            .alert("歓迎、Pro!", isPresented: $showingSuccess) {
+                Button("OK") { dismiss() }
+            } message: {
+                Text("過去の購入が確認されました。")
             }
         }
     }
@@ -73,19 +96,22 @@ struct PaywallView: View {
     // MARK: - 機能リスト
 
     private var featureSection: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: 12) {
             featureRow(
                 icon: "bolt.shield.fill",
+                color: Color.mmAccentPrimary,
                 title: "Strength Map",
                 description: "体が変わっていくのが目で見える"
             )
             featureRow(
-                icon: "chart.line.uptrend.xyaxis",
-                title: "全期間グラフ",
+                icon: "chart.xyaxis.line",
+                color: Color(red: 0.2, green: 0.8, blue: 0.5),
+                title: "種目別 重量推移（全期間）",
                 description: "どこが強くなったか数値で証明できる"
             )
             featureRow(
                 icon: "video.fill",
+                color: Color(red: 0.6, green: 0.4, blue: 1.0),
                 title: "90日 Recap（近日公開）",
                 description: "変化の記録を動画で残してシェアできる"
             )
@@ -93,11 +119,11 @@ struct PaywallView: View {
         .padding(.horizontal, 24)
     }
 
-    private func featureRow(icon: String, title: String, description: String) -> some View {
+    private func featureRow(icon: String, color: Color, title: String, description: String) -> some View {
         HStack(spacing: 16) {
             Image(systemName: icon)
                 .font(.title3)
-                .foregroundStyle(Color.mmAccentPrimary)
+                .foregroundStyle(color)
                 .frame(width: 40)
 
             VStack(alignment: .leading, spacing: 4) {
@@ -110,6 +136,10 @@ struct PaywallView: View {
             }
 
             Spacer()
+
+            Image(systemName: "checkmark")
+                .font(.caption.bold())
+                .foregroundStyle(Color.mmAccentPrimary)
         }
         .padding(16)
         .background(Color.mmBgCard)
@@ -119,17 +149,14 @@ struct PaywallView: View {
     // MARK: - プラン選択
 
     private var planSection: some View {
-        VStack(spacing: 16) {
-            // 年額プラン（推奨）
+        VStack(spacing: 12) {
             planButton(
                 title: "年額プラン",
                 price: "¥4,900 / 年",
-                note: "月あたり約¥408",
+                note: "月あたり約¥408（年額一括払い）",
                 isRecommended: true,
                 productId: "yearly"
             )
-
-            // 月額プラン
             planButton(
                 title: "月額プラン",
                 price: "¥590 / 月",
@@ -141,13 +168,28 @@ struct PaywallView: View {
         .padding(.horizontal, 24)
     }
 
-    private func planButton(title: String, price: String, note: String?, isRecommended: Bool, productId: String) -> some View {
+    private func planButton(
+        title: String,
+        price: String,
+        note: String?,
+        isRecommended: Bool,
+        productId: String
+    ) -> some View {
         Button {
             HapticManager.lightTap()
             Task {
-                isPurchasing = true
-                try? await PurchaseManager.shared.purchase(productId: productId)
-                isPurchasing = false
+                do {
+                    let purchased = try await PurchaseManager.shared.purchase(productId: productId)
+                    if purchased {
+                        // 成功: モーダルを閉じる
+                        dismiss()
+                    }
+                    // purchased == false はユーザーが自分でキャンセル → 何もしない
+                } catch {
+                    errorMessage = error.localizedDescription
+                    showingError = true
+                    HapticManager.errorVibration()
+                }
             }
         } label: {
             VStack(spacing: 8) {
@@ -161,22 +203,18 @@ struct PaywallView: View {
                         .clipShape(Capsule())
                 }
 
-                if PurchaseManager.shared.isLoading {
-                    ProgressView()
-                } else {
-                    Text(title)
-                        .font(.body.bold())
-                        .foregroundStyle(Color.mmTextPrimary)
+                Text(title)
+                    .font(.body.bold())
+                    .foregroundStyle(Color.mmTextPrimary)
 
-                    Text(price)
-                        .font(.title3.bold())
-                        .foregroundStyle(Color.mmAccentPrimary)
+                Text(price)
+                    .font(.title3.bold())
+                    .foregroundStyle(Color.mmAccentPrimary)
 
-                    if let note {
-                        Text(note)
-                            .font(.caption)
-                            .foregroundStyle(Color.mmTextSecondary)
-                    }
+                if let note {
+                    Text(note)
+                        .font(.caption)
+                        .foregroundStyle(Color.mmTextSecondary)
                 }
             }
             .frame(maxWidth: .infinity)
@@ -191,20 +229,49 @@ struct PaywallView: View {
                     )
             )
         }
-        .disabled(isPurchasing)
+        .disabled(PurchaseManager.shared.isLoading)
     }
 
-    // MARK: - 復元ボタン
+    // MARK: - 購入復元
 
     private var restoreButton: some View {
         Button {
             HapticManager.lightTap()
-            Task { try? await PurchaseManager.shared.restore() }
+            Task {
+                do {
+                    let restored = try await PurchaseManager.shared.restore()
+                    if restored {
+                        dismiss()
+                    } else {
+                        // 有効な購入なし
+                        errorMessage = "復元できる購入履歴が見つかりませんでした。"
+                        showingError = true
+                    }
+                } catch {
+                    errorMessage = error.localizedDescription
+                    showingError = true
+                }
+            }
         } label: {
             Text("購入を復元")
                 .font(.caption)
                 .foregroundStyle(Color.mmTextSecondary)
         }
-        .padding(.bottom, 16)
+        .disabled(PurchaseManager.shared.isLoading)
     }
+
+    // MARK: - 法的表記
+
+    private var legalText: some View {
+        Text("購入によりApple IDに請求されます。定期購読は期限切れの24時間以内に自動更新されます。iTunesアカウント設定から自動更新をオフにすることができます。")
+            .font(.caption2)
+            .foregroundStyle(Color.mmTextSecondary.opacity(0.6))
+            .multilineTextAlignment(.center)
+            .padding(.horizontal, 24)
+            .padding(.bottom, 24)
+    }
+}
+
+#Preview {
+    PaywallView()
 }
