@@ -8,6 +8,8 @@ struct SettingsView: View {
     @State private var themeManager = ThemeManager.shared
     @State private var showingSafari = false
     @State private var safariURL: URL?
+    @State private var showingPaywall = false
+    @State private var showingProfileEdit = false
     @AppStorage("youtubeSearchLanguage") private var youtubeSearchLanguage: String = "auto"
 
     var body: some View {
@@ -16,6 +18,9 @@ struct SettingsView: View {
                 Color.mmBgPrimary.ignoresSafeArea()
 
                 List {
+                    // 0. アカウント・Pro
+                    accountProSection
+
                     // 1. 一般
                     generalSection
 
@@ -37,6 +42,67 @@ struct SettingsView: View {
                         .ignoresSafeArea()
                 }
             }
+            .sheet(isPresented: $showingPaywall) {
+                PaywallView()
+            }
+            .sheet(isPresented: $showingProfileEdit) {
+                ProfileEditSheet()
+            }
+        }
+    }
+
+    // MARK: - 0. アカウント・Pro
+
+    private var accountProSection: some View {
+        Section {
+            // プロフィール編集
+            Button {
+                showingProfileEdit = true
+            } label: {
+                HStack(spacing: 12) {
+                    Image(systemName: "person.circle")
+                        .foregroundStyle(Color.mmAccentPrimary)
+                    Text("プロフィール編集")
+                        .font(.subheadline)
+                        .foregroundStyle(Color.mmTextPrimary)
+                    Spacer()
+                    Text(String(format: "%.1fkg", appState.userProfile.weightKg))
+                        .font(.caption)
+                        .foregroundStyle(Color.mmTextSecondary)
+                    Image(systemName: "chevron.right")
+                        .font(.caption2)
+                        .foregroundStyle(Color.mmTextSecondary)
+                }
+            }
+            .listRowBackground(Color.mmBgCard)
+
+            // Pro アップグレード（非Proユーザーのみ）
+            if !PurchaseManager.shared.isPremium {
+                Button {
+                    showingPaywall = true
+                } label: {
+                    HStack(spacing: 12) {
+                        Image(systemName: "bolt.shield.fill")
+                            .foregroundStyle(Color.mmAccentPrimary)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Pro にアップグレード")
+                                .font(.subheadline.bold())
+                                .foregroundStyle(Color.mmAccentPrimary)
+                            Text("90日後、あなたの変化が証明される")
+                                .font(.caption)
+                                .foregroundStyle(Color.mmTextSecondary)
+                        }
+                        Spacer()
+                        Image(systemName: "chevron.right")
+                            .font(.caption2)
+                            .foregroundStyle(Color.mmAccentPrimary)
+                    }
+                }
+                .listRowBackground(Color.mmBgCard)
+            }
+        } header: {
+            Text("アカウント")
+                .foregroundStyle(Color.mmTextSecondary)
         }
     }
 
@@ -237,21 +303,85 @@ struct SettingsView: View {
     }
 }
 
-// MARK: - Bindable for AppState (non-@Observable stored properties)
+// MARK: - プロフィール編集シート
 
-@MainActor
-private struct Bindable {
-    let appState: AppState
+struct ProfileEditSheet: View {
+    @Environment(\.dismiss) private var dismiss
+    @State private var nickname: String = ""
+    @State private var weightText: String = ""
 
-    init(_ appState: AppState) {
-        self.appState = appState
-    }
+    var body: some View {
+        NavigationStack {
+            ZStack {
+                Color.mmBgPrimary.ignoresSafeArea()
 
-    var isHapticEnabled: Binding<Bool> {
-        Binding(
-            get: { appState.isHapticEnabled },
-            set: { appState.isHapticEnabled = $0 }
-        )
+                Form {
+                    Section {
+                        // ニックネーム
+                        HStack {
+                            Text("ニックネーム")
+                                .foregroundStyle(Color.mmTextPrimary)
+                            Spacer()
+                            TextField("名前", text: $nickname)
+                                .multilineTextAlignment(.trailing)
+                                .foregroundStyle(Color.mmTextPrimary)
+                        }
+                        .listRowBackground(Color.mmBgCard)
+
+                        // 体重
+                        HStack {
+                            Text("体重")
+                                .foregroundStyle(Color.mmTextPrimary)
+                            Spacer()
+                            TextField("70", text: $weightText)
+                                .keyboardType(.decimalPad)
+                                .multilineTextAlignment(.trailing)
+                                .foregroundStyle(Color.mmTextPrimary)
+                                .frame(width: 64)
+                            Text("kg")
+                                .foregroundStyle(Color.mmTextSecondary)
+                        }
+                        .listRowBackground(Color.mmBgCard)
+                    } header: {
+                        Text("基本情報")
+                            .foregroundStyle(Color.mmTextSecondary)
+                    } footer: {
+                        Text("体重はStrength Mapのスコア計算に使用されます")
+                            .foregroundStyle(Color.mmTextSecondary)
+                    }
+                }
+                .scrollContentBackground(.hidden)
+            }
+            .navigationTitle("プロフィール編集")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbarColorScheme(.dark, for: .navigationBar)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button("キャンセル") { dismiss() }
+                        .foregroundStyle(Color.mmTextSecondary)
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("保存") {
+                        var profile = AppState.shared.userProfile
+                        if !nickname.isEmpty {
+                            profile.nickname = nickname
+                        }
+                        if let weight = Double(weightText), weight > 0 {
+                            profile.weightKg = weight
+                        }
+                        AppState.shared.userProfile = profile
+                        HapticManager.lightTap()
+                        dismiss()
+                    }
+                    .foregroundStyle(Color.mmAccentPrimary)
+                    .fontWeight(.bold)
+                }
+            }
+            .onAppear {
+                nickname = AppState.shared.userProfile.nickname
+                weightText = String(format: "%.1f", AppState.shared.userProfile.weightKg)
+            }
+        }
     }
 }
 

@@ -56,12 +56,12 @@ struct PaywallView: View {
                 .font(.system(size: 56))
                 .foregroundStyle(Color.mmAccentPrimary)
 
-            Text("Strength Mapで\n筋力を可視化")
+            Text("90日後、\nあなたの変化が証明される")
                 .font(.title2.bold())
                 .foregroundStyle(Color.mmTextPrimary)
                 .multilineTextAlignment(.center)
 
-            Text("PRデータから各筋肉の発達レベルを算出し、\nリアルタイムにマップ上に表示します")
+            Text("筋力の成長を記録し続け、\n90日後に数字とマップで変化を証明しよう")
                 .font(.body)
                 .foregroundStyle(Color.mmTextSecondary)
                 .multilineTextAlignment(.center)
@@ -75,19 +75,19 @@ struct PaywallView: View {
     private var featureSection: some View {
         VStack(spacing: 16) {
             featureRow(
-                icon: "figure.strengthtraining.traditional",
-                title: "筋力マップ",
-                description: "体重比スコアで筋肉の発達度を可視化"
+                icon: "bolt.shield.fill",
+                title: "Strength Map",
+                description: "体が変わっていくのが目で見える"
             )
             featureRow(
-                icon: "chart.bar.fill",
-                title: "発達レベル分析",
-                description: "21筋肉それぞれの強さをスコア化"
+                icon: "chart.line.uptrend.xyaxis",
+                title: "全期間グラフ",
+                description: "どこが強くなったか数値で証明できる"
             )
             featureRow(
-                icon: "arrow.up.right",
-                title: "成長の記録",
-                description: "トレーニングの成果がマップに反映される"
+                icon: "video.fill",
+                title: "90日 Recap（近日公開）",
+                description: "変化の記録を動画で残してシェアできる"
             )
         }
         .padding(.horizontal, 24)
