@@ -42,6 +42,9 @@ class HistoryViewModel {
     // マップビュー用：期間内の統計
     var periodStats: PeriodStats = .empty
 
+    // Pro機能：種目別推移グラフ（全期間 Top5）
+    var exerciseTrendData: [ExerciseTrendData] = []
+
     init(modelContext: ModelContext) {
         self.workoutRepo = WorkoutRepository(modelContext: modelContext)
         self.muscleStateRepo = MuscleStateRepository(modelContext: modelContext)
@@ -50,7 +53,6 @@ class HistoryViewModel {
 
     /// 全データ読み込み
     func load() {
-        // 全セッションを表示（制限なし）
         sessions = workoutRepo.fetchRecentSessions(limit: 50)
 
         calculateWeeklyStats()
@@ -61,6 +63,7 @@ class HistoryViewModel {
         calculateDailyMuscleGroups()
         calculateDailyVolumeData()
         calculatePeriodMuscleSets()
+        calculateExerciseTrendData()
     }
 
     /// 期間変更時の再計算
@@ -81,12 +84,10 @@ class HistoryViewModel {
             sum + session.sets.reduce(0.0) { $0 + $1.weight * Double($1.reps) }
         }
 
-        // トレーニング日数（ユニーク日）
         let trainingDays = Set(weekSessions.map {
             calendar.startOfDay(for: $0.startDate)
         }).count
 
-        // 刺激された筋肉グループ
         let stimulatedGroups = calculateStimulatedGroups(sessions: weekSessions)
 
         weeklyStats = WeeklyStats(
@@ -166,6 +167,61 @@ class HistoryViewModel {
             }
     }
 
+    // MARK: - 種目別推移（Pro機能）
+
+    private func calculateExerciseTrendData() {
+        let calendar = Calendar.current
+
+        // 全セッションから種目別セット数・日別最大重量を集計
+        var exerciseTotalSets: [String: Int] = [:]
+        var exerciseDailyMax: [String: [Date: Double]] = [:]
+
+        for session in sessions {
+            let dayStart = calendar.startOfDay(for: session.startDate)
+            for workoutSet in session.sets {
+                let exId = workoutSet.exerciseId
+                exerciseTotalSets[exId, default: 0] += 1
+
+                if workoutSet.weight > 0 {
+                    let current = exerciseDailyMax[exId]?[dayStart] ?? 0
+                    if workoutSet.weight > current {
+                        if exerciseDailyMax[exId] == nil {
+                            exerciseDailyMax[exId] = [:]
+                        }
+                        exerciseDailyMax[exId]![dayStart] = workoutSet.weight
+                    }
+                }
+            }
+        }
+
+        // セット数 Top5 種目を選出
+        let top5 = exerciseTotalSets
+            .sorted { $0.value > $1.value }
+            .prefix(5)
+
+        exerciseTrendData = top5.compactMap { (exerciseId, totalSets) -> ExerciseTrendData? in
+            guard let exercise = exerciseStore.exercise(for: exerciseId) else { return nil }
+
+            let dailyWeights = exerciseDailyMax[exerciseId] ?? [:]
+            let sortedDates = dailyWeights.keys.sorted()
+
+            // PR判定: 過去の最大を上回った日にフラグ
+            var runningMax: Double = 0
+            let entries: [ExerciseTrendEntry] = sortedDates.compactMap { date in
+                guard let weight = dailyWeights[date] else { return nil }
+                let isPR = weight > runningMax
+                if isPR { runningMax = weight }
+                return ExerciseTrendEntry(date: date, maxWeight: weight, isPR: isPR)
+            }
+
+            return ExerciseTrendData(
+                exercise: exercise,
+                entries: entries,
+                totalSets: totalSets
+            )
+        }
+    }
+
     // MARK: - ヘルパー
 
     private func calculateStimulatedGroups(sessions: [WorkoutSession]) -> Set<MuscleGroup> {
@@ -208,11 +264,9 @@ class HistoryViewModel {
             for workoutSet in session.sets {
                 guard let exercise = exerciseStore.exercise(for: workoutSet.exerciseId) else { continue }
                 for muscleId in exercise.muscleMapping.keys {
-                    // snake_case → Muscle enum
                     if let muscle = Muscle(rawValue: muscleId) {
                         groups.insert(muscle.group)
                     } else {
-                        // camelCaseからsnake_caseへの変換を試みる
                         for m in Muscle.allCases {
                             let snakeCase = m.rawValue.replacingOccurrences(
                                 of: "([a-z])([A-Z])",
@@ -240,7 +294,6 @@ class HistoryViewModel {
         let calendar = Calendar.current
         let now = Date()
 
-        // 期間に応じたフィルタリング
         let filteredSessions: [WorkoutSession]
         switch selectedPeriod {
         case .week:
@@ -253,7 +306,6 @@ class HistoryViewModel {
             filteredSessions = sessions
         }
 
-        // 筋肉別セット数を計算
         var muscleSets: [Muscle: Int] = [:]
         for muscle in Muscle.allCases {
             muscleSets[muscle] = 0
@@ -294,7 +346,6 @@ class HistoryViewModel {
         let calendar = Calendar.current
         let now = Date()
 
-        // 期間に応じたフィルタリング
         let filteredSessions: [WorkoutSession]
         switch selectedPeriod {
         case .week:
@@ -311,11 +362,10 @@ class HistoryViewModel {
             filteredSessions = sessions
         }
 
-        // 該当筋肉を刺激する種目とセット数を集計
         var exerciseSets: [String: Int] = [:]
         var lastWorkoutDate: Date?
         var bestSet: (weight: Double, reps: Int)?
-        var dailyMaxWeights: [Date: Double] = [:]  // 日別の最大重量
+        var dailyMaxWeights: [Date: Double] = [:]
 
         for session in filteredSessions {
             let sessionDay = calendar.startOfDay(for: session.startDate)
@@ -323,7 +373,6 @@ class HistoryViewModel {
             for workoutSet in session.sets {
                 guard let exercise = exerciseStore.exercise(for: workoutSet.exerciseId) else { continue }
 
-                // この種目が該当筋肉を刺激するか確認
                 let stimulatesMuscle = exercise.muscleMapping.keys.contains { muscleId in
                     muscleId == muscle.rawValue
                 }
@@ -331,12 +380,10 @@ class HistoryViewModel {
                 if stimulatesMuscle {
                     exerciseSets[workoutSet.exerciseId, default: 0] += 1
 
-                    // 最終ワークアウト日を更新
                     if lastWorkoutDate == nil || session.startDate > lastWorkoutDate! {
                         lastWorkoutDate = session.startDate
                     }
 
-                    // ベストセット（最大重量）を更新
                     if let best = bestSet {
                         if workoutSet.weight > best.weight {
                             bestSet = (workoutSet.weight, workoutSet.reps)
@@ -345,7 +392,6 @@ class HistoryViewModel {
                         bestSet = (workoutSet.weight, workoutSet.reps)
                     }
 
-                    // 日別の最大重量を更新
                     if workoutSet.weight > 0 {
                         dailyMaxWeights[sessionDay] = max(dailyMaxWeights[sessionDay] ?? 0, workoutSet.weight)
                     }
@@ -353,7 +399,6 @@ class HistoryViewModel {
             }
         }
 
-        // 種目リスト（セット数でソート）
         let exercises = exerciseSets
             .sorted { $0.value > $1.value }
             .compactMap { (exerciseId, sets) -> MuscleExerciseHistory? in
@@ -361,7 +406,6 @@ class HistoryViewModel {
                 return MuscleExerciseHistory(exercise: exercise, totalSets: sets)
             }
 
-        // 重量履歴を作成（日付順にソート、PR判定付き）
         let sortedDates = dailyMaxWeights.keys.sorted()
         var runningMax: Double = 0
         var weightHistory: [MuscleWeightEntry] = []
@@ -484,7 +528,7 @@ struct MuscleHistoryDetail {
     let lastWorkoutDate: Date?
     let bestWeight: Double?
     let bestReps: Int?
-    let weightHistory: [MuscleWeightEntry]  // 日別の重量履歴（チャート用）
+    let weightHistory: [MuscleWeightEntry]
 
     static func empty(muscle: Muscle) -> MuscleHistoryDetail {
         MuscleHistoryDetail(
@@ -514,4 +558,38 @@ struct MuscleExerciseHistory: Identifiable {
     let totalSets: Int
 
     var id: String { exercise.id }
+}
+
+// MARK: - 種目別推移データ（Pro機能）
+
+struct ExerciseTrendData: Identifiable {
+    let exercise: ExerciseDefinition
+    let entries: [ExerciseTrendEntry]  // 全期間・日別
+    let totalSets: Int
+
+    var id: String { exercise.id }
+
+    /// 全期間のベスト重量
+    var bestWeight: Double? {
+        entries.max(by: { $0.maxWeight < $1.maxWeight })?.maxWeight
+    }
+
+    /// 初回トレーニング日
+    var startDate: Date? { entries.first?.date }
+
+    /// 成長率（最初→最新の重量変化率）
+    var progressPercent: Double? {
+        guard let first = entries.first?.maxWeight,
+              let last = entries.last?.maxWeight,
+              first > 0 else { return nil }
+        return ((last - first) / first) * 100
+    }
+}
+
+struct ExerciseTrendEntry: Identifiable {
+    let date: Date
+    let maxWeight: Double
+    let isPR: Bool
+
+    var id: Date { date }
 }
