@@ -6,7 +6,6 @@ struct PaywallView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var errorMessage: String?
     @State private var showingError = false
-    @State private var showingSuccess = false
 
     var body: some View {
         NavigationStack {
@@ -62,11 +61,6 @@ struct PaywallView: View {
                 Button("OK") {}
             } message: {
                 Text(errorMessage ?? "不明なエラーが発生しました。")
-            }
-            .alert("歓迎、Pro!", isPresented: $showingSuccess) {
-                Button("OK") { dismiss() }
-            } message: {
-                Text("過去の購入が確認されました。")
             }
         }
     }
@@ -181,14 +175,13 @@ struct PaywallView: View {
                 do {
                     let purchased = try await PurchaseManager.shared.purchase(productId: productId)
                     if purchased {
-                        // 成功: モーダルを閉じる
                         dismiss()
                     }
                     // purchased == false はユーザーが自分でキャンセル → 何もしない
                 } catch {
                     errorMessage = error.localizedDescription
                     showingError = true
-                    HapticManager.errorVibration()
+                    HapticManager.error()
                 }
             }
         } label: {
@@ -243,7 +236,6 @@ struct PaywallView: View {
                     if restored {
                         dismiss()
                     } else {
-                        // 有効な購入なし
                         errorMessage = "復元できる購入履歴が見つかりませんでした。"
                         showingError = true
                     }
