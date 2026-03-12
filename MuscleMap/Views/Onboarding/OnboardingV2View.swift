@@ -41,7 +41,6 @@ struct OnboardingV2View: View {
                     .tag(3)
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
-            .animation(.easeInOut(duration: 0.3), value: currentPage)
 
             // ページインジケーター
             VStack {

@@ -99,8 +99,8 @@ struct CallToActionPage: View {
                     )
                     .clipShape(RoundedRectangle(cornerRadius: 16))
                     .shadow(
-                        color: Color.mmOnboardingAccent.opacity(buttonGlow ? 0.5 : 0.2),
-                        radius: buttonGlow ? 12 : 4
+                        color: Color.mmOnboardingAccent.opacity(buttonGlow ? 0.35 : 0.15),
+                        radius: buttonGlow ? 6 : 2
                     )
             }
             .buttonStyle(.plain)

@@ -553,15 +553,15 @@ enum L10n {
     static var onboardingDemoHint: String { loc("筋肉をタップして体験", "Tap muscles to try it out") }
 
     // MARK: - 価値体験画面（InteractiveDemoPage）
-    static var demoPrimaryTitle: String { loc("昨日トレーニングした部位は？", "Which muscles did you train yesterday?") }
-    static var demoSubtitle: String { loc("タップして回復状態を確認", "Tap to check recovery status") }
+    static var demoPrimaryTitle: String { loc("あなたの体を、タップして目覚めさせよう", "Tap to awaken your body") }
+    static var demoSubtitle: String { loc("筋肉をタップすると回復状態がわかる", "Tap a muscle to see its recovery status") }
     static func recoveryTimeRemaining(_ hours: Int) -> String {
         loc("回復まであと\(hours)時間", "\(hours)h until recovery", zhHans: "距离恢复还有\(hours)小时", ko: "회복까지 \(hours)시간", es: "\(hours)h para recuperación", fr: "\(hours)h avant récupération", de: "\(hours)h bis zur Erholung")
     }
 
     // MARK: - 体重入力画面（WeightInputPage）
     static var weightInputTitle: String { loc("あなたの体重を教えてください", "Tell Us Your Weight") }
-    static var weightInputSubtitle: String { loc("Strength Mapの精度に使用します", "Used to improve Strength Map accuracy") }
+    static var weightInputSubtitle: String { loc("体重比で筋力スコアを算出します", "Used to calculate your strength score by body weight ratio") }
     static var nicknamePlaceholder: String { loc("名前（任意）", "Name (optional)") }
 
     // MARK: - 目標設定画面（PersonalizationPage）

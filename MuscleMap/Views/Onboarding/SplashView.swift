@@ -152,15 +152,15 @@ struct SplashView: View {
             }
         }
 
-        // タグライン表示（1.5秒）
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+        // タグライン表示（1.0秒）
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
             withAnimation(.easeOut(duration: 0.6)) {
                 taglineOpacity = 1.0
             }
         }
 
-        // 続行ボタン表示（2.5秒）
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
+        // 続行ボタン表示（1.5秒）
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
             withAnimation(.easeOut(duration: 0.5)) {
                 showContinue = true
             }
