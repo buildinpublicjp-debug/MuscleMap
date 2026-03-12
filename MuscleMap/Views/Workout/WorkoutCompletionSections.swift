@@ -5,34 +5,47 @@ import SwiftUI
 struct CompletionIcon: View {
     @State private var showConfetti = false
 
-    // 紙吹雪パーティクル定義（6個）
-    private let confettiItems: [(color: Color, offsetX: CGFloat, offsetY: CGFloat, rotation: Double)] = [
-        (.mmAccentPrimary, -50, -40, 45),
-        (.mmPRGold, 45, -50, -30),
-        (.mmAccentSecondary, -40, 30, 60),
-        (.mmAccentPrimary, 55, 20, -45),
-        (.mmPRGold, -20, -55, 120),
-        (.mmAccentSecondary, 30, 45, -60),
+    // 紙吹雪パーティクル定義（10個、3色、広範囲に散布）
+    private let confettiItems: [(color: Color, offsetX: CGFloat, offsetY: CGFloat, rotation: Double, isRect: Bool)] = [
+        (.mmAccentPrimary, -90, -50, 45, false),
+        (.mmPRGold, 80, -60, -30, true),
+        (.mmAccentSecondary, -70, 40, 60, false),
+        (.mmAccentPrimary, 100, 30, -45, true),
+        (.mmPRGold, -30, -75, 120, false),
+        (.mmAccentSecondary, 50, 65, -60, true),
+        (.mmPRGold, -110, -10, 90, false),
+        (.mmAccentPrimary, 120, -35, -75, true),
+        (.mmAccentSecondary, -60, 70, 30, false),
+        (.mmPRGold, 40, -80, -120, true),
     ]
 
     var body: some View {
         ZStack {
             // 紙吹雪パーティクル
             ForEach(Array(confettiItems.enumerated()), id: \.offset) { index, item in
-                Circle()
-                    .fill(item.color)
-                    .frame(width: CGFloat.random(in: 5...9), height: CGFloat.random(in: 5...9))
-                    .offset(
-                        x: showConfetti ? item.offsetX : 0,
-                        y: showConfetti ? item.offsetY : 0
-                    )
-                    .opacity(showConfetti ? 0 : 1)
-                    .scaleEffect(showConfetti ? 0.3 : 0.01)
-                    .animation(
-                        .easeOut(duration: 1.5)
-                        .delay(Double(index) * 0.05),
-                        value: showConfetti
-                    )
+                Group {
+                    if item.isRect {
+                        RoundedRectangle(cornerRadius: 2)
+                            .fill(item.color)
+                            .frame(width: 8, height: 5)
+                    } else {
+                        Circle()
+                            .fill(item.color)
+                            .frame(width: 7, height: 7)
+                    }
+                }
+                .rotationEffect(.degrees(showConfetti ? item.rotation : 0))
+                .offset(
+                    x: showConfetti ? item.offsetX : 0,
+                    y: showConfetti ? item.offsetY : 0
+                )
+                .opacity(showConfetti ? 0 : 1)
+                .scaleEffect(showConfetti ? 0.5 : 0.01)
+                .animation(
+                    .easeOut(duration: 1.5)
+                    .delay(Double(index) * 0.04),
+                    value: showConfetti
+                )
             }
 
             // メインアイコン

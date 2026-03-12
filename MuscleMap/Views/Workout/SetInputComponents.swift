@@ -10,6 +10,7 @@ struct SetInputCard: View {
     @Environment(\.modelContext) private var modelContext
     @State private var useAdditionalWeight = false
     @State private var showPRCelebration = false
+    @State private var recordButtonScale: CGFloat = 1.0
     private var localization: LocalizationManager { LocalizationManager.shared }
 
     private var isBodyweight: Bool {
@@ -220,6 +221,16 @@ struct SetInputCard: View {
 
             // 記録ボタン
             Button {
+                // バウンスアニメーション
+                withAnimation(.easeInOut(duration: 0.08)) {
+                    recordButtonScale = 0.95
+                }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.08) {
+                    withAnimation(.spring(response: 0.15, dampingFraction: 0.5)) {
+                        recordButtonScale = 1.0
+                    }
+                }
+
                 let isPR = viewModel.recordSet()
                 if isPR {
                     HapticManager.prAchieved()
@@ -243,6 +254,7 @@ struct SetInputCard: View {
                     .background(Color.mmAccentPrimary)
                     .clipShape(RoundedRectangle(cornerRadius: 16))
             }
+            .scaleEffect(recordButtonScale)
             .buttonStyle(.plain)
         }
         .padding()
