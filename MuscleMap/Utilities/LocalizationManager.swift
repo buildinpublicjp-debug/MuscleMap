@@ -959,4 +959,28 @@ enum L10n {
     static var openInYouTube: String { loc("YouTubeで開く", "Open in YouTube") }
     static var addThisExercise: String { loc("この種目を追加", "Add This Exercise") }
     static var startWorkoutWithExercise: String { loc("この種目でワークアウト開始", "Start Workout with This Exercise") }
+
+    // MARK: - ソーシャルフィード
+    static var feed: String { loc("フィード", "Feed", zhHans: "动态", ko: "피드", es: "Feed", fr: "Fil", de: "Feed") }
+    static var feedComingSoon: String { loc("現在モックデータで表示中 — ソーシャル機能は近日公開", "Showing mock data — Social features coming soon", zhHans: "显示模拟数据 — 社交功能即将上线", ko: "목업 데이터 표시 중 — 소셜 기능 곧 출시", es: "Datos de ejemplo — Funciones sociales próximamente", fr: "Données fictives — Fonctions sociales bientôt", de: "Mockdaten — Soziale Funktionen bald verfügbar") }
+    static var feedInviteFriends: String { loc("フレンドを招待", "Invite Friends", zhHans: "邀请好友", ko: "친구 초대", es: "Invitar amigos", fr: "Inviter des amis", de: "Freunde einladen") }
+    static var feedInviteSubtitle: String { loc("一緒にトレーニングを記録しよう", "Track workouts together", zhHans: "一起记录训练", ko: "함께 운동을 기록하자", es: "Registra entrenamientos juntos", fr: "Enregistrez vos entraînements ensemble", de: "Trainiert gemeinsam") }
+    static func feedInviteMessage(_ url: String) -> String {
+        loc("MuscleMapで一緒にトレーニングしよう！ \(url)", "Let's train together on MuscleMap! \(url)", zhHans: "一起用MuscleMap训练吧！ \(url)", ko: "MuscleMap에서 함께 운동하자! \(url)", es: "¡Entrena conmigo en MuscleMap! \(url)", fr: "Entraînons-nous ensemble sur MuscleMap ! \(url)", de: "Lass uns zusammen auf MuscleMap trainieren! \(url)")
+    }
+    static var feedRecorded: String { loc("を記録 🔥", "recorded 🔥", zhHans: "已记录 🔥", ko: "기록 🔥", es: "registrado 🔥", fr: "enregistré 🔥", de: "aufgezeichnet 🔥") }
+    static var feedWorkoutCompleted: String { loc("ワークアウトを完了", "Workout completed", zhHans: "完成训练", ko: "운동 완료", es: "Entrenamiento completado", fr: "Entraînement terminé", de: "Training abgeschlossen") }
+    static var feedPRUpdated: String { loc("でPR更新！ 🏆", "— New PR! 🏆", zhHans: "刷新PR！ 🏆", ko: "PR 갱신! 🏆", es: "¡Nuevo PR! 🏆", fr: "Nouveau PR ! 🏆", de: "Neuer PR! 🏆") }
+    static var feedPRGeneric: String { loc("自己ベストを更新！", "New personal record!", zhHans: "刷新个人记录！", ko: "개인 기록 갱신!", es: "¡Nuevo récord personal!", fr: "Nouveau record personnel !", de: "Neuer persönlicher Rekord!") }
+    static var feedStreakAchieved: String { loc("連続トレーニング記録を達成！ 🎯", "Training streak achieved! 🎯", zhHans: "达成连续训练记录！ 🎯", ko: "연속 트레이닝 달성! 🎯", es: "¡Racha de entrenamiento lograda! 🎯", fr: "Série d'entraînement atteinte ! 🎯", de: "Trainingsserie erreicht! 🎯") }
+    static var feedJustNow: String { loc("たった今", "Just now", zhHans: "刚刚", ko: "방금", es: "Ahora mismo", fr: "À l'instant", de: "Gerade eben") }
+    static func feedMinutesAgo(_ minutes: Int) -> String {
+        loc("\(minutes)分前", "\(minutes)m ago", zhHans: "\(minutes)分钟前", ko: "\(minutes)분 전", es: "Hace \(minutes)m", fr: "Il y a \(minutes)min", de: "Vor \(minutes)Min")
+    }
+    static func feedHoursAgo(_ hours: Int) -> String {
+        loc("\(hours)時間前", "\(hours)h ago", zhHans: "\(hours)小时前", ko: "\(hours)시간 전", es: "Hace \(hours)h", fr: "Il y a \(hours)h", de: "Vor \(hours)Std")
+    }
+    static func feedDaysAgo(_ days: Int) -> String {
+        loc("\(days)日前", "\(days)d ago", zhHans: "\(days)天前", ko: "\(days)일 전", es: "Hace \(days)d", fr: "Il y a \(days)j", de: "Vor \(days)T")
+    }
 }
