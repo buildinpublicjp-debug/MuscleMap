@@ -10,6 +10,7 @@ struct SettingsView: View {
     @State private var safariURL: URL?
     @State private var showingPaywall = false
     @State private var showingProfileEdit = false
+    @State private var showingActivityFeed = false
     #if DEBUG
     @State private var showingResetAlert = false
     #endif
@@ -55,6 +56,21 @@ struct SettingsView: View {
             }
             .sheet(isPresented: $showingProfileEdit) {
                 ProfileEditSheet()
+            }
+            .sheet(isPresented: $showingActivityFeed) {
+                NavigationStack {
+                    ActivityFeedView()
+                        .toolbar {
+                            ToolbarItem(placement: .topBarTrailing) {
+                                Button {
+                                    showingActivityFeed = false
+                                } label: {
+                                    Image(systemName: "xmark.circle.fill")
+                                        .foregroundStyle(Color.mmTextSecondary)
+                                }
+                            }
+                        }
+                }
             }
             #if DEBUG
             .alert("オンボーディングをリセットしました", isPresented: $showingResetAlert) {
@@ -293,6 +309,31 @@ struct SettingsView: View {
 
     private var aboutSection: some View {
         Section {
+            // ソーシャルフィード（Preview）
+            Button {
+                showingActivityFeed = true
+            } label: {
+                HStack(spacing: 12) {
+                    Image(systemName: "person.2.fill")
+                        .foregroundStyle(Color.mmAccentSecondary)
+                    Text("ソーシャルフィード")
+                        .font(.subheadline)
+                        .foregroundStyle(Color.mmTextPrimary)
+                    Spacer()
+                    Text("Coming Soon")
+                        .font(.caption2.bold())
+                        .foregroundStyle(Color.mmBgPrimary)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 3)
+                        .background(Color.mmAccentSecondary)
+                        .clipShape(Capsule())
+                    Image(systemName: "chevron.right")
+                        .font(.caption2)
+                        .foregroundStyle(Color.mmTextSecondary)
+                }
+            }
+            .listRowBackground(Color.mmBgCard)
+
             // バージョン
             HStack(spacing: 12) {
                 Image(systemName: "info.circle")
