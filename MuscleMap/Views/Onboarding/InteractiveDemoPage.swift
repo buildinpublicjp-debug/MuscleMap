@@ -131,6 +131,7 @@ struct InteractiveDemoPage: View {
                         .background(Color.mmOnboardingAccent)
                         .clipShape(RoundedRectangle(cornerRadius: 16))
                 }
+                .buttonStyle(.plain)
                 .padding(.horizontal, 24)
                 .padding(.bottom, 16)
                 .opacity(appeared ? 1 : 0)

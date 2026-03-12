@@ -68,18 +68,22 @@ struct WorkoutIdleView: View {
             }
 
             // 開始ボタン（固定）
-            Button(action: onStart) {
+            Button {
+                HapticManager.lightTap()
+                onStart()
+            } label: {
                 HStack {
                     Image(systemName: "figure.strengthtraining.traditional")
                     Text(L10n.startFreeWorkout)
                 }
                 .font(.headline)
-                .foregroundStyle(.white)
+                .foregroundStyle(Color.mmTextPrimary)
                 .frame(maxWidth: .infinity)
                 .frame(height: 60)
                 .background(Color.mmAccentPrimary)
                 .clipShape(RoundedRectangle(cornerRadius: 16))
             }
+            .buttonStyle(.plain)
             .padding(.horizontal)
             .padding(.bottom, 8)
         }
@@ -118,7 +122,10 @@ struct RecommendedWorkoutBanner: View {
     private var localization: LocalizationManager { LocalizationManager.shared }
 
     var body: some View {
-        Button(action: onStart) {
+        Button {
+            HapticManager.lightTap()
+            onStart()
+        } label: {
             HStack(spacing: 12) {
                 Text("💡")
                     .font(.title3)
@@ -181,6 +188,7 @@ struct FavoriteExercisesSection: View {
                 HStack(spacing: 12) {
                     ForEach(exercises) { exercise in
                         Button {
+                            HapticManager.lightTap()
                             onSelect(exercise)
                         } label: {
                             VStack(alignment: .leading, spacing: 6) {
@@ -260,6 +268,7 @@ struct MuscleExercisePickerSheet: View {
                         LazyVStack(spacing: 12) {
                             ForEach(relatedExercises) { exercise in
                                 Button {
+                                    HapticManager.lightTap()
                                     onSelect(exercise)
                                 } label: {
                                     VStack(alignment: .leading, spacing: 8) {

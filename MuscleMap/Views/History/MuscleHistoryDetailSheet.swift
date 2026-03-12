@@ -130,7 +130,7 @@ struct MuscleHistoryDetailSheet: View {
                 VStack(spacing: 4) {
                     Image(systemName: "trophy.fill")
                         .font(.caption)
-                        .foregroundStyle(Color.yellow)
+                        .foregroundStyle(Color.mmPRGold)
                     Text(localization.currentLanguage == .japanese ? "ベスト" : "Best")
                         .font(.caption2)
                         .foregroundStyle(Color.mmTextSecondary)
@@ -183,13 +183,13 @@ struct MuscleHistoryDetailSheet: View {
                 x: .value("Date", entry.date, unit: .day),
                 y: .value("Weight", entry.maxWeight)
             )
-            .foregroundStyle(entry.isPR ? Color.yellow : Color.mmAccentPrimary)
+            .foregroundStyle(entry.isPR ? Color.mmPRGold : Color.mmAccentPrimary)
             .symbolSize(entry.isPR ? 100 : 40)
             .annotation(position: .top, alignment: .center) {
                 if entry.isPR {
                     Text("PR")
                         .font(.system(size: 8, weight: .bold))
-                        .foregroundStyle(Color.yellow)
+                        .foregroundStyle(Color.mmPRGold)
                 }
             }
         }

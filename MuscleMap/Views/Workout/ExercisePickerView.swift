@@ -136,6 +136,7 @@ struct ExercisePickerView: View {
                 HStack(spacing: 0) {
                     // メイン行（タップで種目選択）
                     Button {
+                        HapticManager.lightTap()
                         onSelect(exercise)
                     } label: {
                         EnhancedExerciseRow(

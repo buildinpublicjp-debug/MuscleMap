@@ -85,6 +85,7 @@ struct MonthlyCalendarView: View {
     private var monthNavigation: some View {
         HStack {
             Button {
+                HapticManager.lightTap()
                 withAnimation(.easeInOut(duration: 0.2)) {
                     previousMonth()
                 }
@@ -104,6 +105,7 @@ struct MonthlyCalendarView: View {
             Spacer()
 
             Button {
+                HapticManager.lightTap()
                 withAnimation(.easeInOut(duration: 0.2)) {
                     nextMonth()
                 }

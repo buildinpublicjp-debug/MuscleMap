@@ -137,6 +137,7 @@ struct ExerciseLibraryView: View {
         } else {
             List(viewModel.filteredExercises) { exercise in
                 Button {
+                    HapticManager.lightTap()
                     selectedExercise = exercise
                 } label: {
                     ExerciseLibraryRow(exercise: exercise)

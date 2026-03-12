@@ -153,6 +153,7 @@ struct WorkoutCompletionView: View {
 
                         // シェアボタン（StatsCard直下に配置）
                         Button {
+                            HapticManager.lightTap()
                             prepareShareImage()
                             showingShareOptions = true
                         } label: {
@@ -167,6 +168,7 @@ struct WorkoutCompletionView: View {
                             .background(Color.mmAccentPrimary)
                             .clipShape(RoundedRectangle(cornerRadius: 14))
                         }
+                        .buttonStyle(.plain)
 
                         StimulatedMusclesSection(muscleMapping: stimulatedMuscleMapping)
 
@@ -204,7 +206,10 @@ struct WorkoutCompletionView: View {
                 }
 
                 // 閉じるボタンのみ下部固定
-                Button(action: onDismiss) {
+                Button {
+                    HapticManager.lightTap()
+                    onDismiss()
+                } label: {
                     Text(L10n.close)
                         .font(.headline)
                         .foregroundStyle(Color.mmTextSecondary)

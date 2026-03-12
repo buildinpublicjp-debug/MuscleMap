@@ -84,7 +84,10 @@ struct TodayRecommendationInline: View {
     private var localization: LocalizationManager { LocalizationManager.shared }
 
     var body: some View {
-        Button(action: onStart) {
+        Button {
+            HapticManager.lightTap()
+            onStart()
+        } label: {
             HStack(spacing: 10) {
                 if hasWorkoutHistory, let menu = suggestedMenu {
                     // 回復済み筋肉のおすすめ表示
@@ -165,7 +168,10 @@ struct StrengthMapPreviewBanner: View {
     let onTap: () -> Void
 
     var body: some View {
-        Button(action: onTap) {
+        Button {
+            HapticManager.lightTap()
+            onTap()
+        } label: {
             HStack(spacing: 12) {
                 Image(systemName: "bolt.shield.fill")
                     .font(.subheadline)

@@ -196,13 +196,13 @@ struct ExerciseTrendSection: View {
                                 x: .value("Date", entry.date),
                                 y: .value("Weight", entry.maxWeight)
                             )
-                            .foregroundStyle(entry.isPR ? Color.yellow : Color.mmAccentPrimary)
+                            .foregroundStyle(entry.isPR ? Color.mmPRGold : Color.mmAccentPrimary)
                             .symbolSize(entry.isPR ? 80 : 30)
                             .annotation(position: .top) {
                                 if entry.isPR {
                                     Text("PR")
                                         .font(.system(size: 8, weight: .bold))
-                                        .foregroundStyle(Color.yellow)
+                                        .foregroundStyle(Color.mmPRGold)
                                 }
                             }
 
@@ -245,7 +245,7 @@ struct ExerciseTrendSection: View {
                         // 凡例
                         HStack(spacing: 16) {
                             HStack(spacing: 4) {
-                                Circle().fill(Color.yellow).frame(width: 8, height: 8)
+                                Circle().fill(Color.mmPRGold).frame(width: 8, height: 8)
                                 Text("PR達成").font(.caption2).foregroundStyle(Color.mmTextSecondary)
                             }
                             HStack(spacing: 4) {
@@ -273,7 +273,7 @@ struct ExerciseTrendSection: View {
                             // ベスト重量
                             TrendStatBox(
                                 icon: "trophy.fill",
-                                iconColor: .yellow,
+                                iconColor: .mmPRGold,
                                 label: "ベスト",
                                 value: data.bestWeight.map { "\(Int($0))kg" } ?? "-"
                             )

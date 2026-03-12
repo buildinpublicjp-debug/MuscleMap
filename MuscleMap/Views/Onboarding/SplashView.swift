@@ -112,6 +112,7 @@ struct SplashView: View {
                             .background(Color.mmOnboardingAccent)
                             .clipShape(RoundedRectangle(cornerRadius: 16))
                     }
+                    .buttonStyle(.plain)
                     .padding(.horizontal, 32)
                     .padding(.bottom, 48)
                     .transition(.opacity.combined(with: .move(edge: .bottom)))

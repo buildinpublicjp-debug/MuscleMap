@@ -50,14 +50,14 @@ struct SetInputCard: View {
                             HStack(spacing: 2) {
                                 Image(systemName: "trophy.fill")
                                     .font(.caption2)
-                                    .foregroundStyle(.yellow)
+                                    .foregroundStyle(Color.mmPRGold)
                                 Text("\(pr, specifier: "%.1f")kg")
                                     .font(.caption2.bold())
                                     .foregroundStyle(Color.mmTextPrimary)
                             }
                             .padding(.horizontal, 8)
                             .padding(.vertical, 4)
-                            .background(Color.black.opacity(0.6))
+                            .background(Color.mmBgPrimary.opacity(0.6))
                             .clipShape(Capsule())
                             .padding(8)
                         }
@@ -243,6 +243,7 @@ struct SetInputCard: View {
                     .background(Color.mmAccentPrimary)
                     .clipShape(RoundedRectangle(cornerRadius: 16))
             }
+            .buttonStyle(.plain)
         }
         .padding()
         }
@@ -268,18 +269,18 @@ struct PRCelebrationOverlay: View {
 
     var body: some View {
         ZStack {
-            Color.black.opacity(0.6)
+            Color.mmBgPrimary.opacity(0.6)
                 .ignoresSafeArea()
 
             VStack(spacing: 16) {
                 Image(systemName: "trophy.fill")
                     .font(.system(size: 60))
-                    .foregroundStyle(.yellow)
-                    .shadow(color: .yellow.opacity(0.5), radius: 10)
+                    .foregroundStyle(Color.mmPRGold)
+                    .shadow(color: Color.mmPRGold.opacity(0.5), radius: 10)
 
                 Text("🎉 NEW PR! 🎉")
                     .font(.title.bold())
-                    .foregroundStyle(.white)
+                    .foregroundStyle(Color.mmTextPrimary)
 
                 Text(localization.currentLanguage == .japanese ? "自己ベスト更新！" : "Personal Record!")
                     .font(.headline)

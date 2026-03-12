@@ -65,6 +65,7 @@ struct ExerciseDetailView: View {
 
                         // 動画で見る（YouTubeボタン）
                         Button {
+                            HapticManager.lightTap()
                             if let url = YouTubeSearchHelper.searchURL(for: exercise) {
                                 UIApplication.shared.open(url)
                             }
@@ -103,6 +104,7 @@ struct ExerciseDetailView: View {
                             .background(Color.mmAccentPrimary)
                             .clipShape(RoundedRectangle(cornerRadius: 16))
                         }
+                        .buttonStyle(.plain)
                     }
                     .padding()
                 }
@@ -146,14 +148,14 @@ private struct InfoTag: View {
     var body: some View {
         HStack(spacing: 4) {
             Image(systemName: icon)
-                .foregroundStyle(highlight ? .yellow : Color.mmTextSecondary)
+                .foregroundStyle(highlight ? .mmPRGold : Color.mmTextSecondary)
             Text(text)
         }
         .font(.caption)
         .padding(.horizontal, 10)
         .padding(.vertical, 6)
         .background(Color.mmBgCard)
-        .foregroundStyle(highlight ? .yellow : Color.mmTextSecondary)
+        .foregroundStyle(highlight ? .mmPRGold : Color.mmTextSecondary)
         .clipShape(Capsule())
     }
 }

@@ -121,7 +121,10 @@ struct AnalyticsMenuView: View {
             .toolbarColorScheme(.dark, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button { dismiss() } label: {
+                    Button {
+                        HapticManager.lightTap()
+                        dismiss()
+                    } label: {
                         Image(systemName: "xmark")
                             .foregroundStyle(Color.mmTextSecondary)
                     }
@@ -256,7 +259,10 @@ struct AnalyticsMenuItem: View {
     }
 
     var body: some View {
-        Button(action: action) {
+        Button {
+            HapticManager.lightTap()
+            action()
+        } label: {
             HStack(spacing: 14) {
                 // アイコン
                 Image(systemName: icon)

@@ -81,6 +81,20 @@ extension Color {
             : UIColor(hex: "#1C1C1E")
     })
 
+    // MARK: - PR・タイマー・GIF背景
+
+    /// PRゴールド（トロフィー、PRマーク、シェアカード用）
+    static let mmPRGold = Color(hex: "#FFD700")
+
+    /// タイマー超過（レストタイマーがオーバーした場合）
+    static let mmTimerOvertime = Color(hex: "#E57373")
+
+    /// タイマー警告（残り10秒以下）
+    static let mmTimerWarning = Color(hex: "#FFD54F")
+
+    /// GIF背景（運動GIFの背景色）
+    static let mmGifBackground = Color(hex: "#FFFFFF")
+
     // MARK: - 旧名との互換エイリアス
 
     static let mmMuscleCoral = mmMuscleFatigued

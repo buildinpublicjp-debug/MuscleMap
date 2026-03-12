@@ -332,6 +332,7 @@ private struct RelatedExercisesSection: View {
 
             ForEach(exercises.prefix(10)) { exercise in
                 Button {
+                    HapticManager.lightTap()
                     selectedExercise = exercise
                 } label: {
                     VStack(alignment: .leading, spacing: 8) {

@@ -19,9 +19,9 @@ struct RestTimerView: View {
 
     private var timerColor: Color {
         if isOvertime {
-            return Color.red.opacity(0.8)
+            return Color.mmTimerOvertime
         } else if seconds <= 10 {
-            return Color.yellow
+            return Color.mmTimerWarning
         } else {
             return Color.mmAccentPrimary
         }
@@ -77,9 +77,9 @@ struct CompactTimerBadge: View {
 
     private var badgeColor: Color {
         if isOvertime {
-            return Color.red.opacity(0.8)
+            return Color.mmTimerOvertime
         } else if seconds <= 10 {
-            return Color.yellow
+            return Color.mmTimerWarning
         } else {
             return Color.mmAccentPrimary
         }
@@ -99,7 +99,7 @@ struct CompactTimerBadge: View {
             .foregroundStyle(isOvertime ? badgeColor : Color.mmTextPrimary)
             .padding(.horizontal, 10)
             .padding(.vertical, 6)
-            .background(Color.black.opacity(0.7))
+            .background(Color.mmBgPrimary.opacity(0.7))
             .clipShape(Capsule())
         }
     }

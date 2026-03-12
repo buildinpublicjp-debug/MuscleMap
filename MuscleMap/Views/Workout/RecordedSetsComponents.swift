@@ -77,7 +77,7 @@ struct RecordedSetsView: View {
                                 if isPRSet(set, in: entry.sets) {
                                     Image(systemName: "trophy.fill")
                                         .font(.caption)
-                                        .foregroundStyle(.yellow)
+                                        .foregroundStyle(Color.mmPRGold)
                                 }
                                 Text(timeFormatter.string(from: set.completedAt))
                                     .font(.caption2)

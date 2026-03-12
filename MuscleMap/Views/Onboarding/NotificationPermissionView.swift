@@ -92,6 +92,7 @@ struct NotificationPermissionView: View {
                             .clipShape(RoundedRectangle(cornerRadius: 16))
                     }
                 }
+                .buttonStyle(.plain)
                 .disabled(isRequesting)
                 .padding(.horizontal, 24)
 

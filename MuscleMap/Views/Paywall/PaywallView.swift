@@ -26,7 +26,7 @@ struct PaywallView: View {
                 // 購入中オーバーレイ
                 if PurchaseManager.shared.isLoading {
                     ZStack {
-                        Color.black.opacity(0.4).ignoresSafeArea()
+                        Color.mmBgPrimary.opacity(0.4).ignoresSafeArea()
                         VStack(spacing: 16) {
                             ProgressView()
                                 .scaleEffect(1.4)

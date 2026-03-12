@@ -103,6 +103,7 @@ struct CallToActionPage: View {
                         radius: buttonGlow ? 12 : 4
                     )
             }
+            .buttonStyle(.plain)
             .padding(.horizontal, 24)
 
             // Pro版ヒントテキスト

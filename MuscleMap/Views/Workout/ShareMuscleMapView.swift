@@ -61,7 +61,7 @@ struct ShareMuscleMapView: View {
                 let borderOpacity: Double = stimulation > 0 ? 0.5 : 0.8
                 context.stroke(
                     path,
-                    with: .color(Color(hex: "#808080").opacity(borderOpacity)),
+                    with: .color(Color.mmBorder.opacity(borderOpacity)),
                     lineWidth: stimulation >= 80 ? 1.2 : 0.8
                 )
             }
@@ -88,18 +88,18 @@ struct ShareMuscleMapView: View {
     private func colorFor(stimulation: Int) -> Color {
         guard stimulation > 0 else {
             // 未刺激 = 暗いグレー
-            return Color(hex: "#2A2A2E")
+            return Color.mmBgCard
         }
 
         switch stimulation {
         case 80...100:
-            return Color(hex: "#E57373")
+            return Color.mmMuscleFatigued
         case 50..<80:
-            return Color(hex: "#FFD54F")
+            return Color.mmMuscleModerate
         case 20..<50:
-            return Color(hex: "#81C784")
+            return Color.mmMuscleRecovered
         default:
-            return Color(hex: "#81C784").opacity(0.6)
+            return Color.mmMuscleRecovered.opacity(0.6)
         }
     }
 
@@ -107,11 +107,11 @@ struct ShareMuscleMapView: View {
     private func glowColor(stimulation: Int) -> Color {
         switch stimulation {
         case 80...100:
-            return Color(hex: "#E57373")
+            return Color.mmMuscleFatigued
         case 50..<80:
-            return Color(hex: "#FFD54F")
+            return Color.mmMuscleModerate
         default:
-            return Color(hex: "#81C784")
+            return Color.mmMuscleRecovered
         }
     }
 }
@@ -139,7 +139,7 @@ private extension String {
 
 #Preview {
     ZStack {
-        Color(hex: "#0A0A0A").ignoresSafeArea()
+        Color.mmBgPrimary.ignoresSafeArea()
 
         ShareMuscleMapView(
             muscleMapping: [

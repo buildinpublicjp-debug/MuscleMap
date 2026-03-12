@@ -63,12 +63,12 @@ struct OnboardingV2View: View {
 // MARK: - オンボーディング用カラーパレット
 
 extension Color {
-    static let mmOnboardingAccent = Color(red: 0, green: 0.902, blue: 0.463) // #00E676
-    static let mmOnboardingAccentDark = Color(red: 0, green: 0.702, blue: 0.373) // #00B35F
-    static let mmOnboardingBg = Color(red: 0.102, green: 0.102, blue: 0.118) // #1A1A1E
-    static let mmOnboardingCard = Color(red: 0.173, green: 0.173, blue: 0.180) // #2C2C2E
+    static let mmOnboardingAccent = Color(hex: "#00E676")
+    static let mmOnboardingAccentDark = Color(hex: "#00B35F")
+    static let mmOnboardingBg = Color(hex: "#1A1A1E")
+    static let mmOnboardingCard = Color(hex: "#2C2C2E")
     static let mmOnboardingTextMain = Color.white.opacity(0.9)
-    static let mmOnboardingTextSub = Color(red: 0.557, green: 0.557, blue: 0.576) // #8E8E93
+    static let mmOnboardingTextSub = Color(hex: "#8E8E93")
 }
 
 #Preview {

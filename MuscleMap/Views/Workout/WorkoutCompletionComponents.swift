@@ -68,7 +68,7 @@ struct WorkoutShareCard: View {
             RoundedRectangle(cornerRadius: Layout.cornerRadius)
                 .fill(
                     LinearGradient(
-                        colors: [Color(hex: "#0A0A0A"), Color(hex: "#1A1A2E")],
+                        colors: [Color.mmBgPrimary, Color.mmBgSecondary],
                         startPoint: .top,
                         endPoint: .bottom
                     )
@@ -86,7 +86,7 @@ struct WorkoutShareCard: View {
                 Text("WORKOUT COMPLETE")
                     .font(.system(size: 11, weight: .heavy))
                     .tracking(3)
-                    .foregroundStyle(Color(hex: "#00FFB3"))
+                    .foregroundStyle(Color.mmAccentPrimary)
                     .padding(.top, 8)
 
                 // 3. 筋肉マップ（前後同時表示 + グロー効果）
@@ -133,15 +133,15 @@ struct WorkoutShareCard: View {
                 // 簡易ロゴアイコン
                 ZStack {
                     Circle()
-                        .fill(Color(hex: "#00FFB3").opacity(0.15))
+                        .fill(Color.mmAccentPrimary.opacity(0.15))
                         .frame(width: 18, height: 18)
                     Text("M")
                         .font(.system(size: 10, weight: .heavy))
-                        .foregroundStyle(Color(hex: "#00FFB3"))
+                        .foregroundStyle(Color.mmAccentPrimary)
                 }
                 Text("MuscleMap")
                     .font(.system(size: 12, weight: .heavy))
-                    .foregroundStyle(Color(hex: "#00FFB3"))
+                    .foregroundStyle(Color.mmAccentPrimary)
             }
 
             Spacer()
@@ -149,7 +149,7 @@ struct WorkoutShareCard: View {
             // 日付
             Text(dateString)
                 .font(.system(size: 11, weight: .medium))
-                .foregroundStyle(Color(hex: "#808080"))
+                .foregroundStyle(Color.mmBorder)
         }
         .padding(.horizontal, 20)
     }
@@ -161,15 +161,15 @@ struct WorkoutShareCard: View {
             HStack(alignment: .firstTextBaseline, spacing: 3) {
                 Text(formatVolume(totalVolume))
                     .font(.system(size: 42, weight: .heavy))
-                    .foregroundStyle(Color(hex: "#00FFB3"))
+                    .foregroundStyle(Color.mmAccentPrimary)
                 Text("kg")
                     .font(.system(size: 16, weight: .medium))
-                    .foregroundStyle(Color(hex: "#808080"))
+                    .foregroundStyle(Color.mmBorder)
             }
             Text("TOTAL VOLUME")
                 .font(.system(size: 9, weight: .bold))
                 .tracking(2)
-                .foregroundStyle(Color(hex: "#808080"))
+                .foregroundStyle(Color.mmBorder)
         }
     }
 
@@ -184,7 +184,7 @@ struct WorkoutShareCard: View {
                 Text("NEW PR!")
                     .font(.system(size: 10, weight: .heavy))
                     .tracking(1.5)
-                    .foregroundStyle(Color(hex: "#FFD700"))
+                    .foregroundStyle(Color.mmPRGold)
             }
 
             // PR行（最大2件）
@@ -196,10 +196,10 @@ struct WorkoutShareCard: View {
         .padding(.vertical, 8)
         .background(
             RoundedRectangle(cornerRadius: 10)
-                .fill(Color(hex: "#FFD700").opacity(0.06))
+                .fill(Color.mmPRGold.opacity(0.06))
                 .overlay(
                     RoundedRectangle(cornerRadius: 10)
-                        .stroke(Color(hex: "#FFD700").opacity(0.15), lineWidth: 0.5)
+                        .stroke(Color.mmPRGold.opacity(0.15), lineWidth: 0.5)
                 )
         )
         .padding(.horizontal, 18)
@@ -209,7 +209,7 @@ struct WorkoutShareCard: View {
         HStack(spacing: 0) {
             Text(item.exerciseName)
                 .font(.system(size: 11, weight: .semibold))
-                .foregroundStyle(.white)
+                .foregroundStyle(Color.mmTextPrimary)
                 .lineLimit(1)
 
             Spacer(minLength: 4)
@@ -217,17 +217,17 @@ struct WorkoutShareCard: View {
             // 重量遷移
             Text(formatWeight(item.previousWeight))
                 .font(.system(size: 11, weight: .medium))
-                .foregroundStyle(Color(hex: "#808080"))
+                .foregroundStyle(Color.mmBorder)
             Text(" → ")
                 .font(.system(size: 11))
-                .foregroundStyle(Color(hex: "#808080"))
+                .foregroundStyle(Color.mmBorder)
             Text(formatWeight(item.newWeight))
                 .font(.system(size: 11, weight: .bold))
-                .foregroundStyle(Color(hex: "#FFD700"))
+                .foregroundStyle(Color.mmPRGold)
 
             Text(" ↑\(item.increasePercent)%")
                 .font(.system(size: 10, weight: .bold))
-                .foregroundStyle(Color(hex: "#FFD700"))
+                .foregroundStyle(Color.mmPRGold)
         }
     }
 
@@ -250,18 +250,18 @@ struct WorkoutShareCard: View {
         VStack(spacing: 1) {
             Text(value)
                 .font(.system(size: 18, weight: .bold))
-                .foregroundStyle(.white)
+                .foregroundStyle(Color.mmTextPrimary)
             Text(label)
                 .font(.system(size: 8, weight: .semibold))
                 .tracking(1)
-                .foregroundStyle(Color(hex: "#808080"))
+                .foregroundStyle(Color.mmBorder)
         }
         .frame(maxWidth: .infinity)
     }
 
     private var subStatDivider: some View {
         Rectangle()
-            .fill(Color(hex: "#808080").opacity(0.3))
+            .fill(Color.mmBorder.opacity(0.3))
             .frame(width: 0.5, height: 24)
     }
 
@@ -270,14 +270,14 @@ struct WorkoutShareCard: View {
     private var footerSection: some View {
         VStack(spacing: 4) {
             Rectangle()
-                .fill(Color(hex: "#00FFB3").opacity(0.1))
+                .fill(Color.mmAccentPrimary.opacity(0.1))
                 .frame(height: 0.5)
                 .padding(.horizontal, 20)
 
             Text("MuscleMap — Track Your Muscles")
                 .font(.system(size: 8, weight: .medium))
                 .tracking(1)
-                .foregroundStyle(Color(hex: "#808080").opacity(0.5))
+                .foregroundStyle(Color.mmBorder.opacity(0.5))
         }
     }
 

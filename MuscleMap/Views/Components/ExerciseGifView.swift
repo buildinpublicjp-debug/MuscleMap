@@ -30,7 +30,7 @@ struct ExerciseGifView: View {
                     .aspectRatio(contentMode: .fit)
                     .frame(maxWidth: .infinity)
                     .frame(maxHeight: 300)
-                    .background(Color.white)
+                    .background(Color.mmGifBackground)
                     .clipShape(RoundedRectangle(cornerRadius: 12))
                     .overlay(
                         RoundedRectangle(cornerRadius: 12)
@@ -43,7 +43,7 @@ struct ExerciseGifView: View {
                     .aspectRatio(contentMode: .fit)
                     .frame(maxWidth: .infinity)
                     .frame(height: 120)
-                    .background(Color.white)
+                    .background(Color.mmGifBackground)
                     .clipShape(RoundedRectangle(cornerRadius: 10))
                     .overlay(
                         RoundedRectangle(cornerRadius: 10)
@@ -58,7 +58,7 @@ struct ExerciseGifView: View {
                         .scaledToFit()
                         .frame(maxWidth: .infinity)
                         .frame(height: 160)
-                        .background(Color.white)
+                        .background(Color.mmGifBackground)
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                         .overlay(
                             RoundedRectangle(cornerRadius: 10)
@@ -74,7 +74,7 @@ struct ExerciseGifView: View {
                         .scaledToFit()
                         .padding(4)
                         .frame(width: 100, height: 75)
-                        .background(Color.white)
+                        .background(Color.mmGifBackground)
                         .clipShape(RoundedRectangle(cornerRadius: 8))
                         .overlay(
                             RoundedRectangle(cornerRadius: 8)

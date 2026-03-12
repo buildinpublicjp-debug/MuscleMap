@@ -129,6 +129,7 @@ struct WeightInputPage: View {
                     .background(Color.mmOnboardingAccent)
                     .clipShape(RoundedRectangle(cornerRadius: 16))
             }
+            .buttonStyle(.plain)
             .padding(.horizontal, 24)
             .padding(.bottom, 32)
             .opacity(appeared ? 1 : 0)

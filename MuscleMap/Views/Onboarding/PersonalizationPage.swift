@@ -69,6 +69,7 @@ struct PersonalizationPage: View {
                     .background(selectedGoal != nil ? Color.mmOnboardingAccent : Color.mmOnboardingCard)
                     .clipShape(RoundedRectangle(cornerRadius: 16))
             }
+            .buttonStyle(.plain)
             .disabled(selectedGoal == nil)
             .padding(.horizontal, 24)
             .padding(.bottom, 32)

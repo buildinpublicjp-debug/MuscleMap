@@ -8,10 +8,10 @@ struct CompletionIcon: View {
     // 紙吹雪パーティクル定義（6個）
     private let confettiItems: [(color: Color, offsetX: CGFloat, offsetY: CGFloat, rotation: Double)] = [
         (.mmAccentPrimary, -50, -40, 45),
-        (.yellow, 45, -50, -30),
+        (.mmPRGold, 45, -50, -30),
         (.mmAccentSecondary, -40, 30, 60),
         (.mmAccentPrimary, 55, 20, -45),
-        (.yellow, -20, -55, 120),
+        (.mmPRGold, -20, -55, 120),
         (.mmAccentSecondary, 30, 45, -60),
     ]
 

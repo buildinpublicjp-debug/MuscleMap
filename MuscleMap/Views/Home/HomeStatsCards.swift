@@ -6,7 +6,10 @@ struct ViewStatsButton: View {
     let action: () -> Void
 
     var body: some View {
-        Button(action: action) {
+        Button {
+            HapticManager.lightTap()
+            action()
+        } label: {
             HStack(spacing: 12) {
                 Image(systemName: "chart.bar.xaxis")
                     .font(.title3)
@@ -36,7 +39,10 @@ struct FirstWorkoutCTA: View {
     let onStartWorkout: () -> Void
 
     var body: some View {
-        Button(action: onStartWorkout) {
+        Button {
+            HapticManager.lightTap()
+            onStartWorkout()
+        } label: {
             VStack(spacing: 12) {
                 Image(systemName: "figure.strengthtraining.traditional")
                     .font(.system(size: 40))
@@ -79,7 +85,10 @@ struct MuscleJourneyCard: View {
     let action: () -> Void
 
     var body: some View {
-        Button(action: action) {
+        Button {
+            HapticManager.lightTap()
+            action()
+        } label: {
             HStack(spacing: 12) {
                 // アイコン
                 Image(systemName: "clock.arrow.2.circlepath")
@@ -120,7 +129,10 @@ struct TrainingHeatmapCard: View {
     let action: () -> Void
 
     var body: some View {
-        Button(action: action) {
+        Button {
+            HapticManager.lightTap()
+            action()
+        } label: {
             HStack(spacing: 12) {
                 // アイコン
                 Image(systemName: "chart.bar.xaxis")
@@ -161,7 +173,10 @@ struct BalanceDiagnosisCard: View {
     let action: () -> Void
 
     var body: some View {
-        Button(action: action) {
+        Button {
+            HapticManager.lightTap()
+            action()
+        } label: {
             HStack(spacing: 12) {
                 // アイコン
                 Image(systemName: "chart.bar.doc.horizontal")

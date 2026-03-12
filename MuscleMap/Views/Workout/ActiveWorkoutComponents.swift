@@ -22,6 +22,7 @@ struct ActiveWorkoutView: View {
                         // 戻るボタン
                         HStack {
                             Button {
+                                HapticManager.lightTap()
                                 viewModel.selectedExercise = nil
                             } label: {
                                 HStack(spacing: 4) {
@@ -40,6 +41,7 @@ struct ActiveWorkoutView: View {
 
                     // 種目追加ボタン
                     Button {
+                        HapticManager.lightTap()
                         showingExercisePicker = true
                     } label: {
                         HStack {
@@ -84,6 +86,7 @@ struct ActiveWorkoutView: View {
 
             // 終了ボタン
             Button {
+                HapticManager.lightTap()
                 showingEndConfirm = true
             } label: {
                 Text(L10n.endWorkout)
@@ -93,6 +96,7 @@ struct ActiveWorkoutView: View {
                     .frame(height: 60)
                     .background(Color.mmAccentPrimary)
             }
+            .buttonStyle(.plain)
             .confirmationDialog(L10n.endWorkoutConfirm, isPresented: $showingEndConfirm, titleVisibility: .visible) {
                 Button(L10n.saveAndEnd) {
                     // セッションを親ビューに渡して完了画面を表示
@@ -157,6 +161,7 @@ struct SetEditSheet: View {
                         .foregroundStyle(Color.mmTextSecondary)
                     HStack(spacing: 16) {
                         Button {
+                            HapticManager.stepperChanged()
                             editWeight = max(0, editWeight - 2.5)
                         } label: {
                             Image(systemName: "minus.circle.fill")
@@ -168,6 +173,7 @@ struct SetEditSheet: View {
                             .foregroundStyle(Color.mmTextPrimary)
                             .frame(minWidth: 100)
                         Button {
+                            HapticManager.stepperChanged()
                             editWeight += 2.5
                         } label: {
                             Image(systemName: "plus.circle.fill")
@@ -184,6 +190,7 @@ struct SetEditSheet: View {
                         .foregroundStyle(Color.mmTextSecondary)
                     HStack(spacing: 16) {
                         Button {
+                            HapticManager.stepperChanged()
                             editReps = max(1, editReps - 1)
                         } label: {
                             Image(systemName: "minus.circle.fill")
@@ -195,6 +202,7 @@ struct SetEditSheet: View {
                             .foregroundStyle(Color.mmTextPrimary)
                             .frame(minWidth: 60)
                         Button {
+                            HapticManager.stepperChanged()
                             editReps += 1
                         } label: {
                             Image(systemName: "plus.circle.fill")

@@ -64,7 +64,7 @@ struct StrengthShareCard: View {
             footerSection
         }
         .frame(width: Layout.cardWidth, height: Layout.cardHeight)
-        .background(Color(hex: "#121212"))
+        .background(Color.mmBgPrimary)
         .environment(\.colorScheme, .dark)
     }
 
@@ -77,10 +77,10 @@ struct StrengthShareCard: View {
                 HStack(spacing: 4) {
                     Text("M")
                         .font(.system(size: 15, weight: .heavy))
-                        .foregroundStyle(Color(hex: "#00FFB3"))
+                        .foregroundStyle(Color.mmAccentPrimary)
                     Text("MuscleMap")
                         .font(.system(size: 13, weight: .heavy))
-                        .foregroundStyle(Color(hex: "#00FFB3"))
+                        .foregroundStyle(Color.mmAccentPrimary)
                 }
 
                 Spacer()
@@ -88,14 +88,14 @@ struct StrengthShareCard: View {
                 // 日付
                 Text(dateString)
                     .font(.system(size: 11, weight: .medium))
-                    .foregroundStyle(Color(hex: "#B0B0B0"))
+                    .foregroundStyle(Color.mmTextSecondary)
             }
             .padding(.horizontal, 20)
             .frame(height: Layout.headerHeight)
 
             // 区切り線
             Rectangle()
-                .fill(Color(hex: "#808080"))
+                .fill(Color.mmBorder)
                 .frame(height: 0.5)
         }
     }
@@ -121,7 +121,7 @@ struct StrengthShareCard: View {
     /// グリッド装飾
     private var gridOverlay: some View {
         Canvas { context, size in
-            let lineColor = Color(hex: "#1E1E1E")
+            let lineColor = Color.mmBgSecondary
             // 縦線
             var x: CGFloat = 0
             while x <= size.width {
@@ -158,7 +158,7 @@ struct StrengthShareCard: View {
                             entry.path(rect).stroke(
                                 score > 0
                                     ? params.color.opacity(0.6)
-                                    : Color(hex: "#808080"),
+                                    : Color.mmBorder,
                                 lineWidth: params.strokeWidth
                             )
                         }
@@ -171,19 +171,19 @@ struct StrengthShareCard: View {
     /// シェアカード専用のdisplayParams（仕様書のstrokeWidth/opacity/fill colorに準拠）
     private func shareCardDisplayParams(score: Double) -> StrengthDisplayParams {
         if score <= 0 {
-            return StrengthDisplayParams(strokeWidth: 1.0, opacity: 0.20, color: Color(hex: "#3D3D42"))
+            return StrengthDisplayParams(strokeWidth: 1.0, opacity: 0.20, color: Color.mmMuscleInactive)
         } else if score < 0.2 {
-            return StrengthDisplayParams(strokeWidth: 1.5, opacity: 0.35, color: Color(hex: "#00FFB3"))
+            return StrengthDisplayParams(strokeWidth: 1.5, opacity: 0.35, color: Color.mmAccentPrimary)
         } else if score < 0.4 {
-            return StrengthDisplayParams(strokeWidth: 2.5, opacity: 0.50, color: Color(hex: "#00FFB3"))
+            return StrengthDisplayParams(strokeWidth: 2.5, opacity: 0.50, color: Color.mmAccentPrimary)
         } else if score < 0.6 {
-            return StrengthDisplayParams(strokeWidth: 3.5, opacity: 0.65, color: Color(hex: "#00FFB3"))
+            return StrengthDisplayParams(strokeWidth: 3.5, opacity: 0.65, color: Color.mmAccentPrimary)
         } else if score < 0.8 {
-            return StrengthDisplayParams(strokeWidth: 5.0, opacity: 0.80, color: Color(hex: "#00FFB3"))
+            return StrengthDisplayParams(strokeWidth: 5.0, opacity: 0.80, color: Color.mmAccentPrimary)
         } else {
             // 0.8-1.0: mmAccentPrimary → 白ハイライト
             let t = (score - 0.8) / 0.2
-            let c = Color.interpolate(from: Color(hex: "#00FFB3"), to: .white, t: t)
+            let c = Color.interpolate(from: Color.mmAccentPrimary, to: .white, t: t)
             return StrengthDisplayParams(strokeWidth: 7.0, opacity: 1.0, color: c)
         }
     }
@@ -195,7 +195,7 @@ struct StrengthShareCard: View {
             // セクションタイトル
             Text("STRENGTH RANKING")
                 .font(.system(size: 10, weight: .heavy))
-                .foregroundStyle(Color(hex: "#B0B0B0"))
+                .foregroundStyle(Color.mmTextSecondary)
                 .tracking(1.5)
                 .padding(.bottom, 8)
 
@@ -218,7 +218,7 @@ struct StrengthShareCard: View {
         .padding(.vertical, 12)
         .frame(height: Layout.rankingHeight)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color(hex: "#1E1E1E"))
+        .background(Color.mmBgSecondary)
     }
 
     private func rankRow(medal: String, name: String, score: Double) -> some View {
@@ -228,25 +228,25 @@ struct StrengthShareCard: View {
 
             Text(name)
                 .font(.system(size: 14, weight: .semibold))
-                .foregroundStyle(.white)
+                .foregroundStyle(Color.mmTextPrimary)
                 .lineLimit(1)
                 .frame(minWidth: 80, alignment: .leading)
 
             // スコアバー
             ZStack(alignment: .leading) {
                 RoundedRectangle(cornerRadius: 3)
-                    .fill(Color(hex: "#3D3D42"))
+                    .fill(Color.mmMuscleInactive)
                     .frame(width: 80, height: 6)
 
                 RoundedRectangle(cornerRadius: 3)
-                    .fill(Color(hex: "#00FFB3"))
+                    .fill(Color.mmAccentPrimary)
                     .frame(width: 80 * score, height: 6)
             }
 
             // %表示
             Text("\(Int(score * 100))%")
                 .font(.system(size: 13, weight: .bold))
-                .foregroundStyle(Color(hex: "#00FFB3"))
+                .foregroundStyle(Color.mmAccentPrimary)
                 .frame(width: 40, alignment: .trailing)
         }
         .frame(height: 36)
@@ -260,12 +260,12 @@ struct StrengthShareCard: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(userName.isEmpty ? "MuscleMap User" : userName)
                     .font(.system(size: 14, weight: .bold))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(Color.mmTextPrimary)
                     .lineLimit(1)
 
                 Text("Overall Grade")
                     .font(.system(size: 11, weight: .regular))
-                    .foregroundStyle(Color(hex: "#B0B0B0"))
+                    .foregroundStyle(Color.mmTextSecondary)
             }
 
             Spacer()
@@ -287,7 +287,7 @@ struct StrengthShareCard: View {
         }
         .padding(.horizontal, 20)
         .frame(height: Layout.footerHeight)
-        .background(Color(hex: "#121212"))
+        .background(Color.mmBgPrimary)
     }
 
     // MARK: - 筋肉名日本語マッピング（シェアカード用）
