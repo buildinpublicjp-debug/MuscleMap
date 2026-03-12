@@ -4,7 +4,7 @@ import Foundation
 
 enum AppConstants {
     /// App Store URL
-    static let appStoreURL = "https://apps.apple.com/app/musclemap/id6742469580"
+    static let appStoreURL = "https://apps.apple.com/app/id6758854092"
 
     /// アプリ名
     static let appName = "MuscleMap"

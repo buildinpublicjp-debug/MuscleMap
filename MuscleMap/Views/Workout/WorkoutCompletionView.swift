@@ -96,11 +96,17 @@ struct WorkoutCompletionView: View {
         volume >= 1000 ? String(format: "%.1fk", volume / 1000) : String(format: "%.0f", volume)
     }
 
+    private var durationMinutes: Int {
+        guard let end = session.endDate else { return 0 }
+        return Int(end.timeIntervalSince(session.startDate) / 60)
+    }
+
     private var shareText: String {
         if localization.currentLanguage == .japanese {
             return """
             今日のワークアウト完了 💪
             \(uniqueExercises)種目 | \(totalSets)セット | \(formatVolume(totalVolume))kg
+            MuscleMap で記録 💪
             \(AppConstants.shareHashtag)
             \(AppConstants.appStoreURL)
             """
@@ -108,6 +114,7 @@ struct WorkoutCompletionView: View {
             return """
             Workout Complete 💪
             \(uniqueExercises) exercises | \(totalSets) sets | \(formatVolume(totalVolume))kg
+            Tracked with MuscleMap 💪
             \(AppConstants.shareHashtag)
             \(AppConstants.appStoreURL)
             """
@@ -288,7 +295,8 @@ struct WorkoutCompletionView: View {
             exerciseCount: uniqueExercises,
             date: session.startDate,
             muscleMapping: stimulatedMuscleMapping,
-            prItems: prItems
+            prItems: prItems,
+            durationMinutes: durationMinutes
         )
         let renderer = ImageRenderer(content: shareView)
         renderer.scale = 3.0

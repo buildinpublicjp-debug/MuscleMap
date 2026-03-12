@@ -37,7 +37,7 @@ struct SharePRItem {
     let increasePercent: Int
 }
 
-/// シェア用ワークアウトカード（390×693pt、@3x書き出し）
+/// シェア用ワークアウトカード（360×360pt → @3x 1080×1080px 正方形）
 struct WorkoutShareCard: View {
     let totalVolume: Double
     let totalSets: Int
@@ -46,183 +46,267 @@ struct WorkoutShareCard: View {
     let muscleMapping: [String: Int]
     /// 今回更新したPR一覧（最大2件表示）
     let prItems: [SharePRItem]
+    /// トレーニング時間（分）
+    var durationMinutes: Int = 0
+
+    // MARK: - 定数
+
+    private enum Layout {
+        static let cardSize: CGFloat = 360
+        static let cornerRadius: CGFloat = 24
+    }
 
     private var dateString: String {
         let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy/MM/dd"
+        formatter.dateFormat = "yyyy.MM.dd"
         return formatter.string(from: date)
     }
 
     var body: some View {
-        VStack(spacing: 0) {
-            // 上部グラデーションアクセント
-            LinearGradient(
-                colors: [Color.mmAccentPrimary, Color.mmAccentSecondary],
-                startPoint: .leading,
-                endPoint: .trailing
-            )
-            .frame(height: 4)
+        ZStack {
+            // ダークグラデーション背景
+            RoundedRectangle(cornerRadius: Layout.cornerRadius)
+                .fill(
+                    LinearGradient(
+                        colors: [Color(hex: "#0A0A0A"), Color(hex: "#1A1A2E")],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
+
+            // グリッド装飾（薄い）
+            gridOverlay
 
             VStack(spacing: 0) {
-                // 1. ヘッダー: 「MuscleMap」左 + 日付右
-                HStack {
-                    Text("MuscleMap")
-                        .font(.system(size: 14, weight: .bold))
-                        .foregroundStyle(Color.mmTextPrimary)
-                    Spacer()
-                    Text(dateString)
-                        .font(.system(size: 13, weight: .medium))
-                        .foregroundStyle(Color.mmTextSecondary)
-                }
-                .padding(.horizontal, 24)
-                .padding(.top, 16)
-                .padding(.bottom, 12)
+                // 1. ヘッダー: ロゴ + 日付
+                headerSection
+                    .padding(.top, 16)
 
                 // 2. タイトル: 「WORKOUT COMPLETE」
                 Text("WORKOUT COMPLETE")
-                    .font(.system(size: 13, weight: .heavy))
-                    .tracking(2)
-                    .foregroundStyle(Color.mmAccentPrimary)
-                    .padding(.bottom, 16)
+                    .font(.system(size: 11, weight: .heavy))
+                    .tracking(3)
+                    .foregroundStyle(Color(hex: "#00FFB3"))
+                    .padding(.top, 8)
 
-                // 3. 筋肉図（220pt）: 前面・背面を並列
-                ShareMuscleMapView(muscleMapping: muscleMapping, mapHeight: 210)
-                    .padding(.horizontal, 24)
-                    .padding(.bottom, 16)
+                // 3. 筋肉マップ（前後同時表示 + グロー効果）
+                ShareMuscleMapView(
+                    muscleMapping: muscleMapping,
+                    mapHeight: 140,
+                    glowEnabled: true
+                )
+                .padding(.horizontal, 40)
+                .padding(.top, 8)
 
-                // 4. メインスタット: ボリューム数値を大きく中央
-                VStack(spacing: 2) {
-                    HStack(alignment: .firstTextBaseline, spacing: 4) {
-                        Text(formatVolume(totalVolume))
-                            .font(.system(size: 48, weight: .heavy))
-                            .foregroundStyle(Color.mmAccentPrimary)
-                        Text("kg")
-                            .font(.system(size: 18, weight: .medium))
-                            .foregroundStyle(Color.mmTextSecondary)
-                    }
-                    Text("TOTAL VOLUME")
-                        .font(.system(size: 11, weight: .semibold))
-                        .tracking(1.5)
-                        .foregroundStyle(Color.mmTextSecondary)
-                }
-                .padding(.bottom, prItems.isEmpty ? 20 : 16)
+                // 4. メインスタット: 総ボリューム大表示
+                volumeSection
+                    .padding(.top, 8)
 
-                // 5. 前回比セクション（PR更新がある場合のみ表示）
+                // 5. PR更新セクション（ある場合のみ）
                 if !prItems.isEmpty {
                     prSection
-                        .padding(.bottom, 16)
+                        .padding(.top, 8)
                 }
 
-                // 6. サブスタット: 種目数・セット数を小さく横並び
-                HStack(spacing: 0) {
-                    subStatItem(value: "\(exerciseCount)", label: L10n.exercises)
-                    subStatDivider
-                    subStatItem(value: "\(totalSets)", label: L10n.sets)
-                }
-                .padding(.horizontal, 40)
+                // 6. サブスタット: 種目数・セット数・時間を横並び
+                subStatsRow
+                    .padding(.top, prItems.isEmpty ? 12 : 8)
 
-                Spacer(minLength: 8)
+                Spacer(minLength: 4)
 
-                // 7. フッター: 「MuscleMap」ロゴのみ
-                VStack(spacing: 12) {
-                    Rectangle()
-                        .fill(Color.mmAccentPrimary.opacity(0.2))
-                        .frame(height: 1)
-                        .padding(.horizontal, 24)
-
-                    Text("MuscleMap")
-                        .font(.system(size: 12, weight: .medium))
-                        .foregroundStyle(Color.mmTextSecondary.opacity(0.5))
-                        .padding(.bottom, 16)
-                }
+                // 7. フッター: ウォーターマーク
+                footerSection
+                    .padding(.bottom, 14)
             }
         }
-        .frame(width: 390, height: 693)
-        .background(Color.mmBgCard)
-        .clipShape(RoundedRectangle(cornerRadius: 24))
-        .overlay {
-            RoundedRectangle(cornerRadius: 24)
-                .stroke(Color.mmAccentPrimary.opacity(0.3), lineWidth: 2)
+        .frame(width: Layout.cardSize, height: Layout.cardSize)
+        .clipShape(RoundedRectangle(cornerRadius: Layout.cornerRadius))
+        .environment(\.colorScheme, .dark)
+    }
+
+    // MARK: - ヘッダー
+
+    private var headerSection: some View {
+        HStack {
+            // ロゴマーク
+            HStack(spacing: 4) {
+                // 簡易ロゴアイコン
+                ZStack {
+                    Circle()
+                        .fill(Color(hex: "#00FFB3").opacity(0.15))
+                        .frame(width: 18, height: 18)
+                    Text("M")
+                        .font(.system(size: 10, weight: .heavy))
+                        .foregroundStyle(Color(hex: "#00FFB3"))
+                }
+                Text("MuscleMap")
+                    .font(.system(size: 12, weight: .heavy))
+                    .foregroundStyle(Color(hex: "#00FFB3"))
+            }
+
+            Spacer()
+
+            // 日付
+            Text(dateString)
+                .font(.system(size: 11, weight: .medium))
+                .foregroundStyle(Color(hex: "#808080"))
         }
-        .padding(8)
-        .background(Color.mmBgPrimary)
+        .padding(.horizontal, 20)
+    }
+
+    // MARK: - ボリュームセクション
+
+    private var volumeSection: some View {
+        VStack(spacing: 1) {
+            HStack(alignment: .firstTextBaseline, spacing: 3) {
+                Text(formatVolume(totalVolume))
+                    .font(.system(size: 42, weight: .heavy))
+                    .foregroundStyle(Color(hex: "#00FFB3"))
+                Text("kg")
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundStyle(Color(hex: "#808080"))
+            }
+            Text("TOTAL VOLUME")
+                .font(.system(size: 9, weight: .bold))
+                .tracking(2)
+                .foregroundStyle(Color(hex: "#808080"))
+        }
     }
 
     // MARK: - PR更新セクション
 
     private var prSection: some View {
-        VStack(spacing: 8) {
-            // セクションヘッダー
+        VStack(spacing: 4) {
+            // ヘッダー「🏆 NEW PR!」
             HStack(spacing: 4) {
-                Image(systemName: "trophy.fill")
+                Text("🏆")
                     .font(.system(size: 10))
-                    .foregroundStyle(Color.mmAccentPrimary)
-                Text("PR UPDATE")
+                Text("NEW PR!")
                     .font(.system(size: 10, weight: .heavy))
                     .tracking(1.5)
-                    .foregroundStyle(Color.mmAccentPrimary)
+                    .foregroundStyle(Color(hex: "#FFD700"))
             }
-            .padding(.bottom, 2)
 
-            // PR更新行（最大2件）
+            // PR行（最大2件）
             ForEach(Array(prItems.prefix(2).enumerated()), id: \.offset) { _, item in
                 prRow(item: item)
             }
         }
-        .padding(.horizontal, 24)
-        .padding(.vertical, 12)
-        .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(Color.mmAccentPrimary.opacity(0.06))
-        )
         .padding(.horizontal, 20)
+        .padding(.vertical, 8)
+        .background(
+            RoundedRectangle(cornerRadius: 10)
+                .fill(Color(hex: "#FFD700").opacity(0.06))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10)
+                        .stroke(Color(hex: "#FFD700").opacity(0.15), lineWidth: 0.5)
+                )
+        )
+        .padding(.horizontal, 18)
     }
 
     private func prRow(item: SharePRItem) -> some View {
         HStack(spacing: 0) {
             Text(item.exerciseName)
-                .font(.system(size: 13, weight: .semibold))
-                .foregroundStyle(Color.mmTextPrimary)
+                .font(.system(size: 11, weight: .semibold))
+                .foregroundStyle(.white)
                 .lineLimit(1)
 
-            Spacer(minLength: 8)
+            Spacer(minLength: 4)
 
             // 重量遷移
             Text(formatWeight(item.previousWeight))
-                .font(.system(size: 13, weight: .medium))
-                .foregroundStyle(Color.mmTextSecondary)
+                .font(.system(size: 11, weight: .medium))
+                .foregroundStyle(Color(hex: "#808080"))
             Text(" → ")
-                .font(.system(size: 13, weight: .medium))
-                .foregroundStyle(Color.mmTextSecondary)
+                .font(.system(size: 11))
+                .foregroundStyle(Color(hex: "#808080"))
             Text(formatWeight(item.newWeight))
-                .font(.system(size: 13, weight: .bold))
-                .foregroundStyle(Color.mmAccentPrimary)
+                .font(.system(size: 11, weight: .bold))
+                .foregroundStyle(Color(hex: "#FFD700"))
 
-            // 増加率
             Text(" ↑\(item.increasePercent)%")
-                .font(.system(size: 12, weight: .bold))
-                .foregroundStyle(Color.mmAccentPrimary)
+                .font(.system(size: 10, weight: .bold))
+                .foregroundStyle(Color(hex: "#FFD700"))
         }
     }
 
-    // MARK: - サブスタット
+    // MARK: - サブスタット横並び
+
+    private var subStatsRow: some View {
+        HStack(spacing: 0) {
+            subStatItem(value: "\(exerciseCount)", label: "EXERCISES")
+            subStatDivider
+            subStatItem(value: "\(totalSets)", label: "SETS")
+            if durationMinutes > 0 {
+                subStatDivider
+                subStatItem(value: "\(durationMinutes)", label: "MIN")
+            }
+        }
+        .padding(.horizontal, 28)
+    }
 
     private func subStatItem(value: String, label: String) -> some View {
-        VStack(spacing: 2) {
+        VStack(spacing: 1) {
             Text(value)
-                .font(.system(size: 22, weight: .bold))
-                .foregroundStyle(Color.mmTextPrimary)
+                .font(.system(size: 18, weight: .bold))
+                .foregroundStyle(.white)
             Text(label)
-                .font(.system(size: 11, weight: .medium))
-                .foregroundStyle(Color.mmTextSecondary)
+                .font(.system(size: 8, weight: .semibold))
+                .tracking(1)
+                .foregroundStyle(Color(hex: "#808080"))
         }
         .frame(maxWidth: .infinity)
     }
 
     private var subStatDivider: some View {
         Rectangle()
-            .fill(Color.mmTextSecondary.opacity(0.3))
-            .frame(width: 1, height: 32)
+            .fill(Color(hex: "#808080").opacity(0.3))
+            .frame(width: 0.5, height: 24)
+    }
+
+    // MARK: - フッター（ウォーターマーク）
+
+    private var footerSection: some View {
+        VStack(spacing: 4) {
+            Rectangle()
+                .fill(Color(hex: "#00FFB3").opacity(0.1))
+                .frame(height: 0.5)
+                .padding(.horizontal, 20)
+
+            Text("MuscleMap — Track Your Muscles")
+                .font(.system(size: 8, weight: .medium))
+                .tracking(1)
+                .foregroundStyle(Color(hex: "#808080").opacity(0.5))
+        }
+    }
+
+    // MARK: - グリッド装飾
+
+    private var gridOverlay: some View {
+        Canvas { context, size in
+            let lineColor = Color.white.opacity(0.02)
+            let spacing: CGFloat = 20
+            // 縦線
+            var x: CGFloat = 0
+            while x <= size.width {
+                var path = Path()
+                path.move(to: CGPoint(x: x, y: 0))
+                path.addLine(to: CGPoint(x: x, y: size.height))
+                context.stroke(path, with: .color(lineColor), lineWidth: 0.5)
+                x += spacing
+            }
+            // 横線
+            var y: CGFloat = 0
+            while y <= size.height {
+                var path = Path()
+                path.move(to: CGPoint(x: 0, y: y))
+                path.addLine(to: CGPoint(x: size.width, y: y))
+                context.stroke(path, with: .color(lineColor), lineWidth: 0.5)
+                y += spacing
+            }
+        }
+        .clipShape(RoundedRectangle(cornerRadius: Layout.cornerRadius))
     }
 
     // MARK: - フォーマット
@@ -278,8 +362,9 @@ struct ShareSheet: UIViewControllerRepresentable {
     }
 }
 
-#Preview("Workout Share Card - with PR") {
-    ScrollView {
+#Preview("Workout Share Card - with PR (1:1)") {
+    ZStack {
+        Color.black.ignoresSafeArea()
         WorkoutShareCard(
             totalVolume: 12500,
             totalSets: 24,
@@ -295,15 +380,17 @@ struct ShareSheet: UIViewControllerRepresentable {
                 "glutes": 50
             ],
             prItems: [
-                SharePRItem(exerciseName: "インクラインダンベルプレス", previousWeight: 90, newWeight: 100, increasePercent: 11),
+                SharePRItem(exerciseName: "インクラインDB プレス", previousWeight: 90, newWeight: 100, increasePercent: 11),
                 SharePRItem(exerciseName: "ベンチプレス", previousWeight: 80, newWeight: 85, increasePercent: 6)
-            ]
+            ],
+            durationMinutes: 52
         )
     }
 }
 
-#Preview("Workout Share Card - no PR") {
-    ScrollView {
+#Preview("Workout Share Card - no PR (1:1)") {
+    ZStack {
+        Color.black.ignoresSafeArea()
         WorkoutShareCard(
             totalVolume: 8200,
             totalSets: 18,
@@ -315,7 +402,8 @@ struct ShareSheet: UIViewControllerRepresentable {
                 "biceps": 60,
                 "forearms": 40
             ],
-            prItems: []
+            prItems: [],
+            durationMinutes: 38
         )
     }
 }

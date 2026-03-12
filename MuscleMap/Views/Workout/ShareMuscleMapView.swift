@@ -8,6 +8,8 @@ struct ShareMuscleMapView: View {
     let muscleMapping: [String: Int]
     /// マップ全体の高さ（呼び出し元で指定可能）
     var mapHeight: CGFloat = 280
+    /// グロー効果を有効にするか（シェアカード用）
+    var glowEnabled: Bool = false
 
     /// 各マップの幅は高さの0.5倍（人体比率を維持）
     private var mapSize: CGSize {
@@ -38,14 +40,29 @@ struct ShareMuscleMapView: View {
                 let stimulation = stimulationFor(entry.muscle)
                 let color = colorFor(stimulation: stimulation)
 
+                // グロー効果（刺激された筋肉のみ）
+                if glowEnabled && stimulation >= 50 {
+                    // 外側グロー（大きめのぼかし）
+                    context.drawLayer { ctx in
+                        ctx.addFilter(.shadow(color: glowColor(stimulation: stimulation).opacity(0.6), radius: 8, x: 0, y: 0))
+                        ctx.fill(path, with: .color(color.opacity(0.01)))
+                    }
+                    // 内側グロー（小さめのぼかし）
+                    context.drawLayer { ctx in
+                        ctx.addFilter(.shadow(color: glowColor(stimulation: stimulation).opacity(0.4), radius: 4, x: 0, y: 0))
+                        ctx.fill(path, with: .color(color.opacity(0.01)))
+                    }
+                }
+
                 // 塗りつぶし
                 context.fill(path, with: .color(color))
 
-                // 境界線（太く、コントラスト強化）
+                // 境界線
+                let borderOpacity: Double = stimulation > 0 ? 0.5 : 0.8
                 context.stroke(
                     path,
-                    with: .color(Color.mmBorder.opacity(0.8)),
-                    lineWidth: 1.0
+                    with: .color(Color(hex: "#808080").opacity(borderOpacity)),
+                    lineWidth: stimulation >= 80 ? 1.2 : 0.8
                 )
             }
         }
@@ -71,20 +88,30 @@ struct ShareMuscleMapView: View {
     private func colorFor(stimulation: Int) -> Color {
         guard stimulation > 0 else {
             // 未刺激 = 暗いグレー
-            return Color.mmMuscleInactive
+            return Color(hex: "#2A2A2E")
         }
 
-        // 刺激度に応じた3段階色分け
-        // 高刺激（80%+）= 赤（最近やった）
-        // 中刺激（20-80%）= 黄（回復中）
-        // 低刺激（1-20%）= 緑（ほぼ回復）
         switch stimulation {
         case 80...100:
-            return Color.mmMuscleFatigued
-        case 20..<80:
-            return Color.mmMuscleModerate
+            return Color(hex: "#E57373")
+        case 50..<80:
+            return Color(hex: "#FFD54F")
+        case 20..<50:
+            return Color(hex: "#81C784")
         default:
-            return Color.mmMuscleRecovered
+            return Color(hex: "#81C784").opacity(0.6)
+        }
+    }
+
+    /// グロー用の色（刺激度に応じて変化）
+    private func glowColor(stimulation: Int) -> Color {
+        switch stimulation {
+        case 80...100:
+            return Color(hex: "#E57373")
+        case 50..<80:
+            return Color(hex: "#FFD54F")
+        default:
+            return Color(hex: "#81C784")
         }
     }
 }
@@ -112,16 +139,19 @@ private extension String {
 
 #Preview {
     ZStack {
-        Color.mmBgPrimary.ignoresSafeArea()
+        Color(hex: "#0A0A0A").ignoresSafeArea()
 
-        ShareMuscleMapView(muscleMapping: [
-            "chest_upper": 100,
-            "chest_lower": 85,
-            "deltoid_anterior": 60,
-            "triceps": 45,
-            "biceps": 30,
-            "lats": 70,
-            "glutes": 50
-        ])
+        ShareMuscleMapView(
+            muscleMapping: [
+                "chest_upper": 100,
+                "chest_lower": 85,
+                "deltoid_anterior": 60,
+                "triceps": 45,
+                "biceps": 30,
+                "lats": 70,
+                "glutes": 50
+            ],
+            glowEnabled: true
+        )
     }
 }

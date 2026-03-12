@@ -21,7 +21,7 @@
 7. Apple Watch companion app（watchOS 10.0+、WatchConnectivity同期）
 8. **[Pro] Strength Map** — PRデータから筋肉の発達レベルを太さで可視化
 9. **Strength Mapシェアカード** — 9:16（1080×1920px @3x）のPNG書き出し。グレードS〜D、Top3ランキング付き
-10. **Workoutシェアカード** — 390×693pt @3x。ボリューム大表示 + PR更新種目の前回比表示（最大2件）。システムカラースキーム準拠
+10. **Workoutシェアカード** — 360×360pt @3x（1080×1080px正方形）。ダークグラデ背景 + グロー付き筋肉マップ + ボリューム大表示 + 🏆PR表示 + ウォーターマーク
 11. **次回おすすめ日** — ワークアウト完了時に回復予測から次の推奨トレーニング日を表示
 12. **初回コーチマーク** — 初回起動時にホーム画面で操作ガイドを表示（1回限り）
 13. **オンボーディング4ページ化** — SplashView → InteractiveDemo → PersonalizationPage（目標選択→UserProfile連携） → WeightInputPage（体重・ニックネーム） → CallToActionPage → 通知許可
@@ -120,17 +120,18 @@
 
 ### Workoutシェアカード
 - **ファイル**: `Views/Workout/WorkoutCompletionComponents.swift`（`WorkoutShareCard`）
-- **仕様**: 390×693pt → @3xで1170×2079px PNG（ImageRenderer scale=3.0）
-- **カラースキーム**: システム設定準拠（`.environment(\.colorScheme, .dark)` は使わない）
+- **仕様**: 360×360pt → @3xで1080×1080px PNG（ImageRenderer scale=3.0、SNS正方形推奨）
+- **カラースキーム**: 常にダーク（`.environment(\.colorScheme, .dark)`）。背景はグラデーション `#0A0A0A → #1A1A2E`
 - **構成（上→下）:**
-  1. ヘッダー: 「MuscleMap」左 + 日付右
-  2. タイトル: 「WORKOUT COMPLETE」mmAccentPrimaryで中央（tracking: 2）
-  3. 筋肉図（210pt）: 前面・背面を並列（`ShareMuscleMapView(mapHeight: 210)`）
-  4. メインスタット: ボリューム数値を48pt heavyで大きく中央 + 「kg」18pt + 「TOTAL VOLUME」ラベル
-  5. PR更新セクション（条件付き）: PR更新があれば最大2件表示。「種目名  90kg → 100kg  ↑11%」形式。`PRManager.getSessionPRUpdates()` でデータ取得。PR無しなら非表示
-  6. サブスタット: 種目数・セット数を小さく横並び（divider付き）
-  7. フッター: 「MuscleMap」ロゴのみ
+  1. ヘッダー: ロゴアイコン + 「MuscleMap」左 + 日付右（`yyyy.MM.dd`形式）
+  2. タイトル: 「WORKOUT COMPLETE」mmAccentPrimaryで中央（tracking: 3）
+  3. 筋肉図（140pt）: 前面・背面を並列 + グロー効果ON（`ShareMuscleMapView(mapHeight: 140, glowEnabled: true)`）
+  4. メインスタット: ボリューム数値を42pt heavyで大きく中央 + 「kg」16pt + 「TOTAL VOLUME」ラベル
+  5. PR更新セクション（条件付き）: 🏆 NEW PR! ヘッダー + 最大2件表示。ゴールド(`#FFD700`)で目立たせる
+  6. サブスタット: 種目数・セット数・トレーニング時間(分)を小さく横並び（divider付き）
+  7. フッター: 「MuscleMap — Track Your Muscles」ウォーターマーク
 - **データ型**: `SharePRItem { exerciseName, previousWeight, newWeight, increasePercent }`
+- **共有テキスト**: 「MuscleMap で記録 💪」+ App Store URL を含む
 - **トリガー**: ワークアウト完了画面のシェアボタン
 
 ### ワークアウト完了 — 追加セクション
@@ -441,6 +442,7 @@ func getSessionPRUpdates(session: WorkoutSession, context: ModelContext) -> [PRU
 TabBar
 ├── ホーム（筋肉マップ）         ← P0（実装済み）
 ├── ワークアウト（記録）          ← P0（実装済み）
+├── フィード（ソーシャル）        ← Phase 0（UIモック実装済み）
 ├── 種目辞典                    ← P1（実装済み）
 ├── 履歴（マップ/カレンダー切替） ← P1（実装済み）
 └── 設定                        ← P2（実装済み）
@@ -483,6 +485,7 @@ MuscleMap/
 ├── Data/                       # ローカルキャッシュ系
 │   ├── ExerciseDescriptions.swift
 │   ├── FavoritesManager.swift
+│   ├── MockFriendData.swift       # ソーシャルフィード用モックデータ
 │   └── RecentExercisesManager.swift
 ├── Models/
 │   ├── WorkoutSession.swift
@@ -490,6 +493,7 @@ MuscleMap/
 │   ├── MuscleStimulation.swift
 │   ├── Muscle.swift
 │   ├── ExerciseDefinition.swift
+│   ├── FriendActivity.swift       # フレンドアクティビティ（非SwiftData）
 │   └── UserProfile.swift
 ├── Repositories/
 │   ├── WorkoutRepository.swift
@@ -533,6 +537,9 @@ MuscleMap/
 │   │   ├── CallToActionPage.swift        # 機能紹介 + CTA
 │   │   ├── NotificationPermissionView.swift  # 通知許可
 │   │   └── ValuePropositionPage.swift    # （旧ページ、参考保持）
+│   ├── Social/                 # ソーシャルフィード（Phase 0）
+│   │   ├── ActivityFeedView.swift       # フィードタイムライン
+│   │   └── FriendActivityCard.swift     # アクティビティカード + ミニ筋肉マップ
 │   ├── Settings/               # 設定（2ファイル）
 │   └── Paywall/                # Paywall（実装中）
 │       └── PaywallView.swift
