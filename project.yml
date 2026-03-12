@@ -7,6 +7,11 @@ options:
   xcodeVersion: "16.2"
   generateEmptyDirectories: true
 
+packages:
+  RevenueCat:
+    url: https://github.com/RevenueCat/purchases-ios
+    version: 5.61.0
+
 targets:
   MuscleMap:
     type: application
@@ -25,6 +30,8 @@ targets:
         type: folder
     dependencies:
       - target: MuscleMapWidgetExtension
+      - package: RevenueCat
+        product: RevenueCat
     entitlements:
       path: MuscleMap/MuscleMap.entitlements
       properties:

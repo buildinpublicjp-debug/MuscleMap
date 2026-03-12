@@ -124,6 +124,33 @@ class AppState {
         didSet { UserDefaults.standard.set(hasSeenHomeCoachMark, forKey: "hasSeenHomeCoachMark") }
     }
 
+    // MARK: - 90日チャレンジ
+
+    /// チャレンジ開始日（nil = 未開始）
+    var challengeStartDate: Date? {
+        get { UserDefaults.standard.object(forKey: "challengeStartDate") as? Date }
+        set { UserDefaults.standard.set(newValue, forKey: "challengeStartDate") }
+    }
+
+    /// チャレンジが進行中か（開始日から90日以内）
+    var challengeActive: Bool {
+        guard let start = challengeStartDate else { return false }
+        return Date().timeIntervalSince(start) < 90 * 24 * 60 * 60
+    }
+
+    /// 開始日から何日目か（1〜90）
+    var challengeDay: Int {
+        guard let start = challengeStartDate else { return 0 }
+        let days = Int(Date().timeIntervalSince(start) / (24 * 60 * 60)) + 1
+        return min(days, 90)
+    }
+
+    /// 90日経過して完了したか
+    var challengeCompleted: Bool {
+        guard let start = challengeStartDate else { return false }
+        return Date().timeIntervalSince(start) >= 90 * 24 * 60 * 60
+    }
+
     // アプリバージョン
     var appVersion: String {
         Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0"

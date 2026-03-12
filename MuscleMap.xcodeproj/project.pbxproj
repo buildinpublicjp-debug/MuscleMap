@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		00190871A91F2804FACFBC6B /* HistoryStatsComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2871309713B61925082AA716 /* HistoryStatsComponents.swift */; };
 		00D49623654116AB9FE4C319 /* FullBodyConquestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5CA9BCBE472E0D49D5B3C1C /* FullBodyConquestView.swift */; };
+		024F3C0E7D4784540FDC0A96 /* RevenueCat in Frameworks */ = {isa = PBXBuildFile; productRef = 3862F42F7A39E887709274F3 /* RevenueCat */; };
 		0295F7D904CD868EA1F249C2 /* ExerciseListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B4AB74E97EA7F7334488DC7 /* ExerciseListViewModel.swift */; };
 		02B850847CB857584679C91C /* WatchWorkoutManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17E02508E9DFA5BA437E57C9 /* WatchWorkoutManager.swift */; };
 		04A2576C76E825532D86D920 /* MuscleJourneyViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B862700F8368D75E01C51C1E /* MuscleJourneyViewModel.swift */; };
@@ -59,6 +60,7 @@
 		61C75BB37FF6157166400E5E /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C975A916E9A16C00A07248A3 /* HomeView.swift */; };
 		61DFE674FC9B8C0150AE7A36 /* PaywallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB37FE4EBE611ED62380668 /* PaywallView.swift */; };
 		63FA9C415DEC4B6A42C70AB1 /* PRManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B04E06EA374E74AAD225DB8C /* PRManager.swift */; };
+		644B4925629D64F88262ADB1 /* ChallengeProgressBanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = A94472247BEE52A0B88CE22A /* ChallengeProgressBanner.swift */; };
 		662D5CBA07EFBBA0FA088CD9 /* LegalURL.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A1FA14BC36B9C6CA887533B /* LegalURL.swift */; };
 		66EA2C7E4843EB54933A6086 /* ShareCardTemplate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2210B8C9A8CCBFBED7092564 /* ShareCardTemplate.swift */; };
 		670930F27A88D9871BBC1054 /* HomeStatsCards.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFE432AB436772DA8FD008C2 /* HomeStatsCards.swift */; };
@@ -281,6 +283,7 @@
 		A641D503120435354F8CCA29 /* ExerciseDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseDetailView.swift; sourceTree = "<group>"; };
 		A7665A2A3A6E18C8037F80DD /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		A8FDEA0217A7E8F2762673A4 /* WorkoutViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutViewModel.swift; sourceTree = "<group>"; };
+		A94472247BEE52A0B88CE22A /* ChallengeProgressBanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChallengeProgressBanner.swift; sourceTree = "<group>"; };
 		AA672F016A539F1C53B8F4DA /* MuscleMapWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MuscleMapWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AD2404C83234E9251348B020 /* SplashView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashView.swift; sourceTree = "<group>"; };
 		B04E06EA374E74AAD225DB8C /* PRManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PRManager.swift; sourceTree = "<group>"; };
@@ -326,6 +329,17 @@
 		FB8FC4CC2B04B8D324DD7100 /* ModelLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelLoader.swift; sourceTree = "<group>"; };
 		FF93A0C1642FBC94B4E365CC /* WidgetDataProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetDataProvider.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		EDF84A22E72017BE65FDB05E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				024F3C0E7D4784540FDC0A96 /* RevenueCat in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		076E47633D2CE7D441F40AB0 /* Data */ = {
@@ -460,7 +474,6 @@
 				C3C8841A8DF3D74C69E2C4E0 /* Data */,
 				BDD5EE65675A64A598EEEE8C /* Models */,
 				B0FC787D5AF96975BDA9694D /* Repositories */,
-				69A6663D7F093B6148AFBCB1 /* Resources */,
 				15F8D0AA37758AD356C9BEAB /* Utilities */,
 				E4522EF1AD181B52082E609A /* ViewModels */,
 				65A1BF39AB12B5D91F45012E /* Views */,
@@ -499,13 +512,6 @@
 				17E02508E9DFA5BA437E57C9 /* WatchWorkoutManager.swift */,
 			);
 			path = ViewModels;
-			sourceTree = "<group>";
-		};
-		69A6663D7F093B6148AFBCB1 /* Resources */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Resources;
 			sourceTree = "<group>";
 		};
 		6CF6E08093EF6169CA86D4D0 /* Exercise */ = {
@@ -671,6 +677,7 @@
 			isa = PBXGroup;
 			children = (
 				5A3B1712E8AF643484F41F3D /* AnalyticsMenuView.swift */,
+				A94472247BEE52A0B88CE22A /* ChallengeProgressBanner.swift */,
 				0C97EB7081D911A300E71A50 /* HomeHelpers.swift */,
 				B9DF56A5FF83A4EB8F6A3745 /* HomeNeglectedComponents.swift */,
 				DFE432AB436772DA8FD008C2 /* HomeStatsCards.swift */,
@@ -805,6 +812,7 @@
 			buildPhases = (
 				4DC2FD184B138BE7B31B1EFE /* Sources */,
 				F933E7DFF371DA3A04AE3464 /* Resources */,
+				EDF84A22E72017BE65FDB05E /* Frameworks */,
 				60A3D54682B667879073056C /* Embed Foundation Extensions */,
 			);
 			buildRules = (
@@ -814,6 +822,7 @@
 			);
 			name = MuscleMap;
 			packageProductDependencies = (
+				3862F42F7A39E887709274F3 /* RevenueCat */,
 			);
 			productName = MuscleMap;
 			productReference = 42E895571E0BA26A49A45A33 /* MuscleMap.app */;
@@ -839,6 +848,9 @@
 			);
 			mainGroup = 83E1FA2C0DFA18F990C05867;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				F914E26445D7D75CB9550B62 /* XCRemoteSwiftPackageReference "purchases-ios" */,
+			);
 			preferredProjectObjectVersion = 77;
 			projectDirPath = "";
 			projectRoot = "";
@@ -895,6 +907,7 @@
 				1AA94FF61CC9E6126D159F9F /* CSVImportView.swift in Sources */,
 				38FF8BD300356973DD5C3165 /* CSVParser.swift in Sources */,
 				D29CB3836A2BE991F3BB8B6D /* CallToActionPage.swift in Sources */,
+				644B4925629D64F88262ADB1 /* ChallengeProgressBanner.swift in Sources */,
 				F2C695F1934BDDC88EE9917E /* ColorCalculator.swift in Sources */,
 				70F5FA46B8F7F9CBDC1617AF /* ColorExtensions.swift in Sources */,
 				76241706AA8DE99609DFF879 /* ContentView.swift in Sources */,
@@ -1388,6 +1401,25 @@
 			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		F914E26445D7D75CB9550B62 /* XCRemoteSwiftPackageReference "purchases-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/RevenueCat/purchases-ios";
+			requirement = {
+				kind = exactVersion;
+				version = 5.61.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		3862F42F7A39E887709274F3 /* RevenueCat */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F914E26445D7D75CB9550B62 /* XCRemoteSwiftPackageReference "purchases-ios" */;
+			productName = RevenueCat;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 40DD13D39E6CE44FF2E8E223 /* Project object */;
 }
