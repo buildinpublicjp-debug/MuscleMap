@@ -29,15 +29,18 @@ struct HomeView: View {
                 if let vm = viewModel {
                     ScrollView {
                         VStack(spacing: 24) {
-                            // 1. 週間ストリークバッジ
+                            // 1. 週間ストリークバッジ（ワークアウト履歴がない場合は非表示）
                             WeeklyStreakBadge(
                                 weeks: streakViewModel.currentStreak,
-                                isCurrentWeekCompleted: streakViewModel.isCurrentWeekCompleted
+                                isCurrentWeekCompleted: streakViewModel.isCurrentWeekCompleted,
+                                hasWorkoutHistory: hasWorkoutHistory
                             )
 
-                            // 2. 90日チャレンジバナー
-                            ChallengeProgressBanner(showingPaywall: $showingPaywall)
-                                .padding(.horizontal)
+                            // 2. 90日チャレンジバナー（初回ワークアウト完了後に表示）
+                            if hasWorkoutHistory {
+                                ChallengeProgressBanner(showingPaywall: $showingPaywall)
+                                    .padding(.horizontal)
+                            }
 
                             // 3. 筋肉マップ（メイン）- ホームの主役
                             ZStack(alignment: .top) {

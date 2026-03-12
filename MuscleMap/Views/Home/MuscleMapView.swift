@@ -13,26 +13,34 @@ struct MuscleMapView: View {
 
     var body: some View {
         VStack(spacing: 8) {
-            // 切り替えラベル
-            HStack {
-                Text(showingFront ? L10n.front : L10n.back)
-                    .font(.caption.bold())
-                    .foregroundStyle(Color.mmTextSecondary)
-                Spacer()
-                Button {
+            // 前面/背面セグメントトグル
+            HStack(spacing: 0) {
+                MuscleMapToggleButton(
+                    title: L10n.front,
+                    icon: "person.fill",
+                    isSelected: showingFront
+                ) {
                     withAnimation(.easeInOut(duration: 0.3)) {
-                        showingFront.toggle()
+                        showingFront = true
                     }
-                } label: {
-                    HStack(spacing: 4) {
-                        Image(systemName: "arrow.left.arrow.right")
-                        Text(showingFront ? L10n.viewBack : L10n.viewFront)
+                    HapticManager.lightTap()
+                }
+
+                MuscleMapToggleButton(
+                    title: L10n.back,
+                    icon: "person.fill",
+                    isSelected: !showingFront,
+                    isFlipped: true
+                ) {
+                    withAnimation(.easeInOut(duration: 0.3)) {
+                        showingFront = false
                     }
-                    .font(.caption2)
-                    .foregroundStyle(Color.mmAccentSecondary)
+                    HapticManager.lightTap()
                 }
             }
-            .padding(.horizontal, 8)
+            .padding(3)
+            .background(Color.mmBgSecondary)
+            .clipShape(RoundedRectangle(cornerRadius: 10))
 
             // 人体図
             GeometryReader { geo in
@@ -186,6 +194,35 @@ private struct MusclePathView: View {
         // より滑らかなアニメーション
         return .easeInOut(duration: state.pulseInterval * 1.2)
             .repeatForever(autoreverses: true)
+    }
+}
+
+// MARK: - 前面/背面トグルボタン
+
+private struct MuscleMapToggleButton: View {
+    let title: String
+    let icon: String
+    let isSelected: Bool
+    var isFlipped: Bool = false
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 6) {
+                Image(systemName: icon)
+                    .font(.caption)
+                    .scaleEffect(x: isFlipped ? -1 : 1, y: 1)
+
+                Text(title)
+                    .font(.subheadline.weight(.medium))
+            }
+            .foregroundStyle(isSelected ? Color.mmBgPrimary : Color.mmTextSecondary)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 10)
+            .background(isSelected ? Color.mmAccentPrimary : Color.clear)
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+        }
+        .buttonStyle(.plain)
     }
 }
 

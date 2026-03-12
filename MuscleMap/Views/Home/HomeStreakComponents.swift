@@ -5,11 +5,14 @@ import SwiftUI
 struct WeeklyStreakBadge: View {
     let weeks: Int
     let isCurrentWeekCompleted: Bool
+    var hasWorkoutHistory: Bool = true
 
     @State private var glowAnimation = false
 
+    /// ワークアウト履歴がない場合は非表示。履歴ありの場合はストリーク>0 or 今週未完了で表示
     private var showBadge: Bool {
-        weeks > 0 || !isCurrentWeekCompleted
+        guard hasWorkoutHistory else { return false }
+        return weeks > 0 || !isCurrentWeekCompleted
     }
 
     var body: some View {
