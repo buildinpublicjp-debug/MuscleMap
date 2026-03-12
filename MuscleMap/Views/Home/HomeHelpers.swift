@@ -73,6 +73,91 @@ struct HomeCoachMarkView: View {
     }
 }
 
+// MARK: - 今日のおすすめインライン（筋肉マップ直下）
+
+/// 筋肉マップの直下に常時表示する1行のおすすめカード
+struct TodayRecommendationInline: View {
+    let suggestedMenu: SuggestedMenu?
+    let hasWorkoutHistory: Bool
+    let onStart: () -> Void
+
+    private var localization: LocalizationManager { LocalizationManager.shared }
+
+    var body: some View {
+        Button(action: onStart) {
+            HStack(spacing: 10) {
+                if hasWorkoutHistory, let menu = suggestedMenu {
+                    // 回復済み筋肉のおすすめ表示
+                    let groupNames = inlineGroupNames(menu: menu)
+                    let reason = inlineReason(menu: menu)
+
+                    Image(systemName: "lightbulb.fill")
+                        .font(.subheadline)
+                        .foregroundStyle(Color.mmAccentPrimary)
+
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(L10n.todayRecommendation)
+                            .font(.caption2)
+                            .foregroundStyle(Color.mmTextSecondary)
+                        Text(groupNames)
+                            .font(.subheadline.bold())
+                            .foregroundStyle(Color.mmTextPrimary)
+                            .lineLimit(1)
+                        if !reason.isEmpty {
+                            Text(reason)
+                                .font(.caption2)
+                                .foregroundStyle(Color.mmTextSecondary)
+                                .lineLimit(1)
+                        }
+                    }
+                } else {
+                    // 履歴なし → 初回ユーザー向けメッセージ
+                    Image(systemName: "target")
+                        .font(.subheadline)
+                        .foregroundStyle(Color.mmAccentPrimary)
+
+                    Text("筋肉マップを赤くしてみよう")
+                        .font(.subheadline.bold())
+                        .foregroundStyle(Color.mmTextPrimary)
+                }
+
+                Spacer()
+
+                Text(L10n.startWorkout)
+                    .font(.caption.bold())
+                    .foregroundStyle(Color.mmBgPrimary)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(Color.mmAccentPrimary)
+                    .clipShape(Capsule())
+            }
+            .padding(16)
+            .background(Color.mmBgCard)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+        }
+        .buttonStyle(.plain)
+    }
+
+    /// ペアリングされたグループ名を表示用に結合
+    private func inlineGroupNames(menu: SuggestedMenu) -> String {
+        let groups = MenuSuggestionService.pairedGroups(for: menu.primaryGroup)
+        let names = groups.map { group in
+            localization.currentLanguage == .japanese ? group.japaneseName : group.englishName
+        }
+        return names.joined(separator: "・")
+    }
+
+    /// 回復状態の簡潔な理由テキスト
+    private func inlineReason(menu: SuggestedMenu) -> String {
+        let groupName = localization.currentLanguage == .japanese
+            ? menu.primaryGroup.japaneseName
+            : menu.primaryGroup.englishName
+        return localization.currentLanguage == .japanese
+            ? "\(groupName)が回復済み"
+            : "\(groupName) recovered"
+    }
+}
+
 // MARK: - Strength Mapストリップバナー（非Proユーザー向け）
 
 /// isPremium == false 時に回復マップ直下に表示するコンパクトな1行ストリップ
