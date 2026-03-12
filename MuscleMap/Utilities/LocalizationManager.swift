@@ -640,6 +640,7 @@ enum L10n {
     // MARK: - ワークアウト完了画面
     static var workoutComplete: String { loc("ワークアウト完了！", "Workout Complete!") }
     static var share: String { loc("シェア", "Share") }
+    static var shareWorkout: String { loc("トレーニングをシェア", "Share Workout") }
     static var shareTagline: String { loc("筋肉の回復を可視化", "Visualize muscle recovery") }
     static var shareTo: String { loc("シェア先を選択", "Share to") }
     static var shareToInstagramStories: String { loc("Instagram Storiesにシェア", "Share to Instagram Stories") }
@@ -983,4 +984,24 @@ enum L10n {
     static func feedDaysAgo(_ days: Int) -> String {
         loc("\(days)日前", "\(days)d ago", zhHans: "\(days)天前", ko: "\(days)일 전", es: "Hace \(days)d", fr: "Il y a \(days)j", de: "Vor \(days)T")
     }
+
+    // MARK: - ワークアウトUX改善
+    static var copyLastSet: String { loc("同じ", "Same", zhHans: "同上", ko: "동일", es: "Igual", fr: "Idem", de: "Gleich") }
+    static func recommendedWorkout(_ group: String) -> String {
+        loc("今日のおすすめ: \(group)（回復済み）", "Recommended: \(group) (recovered)", zhHans: "今日推荐: \(group)（已恢复）", ko: "추천: \(group) (회복됨)", es: "Recomendado: \(group) (recuperado)", fr: "Recommandé : \(group) (récupéré)", de: "Empfohlen: \(group) (erholt)")
+    }
+    static var startRecommended: String { loc("おすすめで始める", "Start recommended", zhHans: "按推荐开始", ko: "추천으로 시작", es: "Iniciar recomendado", fr: "Commencer recommandé", de: "Empfohlen starten") }
+
+    // MARK: - 90日チャレンジ
+    static var challenge90Title: String { loc("90日チャレンジ", "90-Day Challenge", zhHans: "90天挑战", ko: "90일 챌린지", es: "Desafío de 90 días", fr: "Défi 90 jours", de: "90-Tage-Challenge") }
+    static var challenge90Subtitle: String { loc("体の変化を90日で証明しよう", "Prove your body's transformation in 90 days", zhHans: "用90天证明你的蜕变", ko: "90일 동안 몸의 변화를 증명하세요", es: "Demuestra tu transformación en 90 días", fr: "Prouvez votre transformation en 90 jours", de: "Beweise deine Transformation in 90 Tagen") }
+    static func challengeDayN(_ day: Int) -> String {
+        loc("Day \(day)", "Day \(day)", zhHans: "第\(day)天", ko: "Day \(day)", es: "Día \(day)", fr: "Jour \(day)", de: "Tag \(day)")
+    }
+    static func challengeDaysLeft(_ days: Int) -> String {
+        loc("あと\(days)日", "\(days) days left", zhHans: "还剩\(days)天", ko: "\(days)일 남음", es: "\(days) días restantes", fr: "\(days) jours restants", de: "Noch \(days) Tage")
+    }
+    static var challengeComplete: String { loc("90日チャレンジ達成！", "90-Day Challenge Complete!", zhHans: "90天挑战完成！", ko: "90일 챌린지 달성!", es: "¡Desafío de 90 días completado!", fr: "Défi 90 jours terminé !", de: "90-Tage-Challenge geschafft!") }
+    static var challengeViewRecap: String { loc("Recapを見る", "View Recap", zhHans: "查看回顾", ko: "Recap 보기", es: "Ver resumen", fr: "Voir le récap", de: "Rückblick ansehen") }
+    static var challengeDayComplete: String { loc("完了！", "Complete!", zhHans: "完成！", ko: "완료!", es: "¡Hecho!", fr: "Terminé !", de: "Fertig!") }
 }

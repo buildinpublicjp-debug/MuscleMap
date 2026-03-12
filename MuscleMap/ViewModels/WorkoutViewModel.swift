@@ -90,28 +90,39 @@ class WorkoutViewModel {
     func selectExercise(_ exercise: ExerciseDefinition) {
         selectedExercise = exercise
 
+        let isBodyweight = exercise.equipment == "自重" || exercise.equipment == "Bodyweight"
+
         // 使用履歴に記録
         RecentExercisesManager.shared.recordUsage(exercise.id)
 
-        // 前回記録を取得
-        if let lastRecord = workoutRepo.fetchLastRecord(exerciseId: exercise.id) {
+        // セット番号を計算 + セッション内の直前セットを取得
+        var sessionLastSet: WorkoutSet?
+        if let session = activeSession {
+            let existingSets = workoutRepo.fetchSets(in: session, exerciseId: exercise.id)
+            currentSetNumber = existingSets.count + 1
+            sessionLastSet = existingSets.last
+        } else {
+            currentSetNumber = 1
+        }
+
+        // 前回記録を取得（セッション内の直前セット → 過去セッションの順に優先）
+        if let inSessionSet = sessionLastSet {
+            // 同一セッション内で既に記録がある → その値を維持（値保持）
+            currentWeight = inSessionSet.weight
+            currentReps = inSessionSet.reps
+            lastWeight = inSessionSet.weight
+            lastReps = inSessionSet.reps
+        } else if let lastRecord = workoutRepo.fetchLastRecord(exerciseId: exercise.id) {
             currentWeight = lastRecord.weight
             currentReps = lastRecord.reps
             lastWeight = lastRecord.weight
             lastReps = lastRecord.reps
         } else {
-            currentWeight = 0
+            // 履歴なし
+            currentWeight = isBodyweight ? 0 : 0
             currentReps = 10
             lastWeight = nil
             lastReps = nil
-        }
-
-        // セット番号を計算
-        if let session = activeSession {
-            let existingSets = workoutRepo.fetchSets(in: session, exerciseId: exercise.id)
-            currentSetNumber = existingSets.count + 1
-        } else {
-            currentSetNumber = 1
         }
     }
 

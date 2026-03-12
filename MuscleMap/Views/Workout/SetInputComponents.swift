@@ -85,7 +85,7 @@ struct SetInputCard: View {
                 }
             }
 
-            // 前回記録（コンパクト表示）
+            // 前回記録（コンパクト表示）+ 「同じ」ボタン
             if let lastW = viewModel.lastWeight, let lastR = viewModel.lastReps {
                 HStack(spacing: 6) {
                     Image(systemName: "clock.arrow.circlepath")
@@ -100,6 +100,27 @@ struct SetInputCard: View {
                         Text(L10n.previousRecord(lastW, lastR))
                             .font(.caption.bold())
                             .foregroundStyle(Color.mmTextSecondary)
+                    }
+
+                    Spacer()
+
+                    // 前回と同じボタン
+                    Button {
+                        viewModel.currentWeight = lastW
+                        viewModel.currentReps = lastR
+                        HapticManager.lightTap()
+                    } label: {
+                        HStack(spacing: 4) {
+                            Image(systemName: "doc.on.doc")
+                                .font(.caption2)
+                            Text(L10n.copyLastSet)
+                                .font(.caption.bold())
+                        }
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 5)
+                        .background(Color.mmAccentSecondary.opacity(0.15))
+                        .foregroundStyle(Color.mmAccentSecondary)
+                        .clipShape(Capsule())
                     }
                 }
             }

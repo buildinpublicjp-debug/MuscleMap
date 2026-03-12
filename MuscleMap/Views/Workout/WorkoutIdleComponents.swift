@@ -10,7 +10,9 @@ struct WorkoutIdleView: View {
     let onSelectExercise: (ExerciseDefinition) -> Void
 
     @ObservedObject private var favorites = FavoritesManager.shared
+    @Environment(\.modelContext) private var modelContext
     @State private var selectedMuscle: Muscle?
+    @State private var suggestedMenu: SuggestedMenu?
     private var localization: LocalizationManager { LocalizationManager.shared }
 
     private var favoriteExercises: [ExerciseDefinition] {
@@ -37,6 +39,22 @@ struct WorkoutIdleView: View {
                         .font(.caption)
                         .foregroundStyle(Color.mmTextSecondary)
                         .multilineTextAlignment(.center)
+
+                    // おすすめメニュー（履歴ありの場合のみ）
+                    if let menu = suggestedMenu, !menu.exercises.isEmpty {
+                        RecommendedWorkoutBanner(
+                            menu: menu,
+                            onStart: {
+                                // おすすめの最初の種目で開始
+                                if let firstExercise = menu.exercises.first {
+                                    onSelectExercise(firstExercise.definition)
+                                } else {
+                                    onStart()
+                                }
+                            }
+                        )
+                        .padding(.horizontal)
+                    }
 
                     // お気に入り種目
                     if !favoriteExercises.isEmpty {
@@ -71,6 +89,73 @@ struct WorkoutIdleView: View {
                 selectedMuscle = nil
             }
         }
+        .onAppear {
+            loadRecommendation()
+        }
+    }
+
+    /// おすすめメニューを取得
+    private func loadRecommendation() {
+        let repo = MuscleStateRepository(modelContext: modelContext)
+        let stimulations = repo.fetchLatestStimulations()
+        // 履歴がない場合は非表示
+        guard !stimulations.isEmpty else {
+            suggestedMenu = nil
+            return
+        }
+        suggestedMenu = MenuSuggestionService.suggestTodayMenu(
+            stimulations: stimulations,
+            exerciseStore: ExerciseStore.shared
+        )
+    }
+}
+
+// MARK: - おすすめワークアウトバナー
+
+struct RecommendedWorkoutBanner: View {
+    let menu: SuggestedMenu
+    let onStart: () -> Void
+    private var localization: LocalizationManager { LocalizationManager.shared }
+
+    var body: some View {
+        Button(action: onStart) {
+            HStack(spacing: 12) {
+                Text("💡")
+                    .font(.title3)
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(L10n.recommendedWorkout(groupName))
+                        .font(.subheadline.bold())
+                        .foregroundStyle(Color.mmTextPrimary)
+
+                    Text(L10n.startRecommended)
+                        .font(.caption)
+                        .foregroundStyle(Color.mmAccentPrimary)
+                }
+
+                Spacer()
+
+                Image(systemName: "chevron.right")
+                    .font(.caption)
+                    .foregroundStyle(Color.mmTextSecondary)
+            }
+            .padding(16)
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(Color.mmAccentPrimary.opacity(0.08))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 16)
+                    .stroke(Color.mmAccentPrimary.opacity(0.2), lineWidth: 1)
+            )
+        }
+        .buttonStyle(.plain)
+    }
+
+    private var groupName: String {
+        localization.currentLanguage == .japanese
+            ? menu.primaryGroup.japaneseName
+            : menu.primaryGroup.englishName
     }
 }
 
