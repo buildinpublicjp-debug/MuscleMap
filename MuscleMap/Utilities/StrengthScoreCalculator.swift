@@ -10,6 +10,83 @@ struct StrengthDisplayParams {
     let color: Color
 }
 
+// MARK: - 強さレベル（ユーザー向け表示）
+
+/// 体重比ベースの強さレベル（S/A+等のグレードを人間がわかる言葉に変換）
+enum StrengthLevel: String, CaseIterable {
+    case beginner = "beginner"
+    case intermediate = "intermediate"
+    case advanced = "advanced"
+    case elite = "elite"
+    case freak = "freak"
+
+    /// 日本語名
+    var japaneseName: String {
+        switch self {
+        case .beginner:     return "初心者"
+        case .intermediate: return "中級者"
+        case .advanced:     return "上級者"
+        case .elite:        return "エリート"
+        case .freak:        return "怪物"
+        }
+    }
+
+    /// 英語名
+    var englishName: String {
+        switch self {
+        case .beginner:     return "Beginner"
+        case .intermediate: return "Intermediate"
+        case .advanced:     return "Advanced"
+        case .elite:        return "Elite"
+        case .freak:        return "Freak"
+        }
+    }
+
+    /// レベルカラー
+    var color: Color {
+        switch self {
+        case .beginner:     return .mmTextSecondary
+        case .intermediate: return .mmMuscleModerate
+        case .advanced:     return .mmAccentSecondary
+        case .elite:        return .mmAccentPrimary
+        case .freak:        return .mmPRGold
+        }
+    }
+
+    /// レベル絵文字
+    var emoji: String {
+        switch self {
+        case .beginner:     return "🌱"
+        case .intermediate: return "💪"
+        case .advanced:     return "🔥"
+        case .elite:        return "⚡"
+        case .freak:        return "👑"
+        }
+    }
+
+    /// スコア閾値（この値以上で該当レベル）
+    var minimumScore: Double {
+        switch self {
+        case .beginner:     return 0.0
+        case .intermediate: return 0.20
+        case .advanced:     return 0.40
+        case .elite:        return 0.65
+        case .freak:        return 0.85
+        }
+    }
+
+    /// 次のレベル（freakの場合はnil）
+    var nextLevel: StrengthLevel? {
+        switch self {
+        case .beginner:     return .intermediate
+        case .intermediate: return .advanced
+        case .advanced:     return .elite
+        case .elite:        return .freak
+        case .freak:        return nil
+        }
+    }
+}
+
 // MARK: - 種目カテゴリ別閾値
 
 /// 体重比スコアの閾値テーブル
@@ -53,10 +130,46 @@ private enum StrengthCategory {
         }
     }
 
+    /// スコアから体重比を逆算（次のレベルに必要な体重比を求めるため）
+    func ratioForScore(_ targetScore: Double) -> Double {
+        switch self {
+        case .compoundLarge:
+            if targetScore <= 0.15 { return inverseLerp(targetScore, scoreFrom: 0.0, scoreTo: 0.15, from: 0, to: 0.5) }
+            if targetScore <= 0.30 { return inverseLerp(targetScore, scoreFrom: 0.15, scoreTo: 0.30, from: 0.5, to: 0.75) }
+            if targetScore <= 0.50 { return inverseLerp(targetScore, scoreFrom: 0.30, scoreTo: 0.50, from: 0.75, to: 1.0) }
+            if targetScore <= 0.70 { return inverseLerp(targetScore, scoreFrom: 0.50, scoreTo: 0.70, from: 1.0, to: 1.25) }
+            if targetScore <= 0.85 { return inverseLerp(targetScore, scoreFrom: 0.70, scoreTo: 0.85, from: 1.25, to: 1.5) }
+            return 1.5
+
+        case .compoundMedium:
+            if targetScore <= 0.15 { return inverseLerp(targetScore, scoreFrom: 0.0, scoreTo: 0.15, from: 0, to: 0.3) }
+            if targetScore <= 0.35 { return inverseLerp(targetScore, scoreFrom: 0.15, scoreTo: 0.35, from: 0.3, to: 0.5) }
+            if targetScore <= 0.55 { return inverseLerp(targetScore, scoreFrom: 0.35, scoreTo: 0.55, from: 0.5, to: 0.7) }
+            if targetScore <= 0.75 { return inverseLerp(targetScore, scoreFrom: 0.55, scoreTo: 0.75, from: 0.7, to: 0.9) }
+            if targetScore <= 0.90 { return inverseLerp(targetScore, scoreFrom: 0.75, scoreTo: 0.90, from: 0.9, to: 1.1) }
+            return 1.1
+
+        case .isolation:
+            if targetScore <= 0.15 { return inverseLerp(targetScore, scoreFrom: 0.0, scoreTo: 0.15, from: 0, to: 0.2) }
+            if targetScore <= 0.35 { return inverseLerp(targetScore, scoreFrom: 0.15, scoreTo: 0.35, from: 0.2, to: 0.35) }
+            if targetScore <= 0.55 { return inverseLerp(targetScore, scoreFrom: 0.35, scoreTo: 0.55, from: 0.35, to: 0.5) }
+            if targetScore <= 0.75 { return inverseLerp(targetScore, scoreFrom: 0.55, scoreTo: 0.75, from: 0.5, to: 0.65) }
+            if targetScore <= 0.90 { return inverseLerp(targetScore, scoreFrom: 0.75, scoreTo: 0.90, from: 0.65, to: 0.8) }
+            return 0.8
+        }
+    }
+
     /// 線形補間ヘルパー
     private func lerp(_ value: Double, from: Double, to: Double, scoreFrom: Double, scoreTo: Double) -> Double {
         let t = (value - from) / (to - from)
         return scoreFrom + t * (scoreTo - scoreFrom)
+    }
+
+    /// 逆線形補間（スコア→体重比）
+    private func inverseLerp(_ score: Double, scoreFrom: Double, scoreTo: Double, from: Double, to: Double) -> Double {
+        guard scoreTo != scoreFrom else { return from }
+        let t = (score - scoreFrom) / (scoreTo - scoreFrom)
+        return from + t * (to - from)
     }
 }
 
@@ -97,10 +210,6 @@ final class StrengthScoreCalculator {
     private init() {}
 
     /// 全WorkoutSetから筋肉ごとのStrengthスコア（0.0〜1.0）を算出
-    /// - Parameters:
-    ///   - allSets: 全WorkoutSet配列
-    ///   - bodyweightKg: ユーザー体重（kg）
-    /// - Returns: [筋肉ID文字列: スコア(0.0〜1.0)]
     func muscleStrengthScores(allSets: [WorkoutSet], bodyweightKg: Double) -> [String: Double] {
         let bodyweight = bodyweightKg > 0 ? bodyweightKg : 70.0
 
@@ -119,17 +228,13 @@ final class StrengthScoreCalculator {
 
         for (exerciseId, best1RM) in exerciseBest1RM {
             guard let definition = exerciseStore.exercise(for: exerciseId) else { continue }
-
-            // 体重比を算出
             let strengthRatio = best1RM / bodyweight
 
-            // この種目が関連する全筋肉についてスコアを計算
             for (muscleId, _) in definition.muscleMapping {
                 guard let muscle = Muscle(rawValue: muscleId) else { continue }
                 let category = muscleCategory[muscle] ?? .isolation
                 let score = category.score(for: strengthRatio)
 
-                // その筋肉の最高スコアを採用
                 if score > (muscleScores[muscleId] ?? 0) {
                     muscleScores[muscleId] = score
                 }
@@ -167,10 +272,89 @@ final class StrengthScoreCalculator {
         }
     }
 
+    // MARK: - 強さレベル判定
+
+    /// スコア（0.0〜1.0）からStrengthLevelを返す
+    static func level(score: Double) -> StrengthLevel {
+        if score >= StrengthLevel.freak.minimumScore { return .freak }
+        if score >= StrengthLevel.elite.minimumScore { return .elite }
+        if score >= StrengthLevel.advanced.minimumScore { return .advanced }
+        if score >= StrengthLevel.intermediate.minimumScore { return .intermediate }
+        return .beginner
+    }
+
+    /// 種目の推定1RMと体重から直接レベルを判定
+    /// - Returns: (現在のレベル, 次のレベルまでに必要な追加kg, 次のレベル名)
+    static func exerciseStrengthLevel(
+        exerciseId: String,
+        estimated1RM: Double,
+        bodyweightKg: Double
+    ) -> (level: StrengthLevel, kgToNext: Double?, nextLevel: StrengthLevel?) {
+        let bodyweight = bodyweightKg > 0 ? bodyweightKg : 70.0
+        let ratio = estimated1RM / bodyweight
+
+        // 種目のプライマリ筋肉からカテゴリを推定
+        let category: StrengthCategory
+        if let definition = ExerciseStore.shared.exercise(for: exerciseId),
+           let primaryMuscleId = definition.muscleMapping.max(by: { $0.value < $1.value })?.key,
+           let muscle = Muscle(rawValue: primaryMuscleId) {
+            category = muscleCategory[muscle] ?? .compoundLarge
+        } else {
+            category = .compoundLarge
+        }
+
+        let score = category.score(for: ratio)
+        let currentLevel = level(score: score)
+
+        // 次のレベルまでに必要なkg
+        guard let nextLvl = currentLevel.nextLevel else {
+            return (currentLevel, nil, nil) // 既に最高レベル
+        }
+
+        let nextScore = nextLvl.minimumScore
+        let nextRatio = category.ratioForScore(nextScore)
+        let next1RM = nextRatio * bodyweight
+        let kgNeeded = max(0, next1RM - estimated1RM)
+
+        return (currentLevel, kgNeeded, nextLvl)
+    }
+
+    /// 全種目のレベル分布を計算（「上級者3種目、中級者5種目...」のサマリー用）
+    func levelDistribution(allSets: [WorkoutSet], bodyweightKg: Double) -> [StrengthLevel: Int] {
+        let bodyweight = bodyweightKg > 0 ? bodyweightKg : 70.0
+        var exerciseBest1RM: [String: Double] = [:]
+        for set in allSets {
+            let estimated = PRManager.shared.estimated1RM(weight: set.weight, reps: set.reps)
+            if estimated > (exerciseBest1RM[set.exerciseId] ?? 0) {
+                exerciseBest1RM[set.exerciseId] = estimated
+            }
+        }
+
+        var distribution: [StrengthLevel: Int] = [:]
+        for (exerciseId, best1RM) in exerciseBest1RM {
+            let result = Self.exerciseStrengthLevel(
+                exerciseId: exerciseId,
+                estimated1RM: best1RM,
+                bodyweightKg: bodyweight
+            )
+            distribution[result.level, default: 0] += 1
+        }
+        return distribution
+    }
+
+    /// 総合レベル（全種目の中央値ベース）
+    func overallLevel(allSets: [WorkoutSet], bodyweightKg: Double) -> StrengthLevel {
+        let scores = muscleStrengthScores(allSets: allSets, bodyweightKg: bodyweightKg)
+        guard !scores.isEmpty else { return .beginner }
+        let avgScore = scores.values.reduce(0, +) / Double(scores.count)
+        return Self.level(score: avgScore)
+    }
+
+    // MARK: - 表示パラメータ
+
     /// スコアから表示パラメータへ変換
     func displayParams(score: Double) -> StrengthDisplayParams {
         if score <= 0 {
-            // 未記録
             return StrengthDisplayParams(
                 strokeWidth: 1.0,
                 opacity: 0.25,
@@ -201,7 +385,6 @@ final class StrengthScoreCalculator {
                 color: Color.mmAccentSecondary
             )
         } else {
-            // 0.8〜1.0: 最強レベル
             return StrengthDisplayParams(
                 strokeWidth: 7.0,
                 opacity: 1.0,
