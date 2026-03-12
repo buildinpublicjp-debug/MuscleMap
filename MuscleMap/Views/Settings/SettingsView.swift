@@ -10,6 +10,9 @@ struct SettingsView: View {
     @State private var safariURL: URL?
     @State private var showingPaywall = false
     @State private var showingProfileEdit = false
+    #if DEBUG
+    @State private var showingResetAlert = false
+    #endif
     @AppStorage("youtubeSearchLanguage") private var youtubeSearchLanguage: String = "auto"
 
     var body: some View {
@@ -29,6 +32,11 @@ struct SettingsView: View {
 
                     // 3. アプリについて
                     aboutSection
+
+                    #if DEBUG
+                    // 4. 開発者メニュー
+                    developerSection
+                    #endif
                 }
                 .scrollContentBackground(.hidden)
                 .listStyle(.insetGrouped)
@@ -48,6 +56,13 @@ struct SettingsView: View {
             .sheet(isPresented: $showingProfileEdit) {
                 ProfileEditSheet()
             }
+            #if DEBUG
+            .alert("オンボーディングをリセットしました", isPresented: $showingResetAlert) {
+                Button("OK") {}
+            } message: {
+                Text("アプリを再起動すると、オンボーディングが再表示されます。")
+            }
+            #endif
         }
     }
 
@@ -301,6 +316,33 @@ struct SettingsView: View {
                 .padding(.top, 16)
         }
     }
+    // MARK: - 4. 開発者メニュー（DEBUG）
+
+    #if DEBUG
+    private var developerSection: some View {
+        Section {
+            Button(role: .destructive) {
+                appState.hasCompletedOnboarding = false
+                appState.hasSeenDemoAnimation = false
+                appState.hasSeenHomeCoachMark = false
+                appState.hasCompletedFirstWorkout = false
+                showingResetAlert = true
+            } label: {
+                HStack(spacing: 12) {
+                    Image(systemName: "arrow.counterclockwise")
+                        .foregroundStyle(.red)
+                    Text("オンボーディングをリセット")
+                        .font(.subheadline)
+                        .foregroundStyle(.red)
+                }
+            }
+            .listRowBackground(Color.mmBgCard)
+        } header: {
+            Text("開発者メニュー")
+                .foregroundStyle(Color.mmTextSecondary)
+        }
+    }
+    #endif
 }
 
 // MARK: - プロフィール編集シート
