@@ -92,22 +92,22 @@ struct PaywallView: View {
     private var featureSection: some View {
         VStack(spacing: 12) {
             featureRow(
-                icon: "bolt.shield.fill",
+                icon: "figure.strengthtraining.traditional",
                 color: Color.mmAccentPrimary,
-                title: "Strength Map",
+                title: "筋力マップ",
                 description: "体が変わっていくのが目で見える"
             )
             featureRow(
                 icon: "chart.xyaxis.line",
                 color: Color(red: 0.2, green: 0.8, blue: 0.5),
-                title: "種目別 重量推移（全期間）",
+                title: "種目別推移グラフ（全期間）",
                 description: "どこが強くなったか数値で証明できる"
             )
             featureRow(
-                icon: "video.fill",
+                icon: "calendar.badge.clock",
                 color: Color(red: 0.6, green: 0.4, blue: 1.0),
-                title: "90日 Recap（近日公開）",
-                description: "変化の記録を動画で残してシェアできる"
+                title: "90日チャレンジ（近日公開）",
+                description: "変化を記録してRecapを生成"
             )
         }
         .padding(.horizontal, 24)

@@ -91,8 +91,29 @@ struct SettingsView: View {
             }
             .listRowBackground(Color.mmBgCard)
 
-            // Pro アップグレード（非Proユーザーのみ）
-            if !PurchaseManager.shared.isPremium {
+            // Pro導線
+            if PurchaseManager.shared.isPremium {
+                // Proメンバー表示 → サブスク管理
+                Button {
+                    if let url = URL(string: "https://apps.apple.com/account/subscriptions") {
+                        UIApplication.shared.open(url)
+                    }
+                } label: {
+                    HStack(spacing: 12) {
+                        Image(systemName: "bolt.shield.fill")
+                            .foregroundStyle(Color.mmAccentPrimary)
+                        Text("MuscleMap Pro")
+                            .font(.subheadline.bold())
+                            .foregroundStyle(Color.mmTextPrimary)
+                        Spacer()
+                        Text("Pro ✓")
+                            .font(.caption.bold())
+                            .foregroundStyle(Color.mmAccentPrimary)
+                    }
+                }
+                .listRowBackground(Color.mmBgCard)
+            } else {
+                // 非Pro: アップグレード誘導
                 Button {
                     showingPaywall = true
                 } label: {
@@ -100,7 +121,7 @@ struct SettingsView: View {
                         Image(systemName: "bolt.shield.fill")
                             .foregroundStyle(Color.mmAccentPrimary)
                         VStack(alignment: .leading, spacing: 2) {
-                            Text("Pro にアップグレード")
+                            Text("MuscleMap Pro — アップグレード")
                                 .font(.subheadline.bold())
                                 .foregroundStyle(Color.mmAccentPrimary)
                             Text("90日後、あなたの変化が証明される")

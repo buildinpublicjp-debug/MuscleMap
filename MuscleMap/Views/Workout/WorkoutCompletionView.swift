@@ -123,7 +123,13 @@ struct WorkoutCompletionView: View {
 
     var body: some View {
         ZStack {
-            Color.mmBgPrimary.ignoresSafeArea()
+            // 微細グラデーション背景
+            LinearGradient(
+                colors: [Color.mmBgPrimary, Color.mmBgSecondary.opacity(0.6)],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .ignoresSafeArea()
 
             VStack(spacing: 0) {
                 ScrollView {
@@ -132,8 +138,11 @@ struct WorkoutCompletionView: View {
                             .padding(.top, 24)
 
                         Text(L10n.workoutComplete)
-                            .font(.title.bold())
+                            .font(.largeTitle.weight(.heavy))
                             .foregroundStyle(Color.mmTextPrimary)
+
+                        // 90日チャレンジ Day完了（進行中の場合のみ）
+                        ChallengeDayCompleteBanner()
 
                         CompletionStatsCard(
                             totalVolume: totalVolume,
@@ -141,6 +150,23 @@ struct WorkoutCompletionView: View {
                             totalSets: totalSets,
                             duration: duration
                         )
+
+                        // シェアボタン（StatsCard直下に配置）
+                        Button {
+                            prepareShareImage()
+                            showingShareOptions = true
+                        } label: {
+                            HStack(spacing: 8) {
+                                Image(systemName: "square.and.arrow.up")
+                                Text(L10n.shareWorkout)
+                            }
+                            .font(.headline)
+                            .foregroundStyle(Color.mmBgPrimary)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 50)
+                            .background(Color.mmAccentPrimary)
+                            .clipShape(RoundedRectangle(cornerRadius: 14))
+                        }
 
                         StimulatedMusclesSection(muscleMapping: stimulatedMuscleMapping)
 
@@ -165,21 +191,26 @@ struct WorkoutCompletionView: View {
                             exercises: exercisesDone,
                             setsCountProvider: setsCount
                         )
+
+                        // 非ProへのPaywall誘導
+                        if !PurchaseManager.shared.isPremium {
+                            CompletionProBanner(onTap: {
+                                showingPaywall = true
+                            })
+                        }
                     }
                     .padding(.horizontal)
                     .padding(.bottom, 16)
                 }
 
-                CompletionButtonSection(
-                    onShare: {
-                        prepareShareImage()
-                        showingShareOptions = true
-                    },
-                    onDismiss: onDismiss,
-                    onProTap: {
-                        showingPaywall = true
-                    }
-                )
+                // 閉じるボタンのみ下部固定
+                Button(action: onDismiss) {
+                    Text(L10n.close)
+                        .font(.headline)
+                        .foregroundStyle(Color.mmTextSecondary)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
+                }
                 .padding(.horizontal)
                 .padding(.bottom, 16)
             }

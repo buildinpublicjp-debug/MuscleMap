@@ -1,10 +1,41 @@
 import SwiftUI
 
-// MARK: - 完了アイコン
+// MARK: - 完了アイコン（紙吹雪エフェクト付き）
 
 struct CompletionIcon: View {
+    @State private var showConfetti = false
+
+    // 紙吹雪パーティクル定義（6個）
+    private let confettiItems: [(color: Color, offsetX: CGFloat, offsetY: CGFloat, rotation: Double)] = [
+        (.mmAccentPrimary, -50, -40, 45),
+        (.yellow, 45, -50, -30),
+        (.mmAccentSecondary, -40, 30, 60),
+        (.mmAccentPrimary, 55, 20, -45),
+        (.yellow, -20, -55, 120),
+        (.mmAccentSecondary, 30, 45, -60),
+    ]
+
     var body: some View {
         ZStack {
+            // 紙吹雪パーティクル
+            ForEach(Array(confettiItems.enumerated()), id: \.offset) { index, item in
+                Circle()
+                    .fill(item.color)
+                    .frame(width: CGFloat.random(in: 5...9), height: CGFloat.random(in: 5...9))
+                    .offset(
+                        x: showConfetti ? item.offsetX : 0,
+                        y: showConfetti ? item.offsetY : 0
+                    )
+                    .opacity(showConfetti ? 0 : 1)
+                    .scaleEffect(showConfetti ? 0.3 : 0.01)
+                    .animation(
+                        .easeOut(duration: 1.5)
+                        .delay(Double(index) * 0.05),
+                        value: showConfetti
+                    )
+            }
+
+            // メインアイコン
             Circle()
                 .fill(Color.mmAccentPrimary.opacity(0.2))
                 .frame(width: 100, height: 100)
@@ -16,6 +47,11 @@ struct CompletionIcon: View {
             Image(systemName: "checkmark.circle.fill")
                 .font(.system(size: 60))
                 .foregroundStyle(Color.mmAccentPrimary)
+        }
+        .onAppear {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                showConfetti = true
+            }
         }
     }
 }
@@ -119,48 +155,45 @@ struct CompletionExerciseList: View {
     }
 }
 
-// MARK: - 非Pro常時Paywall誘導バナー
+// MARK: - 非Pro Paywall誘導バナー
 
 /// 完了画面のExerciseListの下に常時表示（isPremium == false 時のみ）
-struct CompletionProBannerStrip: View {
+struct CompletionProBanner: View {
     let onTap: () -> Void
 
     var body: some View {
         Button(action: onTap) {
-            HStack(spacing: 12) {
-                Image(systemName: "bolt.shield.fill")
-                    .font(.subheadline)
-                    .foregroundStyle(Color.mmAccentPrimary)
-
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("90日間の変化を記録する")
+            VStack(alignment: .leading, spacing: 8) {
+                HStack(spacing: 8) {
+                    Image(systemName: "bolt.shield.fill")
+                        .font(.title3)
+                        .foregroundStyle(Color.mmAccentPrimary)
+                    Text("90日で体の変化を証明する")
                         .font(.subheadline.bold())
                         .foregroundStyle(Color.mmTextPrimary)
-                    Text("Proで全記録を保存 → 変化を証明")
-                        .font(.caption)
-                        .foregroundStyle(Color.mmTextSecondary)
                 }
 
-                Spacer()
-
-                Text("Pro")
-                    .font(.caption2.bold())
-                    .foregroundStyle(Color.mmBgPrimary)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(Color.mmAccentPrimary)
-                    .clipShape(Capsule())
-
-                Image(systemName: "chevron.right")
-                    .font(.caption2)
+                Text("Strength Map + 種目別グラフで成長を可視化")
+                    .font(.caption)
                     .foregroundStyle(Color.mmTextSecondary)
+
+                HStack {
+                    Spacer()
+                    HStack(spacing: 4) {
+                        Text("Proを始める")
+                            .font(.caption.bold())
+                            .foregroundStyle(Color.mmAccentPrimary)
+                        Image(systemName: "chevron.right")
+                            .font(.caption2)
+                            .foregroundStyle(Color.mmAccentPrimary)
+                    }
+                }
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 12)
+            .padding(16)
             .background(Color.mmBgCard)
-            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .clipShape(RoundedRectangle(cornerRadius: 16))
             .overlay(
-                RoundedRectangle(cornerRadius: 12)
+                RoundedRectangle(cornerRadius: 16)
                     .stroke(Color.mmAccentPrimary.opacity(0.3), lineWidth: 1)
             )
         }
@@ -290,7 +323,7 @@ struct StrengthMapShareSection: View {
     }
 }
 
-// MARK: - 完了ボタンセクション
+// MARK: - 完了ボタンセクション（レガシー互換用、新レイアウトではWorkoutCompletionViewで直接配置）
 
 struct CompletionButtonSection: View {
     let onShare: () -> Void
@@ -299,11 +332,6 @@ struct CompletionButtonSection: View {
 
     var body: some View {
         VStack(spacing: 12) {
-            // 非ProユーザーへのPro訴求バナー
-            if !PurchaseManager.shared.isPremium, let onProTap {
-                CompletionProBannerStrip(onTap: onProTap)
-            }
-
             // シェアボタン
             Button(action: onShare) {
                 HStack {
