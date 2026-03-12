@@ -28,27 +28,11 @@ struct StrengthShareCard: View {
     }
 
     private var overallGrade: String {
-        switch averageScore {
-        case 0.85...: return "S"
-        case 0.70...: return "A+"
-        case 0.55...: return "A"
-        case 0.40...: return "B+"
-        case 0.30...: return "B"
-        case 0.20...: return "C"
-        default:      return "D"
-        }
+        StrengthScoreCalculator.grade(score: averageScore)
     }
 
     private var gradeColor: Color {
-        switch overallGrade {
-        case "S":  return .mmAccentPrimary
-        case "A+": return Color(hex: "#00CC8F")
-        case "A":  return .mmAccentSecondary
-        case "B+": return .mmMuscleRecovered
-        case "B":  return .mmMuscleModerate
-        case "C":  return .mmTextSecondary
-        default:   return Color(hex: "#808080")
-        }
+        StrengthScoreCalculator.gradeColor(grade: overallGrade)
     }
 
     /// スコア上位3筋肉

@@ -139,6 +139,34 @@ final class StrengthScoreCalculator {
         return muscleScores
     }
 
+    // MARK: - グレード判定
+
+    /// スコア（0.0〜1.0）からグレード文字列を返す
+    static func grade(score: Double) -> String {
+        switch score {
+        case 0.85...: return "S"
+        case 0.70...: return "A+"
+        case 0.55...: return "A"
+        case 0.40...: return "B+"
+        case 0.30...: return "B"
+        case 0.20...: return "C"
+        default:      return "D"
+        }
+    }
+
+    /// グレード文字列から対応するカラーを返す
+    static func gradeColor(grade: String) -> Color {
+        switch grade {
+        case "S":  return .mmAccentPrimary
+        case "A+": return Color(hex: "#00CC8F")
+        case "A":  return .mmAccentSecondary
+        case "B+": return .mmMuscleRecovered
+        case "B":  return .mmMuscleModerate
+        case "C":  return .mmTextSecondary
+        default:   return Color(hex: "#808080")
+        }
+    }
+
     /// スコアから表示パラメータへ変換
     func displayParams(score: Double) -> StrengthDisplayParams {
         if score <= 0 {

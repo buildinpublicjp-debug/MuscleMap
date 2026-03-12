@@ -6,68 +6,123 @@ import SwiftData
 struct StrengthMapView: View {
     let muscleScores: [String: Double]
 
-    @State private var showingFront = true
     @State private var shareImage: UIImage?
+
+    // MARK: - 計算プロパティ
+
+    /// 全21筋肉の平均スコア（未記録=0として計算）
+    private var averageScore: Double {
+        let allScores = Muscle.allCases.map { muscleScores[$0.rawValue] ?? 0.0 }
+        return allScores.reduce(0, +) / Double(allScores.count)
+    }
+
+    private var overallGrade: String {
+        StrengthScoreCalculator.grade(score: averageScore)
+    }
+
+    private var gradeColor: Color {
+        StrengthScoreCalculator.gradeColor(grade: overallGrade)
+    }
 
     var body: some View {
         VStack(spacing: 8) {
-            // ヘッダー: タイトル + 前後切替 + シェアボタン
-            HStack {
-                Text(showingFront ? L10n.front : L10n.back)
-                    .font(.caption.bold())
-                    .foregroundStyle(Color.mmTextSecondary)
-                Spacer()
+            // ヘッダー: タイトル + シェアボタン
+            headerSection
 
-                // シェアボタン
-                if let image = shareImage {
-                    ShareLink(
-                        item: Image(uiImage: image),
-                        preview: SharePreview(
-                            "私の筋力マップ",
-                            image: Image(uiImage: image)
-                        )
-                    ) {
-                        Image(systemName: "square.and.arrow.up")
-                            .font(.caption)
-                            .foregroundStyle(Color.mmAccentPrimary)
-                    }
-                    .simultaneousGesture(TapGesture().onEnded {
-                        HapticManager.lightTap()
-                    })
-                } else {
-                    Button {
-                        HapticManager.lightTap()
-                        generateAndShare()
-                    } label: {
-                        Image(systemName: "square.and.arrow.up")
-                            .font(.caption)
-                            .foregroundStyle(Color.mmAccentPrimary)
-                    }
+            // 前後マップ横並び表示
+            bodySection
+
+            // 総合グレードバッジ
+            gradeBadgeSection
+
+            // トップ3スコア表示
+            topMusclesSection
+        }
+        .onAppear {
+            generateAndShare()
+        }
+        .onChange(of: muscleScores) {
+            shareImage = nil
+            generateAndShare()
+        }
+    }
+
+    // MARK: - ヘッダー
+
+    private var headerSection: some View {
+        HStack {
+            Text("STRENGTH MAP")
+                .font(.caption.bold())
+                .foregroundStyle(Color.mmTextSecondary)
+                .tracking(1.0)
+            Spacer()
+
+            // シェアボタン
+            if let image = shareImage {
+                ShareLink(
+                    item: Image(uiImage: image),
+                    preview: SharePreview(
+                        "私の筋力マップ",
+                        image: Image(uiImage: image)
+                    )
+                ) {
+                    Image(systemName: "square.and.arrow.up")
+                        .font(.caption)
+                        .foregroundStyle(Color.mmAccentPrimary)
                 }
-
+                .simultaneousGesture(TapGesture().onEnded {
+                    HapticManager.lightTap()
+                })
+            } else {
                 Button {
-                    withAnimation(.easeInOut(duration: 0.3)) {
-                        showingFront.toggle()
-                    }
+                    HapticManager.lightTap()
+                    generateAndShare()
                 } label: {
-                    HStack(spacing: 4) {
-                        Image(systemName: "arrow.left.arrow.right")
-                        Text(showingFront ? L10n.viewBack : L10n.viewFront)
-                    }
-                    .font(.caption2)
-                    .foregroundStyle(Color.mmAccentSecondary)
+                    Image(systemName: "square.and.arrow.up")
+                        .font(.caption)
+                        .foregroundStyle(Color.mmAccentPrimary)
                 }
             }
-            .padding(.horizontal, 8)
+        }
+        .padding(.horizontal, 8)
+    }
 
-            // 筋肉マップ描画
+    // MARK: - 前後同時表示ボディ
+
+    private var bodySection: some View {
+        GeometryReader { geo in
+            let mapWidth = (geo.size.width - 24) / 2 // 左右余白8+中央spacing8
+            HStack(spacing: 8) {
+                strengthMapColumn(
+                    muscles: MusclePathData.frontMuscles,
+                    label: L10n.front,
+                    width: mapWidth
+                )
+                strengthMapColumn(
+                    muscles: MusclePathData.backMuscles,
+                    label: L10n.back,
+                    width: mapWidth
+                )
+            }
+            .padding(.horizontal, 8)
+        }
+        .aspectRatio(0.75, contentMode: .fit)
+    }
+
+    /// 前面/背面のマップ列（ラベル + マップ）
+    private func strengthMapColumn(
+        muscles: [(muscle: Muscle, path: (CGRect) -> Path)],
+        label: String,
+        width: CGFloat
+    ) -> some View {
+        VStack(spacing: 4) {
+            Text(label)
+                .font(.system(size: 10, weight: .medium))
+                .foregroundStyle(Color.mmTextSecondary)
+
             GeometryReader { geo in
                 let rect = CGRect(origin: .zero, size: geo.size)
                 ZStack {
-                    let muscles = showingFront
-                        ? MusclePathData.frontMuscles
-                        : MusclePathData.backMuscles
-
                     ForEach(muscles, id: \.muscle) { entry in
                         let score = muscleScores[entry.muscle.rawValue] ?? 0
                         let params = StrengthScoreCalculator.shared.displayParams(score: score)
@@ -85,18 +140,39 @@ struct StrengthMapView: View {
                     }
                 }
             }
-            .aspectRatio(0.6, contentMode: .fit)
+            .aspectRatio(0.5, contentMode: .fit)
+        }
+        .frame(width: width)
+    }
 
-            // トップ3スコア表示
-            topMusclesSection
+    // MARK: - 総合グレードバッジ
+
+    private var gradeBadgeSection: some View {
+        HStack(spacing: 12) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Overall Grade")
+                    .font(.system(size: 11, weight: .regular))
+                    .foregroundStyle(Color.mmTextSecondary)
+                Text("\(Int(averageScore * 100))pt")
+                    .font(.caption2)
+                    .foregroundStyle(Color.mmTextSecondary)
+            }
+
+            ZStack {
+                Circle()
+                    .fill(gradeColor.opacity(0.15))
+                    .frame(width: 44, height: 44)
+
+                Circle()
+                    .stroke(gradeColor.opacity(0.4), lineWidth: 1.5)
+                    .frame(width: 44, height: 44)
+
+                Text(overallGrade)
+                    .font(.system(size: 28, weight: .heavy))
+                    .foregroundStyle(gradeColor)
+            }
         }
-        .onAppear {
-            generateAndShare()
-        }
-        .onChange(of: muscleScores) {
-            shareImage = nil
-            generateAndShare()
-        }
+        .padding(.horizontal, 8)
     }
 
     // MARK: - シェア画像生成
@@ -128,15 +204,16 @@ struct StrengthMapView: View {
             if !sorted.isEmpty {
                 HStack(spacing: 16) {
                     ForEach(Array(sorted), id: \.0) { muscle, score in
-                        let params = StrengthScoreCalculator.shared.displayParams(score: score)
+                        let grade = StrengthScoreCalculator.grade(score: score)
+                        let color = StrengthScoreCalculator.gradeColor(grade: grade)
                         VStack(spacing: 4) {
                             Text(muscle.localizedName)
                                 .font(.caption2)
                                 .foregroundStyle(Color.mmTextSecondary)
                                 .lineLimit(1)
-                            Text("\(Int(score * 100))")
+                            Text(grade)
                                 .font(.title3.bold())
-                                .foregroundStyle(params.color)
+                                .foregroundStyle(color)
                         }
                     }
                 }
