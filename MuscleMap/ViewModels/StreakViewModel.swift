@@ -48,10 +48,17 @@ class StreakViewModel {
     /// 前回のストリーク（マイルストーン判定用）
     private var previousStreak: Int = 0
 
+    /// 初回計算かどうか（初回はマイルストーンを表示しない）
+    private var isFirstCalculation: Bool = true
+
+    /// ワークアウト履歴が存在するか
+    private(set) var hasWorkoutHistory: Bool = false
+
     // MARK: - 初期化
 
     func configure(with modelContext: ModelContext) {
         self.modelContext = modelContext
+        isFirstCalculation = true
         calculateStreak()
     }
 
@@ -77,6 +84,9 @@ class StreakViewModel {
         )
 
         guard let sessions = try? modelContext.fetch(descriptor) else { return }
+
+        // ワークアウト履歴の有無を更新
+        hasWorkoutHistory = !sessions.isEmpty
 
         // ワークアウトがあった週を Set で管理
         var weeksWithWorkout: Set<DateInterval> = []
@@ -117,16 +127,24 @@ class StreakViewModel {
             checkingWeek = previousWeekInterval
         }
 
-        // マイルストーン達成チェック
+        // マイルストーン達成チェック（初回計算時はスキップ）
         previousStreak = currentStreak
         currentStreak = streak
 
-        checkMilestoneAchievement()
+        if isFirstCalculation {
+            // 初回は既存のストリークを認識するだけで、マイルストーンモーダルは出さない
+            isFirstCalculation = false
+        } else {
+            checkMilestoneAchievement()
+        }
     }
 
     // MARK: - マイルストーン達成チェック
 
     private func checkMilestoneAchievement() {
+        // ワークアウト履歴がない場合はマイルストーンなし
+        guard hasWorkoutHistory else { return }
+
         // 新しくマイルストーンを達成したかチェック
         for milestone in StreakMilestone.allCases.reversed() {
             if currentStreak >= milestone.rawValue && previousStreak < milestone.rawValue {
