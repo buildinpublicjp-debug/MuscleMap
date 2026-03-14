@@ -31,10 +31,13 @@ struct OnboardingView: View {
                 OnboardingV2View {
                     withAnimation(.easeInOut(duration: 0.5)) {
                         // ジムルート: 実画面チュートリアルに委譲するのでfirstWorkoutをスキップ
+                        // BUG-004: isAtGym == true の場合のみ .firstWorkout へ遷移
                         if AppState.shared.showWorkoutTutorial {
                             currentPhase = .notification
-                        } else {
+                        } else if AppState.shared.isAtGym {
                             currentPhase = .firstWorkout
+                        } else {
+                            currentPhase = .notification
                         }
                     }
                 }

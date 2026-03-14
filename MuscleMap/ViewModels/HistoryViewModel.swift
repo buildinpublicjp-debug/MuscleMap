@@ -53,7 +53,8 @@ class HistoryViewModel {
 
     /// 全データ読み込み
     func load() {
-        sessions = workoutRepo.fetchRecentSessions(limit: 50)
+        // 空セッション（sets が空）をフィルタリングして非表示
+        sessions = workoutRepo.fetchRecentSessions(limit: 50).filter { !$0.sets.isEmpty }
 
         calculateWeeklyStats()
         calculateMonthlyStats()
