@@ -563,7 +563,7 @@ enum L10n {
     // MARK: - 体重入力画面（WeightInputPage）
     static var weightInputTitle: String { loc("あなたの体重を教えてください", "Tell Us Your Weight") }
     static var weightInputSubtitle: String { loc("体重比で筋力スコアを算出します", "Used to calculate your strength score by body weight ratio") }
-    static var nicknamePlaceholder: String { loc("名前（任意）", "Name (optional)") }
+    static var nicknamePlaceholder: String { loc("ニックネーム", "Nickname") }
 
     // MARK: - 目標設定画面（PersonalizationPage）
     static var goalPageTitle: String { loc("あなたの目標は？", "What's your goal?") }
@@ -618,8 +618,8 @@ enum L10n {
     static var prOverallLevel: String { loc("あなたの総合レベル", "Your Overall Level") }
 
     // MARK: - 目標選択画面（GoalSelectionPage — エモーショナル版）
-    static var goalSelectionHeadline: String { loc("なりたい自分を\n選ぼう", "Choose the Body\nYou Want") }
-    static var goalSelectionSub: String { loc("目標に合わせて、MuscleMapがサポートする", "MuscleMap will support your goal") }
+    static var goalSelectionHeadline: String { loc("なぜ鍛える？", "Why Do You Train?") }
+    static var goalSelectionSub: String { loc("いくつでも選べます", "Select as many as you like") }
 
     // MARK: - 「今ジムにいる？」画面（GymCheckPage）
     static var gymCheckTitle: String { loc("今ジムにいる？", "At the Gym Now?") }
@@ -627,7 +627,7 @@ enum L10n {
     static var gymCheckAtGym: String { loc("ジムにいる", "I'm at the Gym") }
     static var gymCheckAtGymSub: String { loc("今から一緒にやろう", "Let's get started together") }
     static var gymCheckAtHome: String { loc("家にいる", "I'm at Home") }
-    static var gymCheckAtHomeSub: String { loc("あとで使う", "I'll use it later") }
+    static var gymCheckAtHomeSub: String { loc("まず情報を入れる", "Set up my info first") }
 
     // MARK: - 分岐ページ（OnboardingBranchPage）
     static var branchGymTitle: String { loc("準備OK！", "You're All Set!") }
@@ -657,6 +657,14 @@ enum L10n {
     }
     static var allowNotifications: String { loc("通知を許可", "Allow Notifications") }
     static var maybeLater: String { loc("あとで", "Maybe Later") }
+
+    // MARK: - チュートリアルバナー（WorkoutIdleView）
+    static var tutorialBanner: String { loc("チュートリアル中 — 1セット記録してみよう！", "Tutorial — Try logging 1 set!") }
+
+    // MARK: - CTA画面の3つの価値（CallToActionPage）
+    static var ctaValue1: String { loc("鍛えた筋肉が光るマップ", "See your trained muscles glow") }
+    static var ctaValue2: String { loc("あとXkgでレベルアップ", "Level up with just Xkg more") }
+    static var ctaValue3: String { loc("90日チャレンジで変化を証明", "Prove your progress in 90 days") }
 
     // MARK: - CSVインポート
     static var selectCSVFile: String { loc("CSVファイルを選択", "Select CSV File") }

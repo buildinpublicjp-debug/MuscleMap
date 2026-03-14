@@ -30,7 +30,12 @@ struct OnboardingView: View {
                 // V2オンボーディングフロー（体験 → 目標 → 機能）
                 OnboardingV2View {
                     withAnimation(.easeInOut(duration: 0.5)) {
-                        currentPhase = .firstWorkout
+                        // ジムルート: 実画面チュートリアルに委譲するのでfirstWorkoutをスキップ
+                        if AppState.shared.showWorkoutTutorial {
+                            currentPhase = .notification
+                        } else {
+                            currentPhase = .firstWorkout
+                        }
                     }
                 }
                 .transition(.opacity)

@@ -225,7 +225,7 @@ private struct EmotionalGoalCard: View {
                 }
             }
             .padding(.horizontal, 16)
-            .frame(height: 100)
+            .frame(height: 80)
             .background(Color.mmOnboardingCard)
             .clipShape(RoundedRectangle(cornerRadius: 16))
             .overlay(

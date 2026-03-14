@@ -6,8 +6,8 @@ struct CallToActionPage: View {
     let onComplete: () -> Void
 
     @State private var buttonGlow = false
-    @State private var cardAppearances: [Bool] = [false, false, false]
-    @State private var strengthHintVisible = false
+    @State private var valuesAppeared = false
+    @State private var headlineAppeared = false
 
     /// 選んだ目標に合わせたキャッチコピー
     private var goalBasedHeadline: String {
@@ -35,81 +35,38 @@ struct CallToActionPage: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            Spacer().frame(height: 60)
+            Spacer().frame(height: 80)
 
             // 目標に合わせたキャッチコピー
             Text(goalBasedHeadline)
-                .font(.system(size: 26, weight: .heavy))
+                .font(.system(size: 28, weight: .heavy))
                 .foregroundStyle(Color.mmOnboardingAccent)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 24)
+                .opacity(headlineAppeared ? 1 : 0)
+                .offset(y: headlineAppeared ? 0 : 20)
 
-            Spacer().frame(height: 8)
+            Spacer().frame(height: 12)
 
             // サブタイトル
             Text(L10n.ctaPageTitle)
-                .font(.system(size: 16, weight: .medium))
+                .font(.subheadline)
                 .foregroundStyle(Color.mmOnboardingTextSub)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 24)
+                .opacity(headlineAppeared ? 1 : 0)
 
-            Spacer().frame(height: 24)
+            Spacer().frame(height: 48)
 
-            // 3つの機能カード
-            VStack(spacing: 16) {
-                FeatureCard(
-                    icon: "figure.stand",
-                    iconColor: Color.mmOnboardingAccent,
-                    title: L10n.ctaFeature1Title,
-                    description: L10n.ctaFeature1Desc
-                )
-                .opacity(cardAppearances[0] ? 1 : 0)
-                .offset(y: cardAppearances[0] ? 0 : 20)
-
-                FeatureCard(
-                    icon: "list.bullet.clipboard.fill",
-                    iconColor: Color(red: 0.4, green: 0.8, blue: 1.0),
-                    title: L10n.ctaFeature2Title,
-                    description: L10n.ctaFeature2Desc
-                )
-                .opacity(cardAppearances[1] ? 1 : 0)
-                .offset(y: cardAppearances[1] ? 0 : 20)
-
-                FeatureCard(
-                    icon: "waveform.path.ecg",
-                    iconColor: Color(red: 1.0, green: 0.6, blue: 0.2),
-                    title: L10n.ctaFeature3Title,
-                    description: L10n.ctaFeature3Desc
-                )
-                .opacity(cardAppearances[2] ? 1 : 0)
-                .offset(y: cardAppearances[2] ? 0 : 20)
+            // 3つのシンプルな価値
+            VStack(spacing: 20) {
+                ValueRow(emoji: "🗺️", text: L10n.ctaValue1)
+                ValueRow(emoji: "📊", text: L10n.ctaValue2)
+                ValueRow(emoji: "📅", text: L10n.ctaValue3)
             }
             .padding(.horizontal, 24)
-
-            Spacer().frame(height: 24)
-
-            // Strength Map予告ヒント
-            HStack(spacing: 10) {
-                Image(systemName: "chart.bar.doc.horizontal.fill")
-                    .font(.system(size: 16))
-                    .foregroundStyle(Color.mmOnboardingAccent)
-
-                Text(L10n.ctaStrengthMapHint)
-                    .font(.system(size: 14, weight: .medium))
-                    .foregroundStyle(Color.mmOnboardingTextSub)
-            }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 10)
-            .background(
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(Color.mmOnboardingAccent.opacity(0.08))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 12)
-                            .stroke(Color.mmOnboardingAccent.opacity(0.15), lineWidth: 1)
-                    )
-            )
-            .opacity(strengthHintVisible ? 1 : 0)
-            .offset(y: strengthHintVisible ? 0 : 10)
+            .opacity(valuesAppeared ? 1 : 0)
+            .offset(y: valuesAppeared ? 0 : 20)
 
             Spacer()
 
@@ -167,15 +124,11 @@ struct CallToActionPage: View {
             .padding(.bottom, 48)
         }
         .onAppear {
-            // Staggered card animation
-            for index in 0..<3 {
-                withAnimation(.easeOut(duration: 0.5).delay(Double(index) * 0.15 + 0.2)) {
-                    cardAppearances[index] = true
-                }
+            withAnimation(.easeOut(duration: 0.5)) {
+                headlineAppeared = true
             }
-            // Strength Mapヒント表示
-            withAnimation(.easeOut(duration: 0.5).delay(0.8)) {
-                strengthHintVisible = true
+            withAnimation(.easeOut(duration: 0.5).delay(0.3)) {
+                valuesAppeared = true
             }
             // Button glow animation
             withAnimation(.easeInOut(duration: 1.5).repeatForever(autoreverses: true)) {
@@ -185,38 +138,21 @@ struct CallToActionPage: View {
     }
 }
 
-// MARK: - 機能カード
+// MARK: - 価値行（絵文字 + テキスト）
 
-private struct FeatureCard: View {
-    let icon: String
-    let iconColor: Color
-    let title: String
-    let description: String
+private struct ValueRow: View {
+    let emoji: String
+    let text: String
 
     var body: some View {
         HStack(spacing: 16) {
-            // アイコン
-            ZStack {
-                Circle()
-                    .fill(iconColor.opacity(0.15))
-                    .frame(width: 56, height: 56)
+            Text(emoji)
+                .font(.system(size: 32))
+                .frame(width: 48)
 
-                Image(systemName: icon)
-                    .font(.system(size: 24))
-                    .foregroundStyle(iconColor)
-            }
-
-            // テキスト
-            VStack(alignment: .leading, spacing: 4) {
-                Text(title)
-                    .font(.system(size: 17, weight: .semibold))
-                    .foregroundStyle(Color.mmOnboardingTextMain)
-
-                Text(description)
-                    .font(.system(size: 14))
-                    .foregroundStyle(Color.mmOnboardingTextSub)
-                    .lineLimit(2)
-            }
+            Text(text)
+                .font(.system(size: 17, weight: .medium))
+                .foregroundStyle(Color.mmOnboardingTextMain)
 
             Spacer()
         }

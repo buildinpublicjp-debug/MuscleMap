@@ -1,58 +1,22 @@
 import SwiftUI
 
-// MARK: - 筋肉マップビュー（フロント/バック切り替え）
+// MARK: - 筋肉マップビュー（前面・背面同時表示）
 
 struct MuscleMapView: View {
     let muscleStates: [Muscle: MuscleVisualState]
     var onMuscleTapped: ((Muscle) -> Void)?
     var demoMode: Bool = false
 
-    @State private var showingFront = true
     @State private var demoHighlighted: Set<Muscle> = []
     @State private var demoPulse = false
 
     var body: some View {
-        VStack(spacing: 8) {
-            // 前面/背面セグメントトグル
-            HStack(spacing: 0) {
-                MuscleMapToggleButton(
-                    title: L10n.front,
-                    icon: "person.fill",
-                    isSelected: showingFront
-                ) {
-                    withAnimation(.easeInOut(duration: 0.3)) {
-                        showingFront = true
-                    }
-                    HapticManager.lightTap()
-                }
-
-                MuscleMapToggleButton(
-                    title: L10n.back,
-                    icon: "person.fill",
-                    isSelected: !showingFront,
-                    isFlipped: true
-                ) {
-                    withAnimation(.easeInOut(duration: 0.3)) {
-                        showingFront = false
-                    }
-                    HapticManager.lightTap()
-                }
-            }
-            .padding(3)
-            .background(Color.mmBgSecondary)
-            .clipShape(RoundedRectangle(cornerRadius: 10))
-
-            // 人体図
+        HStack(spacing: 0) {
+            // 前面
             GeometryReader { geo in
                 let rect = CGRect(origin: .zero, size: geo.size)
-
                 ZStack {
-                    // 筋肉パス
-                    let muscles = showingFront
-                        ? MusclePathData.frontMuscles
-                        : MusclePathData.backMuscles
-
-                    ForEach(muscles, id: \.muscle) { entry in
+                    ForEach(MusclePathData.frontMuscles, id: \.muscle) { entry in
                         let isDemoHighlighted = demoHighlighted.contains(entry.muscle)
                         let effectiveState: MuscleVisualState = isDemoHighlighted
                             ? .recovering(progress: 0.1)
@@ -70,7 +34,31 @@ struct MuscleMapView: View {
                     }
                 }
             }
-            .aspectRatio(0.6, contentMode: .fit)
+            .aspectRatio(0.55, contentMode: .fit)
+
+            // 背面
+            GeometryReader { geo in
+                let rect = CGRect(origin: .zero, size: geo.size)
+                ZStack {
+                    ForEach(MusclePathData.backMuscles, id: \.muscle) { entry in
+                        let isDemoHighlighted = demoHighlighted.contains(entry.muscle)
+                        let effectiveState: MuscleVisualState = isDemoHighlighted
+                            ? .recovering(progress: 0.1)
+                            : (muscleStates[entry.muscle] ?? .inactive)
+
+                        MusclePathView(
+                            path: entry.path(rect),
+                            state: effectiveState,
+                            muscle: entry.muscle,
+                            isDemoHighlighted: isDemoHighlighted && demoPulse
+                        ) {
+                            onMuscleTapped?(entry.muscle)
+                            HapticManager.lightTap()
+                        }
+                    }
+                }
+            }
+            .aspectRatio(0.55, contentMode: .fit)
         }
         .onChange(of: demoMode) { _, isDemo in
             if isDemo {
@@ -194,35 +182,6 @@ private struct MusclePathView: View {
         // より滑らかなアニメーション
         return .easeInOut(duration: state.pulseInterval * 1.2)
             .repeatForever(autoreverses: true)
-    }
-}
-
-// MARK: - 前面/背面トグルボタン
-
-private struct MuscleMapToggleButton: View {
-    let title: String
-    let icon: String
-    let isSelected: Bool
-    var isFlipped: Bool = false
-    let action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            HStack(spacing: 6) {
-                Image(systemName: icon)
-                    .font(.caption)
-                    .scaleEffect(x: isFlipped ? -1 : 1, y: 1)
-
-                Text(title)
-                    .font(.subheadline.weight(.medium))
-            }
-            .foregroundStyle(isSelected ? Color.mmBgPrimary : Color.mmTextSecondary)
-            .padding(.horizontal, 16)
-            .padding(.vertical, 10)
-            .background(isSelected ? Color.mmAccentPrimary : Color.clear)
-            .clipShape(RoundedRectangle(cornerRadius: 8))
-        }
-        .buttonStyle(.plain)
     }
 }
 

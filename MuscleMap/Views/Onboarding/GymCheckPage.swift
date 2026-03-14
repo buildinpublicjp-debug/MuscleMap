@@ -63,7 +63,7 @@ struct GymCheckPage: View {
 
                 // 家にいる
                 GymOptionCard(
-                    emoji: "🏠",
+                    emoji: "📱",
                     title: L10n.gymCheckAtHome,
                     subtitle: L10n.gymCheckAtHomeSub,
                     isSelected: selectedOption == .atHome,

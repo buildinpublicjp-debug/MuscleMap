@@ -30,7 +30,7 @@ struct RecentTrainingInputPage: View {
         GeometryReader { geometry in
             let safeArea = geometry.safeAreaInsets
             let headerHeight: CGFloat = 80
-            let groupButtonHeight: CGFloat = 64
+            let groupButtonHeight: CGFloat = 104
             let timingHeight: CGFloat = 56
             let bottomHeight: CGFloat = 120
             let mapHeight = geometry.size.height - headerHeight - groupButtonHeight - timingHeight - bottomHeight - safeArea.top
@@ -103,8 +103,8 @@ struct RecentTrainingInputPage: View {
                 .opacity(appeared ? 1 : 0)
                 .scaleEffect(appeared ? 1 : 0.95)
 
-                // 部位グループボタン
-                HStack(spacing: 8) {
+                // 部位グループボタン（2行3列）
+                LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 3), spacing: 8) {
                     ForEach(MuscleGroupButton.allGroups, id: \.group) { item in
                         let isActive = isMuscleGroupSelected(item.group)
                         Button {
@@ -114,7 +114,7 @@ struct RecentTrainingInputPage: View {
                                 .font(.system(size: 14, weight: .semibold))
                                 .foregroundStyle(isActive ? Color.mmOnboardingBg : Color.mmOnboardingTextSub)
                                 .frame(maxWidth: .infinity)
-                                .frame(height: 40)
+                                .frame(height: 44)
                                 .background(isActive ? Color.mmOnboardingAccent : Color.mmOnboardingCard)
                                 .clipShape(RoundedRectangle(cornerRadius: 10))
                         }
@@ -122,7 +122,6 @@ struct RecentTrainingInputPage: View {
                     }
                 }
                 .padding(.horizontal, 16)
-                .frame(height: groupButtonHeight)
                 .opacity(appeared ? 1 : 0)
 
                 // 「いつ鍛えた？」セグメント

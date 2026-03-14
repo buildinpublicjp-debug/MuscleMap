@@ -23,6 +23,21 @@ struct WorkoutIdleView: View {
 
     var body: some View {
         VStack(spacing: 0) {
+            // チュートリアルバナー（ジムルートからの初回ユーザー向け）
+            if AppState.shared.showWorkoutTutorial {
+                HStack(spacing: 10) {
+                    Image(systemName: "sparkles")
+                        .font(.system(size: 16, weight: .semibold))
+                    Text(L10n.tutorialBanner)
+                        .font(.system(size: 15, weight: .semibold))
+                }
+                .foregroundStyle(Color.mmBgPrimary)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 12)
+                .background(Color.mmOnboardingAccent)
+                .transition(.move(edge: .top).combined(with: .opacity))
+            }
+
             ScrollView {
                 VStack(spacing: 16) {
                     // 筋肉マップ（タップで種目選択）

@@ -1,6 +1,6 @@
 # MuscleMap - Claude Code Rules
 
-> **v3.2 | 2026-03-07**
+> **v3.3 | 2026-03-14**
 > 筋肉の回復状態と筋力レベルを可視化し、最適なトレーニングを導くiOSアプリ
 
 ---
@@ -12,7 +12,7 @@
 **コンセプト:** 「筋肉の状態が見える。だから、迷わない。」
 
 **核心機能:**
-1. 2D SVG筋肉マップで21筋肉の回復状態をリアルタイム表示（ホーム画面）
+1. 2D SVG筋肉マップで21筋肉の回復状態をリアルタイム表示（ホーム画面、前面・背面同時表示）
 2. ボリューム係数付き回復計算（セット数で回復時間が変動）
 3. 7日以上未刺激の筋肉を紫で点滅警告
 4. 今日のメニュー自動提案（回復データからルールベースで生成）
@@ -24,7 +24,8 @@
 10. **Workoutシェアカード** — 360×360pt @3x（1080×1080px正方形）。ダークグラデ背景 + グロー付き筋肉マップ + ボリューム大表示 + 🏆PR表示 + ウォーターマーク
 11. **次回おすすめ日** — ワークアウト完了時に回復予測から次の推奨トレーニング日を表示
 12. **初回コーチマーク** — 初回起動時にホーム画面で操作ガイドを表示（1回限り）
-13. **オンボーディングv4（最大7ページ）** — SplashView → GoalSelectionPage（7目標エモーショナル複数選択） → TrainingHistoryPage（トレ歴） → [PRInputPage（経験者のみ）] → GymCheckPage（「今ジムにいる？」） → OnboardingBranchPage（ジム→ガイド / 家→RecentTrainingInputPage直近トレ入力） → WeightInputPage（体重・ニックネーム） → CallToActionPage（目標別コピー） → 通知許可
+13. **オンボーディングv5（最大7ページ）** — SplashView → GoalSelectionPage（「なぜ鍛える？」7目標エモーショナル複数選択） → TrainingHistoryPage（トレ歴） → [PRInputPage（経験者のみ）] → GymCheckPage（「今ジムにいる？」） → OnboardingBranchPage（ジム→showWorkoutTutorial設定+スキップ / 家→RecentTrainingInputPage直近トレ入力） → WeightInputPage（体重・ニックネーム） → CallToActionPage（目標別コピー+3つの価値） → 通知許可
+15. **ワークアウトチュートリアルバナー** — ジムルートからの初回ユーザーに対し、WorkoutIdleViewの上部にチュートリアルバナーを表示（1セット記録で消去）
 14. 課金: PurchaseManager（RevenueCat接続は未実装、isPremium=trueでハードコード中）
 
 **デザイントーン:** 「バイオモニター × G-SHOCK」 — ダーク基調、データが浮かび上がる
@@ -165,14 +166,14 @@
   アプリ本体へ
   ```
 - **SplashView**: ロゴ/アイコン フェードイン → サブコピー → 筋肉マップデモ（順次点灯） → タグライン → 続行ボタン。グローアニメーション付き
-- **GoalSelectionPage**: 7目標エモーショナル版（💪デカくなりたい / 😎舐められたくない / 🥊格闘技・武道 / ⛳スポーツに活かす / ❤️‍🔥モテたい / 🏃動ける体がほしい / ❤️健康に長生き）。複数選択可（Set\<OnboardingGoal\>）、100ptカード。primaryOnboardingGoalをAppStateに保存
+- **GoalSelectionPage**: 「なぜ鍛える？」7目標エモーショナル版（💪デカくなりたい / 😎舐められたくない / 🥊格闘技・武道 / ⛳スポーツに活かす / ❤️‍🔥モテたい / 🏃動ける体がほしい / ❤️健康に長生き）。複数選択可（Set\<OnboardingGoal\>）、80ptカード。primaryOnboardingGoalをAppStateに保存
 - **TrainingHistoryPage**: 4段階のトレ歴選択（🌱これから始める / 💪半年くらい / 🔥1年以上 / ⚡3年以上）。TrainingExperience enum → UserProfile に保存
 - **PRInputPage**: BIG3（ベンチプレス/スクワット/デッドリフト）のPR入力。StrengthScoreCalculator.exerciseStrengthLevel() でリアルタイムレベルバッジ表示。スキップ可能。デフォルト体重70kgで暫定計算
 - **GymCheckPage**: 「今ジムにいる？」確認ページ
-- **OnboardingBranchPage**: ジム→ガイド付きワークアウト案内 / 家→RecentTrainingInputPage（筋肉マップで直近トレーニング入力）
-- **RecentTrainingInputPage**: 「最近どこを鍛えた？」筋肉マップ（前面/背面切替）+ 部位グループボタン（胸/背中/脚/肩/腕/腹）一括選択 + 「いつ鍛えた？」セグメント（今日/昨日/2-3日前）。MuscleStimulationとしてSwiftDataに保存 → ホーム画面回復マップに即反映
+- **OnboardingBranchPage**: ジム→ガイド付きワークアウト案内（showWorkoutTutorial=trueをセットしてfirstWorkoutフェーズをスキップ） / 家→RecentTrainingInputPage（筋肉マップで直近トレーニング入力）
+- **RecentTrainingInputPage**: 「最近どこを鍛えた？」筋肉マップ（前面/背面切替）+ 部位グループボタン（胸/背中/脚/肩/腕/腹）2行3列LazyVGrid一括選択 + 「いつ鍛えた？」セグメント（今日/昨日/2-3日前）。MuscleStimulationとしてSwiftDataに保存 → ホーム画面回復マップに即反映
 - **WeightInputPage**: ニックネームTextField + ドラムロールPicker（kg/lb切替）。AppState.shared.userProfile にリアルタイム保存
-- **CallToActionPage**: 目標別キャッチコピー（getBig→「90日後、鏡の前で笑える。」等）+ 機能カード + Strength Map予告バッジ + グロー付きCTAボタン + 利用規約/プライバシーポリシーリンク
+- **CallToActionPage**: 目標別キャッチコピー（getBig→「90日後、鏡の前で笑える。」等）+ 3つのシンプルな価値行（🗺️鍛えた筋肉が光るマップ / 📊あとXkgでレベルアップ / 📅90日チャレンジで変化を証明）+ グロー付きCTAボタン + 利用規約/プライバシーポリシーリンク
 - **カラーパレット（オンボーディング専用）:**
   - `.mmOnboardingAccent` = `#00E676`, `.mmOnboardingAccentDark` = `#00B35F`
   - `.mmOnboardingBg` = `#1A1A1E`, `.mmOnboardingCard` = `#2C2C2E`

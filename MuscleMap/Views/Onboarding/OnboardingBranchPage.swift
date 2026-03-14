@@ -33,6 +33,8 @@ struct OnboardingBranchPage: View {
             // 次へボタン
             Button {
                 HapticManager.lightTap()
+                // ジムルート: 実画面チュートリアルフラグをセット
+                AppState.shared.showWorkoutTutorial = true
                 onNext()
             } label: {
                 Text(L10n.next)
@@ -99,8 +101,6 @@ struct OnboardingBranchPage: View {
             .offset(y: appeared ? 0 : 20)
         }
     }
-
-    // 家にいる場合は RecentTrainingInputPage を直接表示（上部のbodyで分岐済み）
 }
 
 // MARK: - ガイドステップ行
@@ -120,31 +120,6 @@ private struct GuidedStepRow: View {
                     .font(.system(size: 16, weight: .bold))
                     .foregroundStyle(Color.mmOnboardingBg)
             }
-
-            Text(text)
-                .font(.system(size: 16))
-                .foregroundStyle(Color.mmOnboardingTextMain)
-
-            Spacer()
-        }
-        .padding(16)
-        .background(Color.mmOnboardingCard)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-    }
-}
-
-// MARK: - ヒント行
-
-private struct HintRow: View {
-    let icon: String
-    let text: String
-
-    var body: some View {
-        HStack(spacing: 16) {
-            Image(systemName: icon)
-                .font(.system(size: 20))
-                .foregroundStyle(Color(red: 0.4, green: 0.8, blue: 1.0))
-                .frame(width: 32)
 
             Text(text)
                 .font(.system(size: 16))

@@ -95,6 +95,9 @@ class AppState {
     // ジムにいるかどうか（オンボーディング分岐用、セッション中のみ）
     var isAtGym: Bool = false
 
+    // ワークアウトチュートリアル表示フラグ（ジムルート用、セッション中のみ）
+    var showWorkoutTutorial: Bool = false
+
     // タブ選択（クロスビュー遷移用、永続化不要）
     var selectedTab: Int = 0
 
