@@ -14,25 +14,19 @@ struct OnboardingV2View: View {
             TabView(selection: $currentPage) {
                 // ページ1: 体験（筋肉マップをタップして体験）
                 InteractiveDemoPage {
-                    withAnimation(.easeInOut(duration: 0.5)) {
-                        currentPage = 1
-                    }
+                    currentPage = 1
                 }
                 .tag(0)
 
                 // ページ2: 目標選択
                 PersonalizationPage {
-                    withAnimation(.easeInOut(duration: 0.5)) {
-                        currentPage = 2
-                    }
+                    currentPage = 2
                 }
                 .tag(1)
 
                 // ページ3: 体重・ニックネーム入力
                 WeightInputPage {
-                    withAnimation(.easeInOut(duration: 0.5)) {
-                        currentPage = 3
-                    }
+                    currentPage = 3
                 }
                 .tag(2)
 
@@ -41,6 +35,7 @@ struct OnboardingV2View: View {
                     .tag(3)
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
+            .animation(.easeInOut(duration: 0.4), value: currentPage)
 
             // ページインジケーター
             VStack {
