@@ -15,6 +15,7 @@ struct HomeView: View {
     @State private var showingPaywall = false
     @State private var strengthScores: [String: Double] = [:]
     @State private var showCoachMark = false
+    @State private var showingExerciseLibrary = false
 
     /// ワークアウト履歴があるかどうか
     private var hasWorkoutHistory: Bool {
@@ -155,6 +156,14 @@ struct HomeView: View {
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
+                        showingExerciseLibrary = true
+                    } label: {
+                        Image(systemName: "book")
+                            .foregroundStyle(Color.mmTextSecondary)
+                    }
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
                         showingAnalyticsMenu = true
                     } label: {
                         Image(systemName: "chart.bar")
@@ -212,6 +221,11 @@ struct HomeView: View {
                         streakViewModel.dismissMilestone()
                         showingMilestone = false
                     }
+                }
+            }
+            .sheet(isPresented: $showingExerciseLibrary) {
+                NavigationStack {
+                    ExerciseLibraryView()
                 }
             }
             .sheet(isPresented: $showingAnalyticsMenu) {

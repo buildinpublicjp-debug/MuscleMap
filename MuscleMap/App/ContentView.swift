@@ -38,23 +38,17 @@ private struct MainTabView: View {
                 }
                 .tag(1)
 
-            ExerciseLibraryView()
-                .tabItem {
-                    Label(L10n.exerciseLibrary, systemImage: "book")
-                }
-                .tag(2)
-
             HistoryView()
                 .tabItem {
                     Label(L10n.history, systemImage: "chart.bar")
                 }
-                .tag(3)
+                .tag(2)
 
             SettingsView()
                 .tabItem {
                     Label(L10n.settings, systemImage: "gearshape")
                 }
-                .tag(4)
+                .tag(3)
         }
         .tint(Color.mmAccentPrimary)
     }

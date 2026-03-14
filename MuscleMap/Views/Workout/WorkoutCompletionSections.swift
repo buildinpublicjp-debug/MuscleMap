@@ -371,7 +371,162 @@ struct CompletionButtonSection: View {
     }
 }
 
+// MARK: - レベルアップ情報モデル
+
+struct LevelUpInfo: Identifiable {
+    let id = UUID()
+    let exerciseName: String
+    let previousLevel: StrengthLevel
+    let newLevel: StrengthLevel
+    let kgToNext: Double?
+    let nextLevel: StrengthLevel?
+}
+
+// MARK: - レベルアップ祝福セクション
+
+struct LevelUpCelebrationSection: View {
+    let levelUps: [LevelUpInfo]
+
+    @State private var appeared = false
+    @State private var showConfetti = false
+
+    private var localization: LocalizationManager { LocalizationManager.shared }
+
+    // 紙吹雪パーティクル（レベルアップ用、新レベルカラー基調）
+    private let confettiItems: [(offsetX: CGFloat, offsetY: CGFloat, rotation: Double, isRect: Bool)] = [
+        (-80, -45, 40, false),
+        (75, -55, -35, true),
+        (-65, 35, 55, false),
+        (90, 25, -50, true),
+        (-25, -70, 110, false),
+        (45, 60, -65, true),
+        (-100, -5, 85, false),
+        (110, -30, -80, true),
+    ]
+
+    var body: some View {
+        VStack(spacing: 12) {
+            ForEach(levelUps) { info in
+                levelUpCard(info: info)
+            }
+        }
+        .onAppear {
+            withAnimation(.spring(response: 0.5, dampingFraction: 0.7).delay(0.2)) {
+                appeared = true
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                showConfetti = true
+            }
+            HapticManager.prAchieved()
+        }
+    }
+
+    @ViewBuilder
+    private func levelUpCard(info: LevelUpInfo) -> some View {
+        ZStack {
+            // 紙吹雪
+            ForEach(Array(confettiItems.enumerated()), id: \.offset) { index, item in
+                Group {
+                    if item.isRect {
+                        RoundedRectangle(cornerRadius: 2)
+                            .fill(info.newLevel.color)
+                            .frame(width: 7, height: 4)
+                    } else {
+                        Circle()
+                            .fill(info.newLevel.color)
+                            .frame(width: 6, height: 6)
+                    }
+                }
+                .rotationEffect(.degrees(showConfetti ? item.rotation : 0))
+                .offset(
+                    x: showConfetti ? item.offsetX : 0,
+                    y: showConfetti ? item.offsetY : 0
+                )
+                .opacity(showConfetti ? 0 : 1)
+                .scaleEffect(showConfetti ? 0.5 : 0.01)
+                .animation(
+                    .easeOut(duration: 1.2).delay(Double(index) * 0.04),
+                    value: showConfetti
+                )
+            }
+
+            // カード本体
+            VStack(spacing: 8) {
+                // ヘッダー
+                Text(L10n.levelUp)
+                    .font(.caption.bold())
+                    .foregroundStyle(info.newLevel.color)
+
+                // 種目名
+                Text(info.exerciseName)
+                    .font(.headline)
+                    .foregroundStyle(Color.mmTextPrimary)
+
+                // レベル遷移
+                HStack(spacing: 8) {
+                    // 旧レベル
+                    HStack(spacing: 4) {
+                        Text(info.previousLevel.emoji)
+                            .font(.body)
+                        Text(localization.currentLanguage == .japanese ? info.previousLevel.japaneseName : info.previousLevel.englishName)
+                            .font(.subheadline.weight(.medium))
+                            .foregroundStyle(info.previousLevel.color)
+                    }
+
+                    // 矢印
+                    Image(systemName: "arrow.right")
+                        .font(.caption.bold())
+                        .foregroundStyle(Color.mmTextSecondary)
+
+                    // 新レベル
+                    HStack(spacing: 4) {
+                        Text(info.newLevel.emoji)
+                            .font(.body)
+                        Text(localization.currentLanguage == .japanese ? info.newLevel.japaneseName : info.newLevel.englishName)
+                            .font(.subheadline.bold())
+                            .foregroundStyle(info.newLevel.color)
+                    }
+                }
+
+                // 次レベルまでのヒント
+                if let kgToNext = info.kgToNext, let nextLvl = info.nextLevel {
+                    let nextName = localization.currentLanguage == .japanese ? nextLvl.japaneseName : nextLvl.englishName
+                    Text(L10n.levelUpKgToNext(Int(ceil(kgToNext)), nextName))
+                        .font(.caption)
+                        .foregroundStyle(Color.mmTextSecondary)
+                }
+            }
+            .padding(16)
+            .frame(maxWidth: .infinity)
+            .background(Color.mmBgCard)
+            .clipShape(RoundedRectangle(cornerRadius: 16))
+            .overlay(
+                RoundedRectangle(cornerRadius: 16)
+                    .stroke(info.newLevel.color.opacity(0.4), lineWidth: 1.5)
+            )
+        }
+        .scaleEffect(appeared ? 1 : 0.8)
+        .opacity(appeared ? 1 : 0)
+    }
+}
+
 // MARK: - Preview
+
+#Preview("Level Up") {
+    ZStack {
+        Color.mmBgPrimary.ignoresSafeArea()
+        LevelUpCelebrationSection(levelUps: [
+            LevelUpInfo(
+                exerciseName: "ベンチプレス",
+                previousLevel: .intermediate,
+                newLevel: .advanced,
+                kgToNext: 25,
+                nextLevel: .elite
+            )
+        ])
+        .padding()
+    }
+}
 
 #Preview("Completion Icon") {
     ZStack {

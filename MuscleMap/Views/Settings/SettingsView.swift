@@ -11,6 +11,7 @@ struct SettingsView: View {
     @State private var showingPaywall = false
     @State private var showingProfileEdit = false
     @State private var showingActivityFeed = false
+    @State private var showingExerciseLibrary = false
     #if DEBUG
     @State private var showingResetAlert = false
     #endif
@@ -56,6 +57,11 @@ struct SettingsView: View {
             }
             .sheet(isPresented: $showingProfileEdit) {
                 ProfileEditSheet()
+            }
+            .sheet(isPresented: $showingExerciseLibrary) {
+                NavigationStack {
+                    ExerciseLibraryView()
+                }
             }
             .sheet(isPresented: $showingActivityFeed) {
                 NavigationStack {
@@ -309,6 +315,24 @@ struct SettingsView: View {
 
     private var aboutSection: some View {
         Section {
+            // 種目辞典
+            Button {
+                showingExerciseLibrary = true
+            } label: {
+                HStack(spacing: 12) {
+                    Image(systemName: "book")
+                        .foregroundStyle(Color.mmAccentPrimary)
+                    Text(L10n.exerciseLibrary)
+                        .font(.subheadline)
+                        .foregroundStyle(Color.mmTextPrimary)
+                    Spacer()
+                    Image(systemName: "chevron.right")
+                        .font(.caption2)
+                        .foregroundStyle(Color.mmTextSecondary)
+                }
+            }
+            .listRowBackground(Color.mmBgCard)
+
             // ソーシャルフィード（Preview）
             Button {
                 showingActivityFeed = true
