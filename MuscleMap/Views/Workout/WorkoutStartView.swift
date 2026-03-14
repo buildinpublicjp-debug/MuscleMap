@@ -62,9 +62,13 @@ struct WorkoutStartView: View {
                 }
                 loadMuscleStates()
                 handlePendingExercise()
+                handlePendingRecommendation()
             }
             .onChange(of: AppState.shared.pendingExerciseId) {
                 handlePendingExercise()
+            }
+            .onChange(of: AppState.shared.pendingRecommendationTrigger) {
+                handlePendingRecommendation()
             }
             .sheet(isPresented: $showingExercisePicker) {
                 ExercisePickerView { exercise in
@@ -104,6 +108,16 @@ struct WorkoutStartView: View {
         AppState.shared.pendingExerciseId = nil
         vm.startOrResumeSession()
         vm.selectExercise(exercise)
+    }
+
+    /// メニュー自動提案からの遷移: セッション開始 + 提案種目を自動セット
+    private func handlePendingRecommendation() {
+        guard let exercises = AppState.shared.pendingRecommendedExercises,
+              !exercises.isEmpty,
+              let vm = viewModel else { return }
+        AppState.shared.pendingRecommendedExercises = nil
+        vm.startOrResumeSession()
+        vm.applyRecommendedExercises(exercises)
     }
 
     private func loadMuscleStates() {

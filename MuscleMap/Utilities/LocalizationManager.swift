@@ -1066,6 +1066,15 @@ enum L10n {
     static var challengeViewRecap: String { loc("Recapを見る", "View Recap", zhHans: "查看回顾", ko: "Recap 보기", es: "Ver resumen", fr: "Voir le récap", de: "Rückblick ansehen") }
     static var challengeDayComplete: String { loc("完了！", "Complete!", zhHans: "完成！", ko: "완료!", es: "¡Hecho!", fr: "Terminé !", de: "Fertig!") }
 
+    // MARK: - メニュー自動提案（Pro）
+    static var startWithThisMenu: String { loc("このメニューで始める", "Start This Menu", zhHans: "按此菜单开始", ko: "이 메뉴로 시작", es: "Iniciar este menú", fr: "Commencer ce menu", de: "Dieses Menü starten") }
+    static func weightChallenge(_ kg: String) -> String {
+        loc("+\(kg)kg 挑戦！", "+\(kg)kg Challenge!", zhHans: "+\(kg)kg 挑战！", ko: "+\(kg)kg 도전!", es: "+\(kg)kg ¡Reto!", fr: "+\(kg)kg Défi !", de: "+\(kg)kg Herausforderung!")
+    }
+    static var proLabel: String { loc("Pro", "Pro") }
+    static var noHistory: String { loc("履歴なし", "No history", zhHans: "无历史", ko: "기록 없음", es: "Sin historial", fr: "Aucun historique", de: "Kein Verlauf") }
+    static var menuSuggestionProDescription: String { loc("種目・重量・セットを自動提案", "Auto-suggest exercises, weight & sets", zhHans: "自动推荐动作、重量和组数", ko: "종목·중량·세트 자동 제안", es: "Sugerencia automática de ejercicios", fr: "Suggestion auto d'exercices", de: "Auto-Vorschlag für Übungen") }
+
     // MARK: - レベルアップ
     static var strengthLevelTitle: String { loc("強さレベル", "Strength Level", zhHans: "力量等级", ko: "강도 레벨", es: "Nivel de fuerza", fr: "Niveau de force", de: "Stärke-Level") }
     static var maxLevelReached: String { loc("最高レベル到達！", "Max Level Reached!", zhHans: "已达最高等级！", ko: "최고 레벨 달성!", es: "¡Nivel máximo alcanzado!", fr: "Niveau max atteint !", de: "Max Level erreicht!") }

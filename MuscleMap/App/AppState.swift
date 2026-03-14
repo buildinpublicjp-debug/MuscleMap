@@ -104,6 +104,11 @@ class AppState {
     // 種目詳細 → ワークアウトタブ遷移時に使う種目ID（永続化不要）
     var pendingExerciseId: String?
 
+    // メニュー自動提案 → ワークアウトタブ遷移時に使う提案種目リスト（永続化不要）
+    var pendingRecommendedExercises: [RecommendedExercise]?
+    // 提案メニュー適用のトリガー（onChange検知用）
+    var pendingRecommendationTrigger: UUID?
+
     // 初回ワークアウト完了フラグ
     var hasCompletedFirstWorkout: Bool = UserDefaults.standard.bool(forKey: "hasCompletedFirstWorkout") {
         didSet { UserDefaults.standard.set(hasCompletedFirstWorkout, forKey: "hasCompletedFirstWorkout") }

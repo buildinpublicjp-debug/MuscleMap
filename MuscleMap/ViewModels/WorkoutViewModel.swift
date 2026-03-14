@@ -126,6 +126,26 @@ class WorkoutViewModel {
         }
     }
 
+    // 提案種目リスト（メニュー自動提案から受け取った種目）
+    var recommendedExercises: [RecommendedExercise] = []
+
+    /// メニュー自動提案の種目を適用（最初の種目を選択、提案重量をセット）
+    func applyRecommendedExercises(_ exercises: [RecommendedExercise]) {
+        recommendedExercises = exercises
+
+        // 最初の種目を選択
+        guard let first = exercises.first,
+              let definition = exerciseStore.exercise(for: first.exerciseId) else { return }
+
+        selectExercise(definition)
+
+        // 提案重量・レップ数で上書き（前回記録がある場合のみ重量を提案値に）
+        if first.suggestedWeight > 0 {
+            currentWeight = first.suggestedWeight
+        }
+        currentReps = first.suggestedReps
+    }
+
     // PR達成フラグ（UIからのアニメーション用）
     var lastSetWasPR: Bool = false
 
