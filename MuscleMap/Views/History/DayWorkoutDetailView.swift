@@ -139,6 +139,33 @@ private struct SessionDetailCard: View {
                 .foregroundStyle(Color.mmTextSecondary)
             }
 
+            // サマリー行（種目数・合計ボリューム）
+            HStack(spacing: 16) {
+                HStack(spacing: 4) {
+                    Image(systemName: "figure.strengthtraining.traditional")
+                        .font(.caption)
+                        .foregroundStyle(Color.mmAccentPrimary)
+                    Text("\(exerciseSets.count)")
+                        .font(.title3.bold())
+                        .foregroundStyle(Color.mmTextPrimary)
+                    Text("種目")
+                        .font(.caption)
+                        .foregroundStyle(Color.mmTextSecondary)
+                }
+                HStack(spacing: 4) {
+                    Image(systemName: "scalemass")
+                        .font(.caption)
+                        .foregroundStyle(Color.mmAccentPrimary)
+                    Text(totalVolume >= 1000 ? String(format: "%.1fk", totalVolume / 1000) : String(format: "%.0f", totalVolume))
+                        .font(.title3.bold())
+                        .foregroundStyle(Color.mmTextPrimary)
+                    Text("kg")
+                        .font(.caption)
+                        .foregroundStyle(Color.mmTextSecondary)
+                }
+                Spacer()
+            }
+
             // ミニ筋肉マップ（アスペクト比を維持・サイズ拡大）
             if !stimulatedMuscleMapping.isEmpty {
                 HStack(spacing: 12) {
@@ -156,12 +183,27 @@ private struct SessionDetailCard: View {
 
             Divider().background(Color.mmBgSecondary)
 
-            // 種目ごとのセット
+            // 種目ごとのセット（種目名 + セット数 + 種目ボリューム）
             ForEach(exerciseSets, id: \.exercise.id) { entry in
                 VStack(alignment: .leading, spacing: 6) {
-                    Text(localization.currentLanguage == .japanese ? entry.exercise.nameJA : entry.exercise.nameEN)
-                        .font(.subheadline.bold())
-                        .foregroundStyle(Color.mmAccentPrimary)
+                    HStack {
+                        Text(localization.currentLanguage == .japanese ? entry.exercise.nameJA : entry.exercise.nameEN)
+                            .font(.subheadline.bold())
+                            .foregroundStyle(Color.mmAccentPrimary)
+                        Spacer()
+                        let exerciseVolume = entry.sets.reduce(0.0) { $0 + $1.weight * Double($1.reps) }
+                        Text("\(entry.sets.count)セット")
+                            .font(.caption)
+                            .foregroundStyle(Color.mmTextSecondary)
+                        if exerciseVolume > 0 {
+                            Text("·")
+                                .font(.caption)
+                                .foregroundStyle(Color.mmTextSecondary)
+                            Text(String(format: "%.0fkg", exerciseVolume))
+                                .font(.caption.bold())
+                                .foregroundStyle(Color.mmTextSecondary)
+                        }
+                    }
 
                     ForEach(entry.sets, id: \.id) { set in
                         HStack {

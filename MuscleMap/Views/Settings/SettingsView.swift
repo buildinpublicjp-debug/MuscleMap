@@ -23,22 +23,30 @@ struct SettingsView: View {
                 Color.mmBgPrimary.ignoresSafeArea()
 
                 List {
-                    // 0. アカウント・Pro
+                    // 0. Pro版アップグレード（非Pro時のみ目立つバナー）
+                    if !PurchaseManager.shared.isPremium {
+                        proUpgradeBanner
+                    }
+
+                    // 1. アカウント・Pro
                     accountProSection
 
-                    // 1. 一般
+                    // 2. 一般
                     generalSection
 
-                    // 2. 法的事項
+                    // 3. 法的事項
                     legalSection
 
-                    // 3. アプリについて
+                    // 4. アプリについて
                     aboutSection
 
                     #if DEBUG
-                    // 4. 開発者メニュー
+                    // 5. 開発者メニュー
                     developerSection
                     #endif
+
+                    // バージョン番号（最下部）
+                    versionFooter
                 }
                 .scrollContentBackground(.hidden)
                 .listStyle(.insetGrouped)
@@ -358,20 +366,6 @@ struct SettingsView: View {
             }
             .listRowBackground(Color.mmBgCard)
 
-            // バージョン
-            HStack(spacing: 12) {
-                Image(systemName: "info.circle")
-                    .foregroundStyle(Color.mmTextSecondary)
-                Text(L10n.version)
-                    .font(.subheadline)
-                    .foregroundStyle(Color.mmTextPrimary)
-                Spacer()
-                Text("\(appState.appVersion) (\(appState.buildNumber))")
-                    .font(.subheadline)
-                    .foregroundStyle(Color.mmTextSecondary)
-            }
-            .listRowBackground(Color.mmBgCard)
-
             // フィードバック
             Button {
                 if let url = URL(string: "https://github.com/buildinpublicjp-debug/MuscleMap/issues") {
@@ -394,14 +388,66 @@ struct SettingsView: View {
         } header: {
             Text(L10n.appInfo)
                 .foregroundStyle(Color.mmTextSecondary)
-        } footer: {
-            Text(L10n.tagline)
-                .font(.caption2)
-                .foregroundStyle(Color.mmTextSecondary.opacity(0.5))
-                .frame(maxWidth: .infinity)
-                .padding(.top, 16)
         }
     }
+    // MARK: - Pro版アップグレードバナー（非Pro時のみ）
+
+    private var proUpgradeBanner: some View {
+        Section {
+            Button {
+                showingPaywall = true
+            } label: {
+                HStack(spacing: 12) {
+                    Image(systemName: "bolt.shield.fill")
+                        .font(.title2)
+                        .foregroundStyle(Color.mmAccentPrimary)
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Pro版にアップグレード")
+                            .font(.headline.bold())
+                            .foregroundStyle(Color.mmTextPrimary)
+                        Text("筋力マップ・種目別推移グラフを解放")
+                            .font(.caption)
+                            .foregroundStyle(Color.mmTextSecondary)
+                    }
+
+                    Spacer()
+
+                    Image(systemName: "chevron.right")
+                        .font(.caption)
+                        .foregroundStyle(Color.mmAccentPrimary)
+                }
+                .padding(.vertical, 4)
+            }
+            .listRowBackground(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(Color.mmBgCard)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color.mmAccentPrimary.opacity(0.3), lineWidth: 1)
+                    )
+            )
+        }
+    }
+
+    // MARK: - バージョンフッター（最下部）
+
+    private var versionFooter: some View {
+        Section {
+        } footer: {
+            VStack(spacing: 4) {
+                Text(L10n.tagline)
+                    .font(.caption2)
+                    .foregroundStyle(Color.mmTextSecondary.opacity(0.5))
+                Text("v\(appState.appVersion) (\(appState.buildNumber))")
+                    .font(.caption2)
+                    .foregroundStyle(Color.mmTextSecondary.opacity(0.4))
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.top, 16)
+        }
+    }
+
     // MARK: - 4. 開発者メニュー（DEBUG）
 
     #if DEBUG

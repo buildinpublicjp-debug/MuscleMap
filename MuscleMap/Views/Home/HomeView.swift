@@ -16,6 +16,7 @@ struct HomeView: View {
     @State private var strengthScores: [String: Double] = [:]
     @State private var showCoachMark = false
     @State private var showingExerciseLibrary = false
+    @State private var recommendedWorkout: RecommendedWorkout?
 
     /// ワークアウト履歴があるかどうか
     private var hasWorkoutHistory: Bool {
@@ -37,8 +38,8 @@ struct HomeView: View {
                                 hasWorkoutHistory: hasWorkoutHistory
                             )
 
-                            // 2. 90日チャレンジバナー（初回ワークアウト完了後に表示）
-                            if hasWorkoutHistory {
+                            // 2. 90日チャレンジバナー（チャレンジ開始済み or 完了済みの場合のみ表示）
+                            if AppState.shared.challengeActive || AppState.shared.challengeCompleted {
                                 ChallengeProgressBanner(showingPaywall: $showingPaywall)
                                     .padding(.horizontal)
                             }
@@ -71,10 +72,21 @@ struct HomeView: View {
                             // 3. 今日のおすすめインライン（マップ直下）
                             TodayRecommendationInline(
                                 suggestedMenu: vm.getSuggestedMenu(),
+                                recommendation: recommendedWorkout,
                                 hasWorkoutHistory: hasWorkoutHistory,
+                                isPremium: PurchaseManager.shared.isPremium,
                                 onStart: {
                                     HapticManager.lightTap()
                                     AppState.shared.selectedTab = 1
+                                },
+                                onStartWithMenu: { exercises in
+                                    // 提案種目をAppStateに保存してワークアウトタブへ遷移
+                                    AppState.shared.pendingRecommendedExercises = exercises
+                                    AppState.shared.pendingRecommendationTrigger = UUID()
+                                    AppState.shared.selectedTab = 1
+                                },
+                                onShowPaywall: {
+                                    showingPaywall = true
                                 }
                             )
                             .padding(.horizontal)
@@ -116,9 +128,14 @@ struct HomeView: View {
                                     HStack(spacing: 8) {
                                         Image(systemName: "bolt.shield.fill")
                                             .foregroundStyle(Color.mmAccentPrimary)
-                                        Text("Strength Map")
-                                            .font(.caption.bold())
-                                            .foregroundStyle(Color.mmTextPrimary)
+                                        VStack(alignment: .leading, spacing: 2) {
+                                            Text("Strength Map")
+                                                .font(.caption.bold())
+                                                .foregroundStyle(Color.mmTextPrimary)
+                                            Text("筋力レベルを見る")
+                                                .font(.caption2)
+                                                .foregroundStyle(Color.mmTextSecondary)
+                                        }
                                         Spacer()
                                         Image(systemName: "chevron.right")
                                             .font(.caption2)
@@ -177,6 +194,15 @@ struct HomeView: View {
                 }
                 viewModel?.loadMuscleStates()
                 viewModel?.checkActiveSession()
+
+                // Pro時: メニュー自動提案を生成
+                if PurchaseManager.shared.isPremium, let vm = viewModel {
+                    let menu = vm.getSuggestedMenu()
+                    recommendedWorkout = WorkoutRecommendationEngine.generateRecommendation(
+                        suggestedMenu: menu,
+                        modelContext: modelContext
+                    )
+                }
 
                 // ストリーク計算
                 streakViewModel.configure(with: modelContext)

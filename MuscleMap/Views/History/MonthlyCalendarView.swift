@@ -257,23 +257,37 @@ private struct DayCell: View {
                     .fontWeight(isToday ? .bold : .regular)
                     .foregroundStyle(textColor)
 
-                // マイクロボディマップ（前面+背面の2体表示）
+                // ワークアウトアイコン（鍛えた筋肉グループの色ドット表示）
                 if hasWorkout && !muscleGroups.isEmpty {
-                    MicroBodyMapView(muscleGroups: muscleGroups)
+                    workoutIndicator
                 } else if hasWorkout {
-                    // 筋肉グループ情報がない場合は従来の緑ドット
-                    Circle()
-                        .fill(Color.mmAccentPrimary)
-                        .frame(width: 6, height: 6)
-                } else {
-                    Color.clear
-                        .frame(height: 24)
+                    // 筋肉グループ情報がない場合はダンベルアイコン
+                    Image(systemName: "dumbbell.fill")
+                        .font(.system(size: 10))
+                        .foregroundStyle(Color.mmAccentPrimary)
                 }
+                // 空の日は何も表示しない
             }
             .frame(maxWidth: .infinity)
             .frame(height: 58)
             .background(backgroundColor)
             .clipShape(RoundedRectangle(cornerRadius: 8))
+        }
+    }
+
+    /// ワークアウトした筋肉グループをカラードットで表示
+    private var workoutIndicator: some View {
+        HStack(spacing: 2) {
+            ForEach(Array(muscleGroups).sorted(by: { $0.rawValue < $1.rawValue }).prefix(3), id: \.self) { group in
+                Circle()
+                    .fill(muscleGroupColor(group))
+                    .frame(width: 6, height: 6)
+            }
+            if muscleGroups.count > 3 {
+                Text("+")
+                    .font(.system(size: 7, weight: .bold))
+                    .foregroundStyle(Color.mmTextSecondary)
+            }
         }
     }
 

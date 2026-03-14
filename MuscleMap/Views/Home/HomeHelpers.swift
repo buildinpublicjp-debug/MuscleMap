@@ -28,7 +28,7 @@ struct MuscleMapLegend: View {
                         .fill(item.0)
                         .frame(width: 10, height: 10)
                     Text(item.1)
-                        .font(.caption2)
+                        .font(.caption)
                         .foregroundStyle(Color.mmTextSecondary)
                 }
             }
@@ -75,53 +75,199 @@ struct HomeCoachMarkView: View {
 
 // MARK: - 今日のおすすめインライン（筋肉マップ直下）
 
-/// 筋肉マップの直下に常時表示する1行のおすすめカード
+/// 筋肉マップの直下に常時表示するおすすめカード
+/// Pro: 種目リスト+重量+セット表示 / 無料: 部位名のみ+Proバッジ
 struct TodayRecommendationInline: View {
     let suggestedMenu: SuggestedMenu?
+    let recommendation: RecommendedWorkout?
     let hasWorkoutHistory: Bool
+    let isPremium: Bool
     let onStart: () -> Void
+    let onStartWithMenu: ([RecommendedExercise]) -> Void
+    let onShowPaywall: () -> Void
 
     private var localization: LocalizationManager { LocalizationManager.shared }
 
     var body: some View {
+        if hasWorkoutHistory, let menu = suggestedMenu {
+            if isPremium, let rec = recommendation, !rec.exercises.isEmpty {
+                // Pro: 詳細メニュー提案
+                proRecommendationCard(menu: menu, recommendation: rec)
+            } else if !isPremium {
+                // 無料: 部位名のみ + Proバッジ
+                freeRecommendationCard(menu: menu)
+            } else {
+                // Pro だが提案なし → 従来の1行表示
+                simpleRecommendationCard(menu: menu)
+            }
+        } else {
+            // 履歴なし → 初回ユーザー向け
+            firstTimeCard
+        }
+    }
+
+    // MARK: - Pro版 詳細提案カード
+
+    private func proRecommendationCard(menu: SuggestedMenu, recommendation: RecommendedWorkout) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            // ヘッダー
+            HStack(spacing: 8) {
+                Image(systemName: "lightbulb.fill")
+                    .font(.subheadline)
+                    .foregroundStyle(Color.mmAccentPrimary)
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(L10n.todayRecommendation)
+                        .font(.caption2)
+                        .foregroundStyle(Color.mmTextSecondary)
+                    Text(recommendation.muscleGroup)
+                        .font(.subheadline.bold())
+                        .foregroundStyle(Color.mmTextPrimary)
+                }
+
+                Spacer()
+
+                Text(inlineReason(menu: menu))
+                    .font(.caption2)
+                    .foregroundStyle(Color.mmAccentPrimary)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 3)
+                    .background(Color.mmAccentPrimary.opacity(0.15))
+                    .clipShape(Capsule())
+            }
+
+            // 種目リスト（最大3種目）
+            ForEach(recommendation.exercises) { exercise in
+                HStack(spacing: 10) {
+                    // 種目名
+                    Text(exercise.exerciseName)
+                        .font(.caption.bold())
+                        .foregroundStyle(Color.mmTextPrimary)
+                        .lineLimit(1)
+
+                    Spacer()
+
+                    if exercise.suggestedWeight > 0 {
+                        // 重量 × レップ × セット
+                        Text(weightText(exercise))
+                            .font(.caption2.monospacedDigit())
+                            .foregroundStyle(Color.mmTextSecondary)
+
+                        // 前回比
+                        if exercise.previousWeight != nil {
+                            Text(L10n.weightChallenge(formatWeight(exercise.weightIncrease)))
+                                .font(.caption2.bold())
+                                .foregroundStyle(Color.mmAccentPrimary)
+                        }
+                    } else {
+                        Text("\(exercise.suggestedSets)×\(exercise.suggestedReps)")
+                            .font(.caption2.monospacedDigit())
+                            .foregroundStyle(Color.mmTextSecondary)
+                        Text(L10n.noHistory)
+                            .font(.caption2)
+                            .foregroundStyle(Color.mmTextSecondary.opacity(0.6))
+                    }
+                }
+            }
+
+            // 「このメニューで始める」ボタン
+            Button {
+                HapticManager.lightTap()
+                onStartWithMenu(recommendation.exercises)
+            } label: {
+                HStack {
+                    Image(systemName: "play.fill")
+                        .font(.caption)
+                    Text(L10n.startWithThisMenu)
+                        .font(.caption.bold())
+                }
+                .foregroundStyle(Color.mmBgPrimary)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 10)
+                .background(Color.mmAccentPrimary)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(16)
+        .background(Color.mmBgCard)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+
+    // MARK: - 無料版カード（Proバッジ付き）
+
+    private func freeRecommendationCard(menu: SuggestedMenu) -> some View {
+        Button {
+            HapticManager.lightTap()
+            onShowPaywall()
+        } label: {
+            HStack(spacing: 10) {
+                Image(systemName: "lightbulb.fill")
+                    .font(.subheadline)
+                    .foregroundStyle(Color.mmAccentPrimary)
+
+                VStack(alignment: .leading, spacing: 2) {
+                    HStack(spacing: 6) {
+                        Text(L10n.todayRecommendation)
+                            .font(.caption2)
+                            .foregroundStyle(Color.mmTextSecondary)
+                        Text(L10n.proLabel)
+                            .font(.system(size: 9, weight: .heavy))
+                            .foregroundStyle(Color.mmBgPrimary)
+                            .padding(.horizontal, 5)
+                            .padding(.vertical, 2)
+                            .background(Color.mmAccentPrimary)
+                            .clipShape(Capsule())
+                    }
+                    Text(inlineGroupNames(menu: menu))
+                        .font(.subheadline.bold())
+                        .foregroundStyle(Color.mmTextPrimary)
+                        .lineLimit(1)
+                    Text(L10n.menuSuggestionProDescription)
+                        .font(.caption2)
+                        .foregroundStyle(Color.mmTextSecondary)
+                }
+
+                Spacer()
+
+                Image(systemName: "lock.fill")
+                    .font(.caption)
+                    .foregroundStyle(Color.mmTextSecondary)
+            }
+            .padding(16)
+            .background(Color.mmBgCard)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+        }
+        .buttonStyle(.plain)
+    }
+
+    // MARK: - シンプルカード（Pro提案なし時のフォールバック）
+
+    private func simpleRecommendationCard(menu: SuggestedMenu) -> some View {
         Button {
             HapticManager.lightTap()
             onStart()
         } label: {
             HStack(spacing: 10) {
-                if hasWorkoutHistory, let menu = suggestedMenu {
-                    // 回復済み筋肉のおすすめ表示
-                    let groupNames = inlineGroupNames(menu: menu)
-                    let reason = inlineReason(menu: menu)
+                Image(systemName: "lightbulb.fill")
+                    .font(.subheadline)
+                    .foregroundStyle(Color.mmAccentPrimary)
 
-                    Image(systemName: "lightbulb.fill")
-                        .font(.subheadline)
-                        .foregroundStyle(Color.mmAccentPrimary)
-
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(L10n.todayRecommendation)
-                            .font(.caption2)
-                            .foregroundStyle(Color.mmTextSecondary)
-                        Text(groupNames)
-                            .font(.subheadline.bold())
-                            .foregroundStyle(Color.mmTextPrimary)
-                            .lineLimit(1)
-                        if !reason.isEmpty {
-                            Text(reason)
-                                .font(.caption2)
-                                .foregroundStyle(Color.mmTextSecondary)
-                                .lineLimit(1)
-                        }
-                    }
-                } else {
-                    // 履歴なし → 初回ユーザー向けメッセージ
-                    Image(systemName: "target")
-                        .font(.subheadline)
-                        .foregroundStyle(Color.mmAccentPrimary)
-
-                    Text("筋肉マップを赤くしてみよう")
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(L10n.todayRecommendation)
+                        .font(.caption2)
+                        .foregroundStyle(Color.mmTextSecondary)
+                    Text(inlineGroupNames(menu: menu))
                         .font(.subheadline.bold())
                         .foregroundStyle(Color.mmTextPrimary)
+                        .lineLimit(1)
+                    let reason = inlineReason(menu: menu)
+                    if !reason.isEmpty {
+                        Text(reason)
+                            .font(.caption2)
+                            .foregroundStyle(Color.mmTextSecondary)
+                            .lineLimit(1)
+                    }
                 }
 
                 Spacer()
@@ -141,6 +287,41 @@ struct TodayRecommendationInline: View {
         .buttonStyle(.plain)
     }
 
+    // MARK: - 初回ユーザー向けカード
+
+    private var firstTimeCard: some View {
+        Button {
+            HapticManager.lightTap()
+            onStart()
+        } label: {
+            HStack(spacing: 10) {
+                Image(systemName: "target")
+                    .font(.subheadline)
+                    .foregroundStyle(Color.mmAccentPrimary)
+
+                Text("筋肉マップを赤くしてみよう")
+                    .font(.subheadline.bold())
+                    .foregroundStyle(Color.mmTextPrimary)
+
+                Spacer()
+
+                Text(L10n.startWorkout)
+                    .font(.caption.bold())
+                    .foregroundStyle(Color.mmBgPrimary)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(Color.mmAccentPrimary)
+                    .clipShape(Capsule())
+            }
+            .padding(16)
+            .background(Color.mmBgCard)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+        }
+        .buttonStyle(.plain)
+    }
+
+    // MARK: - ヘルパー
+
     /// ペアリングされたグループ名を表示用に結合
     private func inlineGroupNames(menu: SuggestedMenu) -> String {
         let groups = MenuSuggestionService.pairedGroups(for: menu.primaryGroup)
@@ -158,6 +339,20 @@ struct TodayRecommendationInline: View {
         return localization.currentLanguage == .japanese
             ? "\(groupName)が回復済み"
             : "\(groupName) recovered"
+    }
+
+    /// 重量テキスト（例: "62.5kg × 10 × 3"）
+    private func weightText(_ exercise: RecommendedExercise) -> String {
+        let w = formatWeight(exercise.suggestedWeight)
+        return "\(w)kg × \(exercise.suggestedReps) × \(exercise.suggestedSets)"
+    }
+
+    /// 重量フォーマット（小数点以下不要なら省略）
+    private func formatWeight(_ weight: Double) -> String {
+        if weight == floor(weight) {
+            return "\(Int(weight))"
+        }
+        return String(format: "%.1f", weight)
     }
 }
 
@@ -178,10 +373,21 @@ struct StrengthMapPreviewBanner: View {
                     .foregroundStyle(Color.mmAccentPrimary)
 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("Strength Map")
-                        .font(.subheadline.bold())
-                        .foregroundStyle(Color.mmTextPrimary)
-                    Text("90日後、変化を証明する")
+                    HStack(spacing: 6) {
+                        Text("Strength Map")
+                            .font(.subheadline.bold())
+                            .foregroundStyle(Color.mmTextPrimary)
+
+                        // Proバッジ
+                        Text("Pro")
+                            .font(.caption2.bold())
+                            .foregroundStyle(Color.mmBgPrimary)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(Color.mmAccentPrimary)
+                            .clipShape(Capsule())
+                    }
+                    Text("筋力レベルを見る")
                         .font(.caption)
                         .foregroundStyle(Color.mmTextSecondary)
                 }

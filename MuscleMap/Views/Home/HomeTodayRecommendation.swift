@@ -27,9 +27,9 @@ struct TodayRecommendationButton: View {
                     .font(.caption)
                     .foregroundStyle(Color.mmTextSecondary)
             }
-            .padding()
+            .padding(16)
             .background(Color.mmBgCard)
-            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .clipShape(RoundedRectangle(cornerRadius: 16))
         }
         .buttonStyle(.plain)
     }
