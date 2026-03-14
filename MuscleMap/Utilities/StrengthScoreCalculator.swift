@@ -42,6 +42,12 @@ enum StrengthLevel: String, CaseIterable {
         }
     }
 
+    /// ローカライズ名
+    @MainActor
+    var localizedName: String {
+        LocalizationManager.shared.currentLanguage == .japanese ? japaneseName : englishName
+    }
+
     /// レベルカラー
     var color: Color {
         switch self {

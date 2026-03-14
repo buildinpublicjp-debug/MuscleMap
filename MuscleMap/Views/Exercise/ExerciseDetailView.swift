@@ -14,6 +14,19 @@ struct ExerciseDetailView: View {
         PRManager.shared.getWeightPR(exerciseId: exercise.id, context: modelContext)
     }
 
+    /// 現在の種目の強さレベル情報
+    private var strengthLevelInfo: (level: StrengthLevel, kgToNext: Double?, nextLevel: StrengthLevel?)? {
+        guard let best1RM = PRManager.shared.getBestEstimated1RM(exerciseId: exercise.id, context: modelContext) else {
+            return nil
+        }
+        let bodyweight = AppState.shared.userProfile.weightKg
+        return StrengthScoreCalculator.exerciseStrengthLevel(
+            exerciseId: exercise.id,
+            estimated1RM: best1RM,
+            bodyweightKg: bodyweight
+        )
+    }
+
     var body: some View {
         NavigationStack {
             ZStack {
@@ -36,6 +49,15 @@ struct ExerciseDetailView: View {
                                     InfoTag(icon: "trophy.fill", text: String(format: "%.1f kg", pr), highlight: true)
                                 }
                             }
+                        }
+
+                        // 強さレベルプログレスバー
+                        if let info = strengthLevelInfo {
+                            StrengthLevelProgressSection(
+                                currentLevel: info.level,
+                                kgToNext: info.kgToNext,
+                                nextLevel: info.nextLevel
+                            )
                         }
 
                         // ターゲット筋肉（マップ + 刺激度バー統合セクション）
@@ -204,6 +226,100 @@ private struct MuscleStimulationBar: View {
         case 50..<80: return .mmMuscleAmber
         default: return .mmMuscleLime
         }
+    }
+}
+
+// MARK: - 強さレベルプログレスバー
+
+private struct StrengthLevelProgressSection: View {
+    let currentLevel: StrengthLevel
+    let kgToNext: Double?
+    let nextLevel: StrengthLevel?
+
+    private let allLevels = StrengthLevel.allCases
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text(L10n.strengthLevelTitle)
+                .font(.headline)
+                .foregroundStyle(Color.mmTextPrimary)
+
+            // プログレスバー
+            HStack(spacing: 0) {
+                ForEach(Array(allLevels.enumerated()), id: \.offset) { index, level in
+                    let isCurrent = level == currentLevel
+                    let isPassed = level.minimumScore < currentLevel.minimumScore
+
+                    VStack(spacing: 4) {
+                        // レベルインジケータ
+                        ZStack {
+                            Circle()
+                                .fill(isCurrent ? level.color : (isPassed ? level.color.opacity(0.4) : Color.mmBgCard))
+                                .frame(width: isCurrent ? 28 : 20, height: isCurrent ? 28 : 20)
+
+                            if isCurrent {
+                                Circle()
+                                    .stroke(level.color, lineWidth: 2)
+                                    .frame(width: 34, height: 34)
+
+                                Text(level.emoji)
+                                    .font(.system(size: 12))
+                            } else if isPassed {
+                                Image(systemName: "checkmark")
+                                    .font(.system(size: 8, weight: .bold))
+                                    .foregroundStyle(Color.mmBgPrimary)
+                            }
+                        }
+                        .frame(height: 36)
+
+                        // レベル名
+                        Text(level.localizedName)
+                            .font(.system(size: 9, weight: isCurrent ? .bold : .regular))
+                            .foregroundStyle(isCurrent ? level.color : Color.mmTextSecondary)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.7)
+                    }
+                    .frame(maxWidth: .infinity)
+
+                    // コネクタライン
+                    if index < allLevels.count - 1 {
+                        Rectangle()
+                            .fill(isPassed ? currentLevel.color.opacity(0.4) : Color.mmBgCard)
+                            .frame(height: 2)
+                            .frame(maxWidth: .infinity)
+                            .offset(y: -12)
+                    }
+                }
+            }
+
+            // 次レベルまでのテキスト
+            if let kgToNext = kgToNext, let nextLevel = nextLevel {
+                HStack(spacing: 4) {
+                    Image(systemName: "arrow.up.circle.fill")
+                        .font(.caption)
+                        .foregroundStyle(nextLevel.color)
+                    Text(L10n.levelUpKgToNext(Int(ceil(kgToNext)), nextLevel.localizedName))
+                        .font(.caption.bold())
+                        .foregroundStyle(nextLevel.color)
+                }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+                .frame(maxWidth: .infinity, alignment: .center)
+                .background(nextLevel.color.opacity(0.1))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+            } else if currentLevel == .freak {
+                HStack(spacing: 4) {
+                    Text("👑")
+                    Text(L10n.maxLevelReached)
+                        .font(.caption.bold())
+                        .foregroundStyle(Color.mmPRGold)
+                }
+                .frame(maxWidth: .infinity, alignment: .center)
+            }
+        }
+        .padding(16)
+        .background(Color.mmBgCard)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 }
 

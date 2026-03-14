@@ -48,6 +48,10 @@ struct WorkoutShareCard: View {
     let prItems: [SharePRItem]
     /// トレーニング時間（分）
     var durationMinutes: Int = 0
+    /// 現在の総合レベル
+    var currentLevel: StrengthLevel?
+    /// レベルアップがあったか
+    var didLevelUp: Bool = false
 
     // MARK: - 定数
 
@@ -111,6 +115,12 @@ struct WorkoutShareCard: View {
                 // 6. サブスタット: 種目数・セット数・時間を横並び
                 subStatsRow
                     .padding(.top, prItems.isEmpty ? 12 : 8)
+
+                // 6.5 レベルバッジ
+                if let level = currentLevel {
+                    levelBadge(level: level, didLevelUp: didLevelUp)
+                        .padding(.top, 6)
+                }
 
                 Spacer(minLength: 4)
 
@@ -278,6 +288,48 @@ struct WorkoutShareCard: View {
                 .font(.system(size: 8, weight: .medium))
                 .tracking(1)
                 .foregroundStyle(Color.mmBorder.opacity(0.5))
+        }
+    }
+
+    // MARK: - レベルバッジ
+
+    private func levelBadge(level: StrengthLevel, didLevelUp: Bool) -> some View {
+        Group {
+            if didLevelUp {
+                // レベルアップ表示
+                HStack(spacing: 4) {
+                    Text("💪→\(level.emoji)")
+                        .font(.system(size: 10))
+                    Text(L10n.levelUp)
+                        .font(.system(size: 10, weight: .heavy))
+                        .foregroundStyle(Color.mmPRGold)
+                }
+                .padding(.horizontal, 10)
+                .padding(.vertical, 4)
+                .background(
+                    Capsule()
+                        .fill(Color.mmPRGold.opacity(0.12))
+                        .overlay(
+                            Capsule()
+                                .stroke(Color.mmPRGold.opacity(0.25), lineWidth: 0.5)
+                        )
+                )
+            } else {
+                // 現在のレベル表示
+                HStack(spacing: 3) {
+                    Text(level.emoji)
+                        .font(.system(size: 9))
+                    Text(level.localizedName)
+                        .font(.system(size: 9, weight: .bold))
+                        .foregroundStyle(level.color)
+                }
+                .padding(.horizontal, 8)
+                .padding(.vertical, 3)
+                .background(
+                    Capsule()
+                        .fill(level.color.opacity(0.10))
+                )
+            }
         }
     }
 

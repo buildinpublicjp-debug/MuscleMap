@@ -21,6 +21,19 @@ struct SetInputCard: View {
         PRManager.shared.getWeightPR(exerciseId: exercise.id, context: modelContext)
     }
 
+    /// 現在の種目の強さレベル情報
+    private var strengthLevelInfo: (level: StrengthLevel, kgToNext: Double?, nextLevel: StrengthLevel?)? {
+        guard let best1RM = PRManager.shared.getBestEstimated1RM(exerciseId: exercise.id, context: modelContext) else {
+            return nil
+        }
+        let bodyweight = AppState.shared.userProfile.weightKg
+        return StrengthScoreCalculator.exerciseStrengthLevel(
+            exerciseId: exercise.id,
+            estimated1RM: best1RM,
+            bodyweightKg: bodyweight
+        )
+    }
+
     var body: some View {
         ScrollView {
         VStack(spacing: 12) {
@@ -46,20 +59,40 @@ struct SetInputCard: View {
                         ExerciseGifView(exerciseId: exercise.id, size: .fullWidth)
                             .frame(maxHeight: 150)
 
-                        // PR表示（GIF右下にオーバーレイ）
+                        // PR表示 + レベルバッジ（GIF右下にオーバーレイ）
                         if let pr = prWeight, !isBodyweight {
-                            HStack(spacing: 2) {
-                                Image(systemName: "trophy.fill")
-                                    .font(.caption2)
-                                    .foregroundStyle(Color.mmPRGold)
-                                Text("\(pr, specifier: "%.1f")kg")
-                                    .font(.caption2.bold())
-                                    .foregroundStyle(Color.mmTextPrimary)
+                            VStack(alignment: .trailing, spacing: 4) {
+                                HStack(spacing: 2) {
+                                    Image(systemName: "trophy.fill")
+                                        .font(.caption2)
+                                        .foregroundStyle(Color.mmPRGold)
+                                    Text("\(pr, specifier: "%.1f")kg")
+                                        .font(.caption2.bold())
+                                        .foregroundStyle(Color.mmTextPrimary)
+                                    if let info = strengthLevelInfo {
+                                        Text(info.level.emoji + " " + info.level.localizedName)
+                                            .font(.caption2.bold())
+                                            .foregroundStyle(info.level.color)
+                                    }
+                                }
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4)
+                                .background(Color.mmBgPrimary.opacity(0.6))
+                                .clipShape(Capsule())
+
+                                // 次レベルまでの距離
+                                if let info = strengthLevelInfo,
+                                   let kgToNext = info.kgToNext,
+                                   let nextLevel = info.nextLevel {
+                                    Text(L10n.levelUpKgToNext(Int(ceil(kgToNext)), nextLevel.localizedName))
+                                        .font(.system(size: 9))
+                                        .foregroundStyle(nextLevel.color.opacity(0.8))
+                                        .padding(.horizontal, 6)
+                                        .padding(.vertical, 2)
+                                        .background(Color.mmBgPrimary.opacity(0.6))
+                                        .clipShape(Capsule())
+                                }
                             }
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 4)
-                            .background(Color.mmBgPrimary.opacity(0.6))
-                            .clipShape(Capsule())
                             .padding(8)
                         }
                     }

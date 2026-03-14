@@ -17,6 +17,7 @@ struct WorkoutCompletionView: View {
     @State private var isFirstConquest = false
     @State private var appState = AppState.shared
     @State private var hasPRUpdate = false
+    @State private var levelUpExercises: [LevelUpInfo] = []
     @State private var showingStrengthShareSheet = false
     @State private var strengthShareImage: UIImage?
     @State private var showingPaywall = false
@@ -170,6 +171,11 @@ struct WorkoutCompletionView: View {
                         }
                         .buttonStyle(.plain)
 
+                        // レベルアップ祝福（PR更新でレベルが上がった場合）
+                        if !levelUpExercises.isEmpty {
+                            LevelUpCelebrationSection(levelUps: levelUpExercises)
+                        }
+
                         StimulatedMusclesSection(muscleMapping: stimulatedMuscleMapping)
 
                         // 次回おすすめ日
@@ -248,6 +254,7 @@ struct WorkoutCompletionView: View {
             checkFullBodyConquest()
             markFirstWorkoutCompleted()
             checkPRUpdates()
+            detectLevelUps()
         }
         .fullScreenCover(isPresented: $showingFullBodyConquest) {
             FullBodyConquestView(
@@ -325,6 +332,13 @@ struct WorkoutCompletionView: View {
             )
         }
 
+        // 総合レベルを算出
+        let allSetsDescriptor = FetchDescriptor<WorkoutSet>()
+        let allSets = (try? modelContext.fetch(allSetsDescriptor)) ?? []
+        let bodyweight = AppState.shared.userProfile.weightKg
+        let level = StrengthScoreCalculator.shared.overallLevel(allSets: allSets, bodyweightKg: bodyweight)
+        let hasLevelUp = !levelUpExercises.isEmpty
+
         let shareView = WorkoutShareCard(
             totalVolume: totalVolume,
             totalSets: totalSets,
@@ -332,7 +346,9 @@ struct WorkoutCompletionView: View {
             date: session.startDate,
             muscleMapping: stimulatedMuscleMapping,
             prItems: prItems,
-            durationMinutes: durationMinutes
+            durationMinutes: durationMinutes,
+            currentLevel: level,
+            didLevelUp: hasLevelUp
         )
         let renderer = ImageRenderer(content: shareView)
         renderer.scale = 3.0
@@ -369,6 +385,56 @@ struct WorkoutCompletionView: View {
                 return
             }
         }
+    }
+
+    /// レベルアップ検出: PR更新種目の前後レベルを比較
+    private func detectLevelUps() {
+        let prUpdates = PRManager.shared.getSessionPRUpdates(session: session, context: modelContext)
+        guard !prUpdates.isEmpty else { return }
+
+        let bodyweight = AppState.shared.userProfile.weightKg
+
+        var results: [LevelUpInfo] = []
+        for update in prUpdates {
+            // セッション前の推定1RM（前回最大重量ベース、reps=1で概算）
+            let previous1RM = PRManager.shared.estimated1RM(weight: update.previousWeight, reps: 1)
+            // セッション後の推定1RM（今回の最大重量で、セッション内最大repsを考慮）
+            let sessionSets = session.sets.filter { $0.exerciseId == update.exerciseId }
+            let best1RMInSession = sessionSets.map {
+                PRManager.shared.estimated1RM(weight: $0.weight, reps: $0.reps)
+            }.max() ?? PRManager.shared.estimated1RM(weight: update.newWeight, reps: 1)
+
+            let previousResult = StrengthScoreCalculator.exerciseStrengthLevel(
+                exerciseId: update.exerciseId,
+                estimated1RM: previous1RM,
+                bodyweightKg: bodyweight
+            )
+            let newResult = StrengthScoreCalculator.exerciseStrengthLevel(
+                exerciseId: update.exerciseId,
+                estimated1RM: best1RMInSession,
+                bodyweightKg: bodyweight
+            )
+
+            // レベルが上がった場合のみ追加
+            if newResult.level != previousResult.level {
+                let exerciseName: String
+                if let def = ExerciseStore.shared.exercise(for: update.exerciseId) {
+                    exerciseName = localization.currentLanguage == .japanese ? def.nameJA : def.nameEN
+                } else {
+                    exerciseName = update.exerciseId
+                }
+
+                results.append(LevelUpInfo(
+                    exerciseName: exerciseName,
+                    previousLevel: previousResult.level,
+                    newLevel: newResult.level,
+                    kgToNext: newResult.kgToNext,
+                    nextLevel: newResult.nextLevel
+                ))
+            }
+        }
+
+        levelUpExercises = results
     }
 
     /// Strength Mapシェア画像を生成

@@ -197,6 +197,7 @@ enum L10n {
     static var home: String { loc("ホーム", "Home", zhHans: "首页", ko: "홈", es: "Inicio", fr: "Accueil", de: "Start") }
     static var workout: String { loc("ワークアウト", "Workout", zhHans: "训练", ko: "운동", es: "Entrenamiento", fr: "Entraînement", de: "Training") }
     static var exerciseLibrary: String { loc("種目辞典", "Exercise Library", zhHans: "动作库", ko: "운동 도감", es: "Biblioteca", fr: "Bibliothèque", de: "Übungsbibliothek") }
+    static var browseExercises: String { loc("種目を探す", "Browse Exercises", zhHans: "浏览动作", ko: "운동 찾기", es: "Buscar ejercicios", fr: "Parcourir les exercices", de: "Übungen durchsuchen") }
     static var history: String { loc("履歴", "History", zhHans: "历史", ko: "기록", es: "Historial", fr: "Historique", de: "Verlauf") }
     static var settings: String { loc("設定", "Settings", zhHans: "设置", ko: "설정", es: "Ajustes", fr: "Réglages", de: "Einstellungen") }
 
@@ -1004,4 +1005,12 @@ enum L10n {
     static var challengeComplete: String { loc("90日チャレンジ達成！", "90-Day Challenge Complete!", zhHans: "90天挑战完成！", ko: "90일 챌린지 달성!", es: "¡Desafío de 90 días completado!", fr: "Défi 90 jours terminé !", de: "90-Tage-Challenge geschafft!") }
     static var challengeViewRecap: String { loc("Recapを見る", "View Recap", zhHans: "查看回顾", ko: "Recap 보기", es: "Ver resumen", fr: "Voir le récap", de: "Rückblick ansehen") }
     static var challengeDayComplete: String { loc("完了！", "Complete!", zhHans: "完成！", ko: "완료!", es: "¡Hecho!", fr: "Terminé !", de: "Fertig!") }
+
+    // MARK: - レベルアップ
+    static var strengthLevelTitle: String { loc("強さレベル", "Strength Level", zhHans: "力量等级", ko: "강도 레벨", es: "Nivel de fuerza", fr: "Niveau de force", de: "Stärke-Level") }
+    static var maxLevelReached: String { loc("最高レベル到達！", "Max Level Reached!", zhHans: "已达最高等级！", ko: "최고 레벨 달성!", es: "¡Nivel máximo alcanzado!", fr: "Niveau max atteint !", de: "Max Level erreicht!") }
+    static var levelUp: String { loc("レベルアップ！", "Level Up!", zhHans: "升级！", ko: "레벨 업!", es: "¡Subida de nivel!", fr: "Niveau supérieur !", de: "Level Up!") }
+    static func levelUpKgToNext(_ kg: Int, _ levelName: String) -> String {
+        loc("あと\(kg)kgで\(levelName)", "\(kg)kg to \(levelName)", zhHans: "距\(levelName)还需\(kg)kg", ko: "\(levelName)까지 \(kg)kg", es: "\(kg)kg para \(levelName)", fr: "\(kg)kg pour \(levelName)", de: "\(kg)kg bis \(levelName)")
+    }
 }

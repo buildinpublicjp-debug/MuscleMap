@@ -35,6 +35,10 @@ struct StrengthShareCard: View {
         StrengthScoreCalculator.gradeColor(grade: overallGrade)
     }
 
+    private var overallLevel: StrengthLevel {
+        StrengthScoreCalculator.level(score: averageScore)
+    }
+
     /// スコア上位3筋肉
     private var topMuscles: [(muscle: Muscle, score: Double)] {
         Muscle.allCases
@@ -243,11 +247,12 @@ struct StrengthShareCard: View {
                     .frame(width: 80 * score, height: 6)
             }
 
-            // %表示
-            Text("\(Int(score * 100))%")
+            // グレード + レベル
+            let grade = StrengthScoreCalculator.grade(score: score)
+            Text(grade)
                 .font(.system(size: 13, weight: .bold))
-                .foregroundStyle(Color.mmAccentPrimary)
-                .frame(width: 40, alignment: .trailing)
+                .foregroundStyle(StrengthScoreCalculator.gradeColor(grade: grade))
+                .frame(width: 28, alignment: .trailing)
         }
         .frame(height: 36)
     }
@@ -256,12 +261,27 @@ struct StrengthShareCard: View {
 
     private var footerSection: some View {
         HStack {
-            // 左: ユーザー名 + 総合グレード
+            // 左: ユーザー名 + レベル
             VStack(alignment: .leading, spacing: 2) {
-                Text(userName.isEmpty ? "MuscleMap User" : userName)
-                    .font(.system(size: 14, weight: .bold))
-                    .foregroundStyle(Color.mmTextPrimary)
-                    .lineLimit(1)
+                HStack(spacing: 6) {
+                    Text(userName.isEmpty ? "MuscleMap User" : userName)
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundStyle(Color.mmTextPrimary)
+                        .lineLimit(1)
+
+                    // レベルバッジ
+                    HStack(spacing: 3) {
+                        Text(overallLevel.emoji)
+                            .font(.system(size: 10))
+                        Text(overallLevel.localizedName)
+                            .font(.system(size: 10, weight: .bold))
+                            .foregroundStyle(overallLevel.color)
+                    }
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(overallLevel.color.opacity(0.12))
+                    .clipShape(Capsule())
+                }
 
                 Text("Overall Grade")
                     .font(.system(size: 11, weight: .regular))

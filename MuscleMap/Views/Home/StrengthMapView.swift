@@ -24,6 +24,10 @@ struct StrengthMapView: View {
         StrengthScoreCalculator.gradeColor(grade: overallGrade)
     }
 
+    private var overallLevel: StrengthLevel {
+        StrengthScoreCalculator.level(score: averageScore)
+    }
+
     var body: some View {
         VStack(spacing: 8) {
             // ヘッダー: タイトル + シェアボタン
@@ -153,9 +157,15 @@ struct StrengthMapView: View {
                 Text("Overall Grade")
                     .font(.system(size: 11, weight: .regular))
                     .foregroundStyle(Color.mmTextSecondary)
-                Text("\(Int(averageScore * 100))pt")
-                    .font(.caption2)
-                    .foregroundStyle(Color.mmTextSecondary)
+
+                // レベル名バッジ
+                HStack(spacing: 3) {
+                    Text(overallLevel.emoji)
+                        .font(.system(size: 11))
+                    Text(overallLevel.localizedName)
+                        .font(.system(size: 12, weight: .bold))
+                        .foregroundStyle(overallLevel.color)
+                }
             }
 
             ZStack {
@@ -206,13 +216,14 @@ struct StrengthMapView: View {
                     ForEach(Array(sorted), id: \.0) { muscle, score in
                         let grade = StrengthScoreCalculator.grade(score: score)
                         let color = StrengthScoreCalculator.gradeColor(grade: grade)
+                        let lvl = StrengthScoreCalculator.level(score: score)
                         VStack(spacing: 4) {
                             Text(muscle.localizedName)
                                 .font(.caption2)
                                 .foregroundStyle(Color.mmTextSecondary)
                                 .lineLimit(1)
-                            Text(grade)
-                                .font(.title3.bold())
+                            Text("\(grade) \(lvl.localizedName)")
+                                .font(.caption.bold())
                                 .foregroundStyle(color)
                         }
                     }
