@@ -75,6 +75,17 @@ class PRManager {
         guard reps > 1 else { return weight }
         return weight * (1 + Double(reps) / 30.0)
     }
+
+    /// 指定種目のベスト推定1RM（全セットからEpley式で最大値を取得）
+    func getBestEstimated1RM(exerciseId: String, context: ModelContext) -> Double? {
+        let descriptor = FetchDescriptor<WorkoutSet>(
+            predicate: #Predicate { $0.exerciseId == exerciseId }
+        )
+        guard let sets = try? context.fetch(descriptor), !sets.isEmpty else {
+            return nil
+        }
+        return sets.map { estimated1RM(weight: $0.weight, reps: $0.reps) }.max()
+    }
 }
 
 // MARK: - PR更新情報

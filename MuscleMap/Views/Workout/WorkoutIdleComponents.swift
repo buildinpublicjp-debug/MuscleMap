@@ -13,6 +13,7 @@ struct WorkoutIdleView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var selectedMuscle: Muscle?
     @State private var suggestedMenu: SuggestedMenu?
+    @State private var showingExerciseLibrary = false
     private var localization: LocalizationManager { LocalizationManager.shared }
 
     private var favoriteExercises: [ExerciseDefinition] {
@@ -85,7 +86,30 @@ struct WorkoutIdleView: View {
             }
             .buttonStyle(.plain)
             .padding(.horizontal)
+            .padding(.bottom, 4)
+
+            // 種目を探すボタン
+            Button {
+                HapticManager.lightTap()
+                showingExerciseLibrary = true
+            } label: {
+                HStack(spacing: 6) {
+                    Image(systemName: "book")
+                    Text(L10n.browseExercises)
+                }
+                .font(.subheadline.bold())
+                .foregroundStyle(Color.mmAccentSecondary)
+                .frame(maxWidth: .infinity)
+                .frame(height: 44)
+            }
+            .buttonStyle(.plain)
+            .padding(.horizontal)
             .padding(.bottom, 8)
+        }
+        .sheet(isPresented: $showingExerciseLibrary) {
+            NavigationStack {
+                ExerciseLibraryView()
+            }
         }
         .sheet(item: $selectedMuscle) { muscle in
             MuscleExercisePickerSheet(muscle: muscle) { exercise in
@@ -171,7 +195,21 @@ struct RecommendedWorkoutBanner: View {
 struct FavoriteExercisesSection: View {
     let exercises: [ExerciseDefinition]
     let onSelect: (ExerciseDefinition) -> Void
+    @Environment(\.modelContext) private var modelContext
     private var localization: LocalizationManager { LocalizationManager.shared }
+
+    /// 種目の強さレベルを取得
+    private func strengthLevel(for exercise: ExerciseDefinition) -> StrengthLevel? {
+        guard let best1RM = PRManager.shared.getBestEstimated1RM(exerciseId: exercise.id, context: modelContext) else {
+            return nil
+        }
+        let bodyweight = AppState.shared.userProfile.weightKg
+        return StrengthScoreCalculator.exerciseStrengthLevel(
+            exerciseId: exercise.id,
+            estimated1RM: best1RM,
+            bodyweightKg: bodyweight
+        ).level
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -205,14 +243,27 @@ struct FavoriteExercisesSection: View {
                                 .font(.caption2)
                                 .foregroundStyle(Color.mmTextSecondary)
 
-                                if let primary = exercise.primaryMuscle {
-                                    Text(primary.localizedName)
-                                        .font(.caption2)
-                                        .padding(.horizontal, 6)
-                                        .padding(.vertical, 2)
-                                        .background(Color.mmAccentPrimary.opacity(0.15))
-                                        .foregroundStyle(Color.mmAccentPrimary)
-                                        .clipShape(Capsule())
+                                HStack(spacing: 4) {
+                                    if let primary = exercise.primaryMuscle {
+                                        Text(primary.localizedName)
+                                            .font(.caption2)
+                                            .padding(.horizontal, 6)
+                                            .padding(.vertical, 2)
+                                            .background(Color.mmAccentPrimary.opacity(0.15))
+                                            .foregroundStyle(Color.mmAccentPrimary)
+                                            .clipShape(Capsule())
+                                    }
+
+                                    // レベルバッジ
+                                    if let level = strengthLevel(for: exercise) {
+                                        Text(level.emoji + level.localizedName)
+                                            .font(.caption2)
+                                            .padding(.horizontal, 6)
+                                            .padding(.vertical, 2)
+                                            .background(level.color.opacity(0.15))
+                                            .foregroundStyle(level.color)
+                                            .clipShape(Capsule())
+                                    }
                                 }
                             }
                             .frame(width: 140, alignment: .leading)
