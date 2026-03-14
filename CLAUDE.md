@@ -26,7 +26,7 @@
 12. **初回コーチマーク** — 初回起動時にホーム画面で操作ガイドを表示（1回限り）
 13. **オンボーディングv5（最大7ページ）** — SplashView → GoalSelectionPage（「なぜ鍛える？」7目標エモーショナル複数選択） → TrainingHistoryPage（トレ歴） → [PRInputPage（経験者のみ）] → GymCheckPage（「今ジムにいる？」） → OnboardingBranchPage（ジム→showWorkoutTutorial設定+スキップ / 家→RecentTrainingInputPage直近トレ入力） → WeightInputPage（体重・ニックネーム） → CallToActionPage（目標別コピー+3つの価値） → 通知許可
 15. **ワークアウトチュートリアルバナー** — ジムルートからの初回ユーザーに対し、WorkoutIdleViewの上部にチュートリアルバナーを表示（1セット記録で消去）
-14. 課金: PurchaseManager（RevenueCat接続は未実装、isPremium=trueでハードコード中）
+14. 課金: PurchaseManager（RevenueCat SDK v5.61.0 接続済み、entitlement "premium" で判定）
 
 **デザイントーン:** 「バイオモニター × G-SHOCK」 — ダーク基調、データが浮かび上がる
 
@@ -43,7 +43,7 @@
 | Architecture | MVVM + Repository Pattern |
 | 2D人体図 | SVG（カスタムSwiftUI Path） |
 | 3D表示 | RealityKit |
-| 課金 | PurchaseManager.swift（RevenueCat接続予定、現在isPremium=trueで固定） |
+| 課金 | RevenueCat SDK v5.61.0（PurchaseManager.swift、entitlement "premium" 判定） |
 | 3Dモデル | TurboSquid（USDZ） |
 
 ---
@@ -55,23 +55,24 @@
 
 ---
 
-## 課金状態（重要）
+## 課金状態（実装済み）
 
 ```
 現在の状態:
-- PurchaseManager.swift: isPremium = true にハードコード（開発用）
-- RevenueCat SDK: 未導入（project.ymlに依存なし）
-- Paywall UI: Views/Paywall/PaywallView.swift（実装予定 or 実装中）
+- RevenueCat SDK: v5.61.0 導入済み（project.yml に依存設定済み）
+- PurchaseManager.swift: RevenueCat entitlement "premium" で isPremium を判定
+- Paywall UI: Views/Paywall/PaywallView.swift（実装済み）
+- configure(): MuscleMapApp.init() で起動時に呼び出し済み
+- PurchaseDelegate: entitlement変更をリアルタイム反映
 
-本番リリース時に必要な作業:
-1. RevenueCat SDK を project.yml に追加（purchases-ios v5系）
-2. PurchaseManager.swift の isPremium をRevenueCatのentitlement判定に差し替え
-3. App Store ConnectでProduct ID設定
+残作業:
+- App Store Connect で Product ID 設定・審査
 
 プラン:
 // 月額: ¥590/月
 // 年額: ¥4,900/年（推奨）
 // Entitlement名: "premium"
+// API Key: appl_IzrrBdSVXMDZUylPnwcaJxvdlxb
 ```
 
 ---
