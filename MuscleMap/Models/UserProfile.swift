@@ -8,28 +8,45 @@ struct UserProfile: Codable {
     var experienceLevel: ExperienceLevel
     /// 体重（kg）。Strength Map計算に使用。未設定時は70kg
     var weightKg: Double
+    /// トレーニング経験（オンボーディングで選択）
+    var trainingExperience: TrainingExperience
+    /// 初期PR入力値（exerciseId: estimated1RM）
+    var initialPRs: [String: Double]
 
     static let `default` = UserProfile(
         nickname: "",
         trainingGoal: .hypertrophy,
         experienceLevel: .beginner,
-        weightKg: 70.0
+        weightKg: 70.0,
+        trainingExperience: .beginner,
+        initialPRs: [:]
     )
 
-    /// 既存ユーザーのデータにweightKgが存在しない場合に対応
+    /// 既存ユーザーのデータに新フィールドが存在しない場合に対応
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         nickname = try container.decode(String.self, forKey: .nickname)
         trainingGoal = try container.decode(TrainingGoal.self, forKey: .trainingGoal)
         experienceLevel = try container.decode(ExperienceLevel.self, forKey: .experienceLevel)
         weightKg = try container.decodeIfPresent(Double.self, forKey: .weightKg) ?? 70.0
+        trainingExperience = try container.decodeIfPresent(TrainingExperience.self, forKey: .trainingExperience) ?? .beginner
+        initialPRs = try container.decodeIfPresent([String: Double].self, forKey: .initialPRs) ?? [:]
     }
 
-    init(nickname: String, trainingGoal: TrainingGoal, experienceLevel: ExperienceLevel, weightKg: Double = 70.0) {
+    init(
+        nickname: String,
+        trainingGoal: TrainingGoal,
+        experienceLevel: ExperienceLevel,
+        weightKg: Double = 70.0,
+        trainingExperience: TrainingExperience = .beginner,
+        initialPRs: [String: Double] = [:]
+    ) {
         self.nickname = nickname
         self.trainingGoal = trainingGoal
         self.experienceLevel = experienceLevel
         self.weightKg = weightKg
+        self.trainingExperience = trainingExperience
+        self.initialPRs = initialPRs
     }
 }
 
@@ -102,6 +119,22 @@ enum ExperienceLevel: String, Codable, CaseIterable, Identifiable {
         case .intermediate: return String(localized: "トレーニング歴1〜3年")
         case .advanced: return String(localized: "トレーニング歴3年以上")
         }
+    }
+}
+
+// MARK: - トレーニング経験（オンボーディング用）
+
+enum TrainingExperience: String, Codable, CaseIterable, Identifiable {
+    case beginner       // これから始める
+    case halfYear       // 半年くらい
+    case oneYearPlus    // 1年以上
+    case veteran        // 3年以上のベテラン
+
+    var id: String { rawValue }
+
+    /// PR入力ページを表示するか
+    var shouldShowPRInput: Bool {
+        self == .oneYearPlus || self == .veteran
     }
 }
 

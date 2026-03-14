@@ -92,6 +92,9 @@ class AppState {
         didSet { UserDefaults.standard.set(hasSeenDemoAnimation, forKey: "hasSeenDemoAnimation") }
     }
 
+    // ジムにいるかどうか（オンボーディング分岐用、セッション中のみ）
+    var isAtGym: Bool = false
+
     // タブ選択（クロスビュー遷移用、永続化不要）
     var selectedTab: Int = 0
 
@@ -122,6 +125,12 @@ class AppState {
     // ホーム画面コーチマーク表示済みフラグ
     var hasSeenHomeCoachMark: Bool = UserDefaults.standard.bool(forKey: "hasSeenHomeCoachMark") {
         didSet { UserDefaults.standard.set(hasSeenHomeCoachMark, forKey: "hasSeenHomeCoachMark") }
+    }
+
+    // オンボーディングで選んだ主要目標（CallToActionPageのコピーに使用）
+    var primaryOnboardingGoal: String? {
+        get { UserDefaults.standard.string(forKey: "primaryOnboardingGoal") }
+        set { UserDefaults.standard.set(newValue, forKey: "primaryOnboardingGoal") }
     }
 
     // MARK: - 90日チャレンジ

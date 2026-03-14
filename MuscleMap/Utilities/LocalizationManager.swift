@@ -597,6 +597,58 @@ enum L10n {
     static var ctaStrengthMapHint: String { loc("Strength Mapで筋力を可視化", "Visualize strength with Strength Map") }
     static var ctaProHint: String { loc("Pro版でさらに詳しく分析", "Unlock deeper analysis with Pro") }
 
+    // MARK: - トレーニング経験画面（TrainingHistoryPage）
+    static var trainingExpTitle: String { loc("トレーニングの経験は？", "Training Experience?") }
+    static var trainingExpSubtitle: String { loc("あなたに合った提案をします", "We'll tailor suggestions for you") }
+    static var trainingExpBeginner: String { loc("これから始める", "Just Starting") }
+    static var trainingExpBeginnerSub: String { loc("初めて or 久しぶりに復帰", "First time or coming back") }
+    static var trainingExpHalfYear: String { loc("半年くらい", "About 6 Months") }
+    static var trainingExpHalfYearSub: String { loc("基本的な種目はわかる", "Know the basic exercises") }
+    static var trainingExpOneYearPlus: String { loc("1年以上", "1+ Years") }
+    static var trainingExpOneYearPlusSub: String { loc("自分のメニューがある", "Have my own routine") }
+    static var trainingExpVeteran: String { loc("3年以上のベテラン", "3+ Year Veteran") }
+    static var trainingExpVeteranSub: String { loc("PRにこだわりがある", "Obsessed with PRs") }
+
+    // MARK: - PR入力画面（PRInputPage）
+    static var prInputTitle: String { loc("今のベストを教えて", "Tell Us Your Best") }
+    static var prInputSubtitle: String { loc("レベルを判定します（スキップOK）", "We'll assess your level (skip OK)") }
+    static var prBenchPress: String { loc("ベンチプレス", "Bench Press") }
+    static var prSquat: String { loc("スクワット", "Squat") }
+    static var prDeadlift: String { loc("デッドリフト", "Deadlift") }
+    static var prOverallLevel: String { loc("あなたの総合レベル", "Your Overall Level") }
+
+    // MARK: - 目標選択画面（GoalSelectionPage — エモーショナル版）
+    static var goalSelectionHeadline: String { loc("なりたい自分を\n選ぼう", "Choose the Body\nYou Want") }
+    static var goalSelectionSub: String { loc("目標に合わせて、MuscleMapがサポートする", "MuscleMap will support your goal") }
+
+    // MARK: - 「今ジムにいる？」画面（GymCheckPage）
+    static var gymCheckTitle: String { loc("今ジムにいる？", "At the Gym Now?") }
+    static var gymCheckSub: String { loc("MuscleMapは実際に使うのが一番早い", "The fastest way to learn is by doing") }
+    static var gymCheckAtGym: String { loc("ジムにいる", "I'm at the Gym") }
+    static var gymCheckAtGymSub: String { loc("今から一緒にやろう", "Let's get started together") }
+    static var gymCheckAtHome: String { loc("家にいる", "I'm at Home") }
+    static var gymCheckAtHomeSub: String { loc("あとで使う", "I'll use it later") }
+
+    // MARK: - 分岐ページ（OnboardingBranchPage）
+    static var branchGymTitle: String { loc("準備OK！", "You're All Set!") }
+    static var branchGymSub: String { loc("セットアップ後、すぐにワークアウトを\n記録できるよ", "After setup, you can start\nlogging right away") }
+    static var branchGymStep1: String { loc("種目を選ぶ", "Choose an exercise") }
+    static var branchGymStep2: String { loc("重量・レップを記録", "Log weight & reps") }
+    static var branchGymStep3: String { loc("筋肉マップが光る！", "Watch your muscle map glow!") }
+    static var branchHomeTitle: String { loc("まずはセットアップ！", "Let's Set Up First!") }
+    static var branchHomeSub: String { loc("次回ジムに行くとき、\nすぐに使えるように準備しよう", "Get ready so you can\nstart right away next time") }
+    static var branchHomeHint1: String { loc("直近のトレーニングを記録できる", "Log your recent workouts") }
+    static var branchHomeHint2: String { loc("回復状態がすぐわかる", "See your recovery status instantly") }
+    static var branchHomeHint3: String { loc("次のメニューを提案してくれる", "Get menu suggestions") }
+
+    // MARK: - 直近トレーニング入力画面（RecentTrainingInputPage）
+    static var recentTrainingTitle: String { loc("最近どこを鍛えた？", "What Did You Train Recently?") }
+    static var recentTrainingSub: String { loc("タップして教えて — ホーム画面に反映します", "Tap to tell us — it'll show on your home screen") }
+    static var recentTrainingEmpty: String { loc("これから始めよう！", "Let's get started!") }
+    static var recentTimingToday: String { loc("今日", "Today") }
+    static var recentTimingYesterday: String { loc("昨日", "Yesterday") }
+    static var recentTimingTwoDaysAgo: String { loc("2-3日前", "2-3 days ago") }
+
     // MARK: - 通知許可画面
     static var notificationTitle: String { loc("回復したらお知らせ", "Get Notified When Recovered") }
     static var notificationDescription: String {

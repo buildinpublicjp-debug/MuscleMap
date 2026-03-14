@@ -37,6 +37,13 @@ struct HapticManager {
         generator.impactOccurred()
     }
 
+    /// 中程度のタップ（グループ選択など）
+    static func mediumTap() {
+        guard AppState.shared.isHapticEnabled else { return }
+        let generator = UIImpactFeedbackGenerator(style: .medium)
+        generator.impactOccurred()
+    }
+
     /// エラー時
     static func error() {
         guard AppState.shared.isHapticEnabled else { return }

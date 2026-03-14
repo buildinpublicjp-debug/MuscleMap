@@ -10,6 +10,7 @@ struct OnboardingView: View {
     private enum OnboardingPhase {
         case splash
         case mainFlow
+        case firstWorkout
         case notification
     }
 
@@ -26,8 +27,17 @@ struct OnboardingView: View {
                 .transition(.opacity)
 
             case .mainFlow:
-                // V2オンボーディングフロー（3ページ: 体験 → 目標 → 機能）
+                // V2オンボーディングフロー（体験 → 目標 → 機能）
                 OnboardingV2View {
+                    withAnimation(.easeInOut(duration: 0.5)) {
+                        currentPhase = .firstWorkout
+                    }
+                }
+                .transition(.opacity)
+
+            case .firstWorkout:
+                // ガイド付き初回ワークアウト（ルートA）
+                GuidedFirstWorkoutPage {
                     withAnimation(.easeInOut(duration: 0.5)) {
                         currentPhase = .notification
                     }

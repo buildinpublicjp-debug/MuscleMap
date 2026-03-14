@@ -24,7 +24,7 @@
 10. **Workoutシェアカード** — 360×360pt @3x（1080×1080px正方形）。ダークグラデ背景 + グロー付き筋肉マップ + ボリューム大表示 + 🏆PR表示 + ウォーターマーク
 11. **次回おすすめ日** — ワークアウト完了時に回復予測から次の推奨トレーニング日を表示
 12. **初回コーチマーク** — 初回起動時にホーム画面で操作ガイドを表示（1回限り）
-13. **オンボーディング4ページ化** — SplashView → InteractiveDemo → PersonalizationPage（目標選択→UserProfile連携） → WeightInputPage（体重・ニックネーム） → CallToActionPage → 通知許可
+13. **オンボーディングv4（最大7ページ）** — SplashView → GoalSelectionPage（7目標エモーショナル複数選択） → TrainingHistoryPage（トレ歴） → [PRInputPage（経験者のみ）] → GymCheckPage（「今ジムにいる？」） → OnboardingBranchPage（ジム→ガイド / 家→RecentTrainingInputPage直近トレ入力） → WeightInputPage（体重・ニックネーム） → CallToActionPage（目標別コピー） → 通知許可
 14. 課金: PurchaseManager（RevenueCat接続は未実装、isPremium=trueでハードコード中）
 
 **デザイントーン:** 「バイオモニター × G-SHOCK」 — ダーク基調、データが浮かび上がる
@@ -144,26 +144,35 @@
 - **内容**: 「まずワークアウトを記録しよう」+ 下矢印アニメーション
 - **消去**: タップで閉じ、AppStateに記録（1回限り表示）
 
-### オンボーディング（4ページ + SplashView + 通知許可）
-- **ファイル**: `Views/Onboarding/`（9ファイル）
+### オンボーディング（最大7ページ + SplashView + 通知許可）
+- **ファイル**: `Views/Onboarding/`（11ファイル以上）
 - **フロー:**
   ```
   SplashView（2.5秒アニメーション付き）
       ↓
-  OnboardingV2View（4ページ横スワイプ TabView）:
-    Page 1: InteractiveDemoPage（筋肉をタップして体験）
-    Page 2: PersonalizationPage（目標選択 → UserProfile.trainingGoal に保存）
-    Page 3: WeightInputPage（体重 40-160kg + ニックネーム → UserProfile に保存）
-    Page 4: CallToActionPage（3機能紹介 + Strength Map予告 + CTA「無料ではじめる」）
+  OnboardingV2View（最大7ページ横スワイプ TabView）:
+    Page 0: GoalSelectionPage（目標選択エモーショナル版）
+    Page 1: TrainingHistoryPage（トレ歴選択 → UserProfile.trainingExperience に保存）
+    Page 2: PRInputPage（BIG3のPR入力 → UserProfile.initialPRs に保存）
+            ※ trainingExperience == .oneYearPlus || .veteran の場合のみ表示
+    Page 3: GymCheckPage（「今ジムにいる？」）
+    Page 4: OnboardingBranchPage（分岐先）
+    Page 5: WeightInputPage（体重 40-160kg + ニックネーム → UserProfile に保存）
+    Page 6: CallToActionPage（機能紹介 + CTA「無料ではじめる」）
       ↓
   NotificationPermissionView（通知許可）
       ↓
   アプリ本体へ
   ```
 - **SplashView**: ロゴ/アイコン フェードイン → サブコピー → 筋肉マップデモ（順次点灯） → タグライン → 続行ボタン。グローアニメーション付き
-- **PersonalizationPage**: 4目標（筋肥大/筋力/回復/健康）、OnboardingGoal → TrainingGoal マッピング。スプリングアニメーション + staggered fade-in
+- **GoalSelectionPage**: 7目標エモーショナル版（💪デカくなりたい / 😎舐められたくない / 🥊格闘技・武道 / ⛳スポーツに活かす / ❤️‍🔥モテたい / 🏃動ける体がほしい / ❤️健康に長生き）。複数選択可（Set\<OnboardingGoal\>）、100ptカード。primaryOnboardingGoalをAppStateに保存
+- **TrainingHistoryPage**: 4段階のトレ歴選択（🌱これから始める / 💪半年くらい / 🔥1年以上 / ⚡3年以上）。TrainingExperience enum → UserProfile に保存
+- **PRInputPage**: BIG3（ベンチプレス/スクワット/デッドリフト）のPR入力。StrengthScoreCalculator.exerciseStrengthLevel() でリアルタイムレベルバッジ表示。スキップ可能。デフォルト体重70kgで暫定計算
+- **GymCheckPage**: 「今ジムにいる？」確認ページ
+- **OnboardingBranchPage**: ジム→ガイド付きワークアウト案内 / 家→RecentTrainingInputPage（筋肉マップで直近トレーニング入力）
+- **RecentTrainingInputPage**: 「最近どこを鍛えた？」筋肉マップ（前面/背面切替）+ 部位グループボタン（胸/背中/脚/肩/腕/腹）一括選択 + 「いつ鍛えた？」セグメント（今日/昨日/2-3日前）。MuscleStimulationとしてSwiftDataに保存 → ホーム画面回復マップに即反映
 - **WeightInputPage**: ニックネームTextField + ドラムロールPicker（kg/lb切替）。AppState.shared.userProfile にリアルタイム保存
-- **CallToActionPage**: 3つの機能カード + Strength Map予告バッジ + グロー付きCTAボタン + 利用規約/プライバシーポリシーリンク
+- **CallToActionPage**: 目標別キャッチコピー（getBig→「90日後、鏡の前で笑える。」等）+ 機能カード + Strength Map予告バッジ + グロー付きCTAボタン + 利用規約/プライバシーポリシーリンク
 - **カラーパレット（オンボーディング専用）:**
   - `.mmOnboardingAccent` = `#00E676`, `.mmOnboardingAccentDark` = `#00B35F`
   - `.mmOnboardingBg` = `#1A1A1E`, `.mmOnboardingCard` = `#2C2C2E`
@@ -453,9 +462,12 @@ TabBar（4タブ）
 
 Onboarding（初回のみ）
 ├── SplashView                  ← 実装済み（アニメーション付きスプラッシュ）
-├── OnboardingV2View（4ページ）  ← 実装済み
-│   ├── InteractiveDemoPage     ← 実装済み（筋肉タップ体験）
-│   ├── PersonalizationPage     ← 実装済み（目標選択 → UserProfile連携）
+├── OnboardingV2View（最大7ページ）← 実装済み
+│   ├── GoalSelectionPage       ← 実装済み（目標選択エモーショナル版・複数選択可）
+│   ├── TrainingHistoryPage     ← 実装済み（トレ歴4段階選択）
+│   ├── PRInputPage             ← 実装済み（BIG3入力、経験者のみ）
+│   ├── GymCheckPage            ← 実装済み（「今ジムにいる？」2択カード）
+│   ├── OnboardingBranchPage    ← 実装済み（ジム/家で分岐）
 │   ├── WeightInputPage         ← 実装済み（体重・ニックネーム入力）
 │   └── CallToActionPage        ← 実装済み（機能紹介 + CTA）
 └── NotificationPermissionView  ← 実装済み（通知許可）
@@ -531,14 +543,21 @@ MuscleMap/
 │   ├── Exercise/               # 種目辞典（3ファイル）
 │   ├── History/                # 履歴（7ファイル）
 │   ├── MuscleDetail/           # 部位詳細（2ファイル）
-│   ├── Onboarding/             # オンボーディング（9ファイル）
+│   ├── Onboarding/             # オンボーディング（16ファイル）
 │   │   ├── OnboardingView.swift          # フェーズ管理（Splash→V2→通知）
-│   │   ├── OnboardingV2View.swift        # 4ページ横スワイプ + 専用カラーパレット
+│   │   ├── OnboardingV2View.swift        # 最大7ページ横スワイプ + 専用カラーパレット
 │   │   ├── SplashView.swift              # プレミアムスプラッシュ（アニメーション付き）
-│   │   ├── InteractiveDemoPage.swift     # 筋肉タップ体験
-│   │   ├── PersonalizationPage.swift     # 目標選択（→UserProfile.trainingGoal）
+│   │   ├── GoalSelectionPage.swift       # 7目標エモーショナル複数選択 + OnboardingGoal enum
+│   │   ├── TrainingHistoryPage.swift     # トレ歴選択
+│   │   ├── PRInputPage.swift             # BIG3 PR入力（経験者のみ）
+│   │   ├── GymCheckPage.swift            # 「今ジムにいる？」
+│   │   ├── OnboardingBranchPage.swift    # ジム/家分岐（家→RecentTrainingInputPage）
+│   │   ├── RecentTrainingInputPage.swift # 直近トレーニング入力（筋肉マップ + グループボタン）
+│   │   ├── GuidedFirstWorkoutPage.swift  # ガイド付きワークアウト
 │   │   ├── WeightInputPage.swift         # 体重・ニックネーム入力（→UserProfile）
-│   │   ├── CallToActionPage.swift        # 機能紹介 + CTA
+│   │   ├── CallToActionPage.swift        # 目標別コピー + 機能紹介 + CTA
+│   │   ├── PersonalizationPage.swift     # （GoalSelectionPageへのラッパー、後方互換）
+│   │   ├── InteractiveDemoPage.swift     # （旧ページ、参考保持）
 │   │   ├── NotificationPermissionView.swift  # 通知許可
 │   │   └── ValuePropositionPage.swift    # （旧ページ、参考保持）
 │   ├── Social/                 # ソーシャルフィード（Phase 0）

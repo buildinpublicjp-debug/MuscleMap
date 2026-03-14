@@ -9,18 +9,51 @@ struct CallToActionPage: View {
     @State private var cardAppearances: [Bool] = [false, false, false]
     @State private var strengthHintVisible = false
 
+    /// 選んだ目標に合わせたキャッチコピー
+    private var goalBasedHeadline: String {
+        guard let raw = AppState.shared.primaryOnboardingGoal,
+              let goal = OnboardingGoal(rawValue: raw) else {
+            return "あなたの体の変化を記録しよう。"
+        }
+        switch goal {
+        case .getBig:
+            return "90日後、鏡の前で笑える。"
+        case .martialArts:
+            return "パンチ力も、全部フィジカルが土台。"
+        case .getAttractive:
+            return "変わる旅を始めよう。"
+        case .dontGetDisrespected:
+            return "存在感は、体が作る。"
+        case .sports:
+            return "パフォーマンスの土台を作ろう。"
+        case .moveWell:
+            return "動ける体は、日々の積み重ね。"
+        case .health:
+            return "健康な体が、全ての基盤。"
+        }
+    }
+
     var body: some View {
         VStack(spacing: 0) {
             Spacer().frame(height: 60)
 
-            // タイトル
-            Text(L10n.ctaPageTitle)
-                .font(.system(size: 28, weight: .bold))
-                .foregroundStyle(Color.mmOnboardingTextMain)
+            // 目標に合わせたキャッチコピー
+            Text(goalBasedHeadline)
+                .font(.system(size: 26, weight: .heavy))
+                .foregroundStyle(Color.mmOnboardingAccent)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 24)
 
-            Spacer().frame(height: 32)
+            Spacer().frame(height: 8)
+
+            // サブタイトル
+            Text(L10n.ctaPageTitle)
+                .font(.system(size: 16, weight: .medium))
+                .foregroundStyle(Color.mmOnboardingTextSub)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 24)
+
+            Spacer().frame(height: 24)
 
             // 3つの機能カード
             VStack(spacing: 16) {
