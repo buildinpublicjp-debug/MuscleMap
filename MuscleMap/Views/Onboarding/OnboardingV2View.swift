@@ -1,6 +1,6 @@
 import SwiftUI
 
-// MARK: - オンボーディングV2（最大7ページ横スワイプ: 目標 → トレ歴 → [PR入力] → ジム確認 → 分岐 → 体重 → CTA）
+// MARK: - オンボーディングV2（最大8ページ横スワイプ: 目標 → 頻度 → 場所 → トレ歴 → [PR入力] → 目標×筋肉 → 体重 → CTA）
 
 struct OnboardingV2View: View {
     let onComplete: () -> Void
@@ -15,9 +15,9 @@ struct OnboardingV2View: View {
     /// トレ歴ページの「次へ」遷移先を決定
     private func afterTrainingHistory() {
         if showPRInput {
-            currentPage = 2 // PR入力ページへ
+            currentPage = 4 // PR入力ページへ
         } else {
-            currentPage = 3 // GymCheckPageへスキップ
+            currentPage = 5 // GoalMusclePreviewPageへスキップ
         }
     }
 
@@ -32,44 +32,58 @@ struct OnboardingV2View: View {
                 }
                 .tag(0)
 
-                // ページ1: トレーニング歴
-                TrainingHistoryPage {
-                    afterTrainingHistory()
+                // ページ1: 週間トレーニング頻度
+                FrequencySelectionPage { frequency in
+                    AppState.shared.userProfile.weeklyFrequency = frequency.rawValue
+                    currentPage = 2
                 }
                 .tag(1)
 
-                // ページ2: PR入力（経験者のみ: oneYearPlus / veteran）
-                PRInputPage {
+                // ページ2: トレーニング場所
+                LocationSelectionPage { location in
+                    AppState.shared.userProfile.trainingLocation = location.rawValue
                     currentPage = 3
                 }
                 .tag(2)
 
-                // ページ3: 「今ジムにいる？」
-                GymCheckPage {
-                    currentPage = 4
+                // ページ3: トレーニング歴
+                TrainingHistoryPage {
+                    afterTrainingHistory()
                 }
                 .tag(3)
 
-                // ページ4: 分岐先（ジム→ガイド付きワークアウト / 家→直近トレーニング入力）
-                OnboardingBranchPage {
+                // ページ4: PR入力（経験者のみ: oneYearPlus / veteran）
+                PRInputPage {
                     currentPage = 5
                 }
                 .tag(4)
 
-                // ページ5: 体重・ニックネーム入力
-                WeightInputPage {
+                // ページ5: 目標×筋肉ビジュアル（★ クライマックス）
+                GoalMusclePreviewPage {
+                    // 重点筋肉をUserProfileに保存
+                    if let raw = AppState.shared.primaryOnboardingGoal,
+                       let goal = OnboardingGoal(rawValue: raw) {
+                        let muscles = GoalMusclePriority.data(for: goal).muscles
+                        AppState.shared.userProfile.goalPriorityMuscles = muscles.map { $0.rawValue }
+                    }
                     currentPage = 6
                 }
                 .tag(5)
 
-                // ページ6: 機能紹介 & 開始（パーソナライズ版）
+                // ページ6: 体重・ニックネーム入力
+                WeightInputPage {
+                    currentPage = 7
+                }
+                .tag(6)
+
+                // ページ7: 機能紹介 & 開始（パーソナライズ版）
                 CallToActionPage(onComplete: onComplete)
-                    .tag(6)
+                    .tag(7)
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
             .animation(.easeInOut(duration: 0.4), value: currentPage)
 
-            // ページインジケーター（PR入力スキップ時はページ2を除外）
+            // ページインジケーター（PR入力スキップ時はページ4を除外）
             VStack {
                 Spacer()
                 HStack(spacing: 8) {
@@ -85,12 +99,12 @@ struct OnboardingV2View: View {
         }
     }
 
-    /// インジケーターに表示するページ番号（PR入力スキップ時はページ2を除外）
+    /// インジケーターに表示するページ番号（PR入力スキップ時はページ4を除外）
     private var indicatorPages: [Int] {
         if showPRInput {
-            return Array(0..<7)
+            return Array(0..<8)
         } else {
-            return [0, 1, 3, 4, 5, 6]
+            return [0, 1, 2, 3, 5, 6, 7]
         }
     }
 }

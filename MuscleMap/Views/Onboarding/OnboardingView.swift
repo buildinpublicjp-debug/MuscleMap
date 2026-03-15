@@ -10,7 +10,6 @@ struct OnboardingView: View {
     private enum OnboardingPhase {
         case splash
         case mainFlow
-        case firstWorkout
         case notification
     }
 
@@ -27,25 +26,8 @@ struct OnboardingView: View {
                 .transition(.opacity)
 
             case .mainFlow:
-                // V2オンボーディングフロー（体験 → 目標 → 機能）
+                // V2オンボーディングフロー（目標 → 頻度 → 場所 → トレ歴 → 筋肉ビジュアル → 体重 → CTA）
                 OnboardingV2View {
-                    withAnimation(.easeInOut(duration: 0.5)) {
-                        // ジムルート: 実画面チュートリアルに委譲するのでfirstWorkoutをスキップ
-                        // BUG-004: isAtGym == true の場合のみ .firstWorkout へ遷移
-                        if AppState.shared.showWorkoutTutorial {
-                            currentPhase = .notification
-                        } else if AppState.shared.isAtGym {
-                            currentPhase = .firstWorkout
-                        } else {
-                            currentPhase = .notification
-                        }
-                    }
-                }
-                .transition(.opacity)
-
-            case .firstWorkout:
-                // ガイド付き初回ワークアウト（ルートA）
-                GuidedFirstWorkoutPage {
                     withAnimation(.easeInOut(duration: 0.5)) {
                         currentPhase = .notification
                     }

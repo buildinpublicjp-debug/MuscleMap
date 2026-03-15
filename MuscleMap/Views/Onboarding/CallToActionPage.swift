@@ -58,11 +58,11 @@ struct CallToActionPage: View {
 
             Spacer().frame(height: 48)
 
-            // 3つのシンプルな価値
+            // 3つのシンプルな価値（パーソナライズ済み）
             VStack(spacing: 20) {
-                ValueRow(emoji: "🗺️", text: L10n.ctaValue1)
-                ValueRow(emoji: "📊", text: L10n.ctaValue2)
-                ValueRow(emoji: "📅", text: L10n.ctaValue3)
+                ValueRow(emoji: "🗺️", text: "あなたの目標に合った筋肉を優先提案")
+                ValueRow(emoji: "📊", text: "種目・重量・セット数まで自動で出る")
+                ValueRow(emoji: "🏋️", text: "週\(AppState.shared.userProfile.weeklyFrequency)回に最適化された分割法")
             }
             .padding(.horizontal, 24)
             .opacity(valuesAppeared ? 1 : 0)
