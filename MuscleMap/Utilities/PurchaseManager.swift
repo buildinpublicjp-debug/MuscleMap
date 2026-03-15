@@ -6,7 +6,24 @@ import RevenueCat
 final class PurchaseManager {
     static let shared = PurchaseManager()
 
-    var isPremium: Bool = false
+    /// DEBUGビルドでPro状態を強制切替するフラグ（nil=RevenueCat判定を使用）
+    #if DEBUG
+    var debugOverridePremium: Bool? = true
+    #endif
+
+    /// Pro課金状態（DEBUG時はオーバーライド優先）
+    var isPremium: Bool {
+        #if DEBUG
+        if let override = debugOverridePremium {
+            return override
+        }
+        #endif
+        return _isPremium
+    }
+
+    /// RevenueCatから取得した実際の課金状態
+    private var _isPremium: Bool = false
+
     var isLoading: Bool = false
 
     func configure() {
@@ -18,7 +35,7 @@ final class PurchaseManager {
     func refreshPremiumStatus() async {
         do {
             let info = try await Purchases.shared.customerInfo()
-            isPremium = info.entitlements["premium"]?.isActive == true
+            _isPremium = info.entitlements["premium"]?.isActive == true
         } catch {
             print("RevenueCat customerInfo error: \(error)")
         }
@@ -35,8 +52,6 @@ final class PurchaseManager {
             throw PurchaseError.noOffering
         }
 
-        // 価格案の特实: offering.annual / monthly ショートカットを使いつつ、
-        // identifierマッチでフォールバック
         let package: Package?
         if productId == "yearly" {
             package = offering.annual
@@ -59,10 +74,9 @@ final class PurchaseManager {
 
         let result = try await Purchases.shared.purchase(package: pkg)
 
-        // ユーザーが自分でキャンセルした場合は falseを返す（エラーではない）
         if result.userCancelled { return false }
 
-        isPremium = result.customerInfo.entitlements["premium"]?.isActive == true
+        _isPremium = result.customerInfo.entitlements["premium"]?.isActive == true
         return isPremium
     }
 
@@ -72,7 +86,7 @@ final class PurchaseManager {
         isLoading = true
         defer { isLoading = false }
         let info = try await Purchases.shared.restorePurchases()
-        isPremium = info.entitlements["premium"]?.isActive == true
+        _isPremium = info.entitlements["premium"]?.isActive == true
         return isPremium
     }
 
@@ -99,7 +113,7 @@ final class PurchaseDelegate: NSObject, PurchasesDelegate {
     static let shared = PurchaseDelegate()
     func purchases(_ purchases: Purchases, receivedUpdated customerInfo: CustomerInfo) {
         Task { @MainActor in
-            PurchaseManager.shared.isPremium = customerInfo.entitlements["premium"]?.isActive == true
+            PurchaseManager.shared._isPremium = customerInfo.entitlements["premium"]?.isActive == true
         }
     }
 }
