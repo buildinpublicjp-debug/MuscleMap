@@ -12,6 +12,12 @@ struct UserProfile: Codable {
     var trainingExperience: TrainingExperience
     /// 初期PR入力値（exerciseId: estimated1RM）
     var initialPRs: [String: Double]
+    /// 週のトレーニング頻度（2〜5回）
+    var weeklyFrequency: Int
+    /// トレーニング場所（"gym", "home", "both"）
+    var trainingLocation: String
+    /// 目標に基づく重点筋肉のrawValue配列（例: ["deltoid_lateral", "chest_upper"]）
+    var goalPriorityMuscles: [String]
 
     static let `default` = UserProfile(
         nickname: "",
@@ -19,7 +25,10 @@ struct UserProfile: Codable {
         experienceLevel: .beginner,
         weightKg: 70.0,
         trainingExperience: .beginner,
-        initialPRs: [:]
+        initialPRs: [:],
+        weeklyFrequency: 3,
+        trainingLocation: "gym",
+        goalPriorityMuscles: []
     )
 
     /// 既存ユーザーのデータに新フィールドが存在しない場合に対応
@@ -31,6 +40,9 @@ struct UserProfile: Codable {
         weightKg = try container.decodeIfPresent(Double.self, forKey: .weightKg) ?? 70.0
         trainingExperience = try container.decodeIfPresent(TrainingExperience.self, forKey: .trainingExperience) ?? .beginner
         initialPRs = try container.decodeIfPresent([String: Double].self, forKey: .initialPRs) ?? [:]
+        weeklyFrequency = try container.decodeIfPresent(Int.self, forKey: .weeklyFrequency) ?? 3
+        trainingLocation = try container.decodeIfPresent(String.self, forKey: .trainingLocation) ?? "gym"
+        goalPriorityMuscles = try container.decodeIfPresent([String].self, forKey: .goalPriorityMuscles) ?? []
     }
 
     init(
@@ -39,7 +51,10 @@ struct UserProfile: Codable {
         experienceLevel: ExperienceLevel,
         weightKg: Double = 70.0,
         trainingExperience: TrainingExperience = .beginner,
-        initialPRs: [String: Double] = [:]
+        initialPRs: [String: Double] = [:],
+        weeklyFrequency: Int = 3,
+        trainingLocation: String = "gym",
+        goalPriorityMuscles: [String] = []
     ) {
         self.nickname = nickname
         self.trainingGoal = trainingGoal
@@ -47,6 +62,9 @@ struct UserProfile: Codable {
         self.weightKg = weightKg
         self.trainingExperience = trainingExperience
         self.initialPRs = initialPRs
+        self.weeklyFrequency = weeklyFrequency
+        self.trainingLocation = trainingLocation
+        self.goalPriorityMuscles = goalPriorityMuscles
     }
 }
 
