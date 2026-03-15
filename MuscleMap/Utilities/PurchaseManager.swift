@@ -22,7 +22,7 @@ final class PurchaseManager {
     }
 
     /// RevenueCatから取得した実際の課金状態
-    private var _isPremium: Bool = false
+    fileprivate var _isPremium: Bool = false
 
     var isLoading: Bool = false
 
