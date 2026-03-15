@@ -12,7 +12,7 @@ enum OnboardingGoal: String, CaseIterable, Identifiable {
     case moveWell = "move_well"
     case health = "health"
 
-    var id: String { rawValue }
+    nonisolated var id: String { rawValue }
 
     var emoji: String {
         switch self {
