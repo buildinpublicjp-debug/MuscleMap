@@ -247,6 +247,7 @@ enum L10n {
 
     // MARK: - ワークアウト画面
     static var todayRecommendation: String { loc("今日のおすすめ", "Today's Recommendation", zhHans: "今日推荐", ko: "오늘의 추천", es: "Recomendación de hoy", fr: "Recommandation du jour", de: "Heutige Empfehlung") }
+    static var todayMenu: String { loc("今日のメニュー", "Today's Menu", zhHans: "今日菜单", ko: "오늘의 메뉴", es: "Menú de hoy", fr: "Menu du jour", de: "Heutiges Menü") }
     static var favorites: String { loc("お気に入り", "Favorites", zhHans: "收藏", ko: "즐겨찾기", es: "Favoritos", fr: "Favoris", de: "Favoriten") }
     static var favoriteExercises: String { loc("お気に入り種目", "Favorite Exercises", zhHans: "收藏动作", ko: "즐겨찾기 운동", es: "Ejercicios favoritos", fr: "Exercices favoris", de: "Lieblingsübungen") }
     static var startFreeWorkout: String { loc("自由にトレーニング開始", "Start Free Workout", zhHans: "开始自由训练", ko: "자유 운동 시작", es: "Iniciar entrenamiento libre", fr: "Commencer entraînement libre", de: "Freies Training starten") }

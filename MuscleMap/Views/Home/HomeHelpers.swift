@@ -112,60 +112,49 @@ struct TodayRecommendationInline: View {
         VStack(alignment: .leading, spacing: 12) {
             // ヘッダー
             HStack(spacing: 8) {
-                Image(systemName: "lightbulb.fill")
-                    .font(.subheadline)
-                    .foregroundStyle(Color.mmAccentPrimary)
+                Text(L10n.todayMenu)
+                    .font(.system(size: 16, weight: .bold))
+                    .foregroundStyle(Color.mmTextPrimary)
 
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(L10n.todayRecommendation)
-                        .font(.caption2)
-                        .foregroundStyle(Color.mmTextSecondary)
-                    Text(recommendation.muscleGroup)
-                        .font(.subheadline.bold())
-                        .foregroundStyle(Color.mmTextPrimary)
-                }
+                Text(recommendation.muscleGroup)
+                    .font(.system(size: 14))
+                    .foregroundStyle(Color.mmAccentPrimary)
 
                 Spacer()
+            }
 
-                Text(inlineReason(menu: menu))
-                    .font(.caption2)
-                    .foregroundStyle(Color.mmAccentPrimary)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 3)
-                    .background(Color.mmAccentPrimary.opacity(0.15))
-                    .clipShape(Capsule())
+            // 目標連動コピー
+            if let goalCopy = goalLinkedCopy(muscleGroup: recommendation.muscleGroup) {
+                Text(goalCopy)
+                    .font(.system(size: 14))
+                    .foregroundStyle(Color.mmTextSecondary)
+                    .lineLimit(1)
             }
 
             // 種目リスト（最大3種目）
             ForEach(recommendation.exercises) { exercise in
                 HStack(spacing: 10) {
-                    // 種目名
                     Text(exercise.exerciseName)
-                        .font(.caption.bold())
+                        .font(.system(size: 15))
                         .foregroundStyle(Color.mmTextPrimary)
                         .lineLimit(1)
 
                     Spacer()
 
                     if exercise.suggestedWeight > 0 {
-                        // 重量 × レップ × セット
                         Text(weightText(exercise))
-                            .font(.caption2.monospacedDigit())
+                            .font(.system(size: 14).monospacedDigit())
                             .foregroundStyle(Color.mmTextSecondary)
 
-                        // 前回比
                         if exercise.previousWeight != nil {
                             Text(L10n.weightChallenge(formatWeight(exercise.weightIncrease)))
-                                .font(.caption2.bold())
+                                .font(.system(size: 14, weight: .bold))
                                 .foregroundStyle(Color.mmAccentPrimary)
                         }
                     } else {
-                        Text("\(exercise.suggestedSets)×\(exercise.suggestedReps)")
-                            .font(.caption2.monospacedDigit())
+                        Text("\(exercise.suggestedSets) × \(exercise.suggestedReps)")
+                            .font(.system(size: 14).monospacedDigit())
                             .foregroundStyle(Color.mmTextSecondary)
-                        Text(L10n.noHistory)
-                            .font(.caption2)
-                            .foregroundStyle(Color.mmTextSecondary.opacity(0.6))
                     }
                 }
             }
@@ -175,17 +164,13 @@ struct TodayRecommendationInline: View {
                 HapticManager.lightTap()
                 onStartWithMenu(recommendation.exercises)
             } label: {
-                HStack {
-                    Image(systemName: "play.fill")
-                        .font(.caption)
-                    Text(L10n.startWithThisMenu)
-                        .font(.caption.bold())
-                }
-                .foregroundStyle(Color.mmBgPrimary)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 10)
-                .background(Color.mmAccentPrimary)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                Text(L10n.startWithThisMenu)
+                    .font(.system(size: 15, weight: .bold))
+                    .foregroundStyle(Color.mmBgPrimary)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 44)
+                    .background(Color.mmAccentPrimary)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
             }
             .buttonStyle(.plain)
         }
@@ -194,49 +179,66 @@ struct TodayRecommendationInline: View {
         .clipShape(RoundedRectangle(cornerRadius: 16))
     }
 
-    // MARK: - 無料版カード（Proバッジ付き）
+    // MARK: - 無料版カード（ブラー付き）
 
     private func freeRecommendationCard(menu: SuggestedMenu) -> some View {
         Button {
             HapticManager.lightTap()
             onShowPaywall()
         } label: {
-            HStack(spacing: 10) {
-                Image(systemName: "lightbulb.fill")
-                    .font(.subheadline)
-                    .foregroundStyle(Color.mmAccentPrimary)
-
-                VStack(alignment: .leading, spacing: 2) {
-                    HStack(spacing: 6) {
-                        Text(L10n.todayRecommendation)
-                            .font(.caption2)
-                            .foregroundStyle(Color.mmTextSecondary)
-                        Text(L10n.proLabel)
-                            .font(.system(size: 9, weight: .heavy))
-                            .foregroundStyle(Color.mmBgPrimary)
-                            .padding(.horizontal, 5)
-                            .padding(.vertical, 2)
-                            .background(Color.mmAccentPrimary)
-                            .clipShape(Capsule())
-                    }
-                    Text(inlineGroupNames(menu: menu))
-                        .font(.subheadline.bold())
+            VStack(alignment: .leading, spacing: 12) {
+                // ヘッダー
+                HStack(spacing: 8) {
+                    Text(L10n.todayMenu)
+                        .font(.system(size: 16, weight: .bold))
                         .foregroundStyle(Color.mmTextPrimary)
-                        .lineLimit(1)
-                    Text(L10n.menuSuggestionProDescription)
-                        .font(.caption2)
-                        .foregroundStyle(Color.mmTextSecondary)
+
+                    Text(inlineGroupNames(menu: menu))
+                        .font(.system(size: 14))
+                        .foregroundStyle(Color.mmAccentPrimary)
+
+                    Spacer()
                 }
 
-                Spacer()
+                // 目標連動コピー
+                if let goalCopy = goalLinkedCopy(muscleGroup: inlineGroupNames(menu: menu)) {
+                    Text(goalCopy)
+                        .font(.system(size: 14))
+                        .foregroundStyle(Color.mmTextSecondary)
+                        .lineLimit(1)
+                }
 
-                Image(systemName: "lock.fill")
-                    .font(.caption)
-                    .foregroundStyle(Color.mmTextSecondary)
+                // ブラー付き種目プレビュー
+                ZStack {
+                    VStack(alignment: .leading, spacing: 8) {
+                        ForEach(menu.exercises.prefix(3), id: \.id) { ex in
+                            let name = localization.currentLanguage == .japanese ? ex.definition.nameJA : ex.definition.nameEN
+                            HStack {
+                                Text(name)
+                                    .font(.system(size: 15))
+                                    .foregroundStyle(Color.mmTextPrimary)
+                                Spacer()
+                                Text("\(ex.suggestedSets) × \(ex.suggestedReps)")
+                                    .font(.system(size: 14).monospacedDigit())
+                                    .foregroundStyle(Color.mmTextSecondary)
+                            }
+                        }
+                    }
+                    .blur(radius: 6)
+
+                    // ブラー上のCTA
+                    HStack(spacing: 6) {
+                        Image(systemName: "lock.fill")
+                            .font(.caption)
+                        Text("Proでメニューを見る")
+                            .font(.subheadline.bold())
+                    }
+                    .foregroundStyle(Color.mmTextPrimary)
+                }
             }
             .padding(16)
             .background(Color.mmBgCard)
-            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .clipShape(RoundedRectangle(cornerRadius: 16))
         }
         .buttonStyle(.plain)
     }
@@ -321,6 +323,28 @@ struct TodayRecommendationInline: View {
     }
 
     // MARK: - ヘルパー
+
+    /// 目標連動コピー生成
+    private func goalLinkedCopy(muscleGroup: String) -> String? {
+        guard let goalRaw = AppState.shared.primaryOnboardingGoal,
+              let goal = OnboardingGoal(rawValue: goalRaw) else { return nil }
+        switch goal {
+        case .getBig:
+            return "\(goal.localizedName) → 今日は\(muscleGroup)でサイズアップ"
+        case .dontGetDisrespected:
+            return "威圧感・存在感 → 今日は\(muscleGroup)で幅を作る"
+        case .martialArts:
+            return "\(goal.localizedName) → 今日は\(muscleGroup)でパワー強化"
+        case .sports:
+            return "\(goal.localizedName) → 今日は\(muscleGroup)でパフォーマンスアップ"
+        case .getAttractive:
+            return "\(goal.localizedName) → 今日は\(muscleGroup)でシルエット強化"
+        case .moveWell:
+            return "\(goal.localizedName) → 今日は\(muscleGroup)で動ける体に"
+        case .health:
+            return "\(goal.localizedName) → 今日は\(muscleGroup)で基礎体力アップ"
+        }
+    }
 
     /// ペアリングされたグループ名を表示用に結合
     private func inlineGroupNames(menu: SuggestedMenu) -> String {

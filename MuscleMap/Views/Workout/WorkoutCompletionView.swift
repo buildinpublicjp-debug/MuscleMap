@@ -142,6 +142,14 @@ struct WorkoutCompletionView: View {
                             .font(.largeTitle.weight(.heavy))
                             .foregroundStyle(Color.mmTextPrimary)
 
+                        // 目標連動コピー
+                        if let goalCopy = completionGoalCopy {
+                            Text(goalCopy)
+                                .font(.subheadline)
+                                .foregroundStyle(Color.mmTextSecondary)
+                                .multilineTextAlignment(.center)
+                        }
+
                         // 90日チャレンジ Day完了（進行中の場合のみ）
                         ChallengeDayCompleteBanner()
 
@@ -262,6 +270,37 @@ struct WorkoutCompletionView: View {
                 onShare: {},
                 onDismiss: { showingFullBodyConquest = false }
             )
+        }
+    }
+
+    // MARK: - 目標連動コピー
+
+    /// オンボーディング目標+今回の刺激部位に基づく完了コピー
+    private var completionGoalCopy: String? {
+        guard let goalRaw = AppState.shared.primaryOnboardingGoal,
+              let goal = OnboardingGoal(rawValue: goalRaw) else { return nil }
+
+        // 今回刺激した主要部位グループ名
+        let stimulatedGroups = Set(stimulatedMuscleMapping.keys.compactMap { Muscle(rawValue: $0)?.group })
+        let groupName = stimulatedGroups.first.map {
+            localization.currentLanguage == .japanese ? $0.japaneseName : $0.englishName
+        } ?? ""
+
+        switch goal {
+        case .getBig:
+            return "デカくなりたい → \(groupName)、また一回りデカくなった"
+        case .dontGetDisrespected:
+            return "威圧感・存在感 → \(groupName)、また一歩広がった"
+        case .martialArts:
+            return "格闘技・武道 → \(groupName)のパワーが一段階上がった"
+        case .sports:
+            return "スポーツに活かす → \(groupName)のパフォーマンスアップ"
+        case .getAttractive:
+            return "モテたい → \(groupName)のシルエットが磨かれた"
+        case .moveWell:
+            return "動ける体 → \(groupName)がさらに使える体に"
+        case .health:
+            return "健康に長生き → \(groupName)の基礎体力が上がった"
         }
     }
 
