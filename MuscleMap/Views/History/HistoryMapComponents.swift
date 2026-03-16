@@ -285,7 +285,7 @@ struct ExerciseTrendSection: View {
                             if let progress = data.progressPercent {
                                 TrendStatBox(
                                     icon: progress >= 0 ? "arrow.up.right" : "arrow.down.right",
-                                    iconColor: progress >= 0 ? Color.mmAccentPrimary : .red,
+                                    iconColor: progress >= 0 ? Color.mmAccentPrimary : Color.mmDestructive,
                                     label: "成長率",
                                     value: String(format: "%+.1f%%", progress)
                                 )

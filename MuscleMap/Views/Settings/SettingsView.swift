@@ -254,7 +254,7 @@ struct SettingsView: View {
             // YouTube検索言語設定
             HStack(spacing: 12) {
                 Image(systemName: "play.rectangle.fill")
-                    .foregroundStyle(.red)
+                    .foregroundStyle(Color.mmDestructive)
                 Text(L10n.searchLanguage)
                     .font(.subheadline)
                     .foregroundStyle(Color.mmTextPrimary)
@@ -462,10 +462,10 @@ struct SettingsView: View {
             } label: {
                 HStack(spacing: 12) {
                     Image(systemName: "arrow.counterclockwise")
-                        .foregroundStyle(.red)
+                        .foregroundStyle(Color.mmDestructive)
                     Text("オンボーディングをリセット")
                         .font(.subheadline)
-                        .foregroundStyle(.red)
+                        .foregroundStyle(Color.mmDestructive)
                 }
             }
             .listRowBackground(Color.mmBgCard)

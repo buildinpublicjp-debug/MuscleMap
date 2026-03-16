@@ -24,7 +24,7 @@ struct TrainingHistoryPage: View {
             // タイトルエリア
             VStack(spacing: 8) {
                 Text(L10n.trainingExpTitle)
-                    .font(.system(size: 28, weight: .bold))
+                    .font(.system(size: 28, weight: .heavy))
                     .foregroundStyle(Color.mmOnboardingTextMain)
                     .multilineTextAlignment(.center)
 
@@ -76,7 +76,19 @@ struct TrainingHistoryPage: View {
                     .foregroundStyle(selectedExperience != nil ? Color.mmOnboardingBg : Color.mmOnboardingTextSub)
                     .frame(maxWidth: .infinity)
                     .frame(height: 56)
-                    .background(selectedExperience != nil ? Color.mmOnboardingAccent : Color.mmOnboardingCard)
+                    .background(
+                        Group {
+                            if selectedExperience != nil {
+                                LinearGradient(
+                                    colors: [.mmOnboardingAccent, .mmOnboardingAccentDark],
+                                    startPoint: .leading,
+                                    endPoint: .trailing
+                                )
+                            } else {
+                                Color.mmOnboardingCard
+                            }
+                        }
+                    )
                     .clipShape(RoundedRectangle(cornerRadius: 16))
             }
             .buttonStyle(.plain)

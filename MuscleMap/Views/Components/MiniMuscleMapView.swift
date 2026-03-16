@@ -115,7 +115,7 @@ enum ExerciseCompatibility {
         case .recommended:
             return (L10n.recommended, .mmAccentPrimary)
         case .partiallyRecovering:
-            return (L10n.partiallyRecovering, .orange)
+            return (L10n.partiallyRecovering, .mmWarning)
         case .recovering:
             return (L10n.recovering, .mmMuscleAmber)
         case .restSuggested:

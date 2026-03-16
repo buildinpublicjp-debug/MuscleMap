@@ -52,7 +52,7 @@ struct NotificationPermissionView: View {
 
                 // タイトル
                 Text(L10n.notificationTitle)
-                    .font(.system(size: 28, weight: .bold))
+                    .font(.system(size: 28, weight: .heavy))
                     .foregroundStyle(Color.mmOnboardingTextMain)
                     .multilineTextAlignment(.center)
                     .opacity(appeared ? 1 : 0)
@@ -80,7 +80,13 @@ struct NotificationPermissionView: View {
                             .tint(Color.mmOnboardingBg)
                             .frame(maxWidth: .infinity)
                             .frame(height: 56)
-                            .background(Color.mmOnboardingAccent)
+                            .background(
+                                LinearGradient(
+                                    colors: [.mmOnboardingAccent, .mmOnboardingAccentDark],
+                                    startPoint: .leading,
+                                    endPoint: .trailing
+                                )
+                            )
                             .clipShape(RoundedRectangle(cornerRadius: 16))
                     } else {
                         Text(L10n.allowNotifications)
@@ -88,7 +94,13 @@ struct NotificationPermissionView: View {
                             .foregroundStyle(Color.mmOnboardingBg)
                             .frame(maxWidth: .infinity)
                             .frame(height: 56)
-                            .background(Color.mmOnboardingAccent)
+                            .background(
+                                LinearGradient(
+                                    colors: [.mmOnboardingAccent, .mmOnboardingAccentDark],
+                                    startPoint: .leading,
+                                    endPoint: .trailing
+                                )
+                            )
                             .clipShape(RoundedRectangle(cornerRadius: 16))
                     }
                 }
@@ -107,7 +119,7 @@ struct NotificationPermissionView: View {
                 }
                 .disabled(isRequesting)
                 .padding(.top, 16)
-                .padding(.bottom, 48)
+                .padding(.bottom, 32)
             }
         }
         .onAppear {

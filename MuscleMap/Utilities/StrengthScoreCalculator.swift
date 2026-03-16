@@ -205,6 +205,7 @@ private let muscleCategory: [Muscle: StrengthCategory] = [
     .obliques:         .isolation,
     .rectusAbdominis:  .isolation,
     .adductors:        .isolation,
+    .hipFlexors:       .compoundLarge,
 ]
 
 // MARK: - StrengthScoreCalculator
@@ -323,29 +324,6 @@ final class StrengthScoreCalculator {
         let kgNeeded = max(0, next1RM - estimated1RM)
 
         return (currentLevel, kgNeeded, nextLvl)
-    }
-
-    /// 全種目のレベル分布を計算（「上級者3種目、中級者5種目...」のサマリー用）
-    func levelDistribution(allSets: [WorkoutSet], bodyweightKg: Double) -> [StrengthLevel: Int] {
-        let bodyweight = bodyweightKg > 0 ? bodyweightKg : 70.0
-        var exerciseBest1RM: [String: Double] = [:]
-        for set in allSets {
-            let estimated = PRManager.shared.estimated1RM(weight: set.weight, reps: set.reps)
-            if estimated > (exerciseBest1RM[set.exerciseId] ?? 0) {
-                exerciseBest1RM[set.exerciseId] = estimated
-            }
-        }
-
-        var distribution: [StrengthLevel: Int] = [:]
-        for (exerciseId, best1RM) in exerciseBest1RM {
-            let result = Self.exerciseStrengthLevel(
-                exerciseId: exerciseId,
-                estimated1RM: best1RM,
-                bodyweightKg: bodyweight
-            )
-            distribution[result.level, default: 0] += 1
-        }
-        return distribution
     }
 
     /// 総合レベル（全種目の中央値ベース）

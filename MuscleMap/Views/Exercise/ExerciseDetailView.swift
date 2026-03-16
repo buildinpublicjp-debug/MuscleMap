@@ -94,7 +94,7 @@ struct ExerciseDetailView: View {
                         } label: {
                             HStack {
                                 Image(systemName: "play.rectangle.fill")
-                                    .foregroundStyle(.red)
+                                    .foregroundStyle(Color.mmDestructive)
                                 Text(L10n.watchVideo)
                                     .font(.subheadline.bold())
                                     .foregroundStyle(Color.mmTextPrimary)

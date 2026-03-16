@@ -95,6 +95,14 @@ extension Color {
     /// GIF背景（運動GIFの背景色）
     static let mmGifBackground = Color(hex: "#FFFFFF")
 
+    // MARK: - セマンティックカラー
+
+    /// 破壊的アクション・エラー（.redの代替）
+    static let mmDestructive = Color(hex: "#FF453A")
+
+    /// 警告・注意喚起（.orangeの代替）
+    static let mmWarning = Color(hex: "#FF9F0A")
+
     // MARK: - 旧名との互換エイリアス
 
     static let mmMuscleCoral = mmMuscleFatigued

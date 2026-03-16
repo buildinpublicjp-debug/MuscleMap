@@ -374,5 +374,5 @@ func generateStrengthShareImage(scores: [String: Double], userName: String, date
             date: Date()
         )
     }
-    .background(Color.black)
+    .background(Color.mmBgPrimary)
 }

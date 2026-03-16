@@ -92,12 +92,6 @@ class AppState {
         didSet { UserDefaults.standard.set(hasSeenDemoAnimation, forKey: "hasSeenDemoAnimation") }
     }
 
-    // ジムにいるかどうか（オンボーディング分岐用、セッション中のみ）
-    var isAtGym: Bool = false
-
-    // ワークアウトチュートリアル表示フラグ（ジムルート用、セッション中のみ）
-    var showWorkoutTutorial: Bool = false
-
     // タブ選択（クロスビュー遷移用、永続化不要）
     var selectedTab: Int = 0
 
@@ -117,12 +111,6 @@ class AppState {
     // 全身制覇達成フラグ
     var hasAchievedFullBodyConquest: Bool = UserDefaults.standard.bool(forKey: "hasAchievedFullBodyConquest") {
         didSet { UserDefaults.standard.set(hasAchievedFullBodyConquest, forKey: "hasAchievedFullBodyConquest") }
-    }
-
-    // 初回全身制覇達成日
-    var fullBodyConquestDate: Date? {
-        get { UserDefaults.standard.object(forKey: "fullBodyConquestDate") as? Date }
-        set { UserDefaults.standard.set(newValue, forKey: "fullBodyConquestDate") }
     }
 
     // 全身制覇達成回数

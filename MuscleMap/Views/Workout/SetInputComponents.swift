@@ -9,6 +9,7 @@ struct SetInputCard: View {
     let exercise: ExerciseDefinition
     @Environment(\.modelContext) private var modelContext
     @State private var useAdditionalWeight = false
+    @State private var savedAdditionalWeight: Double = 0
     @State private var showPRCelebration = false
     @State private var recordButtonScale: CGFloat = 1.0
     private var localization: LocalizationManager { LocalizationManager.shared }
@@ -203,7 +204,12 @@ struct SetInputCard: View {
                 .padding(.horizontal, 8)
                 .onChange(of: useAdditionalWeight) { _, newValue in
                     if !newValue {
+                        // トグルOFF: 現在の加重を保存してからゼロにする
+                        savedAdditionalWeight = viewModel.currentWeight
                         viewModel.currentWeight = 0
+                    } else {
+                        // トグルON: 保存していた加重を復元
+                        viewModel.currentWeight = savedAdditionalWeight
                     }
                 }
             }

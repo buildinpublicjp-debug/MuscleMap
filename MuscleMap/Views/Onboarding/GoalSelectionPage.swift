@@ -50,19 +50,6 @@ enum OnboardingGoal: String, CaseIterable, Identifiable {
         }
     }
 
-    /// OnboardingGoal → TrainingGoal マッピング（UserProfile互換）
-    var toTrainingGoal: TrainingGoal {
-        switch self {
-        case .getBig: return .hypertrophy
-        case .dontGetDisrespected: return .strength
-        case .martialArts: return .strength
-        case .sports: return .strength
-        case .getAttractive: return .hypertrophy
-        case .moveWell: return .diet
-        case .health: return .health
-        }
-    }
-
     var iconColor: Color {
         switch self {
         case .getBig: return Color.mmOnboardingAccent
@@ -76,12 +63,12 @@ enum OnboardingGoal: String, CaseIterable, Identifiable {
     }
 }
 
-// MARK: - 目標選択画面（エモーショナル版 — 複数選択可）
+// MARK: - 目標選択画面（エモーショナル版 — 単一選択）
 
 struct GoalSelectionPage: View {
     let onNext: () -> Void
 
-    @State private var selectedGoals: Set<OnboardingGoal> = []
+    @State private var selectedGoal: OnboardingGoal?
     @State private var cardAppearances: [Bool] = Array(repeating: false, count: OnboardingGoal.allCases.count)
     @State private var isProceeding = false
     @State private var headerAppeared = false
@@ -114,23 +101,15 @@ struct GoalSelectionPage: View {
                     ForEach(Array(OnboardingGoal.allCases.enumerated()), id: \.element.id) { index, goal in
                         EmotionalGoalCard(
                             goal: goal,
-                            isSelected: selectedGoals.contains(goal),
+                            isSelected: selectedGoal == goal,
                             onTap: {
                                 guard !isProceeding else { return }
                                 withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
-                                    if selectedGoals.contains(goal) {
-                                        selectedGoals.remove(goal)
-                                    } else {
-                                        selectedGoals.insert(goal)
-                                    }
+                                    selectedGoal = goal
                                 }
                                 HapticManager.lightTap()
 
-                                // 選択中の目標をUserProfileに保存
-                                if let primary = selectedGoals.first {
-                                    AppState.shared.userProfile.trainingGoal = primary.toTrainingGoal
-                                    AppState.shared.primaryOnboardingGoal = primary.rawValue
-                                }
+                                AppState.shared.primaryOnboardingGoal = goal.rawValue
                             }
                         )
                         .opacity(cardAppearances.indices.contains(index) && cardAppearances[index] ? 1 : 0)
@@ -143,24 +122,24 @@ struct GoalSelectionPage: View {
 
             // 次へボタン
             Button {
-                guard !isProceeding, !selectedGoals.isEmpty else { return }
+                guard !isProceeding, selectedGoal != nil else { return }
                 isProceeding = true
                 HapticManager.lightTap()
                 onNext()
             } label: {
                 Text(L10n.next)
                     .font(.system(size: 18, weight: .bold))
-                    .foregroundStyle(!selectedGoals.isEmpty ? Color.mmOnboardingBg : Color.mmOnboardingTextSub)
+                    .foregroundStyle(selectedGoal != nil ? Color.mmOnboardingBg : Color.mmOnboardingTextSub)
                     .frame(maxWidth: .infinity)
                     .frame(height: 56)
-                    .background(!selectedGoals.isEmpty ? Color.mmOnboardingAccent : Color.mmOnboardingCard)
+                    .background(selectedGoal != nil ? Color.mmOnboardingAccent : Color.mmOnboardingCard)
                     .clipShape(RoundedRectangle(cornerRadius: 16))
             }
             .buttonStyle(.plain)
-            .disabled(selectedGoals.isEmpty)
+            .disabled(selectedGoal == nil)
             .padding(.horizontal, 24)
             .padding(.bottom, 32)
-            .animation(.easeInOut(duration: 0.2), value: selectedGoals.isEmpty)
+            .animation(.easeInOut(duration: 0.2), value: selectedGoal)
         }
         .onAppear {
             withAnimation(.easeOut(duration: 0.5)) {

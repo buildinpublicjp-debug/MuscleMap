@@ -20,8 +20,8 @@ struct WeeklyStreakBadge: View {
             HStack(spacing: 8) {
                 // 炎アイコン
                 Image(systemName: "flame.fill")
-                    .foregroundStyle(isCurrentWeekCompleted ? .orange : Color.mmTextSecondary)
-                    .shadow(color: isCurrentWeekCompleted ? .orange.opacity(glowAnimation ? 0.6 : 0.2) : .clear, radius: glowAnimation ? 8 : 4)
+                    .foregroundStyle(isCurrentWeekCompleted ? .mmWarning : Color.mmTextSecondary)
+                    .shadow(color: isCurrentWeekCompleted ? Color.mmWarning.opacity(glowAnimation ? 0.6 : 0.2) : .clear, radius: glowAnimation ? 8 : 4)
 
                 // テキスト
                 if weeks > 0 {

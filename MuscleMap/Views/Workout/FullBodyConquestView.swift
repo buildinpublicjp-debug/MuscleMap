@@ -215,7 +215,7 @@ private struct ConfettiView: View {
     private let colors: [Color] = [
         .mmAccentPrimary, .mmAccentSecondary,
         .mmMuscleCoral, .mmMuscleAmber, .mmMuscleLime,
-        .mmPRGold, .orange, .pink, .purple
+        .mmPRGold, .mmWarning, .pink, .purple
     ]
 
     var body: some View {

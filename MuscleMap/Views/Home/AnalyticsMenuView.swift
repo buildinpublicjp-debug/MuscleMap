@@ -58,7 +58,7 @@ struct AnalyticsMenuView: View {
 
                         AnalyticsMenuItem(
                             icon: "scale.3d",
-                            iconColor: .orange,
+                            iconColor: .mmWarning,
                             title: "筋肉バランス診断",
                             description: "4軸・8タイプで体のアンバランスを可視化。どこを強化すべきか即わかる",
                             badge: nil,
@@ -270,7 +270,7 @@ struct AnalyticsMenuItem: View {
                     .foregroundStyle(isLocked ? Color.mmTextSecondary : iconColor)
                     .frame(width: 44, height: 44)
                     .background((isLocked ? Color.mmTextSecondary : iconColor).opacity(0.15))
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
 
                 // テキスト
                 VStack(alignment: .leading, spacing: 4) {
@@ -319,9 +319,9 @@ struct AnalyticsMenuItem: View {
             }
             .padding(14)
             .background(Color.mmBgCard)
-            .clipShape(RoundedRectangle(cornerRadius: 14))
+            .clipShape(RoundedRectangle(cornerRadius: 16))
             .overlay(
-                RoundedRectangle(cornerRadius: 14)
+                RoundedRectangle(cornerRadius: 16)
                     .stroke(
                         isPro && PurchaseManager.shared.isPremium
                             ? Color.mmAccentPrimary.opacity(0.3)

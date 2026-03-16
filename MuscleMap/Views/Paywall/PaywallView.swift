@@ -103,12 +103,31 @@ struct PaywallView: View {
                 title: "種目別推移グラフ（全期間）",
                 description: "どこが強くなったか数値で証明できる"
             )
-            featureRow(
-                icon: "calendar.badge.clock",
-                color: Color(red: 0.6, green: 0.4, blue: 1.0),
-                title: "90日チャレンジ（近日公開）",
-                description: "変化を記録してRecapを生成"
-            )
+            // 90日チャレンジ — 開発中（グレーアウト + 時計アイコン）
+            HStack(spacing: 16) {
+                Image(systemName: "calendar.badge.clock")
+                    .font(.title3)
+                    .foregroundStyle(Color.mmTextSecondary.opacity(0.5))
+                    .frame(width: 40)
+
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("90日チャレンジ — 開発中")
+                        .font(.body.bold())
+                        .foregroundStyle(Color.mmTextSecondary)
+                    Text("変化を記録してRecapを生成")
+                        .font(.caption)
+                        .foregroundStyle(Color.mmTextSecondary.opacity(0.6))
+                }
+
+                Spacer()
+
+                Image(systemName: "clock")
+                    .font(.caption.bold())
+                    .foregroundStyle(Color.mmTextSecondary.opacity(0.5))
+            }
+            .padding(16)
+            .background(Color.mmBgCard.opacity(0.6))
+            .clipShape(RoundedRectangle(cornerRadius: 12))
         }
         .padding(.horizontal, 24)
     }

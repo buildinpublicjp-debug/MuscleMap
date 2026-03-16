@@ -113,7 +113,7 @@ struct GoalMusclePreviewPage: View {
                 HapticManager.lightTap()
                 onNext()
             } label: {
-                Text("次へ")
+                Text(L10n.next)
                     .font(.system(size: 18, weight: .bold))
                     .foregroundStyle(Color.mmOnboardingBg)
                     .frame(maxWidth: .infinity)

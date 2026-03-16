@@ -70,7 +70,7 @@ struct PRInputPage: View {
             // タイトルエリア
             VStack(spacing: 8) {
                 Text(L10n.prInputTitle)
-                    .font(.system(size: 28, weight: .bold))
+                    .font(.system(size: 28, weight: .heavy))
                     .foregroundStyle(Color.mmOnboardingTextMain)
                     .multilineTextAlignment(.center)
 
@@ -138,7 +138,13 @@ struct PRInputPage: View {
                         .foregroundStyle(Color.mmOnboardingBg)
                         .frame(maxWidth: .infinity)
                         .frame(height: 56)
-                        .background(Color.mmOnboardingAccent)
+                        .background(
+                            LinearGradient(
+                                colors: [.mmOnboardingAccent, .mmOnboardingAccentDark],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            )
+                        )
                         .clipShape(RoundedRectangle(cornerRadius: 16))
                 }
                 .buttonStyle(.plain)

@@ -53,7 +53,7 @@ struct ActiveWorkoutView: View {
                         .frame(maxWidth: .infinity)
                         .frame(height: 48)
                         .background(Color.mmBgCard)
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .clipShape(RoundedRectangle(cornerRadius: 16))
                     }
                     .padding(.horizontal)
 
@@ -93,7 +93,7 @@ struct ActiveWorkoutView: View {
                     .font(.headline)
                     .foregroundStyle(Color.mmBgPrimary)
                     .frame(maxWidth: .infinity)
-                    .frame(height: 60)
+                    .frame(height: 56)
                     .background(Color.mmAccentPrimary)
             }
             .buttonStyle(.plain)

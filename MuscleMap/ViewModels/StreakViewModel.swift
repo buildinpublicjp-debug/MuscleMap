@@ -4,7 +4,8 @@ import SwiftData
 // MARK: - ストリークマイルストーン
 
 @MainActor
-enum StreakMilestone: Int, CaseIterable {
+enum StreakMilestone: Int, CaseIterable, Identifiable {
+    nonisolated var id: Int { rawValue }
     case oneMonth = 4      // 4週
     case threeMonths = 12  // 12週
     case sixMonths = 26    // 26週

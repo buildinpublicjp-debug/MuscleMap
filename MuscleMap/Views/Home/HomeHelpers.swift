@@ -191,7 +191,7 @@ struct TodayRecommendationInline: View {
         }
         .padding(16)
         .background(Color.mmBgCard)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .clipShape(RoundedRectangle(cornerRadius: 16))
     }
 
     // MARK: - 無料版カード（Proバッジ付き）

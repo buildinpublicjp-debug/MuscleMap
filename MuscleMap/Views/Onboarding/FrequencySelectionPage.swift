@@ -88,7 +88,7 @@ struct FrequencySelectionPage: View {
                 HapticManager.lightTap()
                 onNext(freq)
             } label: {
-                Text("次へ")
+                Text(L10n.next)
                     .font(.system(size: 18, weight: .bold))
                     .foregroundStyle(selected != nil ? Color.mmOnboardingBg : Color.mmOnboardingTextSub)
                     .frame(maxWidth: .infinity)
