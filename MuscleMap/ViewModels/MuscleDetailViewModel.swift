@@ -9,7 +9,6 @@ class MuscleDetailViewModel {
     private let muscleStateRepo: MuscleStateRepository
     private let workoutRepo: WorkoutRepository
     private let exerciseStore: ExerciseStore
-    private let modelLoader: ModelLoader
 
     // 対象筋肉
     let muscle: Muscle
@@ -26,16 +25,11 @@ class MuscleDetailViewModel {
     // 直近のワークアウト履歴（この筋肉に関連）
     var recentSets: [(exercise: ExerciseDefinition, set: WorkoutSet)] = []
 
-    // 3D利用可能か
-    var is3DAvailable: Bool { modelLoader.is3DAvailable }
-    var modelLevel: ModelLoader.ModelLevel { modelLoader.currentLevel }
-
     init(muscle: Muscle, modelContext: ModelContext) {
         self.muscle = muscle
         self.muscleStateRepo = MuscleStateRepository(modelContext: modelContext)
         self.workoutRepo = WorkoutRepository(modelContext: modelContext)
         self.exerciseStore = ExerciseStore.shared
-        self.modelLoader = ModelLoader.shared
     }
 
     /// データ読み込み

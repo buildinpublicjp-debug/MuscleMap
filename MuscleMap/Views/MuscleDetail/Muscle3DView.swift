@@ -1,177 +1,34 @@
 import SwiftUI
-import RealityKit
 
-// MARK: - 3D筋肉ビュー（RealityKit + 2Dフォールバック）
+// MARK: - 筋肉詳細マップビュー（2Dハイライト + 同グループ薄表示）
 
 struct Muscle3DView: View {
     let muscle: Muscle
     let visualState: MuscleVisualState
 
-    @State private var entity: ModelEntity?
-    @State private var isLoading = true
-
-    private var is3DAvailable: Bool {
-        ModelLoader.shared.is3DAvailable
-    }
-
-    var body: some View {
-        Group {
-            if is3DAvailable {
-                // 3Dビュー（RealityKit）
-                realityKitView
-            } else {
-                // 2Dフォールバック
-                fallback2DView
-            }
-        }
-        .frame(height: 200)
-        .clipShape(RoundedRectangle(cornerRadius: 16))
-    }
-
-    // MARK: - 3Dビュー
-
-    @ViewBuilder
-    private var realityKitView: some View {
-        ZStack {
-            if isLoading {
-                loadingView
-            } else if let entity = entity {
-                RealityKitContainer(entity: entity, highlightColor: visualState.color)
-            } else {
-                fallback2DView
-            }
-        }
-        .onAppear {
-            entity = ModelLoader.shared.loadMuscleEntity(for: muscle)
-            isLoading = false
-        }
-    }
-
-    // MARK: - 筋肉がフロント/バックどちらにあるか判定
-
+    /// 筋肉がフロント/バックどちらにあるか判定
     private var isBackMuscle: Bool {
         let backOnly = MusclePathData.backMuscles.contains(where: { $0.muscle == muscle })
         let frontAlso = MusclePathData.frontMuscles.contains(where: { $0.muscle == muscle })
-        // バックにあってフロントにない → バック筋肉
-        // 両方にある場合（forearms, gastrocnemius, soleus）→ フロントを優先
         return backOnly && !frontAlso
     }
 
-    private var muscleEntries: [(muscle: Muscle, path: (CGRect) -> Path)] {
+    /// メインサイドの筋肉エントリ（前面 or 背面）
+    private var primaryEntries: [(muscle: Muscle, path: (CGRect) -> Path)] {
         isBackMuscle ? MusclePathData.backMuscles : MusclePathData.frontMuscles
     }
 
-    // MARK: - 2Dフォールバック（ズーム版）
-
-    private var fallback2DView: some View {
-        ZStack {
-            Color.mmBgCard
-
-            GeometryReader { geo in
-                let fullSize = CGSize(
-                    width: geo.size.width,
-                    height: geo.size.width / 0.6 // body aspect ratio
-                )
-                let fullRect = CGRect(origin: .zero, size: fullSize)
-
-                // 対象筋肉のバウンディングボックスを取得
-                let targetBounds = muscleBoundingBox(in: fullRect)
-                // パディングを追加
-                let padding = max(targetBounds.width, targetBounds.height) * 0.4
-                let expandedBounds = targetBounds.insetBy(dx: -padding, dy: -padding)
-
-                // ビューポートにフィットするスケール
-                let scaleX = geo.size.width / expandedBounds.width
-                let scaleY = geo.size.height / expandedBounds.height
-                let scale = min(scaleX, scaleY)
-
-                // 中心合わせのオフセット
-                let offsetX = geo.size.width / 2 - expandedBounds.midX * scale
-                let offsetY = geo.size.height / 2 - expandedBounds.midY * scale
-
-                ZStack {
-                    // シルエット（背景）— 視認性を確保
-                    let outline = isBackMuscle
-                        ? MusclePathData.bodyOutlineBack(in: fullRect)
-                        : MusclePathData.bodyOutlineFront(in: fullRect)
-                    outline
-                        .fill(Color.mmBgSecondary.opacity(0.3))
-                    outline
-                        .stroke(Color.mmMuscleBorder.opacity(0.2), lineWidth: 0.5)
-
-                    // すべての筋肉を薄く表示（対象筋肉のみ際立たせる）
-                    ForEach(muscleEntries, id: \.muscle) { entry in
-                        entry.path(fullRect)
-                            .fill(entry.muscle == muscle ? highlightColor : dimColor)
-                            .opacity(entry.muscle == muscle ? 1.0 : 0.2)
-                    }
-
-                    // 対象筋肉のストローク（強調）
-                    ForEach(muscleEntries, id: \.muscle) { entry in
-                        if entry.muscle == muscle {
-                            entry.path(fullRect)
-                                .stroke(highlightColor.opacity(0.8), lineWidth: 2.0)
-                        }
-                    }
-                }
-                // drawingGroup でMetal描画 → アンチエイリアスが効く
-                .drawingGroup()
-                .scaleEffect(scale, anchor: .topLeading)
-                .offset(x: offsetX, y: offsetY)
-            }
-            .clipped()
-
-            // 筋肉名ラベル
-            VStack {
-                Spacer()
-                HStack {
-                    Spacer()
-                    VStack(spacing: 2) {
-                        Text(muscle.localizedName)
-                            .font(.caption.bold())
-                            .foregroundStyle(Color.mmTextPrimary)
-                        Text(muscle.group.localizedName)
-                            .font(.caption2)
-                            .foregroundStyle(Color.mmTextSecondary)
-                    }
-                    .padding(8)
-                    .background(.ultraThinMaterial)
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                    .padding(12)
-                }
-            }
-        }
+    /// サブサイドの筋肉エントリ
+    private var secondaryEntries: [(muscle: Muscle, path: (CGRect) -> Path)] {
+        isBackMuscle ? MusclePathData.frontMuscles : MusclePathData.backMuscles
     }
 
-    // MARK: - バウンディングボックス計算
-
-    private func muscleBoundingBox(in rect: CGRect) -> CGRect {
-        // 対象筋肉のパスからバウンディングボックスを取得
-        for entry in muscleEntries {
-            if entry.muscle == muscle {
-                let path = entry.path(rect)
-                let bounds = path.boundingRect
-                if !bounds.isEmpty {
-                    return bounds
-                }
-            }
-        }
-        // フォールバック：全体を返す
-        return rect
+    /// 同グループの筋肉（自分自身を除く）
+    private var sameGroupMuscles: Set<Muscle> {
+        Set(Muscle.allCases.filter { $0.group == muscle.group && $0 != muscle })
     }
 
-    // MARK: - ローディング
-
-    private var loadingView: some View {
-        ZStack {
-            Color.mmBgCard
-            ProgressView()
-                .tint(Color.mmAccentPrimary)
-        }
-    }
-
-    // MARK: - 色
-
+    /// ハイライト色（回復状態ベース、inactiveならアクセント）
     private var highlightColor: Color {
         switch visualState {
         case .inactive:
@@ -181,66 +38,88 @@ struct Muscle3DView: View {
         }
     }
 
-    private var dimColor: Color {
-        Color.mmTextSecondary.opacity(0.2)
-    }
-}
+    var body: some View {
+        ZStack {
+            Color.mmBgCard
 
-// MARK: - RealityKit コンテナ
+            // 前面(60%) + 背面(40%) または逆 — メインサイドを大きく
+            HStack(spacing: 0) {
+                // メインサイド（対象筋肉がある側）— 60%
+                GeometryReader { geo in
+                    let rect = CGRect(origin: .zero, size: geo.size)
+                    muscleMapLayer(entries: primaryEntries, in: rect, isPrimary: true)
+                }
+                .aspectRatio(0.55, contentMode: .fit)
 
-private struct RealityKitContainer: UIViewRepresentable {
-    let entity: ModelEntity
-    let highlightColor: Color
-
-    func makeUIView(context: Context) -> ARView {
-        let arView = ARView(frame: .zero)
-        arView.cameraMode = .nonAR
-        arView.environment.background = .color(UIColor(Color.mmBgCard))
-
-        // ライティング
-        let directionalLight = DirectionalLight()
-        directionalLight.light.intensity = 1000
-        directionalLight.look(at: .zero, from: SIMD3<Float>(2, 4, 3), relativeTo: nil)
-
-        let anchor = AnchorEntity()
-        anchor.addChild(entity)
-        anchor.addChild(directionalLight)
-
-        // モデルのバウンディングボックスに合わせてスケール
-        let bounds = entity.visualBounds(relativeTo: nil)
-        let maxDimension = max(bounds.extents.x, max(bounds.extents.y, bounds.extents.z))
-        if maxDimension > 0 {
-            let scale = 0.5 / maxDimension
-            entity.scale = SIMD3<Float>(repeating: scale)
+                // サブサイド — 40%（スケールで縮小）
+                GeometryReader { geo in
+                    let rect = CGRect(origin: .zero, size: geo.size)
+                    muscleMapLayer(entries: secondaryEntries, in: rect, isPrimary: false)
+                        .opacity(0.5)
+                }
+                .aspectRatio(0.55, contentMode: .fit)
+                .scaleEffect(0.85)
+            }
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
         }
-
-        // ハイライト色のマテリアルを適用
-        applyHighlightMaterial(to: entity)
-
-        arView.scene.addAnchor(anchor)
-
-        // カメラ位置
-        let camera = PerspectiveCamera()
-        camera.look(at: .zero, from: SIMD3<Float>(0, 0.3, 0.8), relativeTo: nil)
-        let cameraAnchor = AnchorEntity(world: .zero)
-        cameraAnchor.addChild(camera)
-        arView.scene.addAnchor(cameraAnchor)
-
-        // ジェスチャーで回転可能に
-        arView.installGestures([.rotation, .scale], for: entity)
-
-        return arView
+        .frame(height: 200)
+        .clipShape(RoundedRectangle(cornerRadius: 16))
     }
 
-    func updateUIView(_ uiView: ARView, context: Context) {}
+    // MARK: - 筋肉マップレイヤー
 
-    private func applyHighlightMaterial(to entity: ModelEntity) {
-        let uiColor = UIColor(highlightColor)
-        var material = SimpleMaterial()
-        material.color = .init(tint: uiColor.withAlphaComponent(0.8))
-        material.metallic = .float(0.3)
-        material.roughness = .float(0.6)
-        entity.model?.materials = [material]
+    @ViewBuilder
+    private func muscleMapLayer(
+        entries: [(muscle: Muscle, path: (CGRect) -> Path)],
+        in rect: CGRect,
+        isPrimary: Bool
+    ) -> some View {
+        ZStack {
+            ForEach(entries, id: \.muscle) { entry in
+                let isTarget = entry.muscle == muscle
+                let isRelated = sameGroupMuscles.contains(entry.muscle)
+
+                // 塗りつぶし
+                entry.path(rect)
+                    .fill(muscleColor(isTarget: isTarget, isRelated: isRelated, isPrimary: isPrimary))
+
+                // ストローク
+                entry.path(rect)
+                    .stroke(
+                        isTarget && isPrimary
+                            ? highlightColor.opacity(0.8)
+                            : Color.mmMuscleBorder.opacity(isTarget || isRelated ? 0.4 : 0.15),
+                        lineWidth: isTarget && isPrimary ? 1.5 : 0.6
+                    )
+            }
+
+            // グローエフェクト（メインサイドの対象筋肉のみ）
+            if isPrimary {
+                ForEach(entries, id: \.muscle) { entry in
+                    if entry.muscle == muscle {
+                        entry.path(rect)
+                            .fill(highlightColor.opacity(0.3))
+                            .blur(radius: 8)
+                    }
+                }
+            }
+        }
+        .drawingGroup()
+    }
+
+    /// 筋肉ごとの塗り色を返す
+    private func muscleColor(isTarget: Bool, isRelated: Bool, isPrimary: Bool) -> Color {
+        if isTarget && isPrimary {
+            return highlightColor
+        } else if isTarget && !isPrimary {
+            // サブサイドに同じ筋肉がある場合（前腕など両面に存在）
+            return highlightColor.opacity(0.4)
+        } else if isRelated {
+            return highlightColor.opacity(0.15)
+        } else {
+            return Color.mmMuscleInactive.opacity(0.4)
+        }
     }
 }
 

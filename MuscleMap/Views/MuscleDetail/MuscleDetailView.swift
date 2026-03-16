@@ -19,11 +19,22 @@ struct MuscleDetailView: View {
                 if let vm = viewModel {
                     ScrollView {
                         VStack(spacing: 8) {
-                            // 3D/2Dビジュアル
+                            // 2Dマップハイライト
                             Muscle3DView(
                                 muscle: muscle,
                                 visualState: vm.recoveryStatus.visualState
                             )
+                            .padding(.horizontal)
+
+                            // 筋肉名テキスト（日本語 22pt bold + 英語 14pt）
+                            VStack(spacing: 4) {
+                                Text(muscle.japaneseName)
+                                    .font(.system(size: 22, weight: .bold))
+                                    .foregroundStyle(Color.mmTextPrimary)
+                                Text(muscle.englishName)
+                                    .font(.system(size: 14))
+                                    .foregroundStyle(Color.mmTextSecondary)
+                            }
                             .padding(.horizontal)
 
                             // 回復ステータスカード（コンパクト版）
@@ -335,44 +346,43 @@ private struct RelatedExercisesSection: View {
                     HapticManager.lightTap()
                     selectedExercise = exercise
                 } label: {
-                    VStack(alignment: .leading, spacing: 8) {
-                        // GIF - カード型表示
+                    HStack(spacing: 12) {
+                        // GIF サムネイル 80×80pt
                         if ExerciseGifView.hasGif(exerciseId: exercise.id) {
-                            ExerciseGifView(exerciseId: exercise.id, size: .card)
+                            ExerciseGifView(exerciseId: exercise.id, size: .thumbnail)
+                                .frame(width: 80, height: 80)
+                                .clipShape(RoundedRectangle(cornerRadius: 8))
                         } else {
                             MiniMuscleMapView(muscleMapping: exercise.muscleMapping)
-                                .frame(maxWidth: .infinity)
-                                .frame(height: 120)
+                                .frame(width: 80, height: 80)
                                 .background(Color.mmBgPrimary.opacity(0.5))
-                                .clipShape(RoundedRectangle(cornerRadius: 10))
+                                .clipShape(RoundedRectangle(cornerRadius: 8))
                         }
 
                         // 種目名 + 情報
-                        HStack {
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text(localization.currentLanguage == .japanese ? exercise.nameJA : exercise.nameEN)
-                                    .font(.subheadline.bold())
-                                    .foregroundStyle(Color.mmTextPrimary)
-                                    .lineLimit(1)
-                                    .minimumScaleFactor(0.7)
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(localization.currentLanguage == .japanese ? exercise.nameJA : exercise.nameEN)
+                                .font(.subheadline.bold())
+                                .foregroundStyle(Color.mmTextPrimary)
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.7)
 
-                                Text(exercise.localizedEquipment)
-                                    .font(.caption)
-                                    .foregroundStyle(Color.mmTextSecondary)
-                            }
-
-                            Spacer()
+                            Text(exercise.localizedEquipment)
+                                .font(.caption)
+                                .foregroundStyle(Color.mmTextSecondary)
 
                             if let record = lastRecord(for: exercise.id) {
                                 Text(L10n.lastRecordLabel(record.weight, record.reps))
                                     .font(.caption.monospaced().bold())
                                     .foregroundStyle(Color.mmAccentPrimary)
                             }
-
-                            Image(systemName: "chevron.right")
-                                .font(.caption)
-                                .foregroundStyle(Color.mmTextSecondary)
                         }
+
+                        Spacer()
+
+                        Image(systemName: "chevron.right")
+                            .font(.caption)
+                            .foregroundStyle(Color.mmTextSecondary)
                     }
                     .padding(12)
                     .background(Color.mmBgCard)
