@@ -159,7 +159,7 @@ struct TodayRecommendationInline: View {
                 }
             }
 
-            // 「このメニューで始める」ボタン
+            // 「メニューを確認する」ボタン → プレビューシートを表示
             Button {
                 HapticManager.lightTap()
                 onStartWithMenu(recommendation.exercises)
