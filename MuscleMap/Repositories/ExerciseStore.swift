@@ -67,11 +67,6 @@ final class ExerciseStore {
         exerciseMap[id]
     }
 
-    /// カテゴリで絞り込み
-    func exercises(for category: String) -> [ExerciseDefinition] {
-        exercises.filter { $0.category == category }
-    }
-
     /// 指定筋肉をターゲットにする種目を取得
     func exercises(targeting muscle: String) -> [ExerciseDefinition] {
         exercises.filter { $0.muscleMapping[muscle] != nil }
@@ -84,25 +79,4 @@ final class ExerciseStore {
             .sorted { ($0.muscleMapping[muscle.rawValue] ?? 0) > ($1.muscleMapping[muscle.rawValue] ?? 0) }
     }
 
-    /// 装備で絞り込み
-    func exercises(withEquipment equipment: String) -> [ExerciseDefinition] {
-        exercises.filter { $0.equipment == equipment }
-    }
-
-    // MARK: Watch同期用
-
-    /// Watch同期用にWatchExerciseInfoリストをJSONデータとして書き出す
-    func exportForWatch() -> Data? {
-        let watchExercises = exercises.map { ex in
-            WatchExerciseInfo(
-                id: ex.id,
-                nameEN: ex.nameEN,
-                nameJA: ex.nameJA,
-                category: ex.category,
-                equipment: ex.equipment,
-                muscleMapping: ex.muscleMapping
-            )
-        }
-        return try? JSONEncoder().encode(watchExercises)
-    }
 }

@@ -11,48 +11,46 @@ struct ExerciseLibraryView: View {
     private var localization: LocalizationManager { LocalizationManager.shared }
 
     var body: some View {
-        NavigationStack {
-            ZStack {
-                Color.mmBgPrimary.ignoresSafeArea()
+        ZStack {
+            Color.mmBgPrimary.ignoresSafeArea()
 
-                VStack(spacing: 0) {
-                    // フィルターチップ
-                    filterChipsSection
+            VStack(spacing: 0) {
+                // フィルターチップ
+                filterChipsSection
 
-                    // 種目数
-                    HStack {
-                        Text(L10n.exerciseCountLabel(viewModel.filteredExercises.count))
-                            .font(.caption)
-                            .foregroundStyle(Color.mmTextSecondary)
-                        Spacer()
-                    }
-                    .padding(.horizontal)
-                    .padding(.bottom, 4)
-
-                    // 種目リスト or EmptyState
-                    contentSection
+                // 種目数
+                HStack {
+                    Text(L10n.exerciseCountLabel(viewModel.filteredExercises.count))
+                        .font(.caption)
+                        .foregroundStyle(Color.mmTextSecondary)
+                    Spacer()
                 }
+                .padding(.horizontal)
+                .padding(.bottom, 4)
+
+                // 種目リスト or EmptyState
+                contentSection
             }
-            .navigationTitle(L10n.exerciseLibrary)
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbarColorScheme(.dark, for: .navigationBar)
-            .toolbar {
-                ToolbarItem(placement: .principal) {
-                    Text(L10n.exerciseLibrary)
-                        .font(.headline.bold())
-                        .foregroundStyle(Color.mmTextPrimary)
-                }
+        }
+        .navigationTitle(L10n.exerciseLibrary)
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbarColorScheme(.dark, for: .navigationBar)
+        .toolbar {
+            ToolbarItem(placement: .principal) {
+                Text(L10n.exerciseLibrary)
+                    .font(.headline.bold())
+                    .foregroundStyle(Color.mmTextPrimary)
             }
-            .searchable(text: $searchText, prompt: L10n.searchExercises)
-            .onChange(of: searchText) { _, newValue in
-                viewModel.searchText = newValue
-            }
-            .onAppear {
-                viewModel.load()
-            }
-            .sheet(item: $selectedExercise) { exercise in
-                ExerciseDetailView(exercise: exercise)
-            }
+        }
+        .searchable(text: $searchText, prompt: L10n.searchExercises)
+        .onChange(of: searchText) { _, newValue in
+            viewModel.searchText = newValue
+        }
+        .onAppear {
+            viewModel.load()
+        }
+        .sheet(item: $selectedExercise) { exercise in
+            ExerciseDetailView(exercise: exercise)
         }
     }
 

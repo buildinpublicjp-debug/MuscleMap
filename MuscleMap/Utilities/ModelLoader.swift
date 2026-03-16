@@ -86,20 +86,6 @@ class ModelLoader {
         return nil
     }
 
-    /// 全身モデルを読み込む
-    func loadFullBodyEntity() -> ModelEntity? {
-        if let cached = entityCache["body_full"] {
-            return cached
-        }
-
-        if let entity = loadEntity(named: "body_full") {
-            entityCache["body_full"] = entity
-            return entity
-        }
-
-        return nil
-    }
-
     /// USDZファイルからEntityを読み込む
     private func loadEntity(named name: String) -> ModelEntity? {
         guard let url = Bundle.main.url(
@@ -123,13 +109,6 @@ class ModelLoader {
         } catch {
             return nil
         }
-    }
-
-    // MARK: - キャッシュ管理
-
-    /// キャッシュをクリア
-    func clearCache() {
-        entityCache.removeAll()
     }
 
     /// 3Dが利用可能か

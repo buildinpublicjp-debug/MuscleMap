@@ -8,26 +8,24 @@ struct ActivityFeedView: View {
     @State private var showShareSheet = false
 
     var body: some View {
-        NavigationStack {
-            ScrollView {
-                LazyVStack(spacing: 0) {
-                    // Coming Soonバナー
-                    comingSoonBanner
+        ScrollView {
+            LazyVStack(spacing: 0) {
+                // Coming Soonバナー
+                comingSoonBanner
 
-                    // フレンドを招待バナー
-                    inviteBanner
+                // フレンドを招待バナー
+                inviteBanner
 
-                    // アクティビティカード一覧
-                    feedContent
-                }
-                .padding(.bottom, 32)
+                // アクティビティカード一覧
+                feedContent
             }
-            .background(Color.mmBgPrimary)
-            .navigationTitle(L10n.feed)
-            .navigationBarTitleDisplayMode(.large)
-            .sheet(isPresented: $showShareSheet) {
-                ShareSheet(items: [L10n.feedInviteMessage(AppConstants.appStoreURL)])
-            }
+            .padding(.bottom, 32)
+        }
+        .background(Color.mmBgPrimary)
+        .navigationTitle(L10n.feed)
+        .navigationBarTitleDisplayMode(.large)
+        .sheet(isPresented: $showShareSheet) {
+            ShareSheet(items: [L10n.feedInviteMessage(AppConstants.appStoreURL)])
         }
     }
 

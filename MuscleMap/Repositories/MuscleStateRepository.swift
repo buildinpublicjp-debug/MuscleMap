@@ -54,18 +54,6 @@ class MuscleStateRepository {
         }
     }
 
-    /// 刺激記録を保存
-    func saveStimulation(_ stimulation: MuscleStimulation) {
-        modelContext.insert(stimulation)
-        do {
-            try modelContext.save()
-        } catch {
-            #if DEBUG
-            print("[MuscleStateRepository] Failed to save stimulation: \(error)")
-            #endif
-        }
-    }
-
     /// 既存の刺激記録を更新（同日・同筋肉・同セッション）
     /// saveImmediately=false でバッチ処理時にsaveを遅延可能
     func upsertStimulation(

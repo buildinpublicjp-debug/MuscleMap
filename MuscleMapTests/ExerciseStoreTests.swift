@@ -80,16 +80,6 @@ struct ExerciseStoreTests {
         #expect(store.exercise(for: "nonexistent") == nil)
     }
 
-    @Test("カテゴリで絞り込み: 胸カテゴリは1件")
-    @MainActor
-    func filterByCategory() {
-        let store = ExerciseStore.shared
-        store.load(from: Self.sampleJSON)
-        let chestExercises = store.exercises(for: "胸")
-        #expect(chestExercises.count == 1)
-        #expect(chestExercises.first?.id == "bench_press")
-    }
-
     @Test("筋肉ターゲット検索: bicepsをターゲットにする種目")
     @MainActor
     func filterByMuscle() {

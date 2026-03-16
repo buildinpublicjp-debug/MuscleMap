@@ -4,13 +4,6 @@ import UIKit
 
 @MainActor
 struct HapticManager {
-    /// セット記録完了
-    static func setRecorded() {
-        guard AppState.shared.isHapticEnabled else { return }
-        let generator = UINotificationFeedbackGenerator()
-        generator.notificationOccurred(.success)
-    }
-
     /// ワークアウト終了
     static func workoutEnded() {
         guard AppState.shared.isHapticEnabled else { return }

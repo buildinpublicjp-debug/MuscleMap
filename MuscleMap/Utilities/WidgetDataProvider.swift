@@ -37,16 +37,6 @@ enum WidgetDataProvider {
         WidgetCenter.shared.reloadAllTimelines()
     }
 
-    /// 共有UserDefaultsからウィジェットデータを読み込む
-    static func read() -> WidgetMuscleData? {
-        guard let defaults = UserDefaults(suiteName: suiteName),
-              let data = defaults.data(forKey: dataKey),
-              let decoded = try? JSONDecoder().decode(WidgetMuscleData.self, from: data) else {
-            return nil
-        }
-        return decoded
-    }
-
     /// 現在の筋肉状態からウィジェットデータを生成して書き込む
     @MainActor
     static func updateWidgetData(muscleStates: [Muscle: MuscleVisualState]) {
