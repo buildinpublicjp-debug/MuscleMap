@@ -15,11 +15,11 @@ enum TrainingLocation: String, CaseIterable, Codable {
         }
     }
 
-    var emoji: String {
+    var sfSymbol: String {
         switch self {
-        case .gym: return "🏋️"
-        case .home: return "🏠"
-        case .both: return "🔄"
+        case .gym: return "dumbbell.fill"
+        case .home: return "house.fill"
+        case .both: return "arrow.left.arrow.right"
         }
     }
 
@@ -30,9 +30,18 @@ enum TrainingLocation: String, CaseIterable, Codable {
         case .both: return "ジムと自宅を組み合わせる"
         }
     }
+
+    /// 場所に応じた代表的な器具フィルタ
+    var equipmentFilter: [String] {
+        switch self {
+        case .gym: return ["バーベル", "マシン", "ダンベル", "ケーブル"]
+        case .home: return ["ダンベル", "自重"]
+        case .both: return ["バーベル", "ダンベル", "自重"]
+        }
+    }
 }
 
-// MARK: - 場所選択画面
+// MARK: - 場所選択画面（SF Symbols + 種目サンプル付き）
 
 struct LocationSelectionPage: View {
     let onNext: (TrainingLocation) -> Void
@@ -40,6 +49,17 @@ struct LocationSelectionPage: View {
     @State private var selected: TrainingLocation?
     @State private var appeared = false
     @State private var isProceeding = false
+    @State private var sampleAppeared = false
+
+    /// 選択した場所で使える種目サンプル（最大3件）
+    private var sampleExercises: [ExerciseDefinition] {
+        guard let location = selected else { return [] }
+        ExerciseStore.shared.loadIfNeeded()
+        let equipments = location.equipmentFilter
+        let filtered = ExerciseStore.shared.exercises
+            .filter { ex in equipments.contains(where: { ex.equipment.contains($0) }) }
+        return Array(filtered.prefix(3))
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -63,8 +83,8 @@ struct LocationSelectionPage: View {
 
             Spacer().frame(height: 32)
 
-            // 選択カード
-            VStack(spacing: 12) {
+            // 選択カード（左バー方式）
+            VStack(spacing: 10) {
                 ForEach(Array(TrainingLocation.allCases.enumerated()), id: \.element) { index, location in
                     LocationCard(
                         location: location,
@@ -73,6 +93,9 @@ struct LocationSelectionPage: View {
                             guard !isProceeding else { return }
                             withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
                                 selected = location
+                            }
+                            withAnimation(.easeOut(duration: 0.4).delay(0.15)) {
+                                sampleAppeared = true
                             }
                             HapticManager.lightTap()
                         }
@@ -83,6 +106,46 @@ struct LocationSelectionPage: View {
                 }
             }
             .padding(.horizontal, 24)
+
+            // 種目サンプル表示（選択時にフェードイン）
+            if selected != nil, !sampleExercises.isEmpty {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("使える種目の例")
+                        .font(.system(size: 12, weight: .bold))
+                        .foregroundStyle(Color.mmOnboardingTextSub)
+                        .padding(.horizontal, 24)
+
+                    VStack(spacing: 4) {
+                        ForEach(sampleExercises, id: \.id) { exercise in
+                            HStack(spacing: 8) {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .font(.system(size: 14))
+                                    .foregroundStyle(Color.mmOnboardingAccent)
+
+                                Text(exercise.nameJA)
+                                    .font(.system(size: 14, weight: .medium))
+                                    .foregroundStyle(Color.mmOnboardingTextMain)
+                                    .lineLimit(1)
+
+                                Spacer()
+
+                                Text(exercise.localizedEquipment)
+                                    .font(.system(size: 11))
+                                    .foregroundStyle(Color.mmOnboardingTextSub)
+                            }
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 8)
+                        }
+                    }
+                    .padding(.vertical, 4)
+                    .background(Color.mmOnboardingCard)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .padding(.horizontal, 24)
+                }
+                .padding(.top, 16)
+                .transition(.opacity.combined(with: .move(edge: .bottom)))
+                .animation(.easeOut(duration: 0.4), value: selected)
+            }
 
             Spacer()
 
@@ -127,7 +190,7 @@ struct LocationSelectionPage: View {
     }
 }
 
-// MARK: - 場所カード
+// MARK: - 場所カード（左バー方式）
 
 private struct LocationCard: View {
     let location: TrainingLocation
@@ -136,57 +199,59 @@ private struct LocationCard: View {
 
     var body: some View {
         Button(action: onTap) {
-            HStack(spacing: 14) {
-                // 絵文字アイコン
-                Text(location.emoji)
-                    .font(.system(size: 28))
-                    .frame(width: 48, height: 48)
-                    .background(Color.mmOnboardingAccent.opacity(0.12))
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
+            HStack(spacing: 0) {
+                // 左アクセントバー
+                RoundedRectangle(cornerRadius: 2)
+                    .fill(isSelected ? Color.mmOnboardingAccent : Color.clear)
+                    .frame(width: 3)
+                    .padding(.vertical, 12)
 
-                // テキスト
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(location.title)
-                        .font(.system(size: 17, weight: .semibold))
-                        .foregroundStyle(Color.mmOnboardingTextMain)
+                HStack(spacing: 12) {
+                    // SFシンボルアイコン
+                    Image(systemName: location.sfSymbol)
+                        .font(.system(size: 20, weight: .medium))
+                        .foregroundStyle(isSelected ? Color.mmOnboardingAccent : Color.mmOnboardingTextSub)
+                        .frame(width: 36, height: 36)
 
-                    Text(location.subtitle)
-                        .font(.system(size: 13))
-                        .foregroundStyle(Color.mmOnboardingTextSub)
-                }
+                    // テキスト
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(location.title)
+                            .font(.system(size: 18, weight: .bold))
+                            .foregroundStyle(Color.mmOnboardingTextMain)
 
-                Spacer()
-
-                // チェックマーク
-                if isSelected {
-                    ZStack {
-                        Circle()
-                            .fill(Color.mmOnboardingAccent)
-                            .frame(width: 28, height: 28)
-
-                        Image(systemName: "checkmark")
-                            .font(.system(size: 14, weight: .bold))
-                            .foregroundStyle(Color.mmOnboardingBg)
+                        Text(location.subtitle)
+                            .font(.system(size: 13))
+                            .foregroundStyle(Color.mmOnboardingTextSub)
                     }
-                    .transition(.scale.combined(with: .opacity))
-                } else {
-                    Circle()
-                        .stroke(Color.mmOnboardingTextSub.opacity(0.3), lineWidth: 1.5)
-                        .frame(width: 28, height: 28)
+
+                    Spacer()
+
+                    // チェックマーク
+                    if isSelected {
+                        ZStack {
+                            Circle()
+                                .fill(Color.mmOnboardingAccent)
+                                .frame(width: 24, height: 24)
+
+                            Image(systemName: "checkmark")
+                                .font(.system(size: 12, weight: .bold))
+                                .foregroundStyle(Color.mmOnboardingBg)
+                        }
+                        .transition(.scale.combined(with: .opacity))
+                    }
                 }
+                .padding(.horizontal, 12)
             }
-            .padding(.horizontal, 16)
-            .frame(height: 80)
-            .background(Color.mmOnboardingCard)
+            .frame(height: 60)
+            .background(isSelected ? Color.mmOnboardingAccent.opacity(0.08) : Color.mmOnboardingCard)
             .clipShape(RoundedRectangle(cornerRadius: 16))
             .overlay(
                 RoundedRectangle(cornerRadius: 16)
                     .stroke(
-                        isSelected ? Color.mmOnboardingAccent : Color.clear,
-                        lineWidth: 2
+                        isSelected ? Color.mmOnboardingAccent.opacity(0.3) : Color.clear,
+                        lineWidth: 1
                     )
             )
-            .scaleEffect(isSelected ? 1.02 : 1.0)
         }
         .buttonStyle(.plain)
     }

@@ -25,9 +25,35 @@ enum WeeklyFrequency: Int, CaseIterable, Codable {
         case .fivePlus: return "各部位を個別にフルで"
         }
     }
+
+    /// スケジュールプレビュー用の曜日割り当て
+    var schedulePreview: [(day: String, content: String)] {
+        switch self {
+        case .twice:
+            return [
+                ("月", "上半身"), ("火", "OFF"), ("水", "下半身"),
+                ("木", "OFF"), ("金", "OFF"), ("土", "OFF"), ("日", "OFF"),
+            ]
+        case .thrice:
+            return [
+                ("月", "プッシュ"), ("火", "OFF"), ("水", "プル"),
+                ("木", "OFF"), ("金", "脚"), ("土", "OFF"), ("日", "OFF"),
+            ]
+        case .four:
+            return [
+                ("月", "胸"), ("火", "背中"), ("水", "OFF"),
+                ("木", "肩・腕"), ("金", "脚"), ("土", "OFF"), ("日", "OFF"),
+            ]
+        case .fivePlus:
+            return [
+                ("月", "胸"), ("火", "背中"), ("水", "肩"),
+                ("木", "腕"), ("金", "脚"), ("土", "OFF"), ("日", "OFF"),
+            ]
+        }
+    }
 }
 
-// MARK: - 頻度選択画面
+// MARK: - 頻度選択画面（スケジュールプレビュー付き）
 
 struct FrequencySelectionPage: View {
     let onNext: (WeeklyFrequency) -> Void
@@ -58,8 +84,8 @@ struct FrequencySelectionPage: View {
 
             Spacer().frame(height: 32)
 
-            // 選択カード
-            VStack(spacing: 12) {
+            // 選択カード（左バー方式）
+            VStack(spacing: 10) {
                 ForEach(Array(WeeklyFrequency.allCases.enumerated()), id: \.element) { index, frequency in
                     FrequencyCard(
                         frequency: frequency,
@@ -78,6 +104,15 @@ struct FrequencySelectionPage: View {
                 }
             }
             .padding(.horizontal, 24)
+
+            // スケジュールプレビュー（選択時にフェードイン）
+            if let freq = selected {
+                WeekSchedulePreview(schedule: freq.schedulePreview)
+                    .padding(.horizontal, 24)
+                    .padding(.top, 16)
+                    .transition(.opacity.combined(with: .move(edge: .bottom)))
+                    .animation(.easeOut(duration: 0.4), value: selected)
+            }
 
             Spacer()
 
@@ -122,7 +157,7 @@ struct FrequencySelectionPage: View {
     }
 }
 
-// MARK: - 頻度カード
+// MARK: - 頻度カード（左バー方式）
 
 private struct FrequencyCard: View {
     let frequency: WeeklyFrequency
@@ -131,51 +166,97 @@ private struct FrequencyCard: View {
 
     var body: some View {
         Button(action: onTap) {
-            HStack(spacing: 14) {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(frequency.title)
-                        .font(.system(size: 17, weight: .semibold))
-                        .foregroundStyle(Color.mmOnboardingTextMain)
+            HStack(spacing: 0) {
+                // 左アクセントバー
+                RoundedRectangle(cornerRadius: 2)
+                    .fill(isSelected ? Color.mmOnboardingAccent : Color.clear)
+                    .frame(width: 3)
+                    .padding(.vertical, 12)
 
-                    Text(frequency.subtitle)
-                        .font(.system(size: 13))
-                        .foregroundStyle(Color.mmOnboardingTextSub)
-                }
+                HStack(spacing: 12) {
+                    // 回数バッジ
+                    Text("\(frequency.rawValue)")
+                        .font(.system(size: 22, weight: .heavy))
+                        .foregroundStyle(isSelected ? Color.mmOnboardingAccent : Color.mmOnboardingTextSub)
+                        .frame(width: 36, height: 36)
 
-                Spacer()
+                    // テキスト
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(frequency.title)
+                            .font(.system(size: 18, weight: .bold))
+                            .foregroundStyle(Color.mmOnboardingTextMain)
 
-                // チェックマーク
-                if isSelected {
-                    ZStack {
-                        Circle()
-                            .fill(Color.mmOnboardingAccent)
-                            .frame(width: 28, height: 28)
-
-                        Image(systemName: "checkmark")
-                            .font(.system(size: 14, weight: .bold))
-                            .foregroundStyle(Color.mmOnboardingBg)
+                        Text(frequency.subtitle)
+                            .font(.system(size: 13))
+                            .foregroundStyle(Color.mmOnboardingTextSub)
                     }
-                    .transition(.scale.combined(with: .opacity))
-                } else {
-                    Circle()
-                        .stroke(Color.mmOnboardingTextSub.opacity(0.3), lineWidth: 1.5)
-                        .frame(width: 28, height: 28)
+
+                    Spacer()
+
+                    // チェックマーク
+                    if isSelected {
+                        ZStack {
+                            Circle()
+                                .fill(Color.mmOnboardingAccent)
+                                .frame(width: 24, height: 24)
+
+                            Image(systemName: "checkmark")
+                                .font(.system(size: 12, weight: .bold))
+                                .foregroundStyle(Color.mmOnboardingBg)
+                        }
+                        .transition(.scale.combined(with: .opacity))
+                    }
                 }
+                .padding(.horizontal, 12)
             }
-            .padding(.horizontal, 16)
-            .frame(height: 72)
-            .background(Color.mmOnboardingCard)
+            .frame(height: 60)
+            .background(isSelected ? Color.mmOnboardingAccent.opacity(0.08) : Color.mmOnboardingCard)
             .clipShape(RoundedRectangle(cornerRadius: 16))
             .overlay(
                 RoundedRectangle(cornerRadius: 16)
                     .stroke(
-                        isSelected ? Color.mmOnboardingAccent : Color.clear,
-                        lineWidth: 2
+                        isSelected ? Color.mmOnboardingAccent.opacity(0.3) : Color.clear,
+                        lineWidth: 1
                     )
             )
-            .scaleEffect(isSelected ? 1.02 : 1.0)
         }
         .buttonStyle(.plain)
+    }
+}
+
+// MARK: - 週間スケジュールプレビュー
+
+private struct WeekSchedulePreview: View {
+    let schedule: [(day: String, content: String)]
+
+    var body: some View {
+        HStack(spacing: 4) {
+            ForEach(Array(schedule.enumerated()), id: \.offset) { _, item in
+                let isTraining = item.content != "OFF"
+                VStack(spacing: 4) {
+                    Text(item.day)
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundStyle(Color.mmOnboardingTextSub)
+
+                    RoundedRectangle(cornerRadius: 6)
+                        .fill(isTraining ? Color.mmOnboardingAccent.opacity(0.15) : Color.mmOnboardingCard)
+                        .frame(height: 36)
+                        .overlay {
+                            if isTraining {
+                                Text(item.content)
+                                    .font(.system(size: 9, weight: .bold))
+                                    .foregroundStyle(Color.mmOnboardingAccent)
+                                    .lineLimit(1)
+                                    .minimumScaleFactor(0.6)
+                            }
+                        }
+                }
+                .frame(maxWidth: .infinity)
+            }
+        }
+        .padding(12)
+        .background(Color.mmOnboardingCard)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 }
 

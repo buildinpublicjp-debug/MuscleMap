@@ -110,8 +110,9 @@ struct PRInputPage: View {
                         .foregroundStyle(Color.mmOnboardingTextSub)
 
                     HStack(spacing: 8) {
-                        Text(level.emoji)
-                            .font(.system(size: 32))
+                        Image(systemName: "dumbbell.fill")
+                            .font(.system(size: 24))
+                            .foregroundStyle(level.color)
                         Text(level.localizedName)
                             .font(.system(size: 32, weight: .heavy))
                             .foregroundStyle(level.color)
@@ -248,8 +249,9 @@ private struct PRInputRow: View {
                 // レベルバッジ
                 if showLevel, let level = currentLevel {
                     HStack(spacing: 4) {
-                        Text(level.emoji)
-                            .font(.system(size: 16))
+                        Image(systemName: "dumbbell.fill")
+                            .font(.system(size: 12))
+                            .foregroundStyle(level.color)
                         Text(level.localizedName)
                             .font(.system(size: 14, weight: .bold))
                             .foregroundStyle(level.color)

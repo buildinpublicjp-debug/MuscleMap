@@ -14,18 +14,6 @@ enum OnboardingGoal: String, CaseIterable, Identifiable {
 
     nonisolated var id: String { rawValue }
 
-    var emoji: String {
-        switch self {
-        case .getBig: return "💪"
-        case .dontGetDisrespected: return "😎"
-        case .martialArts: return "🥊"
-        case .sports: return "⛳"
-        case .getAttractive: return "❤️‍🔥"
-        case .moveWell: return "🏃"
-        case .health: return "❤️"
-        }
-    }
-
     var sfSymbol: String {
         switch self {
         case .getBig: return "figure.strengthtraining.traditional"
