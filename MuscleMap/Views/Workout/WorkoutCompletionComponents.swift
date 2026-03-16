@@ -201,14 +201,22 @@ struct WorkoutShareCard: View {
             ForEach(Array(prItems.prefix(2).enumerated()), id: \.offset) { _, item in
                 prRow(item: item)
             }
+
+            // 3件以上ある場合は残数バッジ
+            if prItems.count > 2 {
+                Text("+\(prItems.count - 2) more PRs")
+                    .font(.system(size: 9, weight: .semibold))
+                    .foregroundStyle(Color.mmPRGold.opacity(0.7))
+                    .padding(.top, 2)
+            }
         }
         .padding(.horizontal, 20)
         .padding(.vertical, 8)
         .background(
-            RoundedRectangle(cornerRadius: 10)
+            RoundedRectangle(cornerRadius: 8)
                 .fill(Color.mmPRGold.opacity(0.06))
                 .overlay(
-                    RoundedRectangle(cornerRadius: 10)
+                    RoundedRectangle(cornerRadius: 8)
                         .stroke(Color.mmPRGold.opacity(0.15), lineWidth: 0.5)
                 )
         )
@@ -416,7 +424,7 @@ struct ShareSheet: UIViewControllerRepresentable {
 
 #Preview("Workout Share Card - with PR (1:1)") {
     ZStack {
-        Color.black.ignoresSafeArea()
+        Color.mmBgPrimary.ignoresSafeArea()
         WorkoutShareCard(
             totalVolume: 12500,
             totalSets: 24,
@@ -442,7 +450,7 @@ struct ShareSheet: UIViewControllerRepresentable {
 
 #Preview("Workout Share Card - no PR (1:1)") {
     ZStack {
-        Color.black.ignoresSafeArea()
+        Color.mmBgPrimary.ignoresSafeArea()
         WorkoutShareCard(
             totalVolume: 8200,
             totalSets: 18,

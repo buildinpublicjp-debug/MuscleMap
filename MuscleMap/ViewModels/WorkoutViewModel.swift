@@ -38,6 +38,7 @@ class WorkoutViewModel {
     private var restTimerStartDate: Date?         // バックグラウンド復帰時の補正用
     private var restTimerDuration: Int = 90       // このタイマーセッションの設定秒数
     private var hasPlayedCompletionHaptic: Bool = false
+    private var hasPlayedWarningHaptic: Bool = false
 
     init(modelContext: ModelContext) {
         self.workoutRepo = WorkoutRepository(modelContext: modelContext)
@@ -217,6 +218,7 @@ class WorkoutViewModel {
         isRestTimerRunning = true
         isRestTimerOvertime = false
         hasPlayedCompletionHaptic = false
+        hasPlayedWarningHaptic = false
 
         restTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
             Task { @MainActor in
@@ -235,6 +237,11 @@ class WorkoutViewModel {
             // カウントダウン中
             restTimerSeconds = restTimerDuration - elapsed
             isRestTimerOvertime = false
+            // 残り10秒で警告ハプティック（1回だけ）
+            if restTimerSeconds == 10, !hasPlayedWarningHaptic {
+                hasPlayedWarningHaptic = true
+                HapticManager.lightTap()
+            }
         } else {
             // オーバータイム
             restTimerSeconds = elapsed - restTimerDuration

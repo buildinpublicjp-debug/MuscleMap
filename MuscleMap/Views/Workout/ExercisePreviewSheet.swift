@@ -7,6 +7,8 @@ struct ExercisePreviewSheet: View {
     let onAddExercise: (() -> Void)?
 
     @Environment(\.dismiss) private var dismiss
+    @State private var showAllPrimaryMuscles = false
+    @State private var showAllSecondaryMuscles = false
     private var localization: LocalizationManager { LocalizationManager.shared }
 
     private var exerciseName: String {
@@ -155,19 +157,29 @@ struct ExercisePreviewSheet: View {
                         .foregroundStyle(Color.mmMuscleJustWorked)
 
                     FlowLayout(spacing: 6) {
-                        ForEach(Array(primaryMuscles.prefix(3)), id: \.self) { muscle in
+                        let displayedPrimary = showAllPrimaryMuscles ? primaryMuscles : Array(primaryMuscles.prefix(3))
+                        ForEach(displayedPrimary, id: \.self) { muscle in
                             MuscleChip(
                                 muscle: muscle,
                                 percentage: exercise.muscleMapping[muscle.rawValue] ?? exercise.muscleMapping[muscle.rawValue.toSnakeCase()] ?? 0,
                                 isPrimary: true
                             )
                         }
-                        if primaryMuscles.count > 3 {
-                            Text("+\(primaryMuscles.count - 3)")
-                                .font(.caption)
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 4)
-                                .foregroundStyle(Color.mmTextSecondary)
+                        if primaryMuscles.count > 3, !showAllPrimaryMuscles {
+                            Button {
+                                withAnimation(.easeOut(duration: 0.2)) {
+                                    showAllPrimaryMuscles = true
+                                }
+                                HapticManager.lightTap()
+                            } label: {
+                                Text("+\(primaryMuscles.count - 3)")
+                                    .font(.caption)
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 4)
+                                    .background(Color.mmBgSecondary)
+                                    .foregroundStyle(Color.mmTextSecondary)
+                                    .clipShape(Capsule())
+                            }
                         }
                     }
                 }
@@ -180,19 +192,29 @@ struct ExercisePreviewSheet: View {
                         .foregroundStyle(Color.mmMuscleAmber)
 
                     FlowLayout(spacing: 6) {
-                        ForEach(Array(secondaryMuscles.prefix(3)), id: \.self) { muscle in
+                        let displayedSecondary = showAllSecondaryMuscles ? secondaryMuscles : Array(secondaryMuscles.prefix(3))
+                        ForEach(displayedSecondary, id: \.self) { muscle in
                             MuscleChip(
                                 muscle: muscle,
                                 percentage: exercise.muscleMapping[muscle.rawValue] ?? exercise.muscleMapping[muscle.rawValue.toSnakeCase()] ?? 0,
                                 isPrimary: false
                             )
                         }
-                        if secondaryMuscles.count > 3 {
-                            Text("+\(secondaryMuscles.count - 3)")
-                                .font(.caption)
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 4)
-                                .foregroundStyle(Color.mmTextSecondary)
+                        if secondaryMuscles.count > 3, !showAllSecondaryMuscles {
+                            Button {
+                                withAnimation(.easeOut(duration: 0.2)) {
+                                    showAllSecondaryMuscles = true
+                                }
+                                HapticManager.lightTap()
+                            } label: {
+                                Text("+\(secondaryMuscles.count - 3)")
+                                    .font(.caption)
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 4)
+                                    .background(Color.mmBgSecondary)
+                                    .foregroundStyle(Color.mmTextSecondary)
+                                    .clipShape(Capsule())
+                            }
                         }
                     }
                 }
@@ -216,7 +238,7 @@ struct ExercisePreviewSheet: View {
             HStack {
                 Image(systemName: "play.rectangle.fill")
                     .font(.title2)
-                    .foregroundStyle(.red)
+                    .foregroundStyle(Color.mmDestructive)
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(L10n.watchFormVideo)

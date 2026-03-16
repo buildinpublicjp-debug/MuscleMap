@@ -11,7 +11,6 @@ struct WorkoutStartView: View {
 
     // 完了画面用の状態（親ビューで管理してビュー遷移後も維持）
     @State private var completedSession: WorkoutSession?
-    @State private var showingCompletionView = false
 
     var body: some View {
         NavigationStack {
@@ -25,10 +24,9 @@ struct WorkoutStartView: View {
                             viewModel: vm,
                             showingExercisePicker: $showingExercisePicker,
                             onWorkoutCompleted: { session in
-                                completedSession = session
                                 vm.endSession()
                                 HapticManager.workoutEnded()
-                                showingCompletionView = true
+                                completedSession = session
                             }
                         )
                     } else {
@@ -88,13 +86,10 @@ struct WorkoutStartView: View {
                     .foregroundStyle(Color.mmAccentPrimary)
                 }
             }
-            .fullScreenCover(isPresented: $showingCompletionView) {
-                if let session = completedSession {
-                    WorkoutCompletionView(session: session) {
-                        showingCompletionView = false
-                        completedSession = nil
-                        loadMuscleStates() // 筋肉状態を更新
-                    }
+            .fullScreenCover(item: $completedSession) { session in
+                WorkoutCompletionView(session: session) {
+                    completedSession = nil
+                    loadMuscleStates() // 筋肉状態を更新
                 }
             }
         }
@@ -118,6 +113,7 @@ struct WorkoutStartView: View {
         AppState.shared.pendingRecommendedExercises = nil
         vm.startOrResumeSession()
         vm.applyRecommendedExercises(exercises)
+        AppState.shared.pendingRecommendationTrigger = nil
     }
 
     private func loadMuscleStates() {

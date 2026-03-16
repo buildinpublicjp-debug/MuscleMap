@@ -152,7 +152,7 @@ struct WorkoutCompletionView: View {
                             duration: duration
                         )
 
-                        // シェアボタン（StatsCard直下に配置）
+                        // シェアボタン（StatsCard直下に配置、視認性強化）
                         Button {
                             HapticManager.lightTap()
                             prepareShareImage()
@@ -162,12 +162,12 @@ struct WorkoutCompletionView: View {
                                 Image(systemName: "square.and.arrow.up")
                                 Text(L10n.shareWorkout)
                             }
-                            .font(.headline)
+                            .font(.system(size: 18, weight: .bold))
                             .foregroundStyle(Color.mmBgPrimary)
                             .frame(maxWidth: .infinity)
-                            .frame(height: 50)
+                            .frame(height: 56)
                             .background(Color.mmAccentPrimary)
-                            .clipShape(RoundedRectangle(cornerRadius: 14))
+                            .clipShape(RoundedRectangle(cornerRadius: 16))
                         }
                         .buttonStyle(.plain)
 
@@ -305,7 +305,6 @@ struct WorkoutCompletionView: View {
             isFirstConquest = !AppState.shared.hasAchievedFullBodyConquest
             if isFirstConquest {
                 AppState.shared.hasAchievedFullBodyConquest = true
-                AppState.shared.fullBodyConquestDate = Date()
             }
             AppState.shared.fullBodyConquestCount += 1
 

@@ -6,6 +6,7 @@ import Charts
 struct MuscleHistoryDetailSheet: View {
     let detail: MuscleHistoryDetail
     let period: HistoryPeriod
+    @Environment(\.dismiss) private var dismiss
     private var localization: LocalizationManager { LocalizationManager.shared }
 
     var body: some View {
@@ -36,6 +37,14 @@ struct MuscleHistoryDetailSheet: View {
             )
             .navigationBarTitleDisplayMode(.inline)
             .toolbarColorScheme(.dark, for: .navigationBar)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button { dismiss() } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundStyle(Color.mmTextSecondary)
+                    }
+                }
+            }
         }
     }
 

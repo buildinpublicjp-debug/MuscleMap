@@ -23,21 +23,6 @@ struct WorkoutIdleView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            // チュートリアルバナー（ジムルートからの初回ユーザー向け）
-            if AppState.shared.showWorkoutTutorial {
-                HStack(spacing: 10) {
-                    Image(systemName: "sparkles")
-                        .font(.system(size: 16, weight: .semibold))
-                    Text(L10n.tutorialBanner)
-                        .font(.system(size: 15, weight: .semibold))
-                }
-                .foregroundStyle(Color.mmBgPrimary)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 12)
-                .background(Color.mmOnboardingAccent)
-                .transition(.move(edge: .top).combined(with: .opacity))
-            }
-
             ScrollView {
                 VStack(spacing: 16) {
                     // 筋肉マップ（タップで種目選択）
@@ -61,11 +46,13 @@ struct WorkoutIdleView: View {
                         RecommendedWorkoutBanner(
                             menu: menu,
                             onStart: {
-                                // おすすめの最初の種目で開始
-                                if let firstExercise = menu.exercises.first {
-                                    onSelectExercise(firstExercise.definition)
-                                } else {
+                                // おすすめの全種目をセッションに追加
+                                if menu.exercises.isEmpty {
                                     onStart()
+                                } else {
+                                    for exercise in menu.exercises {
+                                        onSelectExercise(exercise.definition)
+                                    }
                                 }
                             }
                         )
@@ -93,9 +80,9 @@ struct WorkoutIdleView: View {
                     Text(L10n.startFreeWorkout)
                 }
                 .font(.headline)
-                .foregroundStyle(Color.mmTextPrimary)
+                .foregroundStyle(Color.mmBgPrimary)
                 .frame(maxWidth: .infinity)
-                .frame(height: 60)
+                .frame(height: 56)
                 .background(Color.mmAccentPrimary)
                 .clipShape(RoundedRectangle(cornerRadius: 16))
             }

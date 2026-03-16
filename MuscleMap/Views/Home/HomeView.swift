@@ -9,7 +9,6 @@ struct HomeView: View {
     @State private var streakViewModel = StreakViewModel()
     @State private var selectedMuscle: Muscle?
     @State private var showDemo = false
-    @State private var showingMilestone = false
     @State private var showingAnalyticsMenu = false
     @State private var showingStrengthMap = false
     @State private var showingPaywall = false
@@ -189,34 +188,32 @@ struct HomeView: View {
                 }
             }
             .onAppear {
-                if viewModel == nil {
-                    viewModel = HomeViewModel(modelContext: modelContext)
-                }
-                viewModel?.loadMuscleStates()
-                viewModel?.checkActiveSession()
+                Task {
+                    if viewModel == nil {
+                        viewModel = HomeViewModel(modelContext: modelContext)
+                    }
+                    viewModel?.loadMuscleStates()
+                    viewModel?.checkActiveSession()
 
-                // Pro時: メニュー自動提案を生成
-                if PurchaseManager.shared.isPremium, let vm = viewModel {
-                    let menu = vm.getSuggestedMenu()
-                    recommendedWorkout = WorkoutRecommendationEngine.generateRecommendation(
-                        suggestedMenu: menu,
-                        modelContext: modelContext
-                    )
+                    // loadMuscleStates完了後にメニュー提案
+                    if PurchaseManager.shared.isPremium, let vm = viewModel {
+                        let menu = vm.getSuggestedMenu()
+                        recommendedWorkout = WorkoutRecommendationEngine.generateRecommendation(
+                            suggestedMenu: menu,
+                            modelContext: modelContext
+                        )
+                    }
                 }
 
                 // ストリーク計算
                 streakViewModel.configure(with: modelContext)
 
-                // マイルストーン達成チェック
-                if streakViewModel.achievedMilestone != nil {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                        showingMilestone = true
-                    }
-                }
+                // マイルストーン達成チェック（achievedMilestoneがnon-nilなら自動でsheetが表示される）
 
                 // 初回デモアニメーション
                 if !AppState.shared.hasSeenDemoAnimation {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    Task {
+                        try? await Task.sleep(for: .seconds(0.5))
                         showDemo = true
                         AppState.shared.hasSeenDemoAnimation = true
                     }
@@ -227,7 +224,8 @@ struct HomeView: View {
                     let descriptor = FetchDescriptor<WorkoutSet>()
                     let count = (try? modelContext.fetchCount(descriptor)) ?? 0
                     if count == 0 {
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                        Task {
+                            try? await Task.sleep(for: .seconds(1.0))
                             withAnimation(.easeIn(duration: 0.3)) {
                                 showCoachMark = true
                             }
@@ -238,15 +236,12 @@ struct HomeView: View {
             .sheet(item: $selectedMuscle) { muscle in
                 MuscleDetailView(muscle: muscle)
             }
-            .sheet(isPresented: $showingMilestone) {
-                if let milestone = streakViewModel.achievedMilestone {
-                    MilestoneView(
-                        milestone: milestone,
-                        streakWeeks: streakViewModel.currentStreak
-                    ) {
-                        streakViewModel.dismissMilestone()
-                        showingMilestone = false
-                    }
+            .sheet(item: $streakViewModel.achievedMilestone) { milestone in
+                MilestoneView(
+                    milestone: milestone,
+                    streakWeeks: streakViewModel.currentStreak
+                ) {
+                    streakViewModel.dismissMilestone()
                 }
             }
             .sheet(isPresented: $showingExerciseLibrary) {

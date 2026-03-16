@@ -100,6 +100,9 @@ struct HistoryView: View {
                     .presentationDragIndicator(.visible)
                 }
             }
+            .onChange(of: viewMode) {
+                HapticManager.lightTap()
+            }
             .sheet(isPresented: $showingPaywall) {
                 PaywallView()
             }
