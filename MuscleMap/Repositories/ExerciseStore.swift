@@ -79,4 +79,30 @@ final class ExerciseStore {
             .sorted { ($0.muscleMapping[muscle.rawValue] ?? 0) > ($1.muscleMapping[muscle.rawValue] ?? 0) }
     }
 
+    /// IDからローカライズ済み種目名を取得
+    func exerciseName(for id: String) -> String? {
+        exerciseMap[id]?.localizedName
+    }
+
+    /// 指定筋肉リストの代表種目を取得（場所フィルター対応、重複除去、最大limit件）
+    func sampleExercises(for muscles: [Muscle], location: String, limit: Int = 3) -> [ExerciseDefinition] {
+        let homeEquipment: Set<String> = ["自重", "ダンベル", "ケトルベル"]
+        var result: [ExerciseDefinition] = []
+        for muscle in muscles {
+            let matching = exercises(targeting: muscle)
+            if location == "home" {
+                let filtered = matching.filter { homeEquipment.contains($0.equipment) }
+                if let first = filtered.first, !result.contains(where: { $0.id == first.id }) {
+                    result.append(first)
+                }
+            } else {
+                if let first = matching.first, !result.contains(where: { $0.id == first.id }) {
+                    result.append(first)
+                }
+            }
+            if result.count >= limit { break }
+        }
+        return result
+    }
+
 }
