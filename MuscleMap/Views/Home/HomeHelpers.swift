@@ -85,6 +85,7 @@ struct TodayRecommendationInline: View {
     let onStart: () -> Void
     let onStartWithMenu: ([RecommendedExercise]) -> Void
     let onShowPaywall: () -> Void
+    var onReviewMenu: ((RecommendedWorkout, SuggestedMenu) -> Void)?
 
     private var localization: LocalizationManager { LocalizationManager.shared }
 
@@ -162,9 +163,13 @@ struct TodayRecommendationInline: View {
             // 「メニューを確認する」ボタン → プレビューシートを表示
             Button {
                 HapticManager.lightTap()
-                onStartWithMenu(recommendation.exercises)
+                if let onReviewMenu {
+                    onReviewMenu(recommendation, menu)
+                } else {
+                    onStartWithMenu(recommendation.exercises)
+                }
             } label: {
-                Text(L10n.startWithThisMenu)
+                Text(L10n.reviewMenu)
                     .font(.system(size: 15, weight: .bold))
                     .foregroundStyle(Color.mmBgPrimary)
                     .frame(maxWidth: .infinity)

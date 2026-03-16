@@ -1069,6 +1069,10 @@ enum L10n {
 
     // MARK: - メニュー自動提案（Pro）
     static var startWithThisMenu: String { loc("このメニューで始める", "Start This Menu", zhHans: "按此菜单开始", ko: "이 메뉴로 시작", es: "Iniciar este menú", fr: "Commencer ce menu", de: "Dieses Menü starten") }
+    static var reviewMenu: String { loc("メニューを確認する", "Review Menu", zhHans: "查看菜单", ko: "메뉴 확인하기", es: "Revisar menú", fr: "Voir le menu", de: "Menü ansehen") }
+    static var todayMenuTitle: String { loc("今日のメニュー", "Today's Menu", zhHans: "今日菜单", ko: "오늘의 메뉴", es: "Menú de hoy", fr: "Menu du jour", de: "Heutiges Menü") }
+    static var trainedMuscles: String { loc("鍛える筋肉", "Muscles Trained", zhHans: "训练肌肉", ko: "훈련 근육", es: "Músculos entrenados", fr: "Muscles entraînés", de: "Trainierte Muskeln") }
+    static func previousRecord(_ text: String) -> String { loc("前回: \(text)", "Last: \(text)", zhHans: "上次: \(text)", ko: "지난번: \(text)", es: "Anterior: \(text)", fr: "Précédent: \(text)", de: "Letzte: \(text)") }
     static func weightChallenge(_ kg: String) -> String {
         loc("+\(kg)kg 挑戦！", "+\(kg)kg Challenge!", zhHans: "+\(kg)kg 挑战！", ko: "+\(kg)kg 도전!", es: "+\(kg)kg ¡Reto!", fr: "+\(kg)kg Défi !", de: "+\(kg)kg Herausforderung!")
     }

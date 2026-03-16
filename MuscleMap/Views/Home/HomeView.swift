@@ -16,6 +16,8 @@ struct HomeView: View {
     @State private var showCoachMark = false
     @State private var showingExerciseLibrary = false
     @State private var recommendedWorkout: RecommendedWorkout?
+    @State private var showingMenuPreview = false
+    @State private var menuPreviewData: (RecommendedWorkout, SuggestedMenu)?
 
     /// ワークアウト履歴があるかどうか
     private var hasWorkoutHistory: Bool {
@@ -86,6 +88,10 @@ struct HomeView: View {
                                 },
                                 onShowPaywall: {
                                     showingPaywall = true
+                                },
+                                onReviewMenu: { rec, menu in
+                                    menuPreviewData = (rec, menu)
+                                    showingMenuPreview = true
                                 }
                             )
                             .padding(.horizontal)
@@ -254,6 +260,23 @@ struct HomeView: View {
             }
             .sheet(isPresented: $showingPaywall) {
                 PaywallView()
+            }
+            .sheet(isPresented: $showingMenuPreview) {
+                if let (rec, menu) = menuPreviewData {
+                    MenuPreviewSheet(
+                        recommendation: rec,
+                        suggestedMenu: menu,
+                        onStart: { exercises in
+                            showingMenuPreview = false
+                            AppState.shared.pendingRecommendedExercises = exercises
+                            AppState.shared.pendingRecommendationTrigger = UUID()
+                            AppState.shared.selectedTab = 1
+                        }
+                    )
+                    .presentationDetents([.large])
+                    .presentationDragIndicator(.visible)
+                    .presentationBackground(Color.mmBgSecondary)
+                }
             }
         }
     }
