@@ -608,6 +608,22 @@ enum L10n {
     static var favoriteExercisesSub: String { loc("選んだ種目を優先的に提案します（スキップOK）", "Selected exercises will be prioritized (skip OK)") }
     static func exerciseSelectedCount(_ count: Int) -> String { loc("\(count)種目選択中", "\(count) selected") }
 
+    // MARK: - ルーティンビルダー（RoutineBuilderPage）
+    static var routineBuilderTitle: String { loc("あなたの週間メニュー", "Your Weekly Routine") }
+    static var routineBuilderSub: String { loc("自動で種目を提案しました。追加・削除できます", "We suggested exercises for you. Add or remove as you like") }
+    static var routineBuilderNextDay: String { loc("次のDayへ", "Next Day") }
+    static var routineBuilderComplete: String { loc("ルーティン完成！", "Complete Routine!") }
+    static func routineExerciseCount(_ current: Int, _ max: Int) -> String { loc("\(current)/\(max)種目", "\(current)/\(max) exercises") }
+    static var routineAddExercise: String { loc("種目を追加", "Add Exercise") }
+    static var routineAlreadyAdded: String { loc("追加済み", "Added") }
+
+    // MARK: - ルーティン完了（RoutineCompletionPage）
+    static var routineCompletionDefaultHeadline: String { loc("あなたの体の変化を記録しよう。", "Track your body transformation.") }
+    static var routineCompletionSub: String { loc("あなただけのメニューが完成しました", "Your personalized routine is ready") }
+    static func routineTotalExercises(_ exercises: Int, _ days: Int) -> String { loc("合計\(exercises)種目 / \(days)日分", "\(exercises) exercises / \(days) days") }
+    static func routineExerciseCountShort(_ count: Int) -> String { loc("\(count)種目", "\(count) exercises") }
+    static var routineUnlockPro: String { loc("Pro版で始める", "Start with Pro") }
+
     // MARK: - 通知許可画面
     static var notificationTitle: String { loc("回復したらお知らせ", "Get Notified When Recovered") }
     static var notificationDescription: String {
@@ -1037,6 +1053,11 @@ enum L10n {
     static var proLabel: String { loc("Pro", "Pro") }
     static var noHistory: String { loc("履歴なし", "No history", zhHans: "无历史", ko: "기록 없음", es: "Sin historial", fr: "Aucun historique", de: "Kein Verlauf") }
     static var menuSuggestionProDescription: String { loc("種目・重量・セットを自動提案", "Auto-suggest exercises, weight & sets", zhHans: "自动推荐动作、重量和组数", ko: "종목·중량·세트 자동 제안", es: "Sugerencia automática de ejercicios", fr: "Suggestion auto d'exercices", de: "Auto-Vorschlag für Übungen") }
+
+    // MARK: - ルーティン表示
+    static var todayRoutine: String { loc("今日のルーティン", "Today's Routine", zhHans: "今日训练", ko: "오늘의 루틴", es: "Rutina de hoy", fr: "Routine du jour", de: "Heutige Routine") }
+    static var startRoutine: String { loc("ルーティンを開始する", "Start Routine", zhHans: "开始训练", ko: "루틴 시작", es: "Iniciar rutina", fr: "Commencer la routine", de: "Routine starten") }
+    static var noWeight: String { loc("-- kg", "-- kg") }
 
     // MARK: - レベルアップ
     static var strengthLevelTitle: String { loc("強さレベル", "Strength Level", zhHans: "力量等级", ko: "강도 레벨", es: "Nivel de fuerza", fr: "Niveau de force", de: "Stärke-Level") }

@@ -1,6 +1,6 @@
 import SwiftUI
 
-// MARK: - オンボーディングV2（最大9ページ横スワイプ: 目標 → 頻度 → 場所 → トレ歴 → [PR入力] → 目標×筋肉 → やりたい種目 → 体重 → CTA）
+// MARK: - オンボーディングV2（最大9ページ横スワイプ: 目標 → 頻度 → 場所 → トレ歴 → [PR入力] → 目標×筋肉 → 体重 → ルーティンビルダー → ルーティン完了）
 
 struct OnboardingV2View: View {
     let onComplete: () -> Void
@@ -70,20 +70,20 @@ struct OnboardingV2View: View {
                 }
                 .tag(5)
 
-                // ページ6: やりたい種目選択（お気に入り登録）
-                FavoriteExercisesPage {
+                // ページ6: 体重・ニックネーム入力
+                WeightInputPage {
                     currentPage = 7
                 }
                 .tag(6)
 
-                // ページ7: 体重・ニックネーム入力
-                WeightInputPage {
+                // ページ7: ルーティンビルダー
+                RoutineBuilderPage {
                     currentPage = 8
                 }
                 .tag(7)
 
-                // ページ8: 機能紹介 & 開始（パーソナライズ版）
-                CallToActionPage(onComplete: onComplete)
+                // ページ8: ルーティン完了 + ハードペイウォール
+                RoutineCompletionPage(onComplete: onComplete)
                     .tag(8)
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
