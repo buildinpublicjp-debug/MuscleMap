@@ -273,7 +273,26 @@ struct WorkoutRecommendationEngine {
         modelContext: ModelContext
     ) -> [RecommendedExercise] {
         let workoutRepo = WorkoutRepository(modelContext: modelContext)
+        let profile = AppState.shared.userProfile
         var recommended: [RecommendedExercise] = []
+
+        // トレ歴に基づくデフォルトのレップ数・セット数
+        let defaultReps: Int
+        let defaultSets: Int
+        switch profile.trainingExperience {
+        case .beginner:
+            defaultReps = 12  // 初心者はフォーム習得のため高レップ
+            defaultSets = 3
+        case .halfYear:
+            defaultReps = 10
+            defaultSets = 3
+        case .oneYearPlus:
+            defaultReps = 8   // 中級者は中レップ
+            defaultSets = 4
+        case .veteran:
+            defaultReps = 6   // ベテランは高重量低レップ
+            defaultSets = 4
+        }
 
         for exercise in exercises {
             let isCompound = isCompoundExercise(exercise)
@@ -281,16 +300,18 @@ struct WorkoutRecommendationEngine {
 
             let lastRecord = workoutRepo.fetchLastRecord(exerciseId: exercise.id)
             let previousWeight = lastRecord?.weight
-            let previousReps = lastRecord?.reps ?? 10
+            let previousReps: Int
             let previousSets: Int
 
-            // 前回セット数を取得
+            // 前回記録があればそれを使用、なければトレ歴ベースのデフォルト値
             if let record = lastRecord,
                let session = record.session {
+                previousReps = record.reps
                 let setsInSession = session.sets.filter { $0.exerciseId == exercise.id }
-                previousSets = max(setsInSession.count, 3)
+                previousSets = max(setsInSession.count, defaultSets)
             } else {
-                previousSets = 3
+                previousReps = defaultReps
+                previousSets = defaultSets
             }
 
             // 重量提案: 前回重量 + increment（前回記録なしの場合は0）
