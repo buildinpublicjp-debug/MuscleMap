@@ -7,8 +7,6 @@ struct HistoryMapView: View {
     let viewModel: HistoryViewModel
     let onMuscleTap: (Muscle) -> Void
     var onProBannerTap: (() -> Void)? = nil
-    @State private var showFront = true
-    private var localization: LocalizationManager { LocalizationManager.shared }
 
     var body: some View {
         ScrollView {
@@ -21,47 +19,15 @@ struct HistoryMapView: View {
                     }
                 )
 
-                // 筋肉マップカード
+                // 筋肉マップカード（前後同時表示）
                 VStack(spacing: 16) {
-                    HStack {
-                        HStack(spacing: 6) {
-                            Image(systemName: showFront ? "person.fill" : "person.fill")
-                                .font(.caption)
-                            Text(showFront ? L10n.front : L10n.back)
-                                .font(.subheadline.weight(.medium))
-                        }
-                        .foregroundStyle(Color.mmTextPrimary)
-
-                        Spacer()
-
-                        Button {
-                            withAnimation(.easeInOut(duration: 0.3)) {
-                                showFront.toggle()
-                            }
-                            HapticManager.lightTap()
-                        } label: {
-                            HStack(spacing: 6) {
-                                Image(systemName: "arrow.left.arrow.right")
-                                    .font(.caption.weight(.medium))
-                                Text(showFront ? L10n.viewBack : L10n.viewFront)
-                                    .font(.caption.weight(.medium))
-                            }
-                            .foregroundStyle(Color.mmAccentPrimary)
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 6)
-                            .background(Color.mmAccentPrimary.opacity(0.15))
-                            .clipShape(Capsule())
-                        }
-                    }
-
                     HistoryMuscleMapCanvas(
                         muscleSets: viewModel.periodMuscleSets,
-                        showFront: showFront,
                         onMuscleTap: { muscle in
                             onMuscleTap(muscle)
                         }
                     )
-                    .frame(maxHeight: 380)
+                    .frame(maxHeight: 500)
 
                     HistoryMapLegend()
                 }
@@ -384,11 +350,10 @@ struct PeriodSelector: View {
     }
 }
 
-// MARK: - 履歴筋肉マップキャンバス
+// MARK: - 履歴筋肉マップキャンバス（前後同時表示）
 
 struct HistoryMuscleMapCanvas: View {
     let muscleSets: [Muscle: Int]
-    let showFront: Bool
     let onMuscleTap: (Muscle) -> Void
 
     private var maxSets: Int {
@@ -396,28 +361,49 @@ struct HistoryMuscleMapCanvas: View {
     }
 
     var body: some View {
-        let muscles = showFront ? MusclePathData.frontMuscles : MusclePathData.backMuscles
+        HStack(spacing: 0) {
+            // 前面
+            GeometryReader { geo in
+                let rect = CGRect(origin: .zero, size: geo.size)
+                ZStack {
+                    ForEach(MusclePathData.frontMuscles, id: \.muscle) { entry in
+                        let sets = muscleSets[entry.muscle] ?? 0
+                        let fillColor = colorForSets(sets)
 
-        GeometryReader { geo in
-            let rect = CGRect(origin: .zero, size: geo.size)
-
-            ZStack {
-                ForEach(muscles, id: \.muscle) { entry in
-                    let sets = muscleSets[entry.muscle] ?? 0
-                    let fillColor = colorForSets(sets)
-
-                    HistoryMusclePathView(
-                        path: entry.path(rect),
-                        fillColor: fillColor,
-                        muscle: entry.muscle
-                    ) {
-                        onMuscleTap(entry.muscle)
+                        HistoryMusclePathView(
+                            path: entry.path(rect),
+                            fillColor: fillColor,
+                            muscle: entry.muscle
+                        ) {
+                            onMuscleTap(entry.muscle)
+                        }
                     }
                 }
+                .drawingGroup()
             }
-            .drawingGroup()
+            .aspectRatio(0.55, contentMode: .fit)
+
+            // 背面
+            GeometryReader { geo in
+                let rect = CGRect(origin: .zero, size: geo.size)
+                ZStack {
+                    ForEach(MusclePathData.backMuscles, id: \.muscle) { entry in
+                        let sets = muscleSets[entry.muscle] ?? 0
+                        let fillColor = colorForSets(sets)
+
+                        HistoryMusclePathView(
+                            path: entry.path(rect),
+                            fillColor: fillColor,
+                            muscle: entry.muscle
+                        ) {
+                            onMuscleTap(entry.muscle)
+                        }
+                    }
+                }
+                .drawingGroup()
+            }
+            .aspectRatio(0.55, contentMode: .fit)
         }
-        .aspectRatio(0.6, contentMode: .fit)
     }
 
     private func colorForSets(_ sets: Int) -> Color {
