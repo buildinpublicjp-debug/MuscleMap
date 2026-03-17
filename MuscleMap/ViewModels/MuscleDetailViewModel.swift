@@ -67,9 +67,32 @@ class MuscleDetailViewModel {
         )
     }
 
-    /// 関連種目を刺激度%順で読み込む
+    /// 関連種目を刺激度%順 + お気に入り・場所優先で読み込む
     private func loadRelatedExercises() {
-        relatedExercises = exerciseStore.exercises(targeting: muscle)
+        let all = exerciseStore.exercises(targeting: muscle)
+        let profile = AppState.shared.userProfile
+        let location = profile.trainingLocation
+        let favorites = FavoritesManager.shared
+
+        // 自宅向け器具セット
+        let homeEquipment: Set<String> = ["自重", "ダンベル", "ケトルベル"]
+
+        relatedExercises = all.sorted { a, b in
+            // 1. お気に入り優先
+            let aFav = favorites.isFavorite(a.id)
+            let bFav = favorites.isFavorite(b.id)
+            if aFav != bFav { return aFav }
+
+            // 2. 場所に合った種目を優先（homeの場合のみ）
+            if location == "home" {
+                let aHome = homeEquipment.contains(a.equipment)
+                let bHome = homeEquipment.contains(b.equipment)
+                if aHome != bHome { return aHome }
+            }
+
+            // 3. 元の刺激度%順を維持
+            return false
+        }
     }
 
     /// 直近の履歴を読み込む

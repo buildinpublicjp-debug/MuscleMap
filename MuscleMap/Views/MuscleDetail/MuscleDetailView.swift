@@ -329,7 +329,7 @@ private struct RelatedExercisesSection: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: 8) {
             HStack {
                 Text(L10n.relatedExercises)
                     .font(.headline)
@@ -347,38 +347,55 @@ private struct RelatedExercisesSection: View {
                     selectedExercise = exercise
                 } label: {
                     HStack(spacing: 12) {
-                        // GIF サムネイル 80×80pt
+                        // GIF サムネイル 120×80pt
                         if ExerciseGifView.hasGif(exerciseId: exercise.id) {
                             ExerciseGifView(exerciseId: exercise.id, size: .thumbnail)
-                                .frame(width: 80, height: 80)
+                                .frame(width: 120, height: 80)
                                 .clipShape(RoundedRectangle(cornerRadius: 8))
                         } else {
                             MiniMuscleMapView(muscleMapping: exercise.muscleMapping)
-                                .frame(width: 80, height: 80)
+                                .frame(width: 120, height: 80)
                                 .background(Color.mmBgPrimary.opacity(0.5))
                                 .clipShape(RoundedRectangle(cornerRadius: 8))
                         }
 
-                        // 種目名 + 情報
-                        VStack(alignment: .leading, spacing: 4) {
+                        // 種目名 + 器具バッジ + 対象筋肉チップ
+                        VStack(alignment: .leading, spacing: 6) {
                             Text(localization.currentLanguage == .japanese ? exercise.nameJA : exercise.nameEN)
-                                .font(.subheadline.bold())
+                                .font(.system(size: 16, weight: .bold))
                                 .foregroundStyle(Color.mmTextPrimary)
-                                .lineLimit(1)
+                                .lineLimit(2)
                                 .minimumScaleFactor(0.7)
 
-                            Text(exercise.localizedEquipment)
-                                .font(.caption)
-                                .foregroundStyle(Color.mmTextSecondary)
+                            // 器具バッジ
+                            HStack(spacing: 4) {
+                                Image(systemName: "dumbbell")
+                                Text(exercise.localizedEquipment)
+                            }
+                            .font(.caption)
+                            .foregroundStyle(Color.mmTextSecondary)
 
-                            if let record = lastRecord(for: exercise.id) {
-                                Text(L10n.lastRecordLabel(record.weight, record.reps))
-                                    .font(.caption.monospaced().bold())
-                                    .foregroundStyle(Color.mmAccentPrimary)
+                            // 対象筋肉チップ + 前回記録
+                            HStack(spacing: 4) {
+                                if let primary = exercise.primaryMuscle {
+                                    Text(primary.localizedName)
+                                        .font(.caption2)
+                                        .padding(.horizontal, 6)
+                                        .padding(.vertical, 2)
+                                        .background(Color.mmAccentPrimary.opacity(0.15))
+                                        .foregroundStyle(Color.mmAccentPrimary)
+                                        .clipShape(Capsule())
+                                }
+
+                                if let record = lastRecord(for: exercise.id) {
+                                    Text(L10n.lastRecordLabel(record.weight, record.reps))
+                                        .font(.caption2.monospaced().bold())
+                                        .foregroundStyle(Color.mmAccentPrimary)
+                                }
                             }
                         }
 
-                        Spacer()
+                        Spacer(minLength: 4)
 
                         Image(systemName: "chevron.right")
                             .font(.caption)
@@ -386,7 +403,7 @@ private struct RelatedExercisesSection: View {
                     }
                     .padding(12)
                     .background(Color.mmBgCard)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .clipShape(RoundedRectangle(cornerRadius: 16))
                 }
                 .padding(.horizontal)
             }

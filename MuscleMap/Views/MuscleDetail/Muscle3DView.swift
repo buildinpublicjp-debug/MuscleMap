@@ -38,9 +38,29 @@ struct Muscle3DView: View {
         }
     }
 
+    /// 筋肉グループに応じたズーム設定
+    private var zoomConfig: (scale: CGFloat, offsetY: CGFloat) {
+        switch muscle.group {
+        case .chest, .shoulders, .arms, .back:
+            // 上半身 → 上方向にズーム
+            return (scale: 1.8, offsetY: 80)
+        case .core:
+            // 体幹 → 中央にズーム
+            return (scale: 1.5, offsetY: 20)
+        case .lowerBody:
+            // 下半身 → 下方向にズーム
+            return (scale: 1.8, offsetY: -80)
+        }
+    }
+
     var body: some View {
         ZStack {
-            Color.mmBgCard
+            // 背景グラデーション
+            LinearGradient(
+                colors: [Color.mmBgPrimary, Color.mmBgCard],
+                startPoint: .top,
+                endPoint: .bottom
+            )
 
             // 前面(60%) + 背面(40%) または逆 — メインサイドを大きく
             HStack(spacing: 0) {
@@ -62,8 +82,11 @@ struct Muscle3DView: View {
             }
             .padding(.horizontal, 8)
             .padding(.vertical, 4)
+            .scaleEffect(zoomConfig.scale)
+            .offset(y: zoomConfig.offsetY)
         }
         .frame(height: 200)
+        .clipped()
         .clipShape(RoundedRectangle(cornerRadius: 16))
     }
 
