@@ -229,6 +229,14 @@ final class StrengthScoreCalculator {
             }
         }
 
+        // Step 1.5: オンボーディングPR入力値をマージ（ワークアウト記録がない種目のみ補完）
+        let initialPRs = AppState.shared.userProfile.initialPRs
+        for (exerciseId, pr1RM) in initialPRs where pr1RM > 0 {
+            if pr1RM > (exerciseBest1RM[exerciseId] ?? 0) {
+                exerciseBest1RM[exerciseId] = pr1RM
+            }
+        }
+
         // Step 2: 種目→筋肉の逆引きで、筋肉ごとの最高スコアを算出
         var muscleScores: [String: Double] = [:]
         let exerciseStore = ExerciseStore.shared
