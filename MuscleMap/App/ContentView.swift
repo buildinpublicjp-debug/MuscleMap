@@ -23,6 +23,8 @@ struct ContentView: View {
 
 private struct MainTabView: View {
     @State private var appState = AppState.shared
+    @State private var previousTab: Int = 0
+    @State private var showingPaywall = false
 
     var body: some View {
         TabView(selection: $appState.selectedTab) {
@@ -51,6 +53,18 @@ private struct MainTabView: View {
                 .tag(3)
         }
         .tint(Color.mmAccentPrimary)
+        .onChange(of: appState.selectedTab) { oldValue, newValue in
+            if newValue == 1 && !PurchaseManager.shared.canRecordWorkout {
+                // 週間制限に達した場合はペイウォールを表示
+                appState.selectedTab = oldValue
+                showingPaywall = true
+            } else {
+                previousTab = newValue
+            }
+        }
+        .sheet(isPresented: $showingPaywall) {
+            PaywallView(isHardPaywall: false)
+        }
     }
 }
 

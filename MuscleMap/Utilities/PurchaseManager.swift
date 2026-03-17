@@ -92,6 +92,45 @@ final class PurchaseManager {
         return isPremium
     }
 
+    // MARK: - 週間ワークアウト制限（無料ユーザー向け）
+
+    private static let weeklyWorkoutCountKey = "weeklyWorkoutCount"
+    private static let weeklyResetDateKey = "weeklyResetDate"
+
+    /// 今週のワークアウト記録回数
+    var weeklyWorkoutCount: Int {
+        resetIfNewWeek()
+        return UserDefaults.standard.integer(forKey: Self.weeklyWorkoutCountKey)
+    }
+
+    /// ワークアウト記録が可能か（Pro or 週1未満）
+    var canRecordWorkout: Bool {
+        isPremium || weeklyWorkoutCount < 1
+    }
+
+    /// ワークアウト記録カウントをインクリメント
+    func incrementWorkoutCount() {
+        resetIfNewWeek()
+        let current = UserDefaults.standard.integer(forKey: Self.weeklyWorkoutCountKey)
+        UserDefaults.standard.set(current + 1, forKey: Self.weeklyWorkoutCountKey)
+    }
+
+    /// 週が変わっていたらカウントをリセット
+    private func resetIfNewWeek() {
+        let calendar = Calendar.current
+        let now = Date()
+        if let lastReset = UserDefaults.standard.object(forKey: Self.weeklyResetDateKey) as? Date {
+            let lastWeek = calendar.component(.weekOfYear, from: lastReset)
+            let currentWeek = calendar.component(.weekOfYear, from: now)
+            if lastWeek != currentWeek {
+                UserDefaults.standard.set(0, forKey: Self.weeklyWorkoutCountKey)
+                UserDefaults.standard.set(now, forKey: Self.weeklyResetDateKey)
+            }
+        } else {
+            UserDefaults.standard.set(now, forKey: Self.weeklyResetDateKey)
+        }
+    }
+
     private init() {}
 }
 

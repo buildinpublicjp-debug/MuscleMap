@@ -203,7 +203,7 @@ struct RoutineCompletionPage: View {
             }
         }
         .fullScreenCover(isPresented: $showingPaywall) {
-            PaywallView()
+            PaywallView(isHardPaywall: true)
         }
     }
 

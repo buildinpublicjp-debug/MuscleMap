@@ -3,6 +3,7 @@ import SwiftUI
 // MARK: - Paywall View（Pro版購入モーダル — 実データ連動）
 
 struct PaywallView: View {
+    var isHardPaywall: Bool = false
     @Environment(\.dismiss) private var dismiss
     @State private var errorMessage: String?
     @State private var showingError = false
@@ -72,20 +73,22 @@ struct PaywallView: View {
                 .padding(.vertical)
             }
 
-            // 閉じるボタン（右上固定）
-            VStack {
-                HStack {
-                    Spacer()
-                    Button { dismiss() } label: {
-                        Image(systemName: "xmark.circle.fill")
-                            .font(.system(size: 24))
-                            .foregroundStyle(Color.mmTextSecondary)
+            // 閉じるボタン（右上固定、ハードペイウォール時は非表示）
+            if !isHardPaywall {
+                VStack {
+                    HStack {
+                        Spacer()
+                        Button { dismiss() } label: {
+                            Image(systemName: "xmark.circle.fill")
+                                .font(.system(size: 24))
+                                .foregroundStyle(Color.mmTextSecondary)
+                        }
+                        .disabled(PurchaseManager.shared.isLoading)
+                        .padding(.trailing, 16)
+                        .padding(.top, 12)
                     }
-                    .disabled(PurchaseManager.shared.isLoading)
-                    .padding(.trailing, 16)
-                    .padding(.top, 12)
+                    Spacer()
                 }
-                Spacer()
             }
 
             // 購入中オーバーレイ
@@ -111,6 +114,7 @@ struct PaywallView: View {
         } message: {
             Text(errorMessage ?? "不明なエラーが発生しました。")
         }
+        .interactiveDismissDisabled(isHardPaywall)
     }
 
     // MARK: - 筋肉マップセクション
@@ -126,7 +130,7 @@ struct PaywallView: View {
 
     private var headlineSection: some View {
         VStack(spacing: 8) {
-            Text("あなた専用のメニューを毎日届ける")
+            Text(isHardPaywall ? "あなた専用のプログラムを解放" : "あなた専用のメニューを毎日届ける")
                 .font(.system(size: 24, weight: .heavy))
                 .foregroundStyle(Color.mmTextPrimary)
                 .multilineTextAlignment(.center)
