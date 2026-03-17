@@ -321,6 +321,9 @@ enum L10n {
     // MARK: - 種目選択・種目辞典
     static var selectExercise: String { loc("種目を選択", "Select Exercise") }
     static var all: String { loc("すべて", "All") }
+    static var filterGym: String { loc("ジム", "Gym") }
+    static var filterHome: String { loc("自宅", "Home") }
+    static var noExercisesForLocation: String { loc("この場所で使える種目はありません", "No exercises for this location") }
     static var recent: String { loc("最近", "Recent") }
     static var equipment: String { loc("器具", "Equipment") }
     static var searchExercises: String { loc("種目を検索", "Search exercises") }

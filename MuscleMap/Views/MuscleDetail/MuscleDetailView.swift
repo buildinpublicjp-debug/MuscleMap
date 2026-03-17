@@ -42,10 +42,10 @@ struct MuscleDetailView: View {
                                 .padding(.horizontal)
 
                             // 関連種目
-                            if !vm.relatedExercises.isEmpty {
+                            if !vm.allRelatedExercises.isEmpty {
                                 RelatedExercisesSection(
                                     muscle: muscle,
-                                    exercises: vm.relatedExercises
+                                    viewModel: vm
                                 )
                             }
 
@@ -315,7 +315,7 @@ private struct InfoBlock: View {
 
 private struct RelatedExercisesSection: View {
     let muscle: Muscle
-    let exercises: [ExerciseDefinition]
+    @Bindable var viewModel: MuscleDetailViewModel
     @Environment(\.modelContext) private var modelContext
     @State private var selectedExercise: ExerciseDefinition?
     private var localization: LocalizationManager { LocalizationManager.shared }
@@ -330,87 +330,124 @@ private struct RelatedExercisesSection: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
+            // セクションヘッダー
             HStack {
                 Text(L10n.relatedExercises)
                     .font(.headline)
                     .foregroundStyle(Color.mmTextPrimary)
                 Spacer()
-                Text("\(exercises.count)\(L10n.exerciseUnit)")
+                Text("\(viewModel.filteredExercises.count)\(L10n.exerciseUnit)")
                     .font(.caption)
                     .foregroundStyle(Color.mmTextSecondary)
             }
             .padding(.horizontal)
 
-            ForEach(exercises.prefix(10)) { exercise in
-                Button {
-                    HapticManager.lightTap()
-                    selectedExercise = exercise
-                } label: {
-                    HStack(spacing: 12) {
-                        // GIF サムネイル 120×80pt
-                        if ExerciseGifView.hasGif(exerciseId: exercise.id) {
-                            ExerciseGifView(exerciseId: exercise.id, size: .thumbnail)
-                                .frame(width: 120, height: 80)
-                                .clipShape(RoundedRectangle(cornerRadius: 8))
-                        } else {
-                            MiniMuscleMapView(muscleMapping: exercise.muscleMapping)
-                                .frame(width: 120, height: 80)
-                                .background(Color.mmBgPrimary.opacity(0.5))
-                                .clipShape(RoundedRectangle(cornerRadius: 8))
-                        }
-
-                        // 種目名 + 器具バッジ + 対象筋肉チップ
-                        VStack(alignment: .leading, spacing: 6) {
-                            Text(localization.currentLanguage == .japanese ? exercise.nameJA : exercise.nameEN)
-                                .font(.system(size: 16, weight: .bold))
-                                .foregroundStyle(Color.mmTextPrimary)
-                                .lineLimit(2)
-                                .minimumScaleFactor(0.7)
-
-                            // 器具バッジ
-                            HStack(spacing: 4) {
-                                Image(systemName: "dumbbell")
-                                Text(exercise.localizedEquipment)
-                            }
-                            .font(.caption)
-                            .foregroundStyle(Color.mmTextSecondary)
-
-                            // 対象筋肉チップ + 前回記録
-                            HStack(spacing: 4) {
-                                if let primary = exercise.primaryMuscle {
-                                    Text(primary.localizedName)
-                                        .font(.caption2)
-                                        .padding(.horizontal, 6)
-                                        .padding(.vertical, 2)
-                                        .background(Color.mmAccentPrimary.opacity(0.15))
-                                        .foregroundStyle(Color.mmAccentPrimary)
-                                        .clipShape(Capsule())
-                                }
-
-                                if let record = lastRecord(for: exercise.id) {
-                                    Text(L10n.lastRecordLabel(record.weight, record.reps))
-                                        .font(.caption2.monospaced().bold())
-                                        .foregroundStyle(Color.mmAccentPrimary)
-                                }
-                            }
-                        }
-
-                        Spacer(minLength: 4)
-
-                        Image(systemName: "chevron.right")
-                            .font(.caption)
-                            .foregroundStyle(Color.mmTextSecondary)
-                    }
-                    .padding(12)
-                    .background(Color.mmBgCard)
-                    .clipShape(RoundedRectangle(cornerRadius: 16))
+            // 場所フィルタ（セグメントコントロール）
+            Picker("", selection: $viewModel.locationFilter) {
+                ForEach(LocationFilter.allCases, id: \.self) { filter in
+                    Text(filter.label).tag(filter)
                 }
-                .padding(.horizontal)
+            }
+            .pickerStyle(.segmented)
+            .padding(.horizontal)
+
+            // 種目カード（横レイアウト: GIF 50% + テキスト 50%）
+            if viewModel.filteredExercises.isEmpty {
+                Text(L10n.noExercisesForLocation)
+                    .font(.caption)
+                    .foregroundStyle(Color.mmTextSecondary)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 24)
+            } else {
+                ForEach(viewModel.filteredExercises.prefix(10)) { exercise in
+                    Button {
+                        HapticManager.lightTap()
+                        selectedExercise = exercise
+                    } label: {
+                        exerciseCard(exercise)
+                    }
+                    .padding(.horizontal)
+                }
             }
         }
         .sheet(item: $selectedExercise) { exercise in
             ExerciseDetailView(exercise: exercise)
         }
+    }
+
+    // MARK: - 種目カード（横レイアウト）
+
+    @ViewBuilder
+    private func exerciseCard(_ exercise: ExerciseDefinition) -> some View {
+        HStack(spacing: 0) {
+            // 左: GIF / 筋肉マップ（固定幅160pt ≈ 画面幅の50%弱）
+            Group {
+                if ExerciseGifView.hasGif(exerciseId: exercise.id) {
+                    ExerciseGifView(exerciseId: exercise.id, size: .thumbnail)
+                        .frame(width: 160, height: 130)
+                } else {
+                    MiniMuscleMapView(muscleMapping: exercise.muscleMapping)
+                        .padding(8)
+                        .frame(width: 160, height: 130)
+                        .background(Color.mmBgPrimary.opacity(0.5))
+                }
+            }
+            .clipShape(
+                UnevenRoundedRectangle(
+                    topLeadingRadius: 16,
+                    bottomLeadingRadius: 16,
+                    bottomTrailingRadius: 0,
+                    topTrailingRadius: 0
+                )
+            )
+
+            // 右: 種目情報
+            VStack(alignment: .leading, spacing: 6) {
+                Text(localization.currentLanguage == .japanese ? exercise.nameJA : exercise.nameEN)
+                    .font(.system(size: 15, weight: .bold))
+                    .foregroundStyle(Color.mmTextPrimary)
+                    .lineLimit(2)
+                    .minimumScaleFactor(0.8)
+
+                // 器具バッジ
+                HStack(spacing: 4) {
+                    Image(systemName: "dumbbell")
+                    Text(exercise.localizedEquipment)
+                }
+                .font(.caption)
+                .foregroundStyle(Color.mmTextSecondary)
+
+                Spacer(minLength: 4)
+
+                // 対象筋肉チップ
+                if let primary = exercise.primaryMuscle {
+                    Text(primary.localizedName)
+                        .font(.caption2)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(Color.mmAccentPrimary.opacity(0.15))
+                        .foregroundStyle(Color.mmAccentPrimary)
+                        .clipShape(Capsule())
+                }
+
+                // 前回記録
+                if let record = lastRecord(for: exercise.id) {
+                    Text(L10n.lastRecordLabel(record.weight, record.reps))
+                        .font(.caption2.monospaced().bold())
+                        .foregroundStyle(Color.mmAccentPrimary)
+                }
+            }
+            .padding(12)
+            .frame(maxWidth: .infinity, alignment: .leading)
+
+            Image(systemName: "chevron.right")
+                .font(.caption)
+                .foregroundStyle(Color.mmTextSecondary)
+                .padding(.trailing, 12)
+        }
+        .frame(height: 130)
+        .background(Color.mmBgCard)
+        .clipShape(RoundedRectangle(cornerRadius: 16))
     }
 }
 

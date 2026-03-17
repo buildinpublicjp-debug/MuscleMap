@@ -41,12 +41,15 @@ struct Muscle3DView: View {
     /// 筋肉グループに応じたズーム設定
     private var zoomConfig: (scale: CGFloat, offsetY: CGFloat) {
         switch muscle.group {
-        case .chest, .shoulders, .arms, .back:
-            // 上半身 → 上方向にズーム
+        case .chest, .shoulders, .arms:
+            // 上半身前面 → 上方向にズーム
             return (scale: 1.8, offsetY: 80)
+        case .back:
+            // 背中 → 脊柱起立筋が下方に広がるため控えめにオフセット
+            return (scale: 1.8, offsetY: 60)
         case .core:
             // 体幹 → 中央にズーム
-            return (scale: 1.5, offsetY: 20)
+            return (scale: 1.8, offsetY: 20)
         case .lowerBody:
             // 下半身 → 下方向にズーム
             return (scale: 1.8, offsetY: -80)
@@ -85,7 +88,7 @@ struct Muscle3DView: View {
             .scaleEffect(zoomConfig.scale)
             .offset(y: zoomConfig.offsetY)
         }
-        .frame(height: 200)
+        .frame(height: 240)
         .clipped()
         .clipShape(RoundedRectangle(cornerRadius: 16))
     }

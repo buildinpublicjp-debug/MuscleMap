@@ -1,6 +1,30 @@
 import Foundation
 import SwiftData
 
+// MARK: - 場所フィルタ
+
+@MainActor
+enum LocationFilter: String, CaseIterable {
+    case all, gym, home
+
+    var label: String {
+        switch self {
+        case .all:  return L10n.all
+        case .gym:  return L10n.filterGym
+        case .home: return L10n.filterHome
+        }
+    }
+
+    /// UserProfile.trainingLocation からデフォルト値を決定
+    static func defaultFilter(from trainingLocation: String) -> LocationFilter {
+        switch trainingLocation {
+        case "home": return .home
+        case "gym":  return .gym
+        default:     return .all
+        }
+    }
+}
+
 // MARK: - 部位詳細ViewModel
 
 @MainActor
@@ -19,8 +43,21 @@ class MuscleDetailViewModel {
     var lastStimulationDate: Date?
     var lastTotalSets: Int = 0
 
-    // 関連種目（刺激度%順）
-    var relatedExercises: [ExerciseDefinition] = []
+    // 場所フィルタ（UIバインディング用）
+    var locationFilter: LocationFilter = .all
+
+    // 関連種目（フィルタ前の全種目、お気に入り優先ソート済み）
+    var allRelatedExercises: [ExerciseDefinition] = []
+
+    // フィルタ済み種目（場所フィルタ適用後）
+    var filteredExercises: [ExerciseDefinition] {
+        let homeEquipment: Set<String> = ["自重", "ダンベル", "ケトルベル"]
+        switch locationFilter {
+        case .all:  return allRelatedExercises
+        case .gym:  return allRelatedExercises
+        case .home: return allRelatedExercises.filter { homeEquipment.contains($0.equipment) }
+        }
+    }
 
     // 直近のワークアウト履歴（この筋肉に関連）
     var recentSets: [(exercise: ExerciseDefinition, set: WorkoutSet)] = []
@@ -34,6 +71,10 @@ class MuscleDetailViewModel {
 
     /// データ読み込み
     func load() {
+        // デフォルトフィルタをUserProfileから設定
+        let profile = AppState.shared.userProfile
+        locationFilter = LocationFilter.defaultFilter(from: profile.trainingLocation)
+
         loadRecoveryState()
         loadRelatedExercises()
         loadRecentHistory()
@@ -67,30 +108,18 @@ class MuscleDetailViewModel {
         )
     }
 
-    /// 関連種目を刺激度%順 + お気に入り・場所優先で読み込む
+    /// 関連種目をお気に入り優先で読み込む
     private func loadRelatedExercises() {
         let all = exerciseStore.exercises(targeting: muscle)
-        let profile = AppState.shared.userProfile
-        let location = profile.trainingLocation
         let favorites = FavoritesManager.shared
 
-        // 自宅向け器具セット
-        let homeEquipment: Set<String> = ["自重", "ダンベル", "ケトルベル"]
-
-        relatedExercises = all.sorted { a, b in
-            // 1. お気に入り優先
+        allRelatedExercises = all.sorted { a, b in
+            // お気に入り優先
             let aFav = favorites.isFavorite(a.id)
             let bFav = favorites.isFavorite(b.id)
             if aFav != bFav { return aFav }
 
-            // 2. 場所に合った種目を優先（homeの場合のみ）
-            if location == "home" {
-                let aHome = homeEquipment.contains(a.equipment)
-                let bHome = homeEquipment.contains(b.equipment)
-                if aHome != bHome { return aHome }
-            }
-
-            // 3. 元の刺激度%順を維持
+            // 元の刺激度%順を維持
             return false
         }
     }
@@ -98,7 +127,7 @@ class MuscleDetailViewModel {
     /// 直近の履歴を読み込む
     private func loadRecentHistory() {
         // この筋肉をターゲットにする種目のIDリスト
-        let exerciseIds = Set(relatedExercises.map(\.id))
+        let exerciseIds = Set(allRelatedExercises.map(\.id))
 
         let sessions = workoutRepo.fetchRecentSessions(limit: 10)
         var result: [(exercise: ExerciseDefinition, set: WorkoutSet)] = []
