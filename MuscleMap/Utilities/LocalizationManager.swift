@@ -254,6 +254,7 @@ enum L10n {
     static var tapMuscleHint: String { loc("筋肉をタップして関連種目を選択", "Tap a muscle to select related exercises", zhHans: "点击肌肉选择相关动作", ko: "근육을 탭하여 관련 운동 선택", es: "Toca un músculo para seleccionar ejercicios relacionados", fr: "Touchez un muscle pour sélectionner les exercices associés", de: "Tippen Sie auf einen Muskel, um verwandte Übungen auszuwählen") }
     static var addExercise: String { loc("種目を追加", "Add Exercise", zhHans: "添加动作", ko: "운동 추가", es: "Añadir ejercicio", fr: "Ajouter exercice", de: "Übung hinzufügen") }
     static var addFirstExercise: String { loc("種目を追加して始める", "Add an Exercise to Start", zhHans: "添加动作以开始", ko: "운동을 추가하여 시작", es: "Añade un ejercicio para empezar", fr: "Ajoutez un exercice pour commencer", de: "Fügen Sie eine Übung hinzu, um zu beginnen") }
+    static var addExerciseAndStart: String { loc("種目を追加して始める", "Add Exercise & Start", zhHans: "添加动作并开始", ko: "운동 추가하고 시작", es: "Añadir ejercicio y empezar", fr: "Ajouter exercice et commencer", de: "Übung hinzufügen und starten") }
     static var emptyWorkoutTitle: String { loc("ワークアウトを始めましょう", "Let's Start Your Workout", zhHans: "开始训练吧", ko: "운동을 시작합시다", es: "¡Comencemos tu entrenamiento!", fr: "Commençons votre entraînement", de: "Lass uns dein Training beginnen") }
     static var emptyWorkoutHint: String { loc("上のボタンから種目を追加して、セットを記録していきましょう", "Add exercises from the button above and start recording your sets", zhHans: "从上方按钮添加动作，开始记录组数", ko: "위 버튼에서 운동을 추가하고 세트를 기록하세요", es: "Añade ejercicios desde el botón de arriba y comienza a registrar tus series", fr: "Ajoutez des exercices depuis le bouton ci-dessus et commencez à enregistrer vos séries", de: "Fügen Sie Übungen über die Schaltfläche oben hinzu und beginnen Sie mit der Aufzeichnung Ihrer Sätze") }
     static var endWorkout: String { loc("ワークアウト終了", "End Workout", zhHans: "结束训练", ko: "운동 종료", es: "Finalizar entrenamiento", fr: "Terminer l'entraînement", de: "Training beenden") }
@@ -620,7 +621,7 @@ enum L10n {
 
     // MARK: - 目標選択画面（GoalSelectionPage — エモーショナル版）
     static var goalSelectionHeadline: String { loc("なぜ鍛える？", "Why Do You Train?") }
-    static var goalSelectionSub: String { loc("いくつでも選べます", "Select as many as you like") }
+    static var goalSelectionSub: String { loc("1つ選んでください", "Choose one") }
 
     // MARK: - 「今ジムにいる？」画面（GymCheckPage）
     static var gymCheckTitle: String { loc("今ジムにいる？", "At the Gym Now?") }

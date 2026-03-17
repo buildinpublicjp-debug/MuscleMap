@@ -275,33 +275,43 @@ struct WorkoutCompletionView: View {
 
     // MARK: - 目標連動コピー
 
-    /// オンボーディング目標+今回の刺激部位に基づく完了コピー
+    /// オンボーディング目標+今回の実際の刺激部位に基づく完了コピー
     private var completionGoalCopy: String? {
         guard let goalRaw = AppState.shared.primaryOnboardingGoal,
               let goal = OnboardingGoal(rawValue: goalRaw) else { return nil }
 
-        // 今回刺激した主要部位グループ名
-        let stimulatedGroups = Set(stimulatedMuscleMapping.keys.compactMap { Muscle(rawValue: $0)?.group })
-        let groupName = stimulatedGroups.first.map {
-            localization.currentLanguage == .japanese ? $0.japaneseName : $0.englishName
-        } ?? ""
-
-        switch goal {
-        case .getBig:
-            return "デカくなりたい → \(groupName)、また一回りデカくなった"
-        case .dontGetDisrespected:
-            return "威圧感・存在感 → \(groupName)、また一歩広がった"
-        case .martialArts:
-            return "格闘技・武道 → \(groupName)のパワーが一段階上がった"
-        case .sports:
-            return "スポーツに活かす → \(groupName)のパフォーマンスアップ"
-        case .getAttractive:
-            return "モテたい → \(groupName)のシルエットが磨かれた"
-        case .moveWell:
-            return "動ける体 → \(groupName)がさらに使える体に"
-        case .health:
-            return "健康に長生き → \(groupName)の基礎体力が上がった"
+        // 今回のセッションで各グループに何セット行ったかを集計
+        var groupSetCounts: [MuscleGroup: Int] = [:]
+        for set in session.sets {
+            guard let exercise = ExerciseStore.shared.exercise(for: set.exerciseId) else { continue }
+            // primaryMuscle（最も刺激度が高い筋肉）のグループをカウント
+            if let primary = exercise.primaryMuscle {
+                groupSetCounts[primary.group, default: 0] += 1
+            }
         }
+
+        // 最もセット数が多いグループを特定
+        let dominantGroup = groupSetCounts.max(by: { $0.value < $1.value })?.key
+        let uniqueGroups = Set(groupSetCounts.keys)
+
+        // 部位ベースのメッセージ（複数部位 or 単一部位）
+        let muscleMessage: String
+        if uniqueGroups.count > 2 {
+            muscleMessage = "全身、しっかり追い込んだ"
+        } else if let group = dominantGroup {
+            switch group {
+            case .chest: muscleMessage = "胸板、また一段厚くなった"
+            case .back: muscleMessage = "背中の広がり、レベルアップ"
+            case .shoulders: muscleMessage = "肩幅、また一歩広がった"
+            case .lowerBody: muscleMessage = "脚の土台、さらに強固に"
+            case .arms: muscleMessage = "腕、パンプした"
+            case .core: muscleMessage = "体幹、ブレない体へ"
+            }
+        } else {
+            return nil
+        }
+
+        return "\(goal.localizedName) → \(muscleMessage)"
     }
 
     // MARK: - ヘルパーメソッド
