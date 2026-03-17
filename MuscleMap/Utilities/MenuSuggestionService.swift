@@ -148,15 +148,25 @@ struct MenuSuggestionService {
         return scores
     }
 
-    /// ペアリング
+    /// ペアリング（分割法に基づく）
+    @MainActor
     static func pairedGroups(for primary: MuscleGroup) -> [MuscleGroup] {
+        let profile = AppState.shared.userProfile
+        let parts = WorkoutRecommendationEngine.splitParts(for: profile.weeklyFrequency)
+
+        // primaryGroupを含むパートを検索
+        if let matchingPart = parts.first(where: { $0.muscleGroups.contains(primary) }) {
+            return matchingPart.muscleGroups
+        }
+
+        // フォールバック（パートが見つからない場合）
         switch primary {
-        case .chest:     return [.chest, .arms]       // 胸+三頭
-        case .back:      return [.back, .arms]        // 背中+二頭
-        case .shoulders: return [.shoulders, .core]    // 肩+体幹
-        case .lowerBody: return [.lowerBody]           // 脚単独
-        case .arms:      return [.arms, .shoulders]    // 腕+肩
-        case .core:      return [.core, .shoulders]    // 体幹+肩
+        case .chest:     return [.chest, .arms]
+        case .back:      return [.back, .arms]
+        case .shoulders: return [.shoulders, .core]
+        case .lowerBody: return [.lowerBody]
+        case .arms:      return [.arms, .shoulders]
+        case .core:      return [.core, .shoulders]
         }
     }
 

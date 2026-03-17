@@ -263,6 +263,7 @@ struct WorkoutCompletionView: View {
             markFirstWorkoutCompleted()
             checkPRUpdates()
             detectLevelUps()
+            scheduleRecoveryNotification()
         }
         .fullScreenCover(isPresented: $showingFullBodyConquest) {
             FullBodyConquestView(
@@ -483,6 +484,31 @@ struct WorkoutCompletionView: View {
         }
 
         levelUpExercises = results
+    }
+
+    /// 回復完了通知をスケジュール
+    private func scheduleRecoveryNotification() {
+        guard !stimulatedMusclesWithSets.isEmpty else { return }
+
+        // 最も遅い回復完了時刻を計算
+        var maxHours: Double = 0
+        for entry in stimulatedMusclesWithSets {
+            let hours = RecoveryCalculator.adjustedRecoveryHours(
+                muscle: entry.muscle,
+                totalSets: entry.totalSets
+            )
+            maxHours = max(maxHours, hours)
+        }
+        let recoveryDate = Date().addingTimeInterval(maxHours * 3600)
+
+        // 次のパート名を取得
+        let nextPart = WorkoutRecommendationEngine.todaysPart(modelContext: modelContext)
+        let partName = nextPart?.name ?? "トレーニング"
+
+        NotificationManager.shared.scheduleRecoveryReminder(
+            nextPartName: partName,
+            recoveryDate: recoveryDate
+        )
     }
 
     /// Strength Mapシェア画像を生成

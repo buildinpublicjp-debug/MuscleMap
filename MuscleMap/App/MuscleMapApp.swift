@@ -63,11 +63,56 @@ struct RootView: View {
                 #if DEBUG
                 seedDemoDataIfNeeded(context: modelContext)
                 #endif
+
+                // ローカル通知スケジュール
+                scheduleNotifications()
             }
             .onChange(of: themeManager.currentTheme) { _, _ in
                 // [Fix #5] テーマ変更時にUIKit外観を再設定
                 MuscleMapApp.configureAppearance()
             }
+    }
+
+    // MARK: - 通知スケジュール
+
+    /// アプリ起動時にサボり防止通知・週間サマリーをスケジュール
+    private func scheduleNotifications() {
+        let notificationManager = NotificationManager.shared
+
+        // 直近セッションを取得
+        var descriptor = FetchDescriptor<WorkoutSession>(
+            predicate: #Predicate { $0.endDate != nil },
+            sortBy: [SortDescriptor(\.startDate, order: .reverse)]
+        )
+        descriptor.fetchLimit = 1
+        let lastSession = try? modelContext.fetch(descriptor).first
+
+        // サボり防止: 直近セッションがあれば3日後にリマインダー
+        if let session = lastSession, let endDate = session.endDate {
+            // 最も未刺激な筋肉名を取得
+            let repo = MuscleStateRepository(modelContext: modelContext)
+            let stimulations = repo.fetchLatestStimulations()
+            let neglectedMuscle = Muscle.allCases
+                .filter { muscle in
+                    guard let stim = stimulations[muscle] else { return true }
+                    return RecoveryCalculator.daysSinceStimulation(stim.stimulationDate) >= 5
+                }
+                .first
+
+            notificationManager.scheduleInactivityReminder(
+                lastWorkoutDate: endDate,
+                neglectedMuscleName: neglectedMuscle?.japaneseName
+            )
+        }
+
+        // 週間サマリー: 過去7日間のセッション数をカウント
+        let oneWeekAgo = Calendar.current.date(byAdding: .day, value: -7, to: Date()) ?? Date()
+        var weekDescriptor = FetchDescriptor<WorkoutSession>(
+            predicate: #Predicate { $0.endDate != nil && $0.startDate >= oneWeekAgo }
+        )
+        weekDescriptor.fetchLimit = 50
+        let weekSessions = (try? modelContext.fetch(weekDescriptor)) ?? []
+        notificationManager.scheduleWeeklySummary(workoutCount: weekSessions.count)
     }
 
     /// スクショ用デモデータを1回だけ投入（DEBUGビルドのみ）
