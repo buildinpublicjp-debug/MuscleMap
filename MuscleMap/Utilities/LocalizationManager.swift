@@ -623,6 +623,11 @@ enum L10n {
     static var goalSelectionHeadline: String { loc("なぜ鍛える？", "Why Do You Train?") }
     static var goalSelectionSub: String { loc("1つ選んでください", "Choose one") }
 
+    // MARK: - やりたい種目選択画面（FavoriteExercisesPage）
+    static var favoriteExercisesTitle: String { loc("気になる種目はある？", "Any exercises you like?") }
+    static var favoriteExercisesSub: String { loc("選んだ種目を優先的に提案します（スキップOK）", "Selected exercises will be prioritized (skip OK)") }
+    static func exerciseSelectedCount(_ count: Int) -> String { loc("\(count)種目選択中", "\(count) selected") }
+
     // MARK: - 「今ジムにいる？」画面（GymCheckPage）
     static var gymCheckTitle: String { loc("今ジムにいる？", "At the Gym Now?") }
     static var gymCheckSub: String { loc("MuscleMapは実際に使うのが一番早い", "The fastest way to learn is by doing") }

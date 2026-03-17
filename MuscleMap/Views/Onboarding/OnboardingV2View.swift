@@ -1,6 +1,6 @@
 import SwiftUI
 
-// MARK: - オンボーディングV2（最大8ページ横スワイプ: 目標 → 頻度 → 場所 → トレ歴 → [PR入力] → 目標×筋肉 → 体重 → CTA）
+// MARK: - オンボーディングV2（最大9ページ横スワイプ: 目標 → 頻度 → 場所 → トレ歴 → [PR入力] → 目標×筋肉 → やりたい種目 → 体重 → CTA）
 
 struct OnboardingV2View: View {
     let onComplete: () -> Void
@@ -70,15 +70,21 @@ struct OnboardingV2View: View {
                 }
                 .tag(5)
 
-                // ページ6: 体重・ニックネーム入力
-                WeightInputPage {
+                // ページ6: やりたい種目選択（お気に入り登録）
+                FavoriteExercisesPage {
                     currentPage = 7
                 }
                 .tag(6)
 
-                // ページ7: 機能紹介 & 開始（パーソナライズ版）
+                // ページ7: 体重・ニックネーム入力
+                WeightInputPage {
+                    currentPage = 8
+                }
+                .tag(7)
+
+                // ページ8: 機能紹介 & 開始（パーソナライズ版）
                 CallToActionPage(onComplete: onComplete)
-                    .tag(7)
+                    .tag(8)
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
             .animation(.easeInOut(duration: 0.4), value: currentPage)
@@ -102,9 +108,9 @@ struct OnboardingV2View: View {
     /// インジケーターに表示するページ番号（PR入力スキップ時はページ4を除外）
     private var indicatorPages: [Int] {
         if showPRInput {
-            return Array(0..<8)
+            return Array(0..<9)
         } else {
-            return [0, 1, 2, 3, 5, 6, 7]
+            return [0, 1, 2, 3, 5, 6, 7, 8]
         }
     }
 }
