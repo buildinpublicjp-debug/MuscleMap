@@ -92,6 +92,10 @@ struct HomeView: View {
                                 onReviewMenu: { rec, menu in
                                     menuPreviewData = (rec, menu)
                                     showingMenuPreview = true
+                                },
+                                todayRoutine: vm.todayRoutine,
+                                previousWeightProvider: { exerciseId in
+                                    vm.previousWeight(for: exerciseId)
                                 }
                             )
                             .padding(.horizontal)
@@ -211,9 +215,10 @@ struct HomeView: View {
                     }
                     viewModel?.loadMuscleStates()
                     viewModel?.checkActiveSession()
+                    viewModel?.loadTodayRoutine()
 
-                    // loadMuscleStates完了後にメニュー提案
-                    if let vm = viewModel {
+                    // loadMuscleStates完了後にメニュー提案（ルーティン未設定時のみ）
+                    if let vm = viewModel, vm.todayRoutine == nil {
                         if hasWorkoutHistory && PurchaseManager.shared.isPremium {
                             // 通常フロー: 回復データベースの提案
                             let menu = vm.getSuggestedMenu()

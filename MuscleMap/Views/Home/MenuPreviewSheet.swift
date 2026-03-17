@@ -11,6 +11,45 @@ struct MenuPreviewSheet: View {
 
     @Environment(\.dismiss) private var dismiss
 
+    /// RoutineDayからMenuPreviewSheetを生成する便利イニシャライザ
+    init(routineDay: RoutineDay, previousWeightProvider: @escaping (String) -> Double?, onStart: @escaping ([RecommendedExercise]) -> Void) {
+        let loc = LocalizationManager.shared
+        let exercises: [RecommendedExercise] = routineDay.exercises.compactMap { re in
+            guard let def = ExerciseStore.shared.exercise(for: re.exerciseId) else { return nil }
+            let name = loc.currentLanguage == .japanese ? def.nameJA : def.nameEN
+            let prevW = previousWeightProvider(re.exerciseId)
+            return RecommendedExercise(
+                exerciseId: re.exerciseId,
+                exerciseName: name,
+                suggestedWeight: prevW ?? 0,
+                suggestedReps: re.suggestedReps,
+                suggestedSets: re.suggestedSets,
+                previousWeight: prevW,
+                weightIncrease: 0
+            )
+        }
+        self.recommendation = RecommendedWorkout(
+            muscleGroup: routineDay.name,
+            exercises: exercises
+        )
+        // RoutineDay経由の場合、SuggestedMenuはダミー
+        let primaryGroup = MuscleGroup(rawValue: routineDay.muscleGroups.first ?? "") ?? .chest
+        self.suggestedMenu = SuggestedMenu(
+            primaryGroup: primaryGroup,
+            reason: routineDay.name,
+            exercises: [],
+            neglectedWarning: nil
+        )
+        self.onStart = onStart
+    }
+
+    /// 標準イニシャライザ
+    init(recommendation: RecommendedWorkout, suggestedMenu: SuggestedMenu, onStart: @escaping ([RecommendedExercise]) -> Void) {
+        self.recommendation = recommendation
+        self.suggestedMenu = suggestedMenu
+        self.onStart = onStart
+    }
+
     /// 全種目の対象筋肉をまとめたマッピング（ミニ筋肉マップ用）
     private var combinedMuscleMapping: [String: Int] {
         var mapping: [String: Int] = [:]

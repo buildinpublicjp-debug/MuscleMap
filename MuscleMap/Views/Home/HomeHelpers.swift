@@ -86,11 +86,17 @@ struct TodayRecommendationInline: View {
     let onStartWithMenu: ([RecommendedExercise]) -> Void
     let onShowPaywall: () -> Void
     var onReviewMenu: ((RecommendedWorkout, SuggestedMenu) -> Void)?
+    /// ルーティン表示用
+    var todayRoutine: RoutineDay?
+    var previousWeightProvider: ((String) -> Double?)?
 
     private var localization: LocalizationManager { LocalizationManager.shared }
 
     var body: some View {
-        if !hasWorkoutHistory, let rec = recommendation, !rec.exercises.isEmpty {
+        if let routine = todayRoutine, !routine.exercises.isEmpty {
+            // ルーティン設定済み → ルーティンカード
+            routineCard(routine: routine)
+        } else if !hasWorkoutHistory, let rec = recommendation, !rec.exercises.isEmpty {
             // 初回ユーザー + メニュー提案あり → 目標ベースのメニューカード
             firstTimeRecommendationCard(recommendation: rec)
         } else if hasWorkoutHistory, let menu = suggestedMenu {
@@ -108,6 +114,141 @@ struct TodayRecommendationInline: View {
             // 履歴なし & 提案なし → フォールバック
             firstTimeCard
         }
+    }
+
+    // MARK: - ルーティンカード
+
+    private func routineCard(routine: RoutineDay) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            // ヘッダー
+            HStack(spacing: 8) {
+                Text(L10n.todayRoutine)
+                    .font(.system(size: 16, weight: .bold))
+                    .foregroundStyle(Color.mmTextPrimary)
+
+                Text(routine.name)
+                    .font(.system(size: 14))
+                    .foregroundStyle(Color.mmAccentPrimary)
+
+                Spacer()
+            }
+
+            // 種目リスト
+            ForEach(routine.exercises) { exercise in
+                let def = ExerciseStore.shared.exercise(for: exercise.exerciseId)
+                let name = exerciseName(for: exercise)
+                HStack(spacing: 10) {
+                    // GIFサムネイル
+                    if ExerciseGifView.hasGif(exerciseId: exercise.exerciseId) {
+                        ExerciseGifView(exerciseId: exercise.exerciseId, size: .thumbnail)
+                            .frame(width: 48, height: 48)
+                            .clipShape(RoundedRectangle(cornerRadius: 6))
+                    } else {
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 6)
+                                .fill(Color.mmBgPrimary)
+                                .frame(width: 48, height: 48)
+                            Image(systemName: "dumbbell.fill")
+                                .font(.system(size: 16))
+                                .foregroundStyle(Color.mmTextSecondary.opacity(0.4))
+                        }
+                    }
+
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(name)
+                            .font(.system(size: 15))
+                            .foregroundStyle(Color.mmTextPrimary)
+                            .lineLimit(1)
+
+                        HStack(spacing: 8) {
+                            // セット × レップ
+                            Text("\(exercise.suggestedSets) × \(exercise.suggestedReps)")
+                                .font(.system(size: 14).monospacedDigit())
+                                .foregroundStyle(Color.mmTextSecondary)
+
+                            // 前回重量
+                            if let prevW = previousWeightProvider?(exercise.exerciseId), prevW > 0 {
+                                Text(L10n.previousRecord("\(formatWeight(prevW))kg"))
+                                    .font(.system(size: 12))
+                                    .foregroundStyle(Color.mmTextSecondary.opacity(0.7))
+                            }
+                        }
+                    }
+
+                    Spacer(minLength: 0)
+                }
+            }
+
+            // 「ルーティンを開始する」ボタン
+            if isPremium {
+                Button {
+                    HapticManager.lightTap()
+                    let exercises = routine.exercises.compactMap { re -> RecommendedExercise? in
+                        guard let def = ExerciseStore.shared.exercise(for: re.exerciseId) else { return nil }
+                        let name = localization.currentLanguage == .japanese ? def.nameJA : def.nameEN
+                        let prevW = previousWeightProvider?(re.exerciseId)
+                        return RecommendedExercise(
+                            exerciseId: re.exerciseId,
+                            exerciseName: name,
+                            suggestedWeight: prevW ?? 0,
+                            suggestedReps: re.suggestedReps,
+                            suggestedSets: re.suggestedSets,
+                            previousWeight: prevW,
+                            weightIncrease: 0
+                        )
+                    }
+                    onStartWithMenu(exercises)
+                } label: {
+                    Text(L10n.startRoutine)
+                        .font(.system(size: 15, weight: .bold))
+                        .foregroundStyle(Color.mmBgPrimary)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 44)
+                        .background(Color.mmAccentPrimary)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                }
+                .buttonStyle(.plain)
+            } else {
+                Button {
+                    HapticManager.lightTap()
+                    onShowPaywall()
+                } label: {
+                    HStack(spacing: 6) {
+                        Image(systemName: "lock.fill")
+                            .font(.caption)
+                        Text(L10n.startRoutine)
+                            .font(.system(size: 15, weight: .bold))
+                        Text("Pro")
+                            .font(.caption2.bold())
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(Color.mmAccentPrimary)
+                            .clipShape(Capsule())
+                    }
+                    .foregroundStyle(Color.mmTextPrimary)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 44)
+                    .background(Color.mmBgPrimary)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color.mmTextSecondary.opacity(0.3), lineWidth: 1)
+                    )
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .padding(16)
+        .background(Color.mmBgCard)
+        .clipShape(RoundedRectangle(cornerRadius: 16))
+    }
+
+    /// ルーティン種目名を取得
+    private func exerciseName(for exercise: RoutineExercise) -> String {
+        guard let def = ExerciseStore.shared.exercise(for: exercise.exerciseId) else {
+            return exercise.exerciseId
+        }
+        return localization.currentLanguage == .japanese ? def.nameJA : def.nameEN
     }
 
     // MARK: - Pro版 詳細提案カード

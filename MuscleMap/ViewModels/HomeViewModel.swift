@@ -31,6 +31,27 @@ class HomeViewModel {
     var activeSession: WorkoutSession?
     // 継続日数
     var streakDays: Int = 0
+    // 今日のルーティン（設定済みの場合のみ non-nil）
+    var todayRoutine: RoutineDay?
+
+    /// ルーティンが設定されているか
+    var hasRoutine: Bool {
+        let routine = UserRoutine.load()
+        return !routine.days.isEmpty
+    }
+
+    /// 今日のルーティンを読み込む（曜日ベースでローテーション）
+    func loadTodayRoutine() {
+        let routine = UserRoutine.load()
+        guard !routine.days.isEmpty else {
+            todayRoutine = nil
+            return
+        }
+        // 曜日インデックスでローテーション（日=0, 月=1, ...）
+        let weekday = Calendar.current.component(.weekday, from: Date())
+        let index = (weekday - 1) % routine.days.count
+        todayRoutine = routine.days[index]
+    }
 
     /// 今日のおすすめメニューを取得
     func getSuggestedMenu() -> SuggestedMenu {
@@ -38,6 +59,14 @@ class HomeViewModel {
             stimulations: latestStimulations,
             exerciseStore: ExerciseStore.shared
         )
+    }
+
+    /// ルーティン種目の前回重量を取得
+    func previousWeight(for exerciseId: String) -> Double? {
+        guard let lastRecord = workoutRepo.fetchLastRecord(exerciseId: exerciseId) else {
+            return nil
+        }
+        return lastRecord.weight > 0 ? lastRecord.weight : nil
     }
 
     init(modelContext: ModelContext) {
