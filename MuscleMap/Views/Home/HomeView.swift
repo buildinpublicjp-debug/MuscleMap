@@ -213,12 +213,20 @@ struct HomeView: View {
                     viewModel?.checkActiveSession()
 
                     // loadMuscleStates完了後にメニュー提案
-                    if PurchaseManager.shared.isPremium, let vm = viewModel {
-                        let menu = vm.getSuggestedMenu()
-                        recommendedWorkout = WorkoutRecommendationEngine.generateRecommendation(
-                            suggestedMenu: menu,
-                            modelContext: modelContext
-                        )
+                    if let vm = viewModel {
+                        if hasWorkoutHistory && PurchaseManager.shared.isPremium {
+                            // 通常フロー: 回復データベースの提案
+                            let menu = vm.getSuggestedMenu()
+                            recommendedWorkout = WorkoutRecommendationEngine.generateRecommendation(
+                                suggestedMenu: menu,
+                                modelContext: modelContext
+                            )
+                        } else if !hasWorkoutHistory {
+                            // 初回ユーザー: 目標ベースのフォールバック提案
+                            recommendedWorkout = WorkoutRecommendationEngine.generateFirstTimeRecommendation(
+                                modelContext: modelContext
+                            )
+                        }
                     }
                 }
 

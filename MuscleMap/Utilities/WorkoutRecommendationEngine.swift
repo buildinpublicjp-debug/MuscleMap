@@ -96,6 +96,77 @@ struct WorkoutRecommendationEngine {
         )
     }
 
+    // MARK: - 初回ユーザー向けフォールバック提案
+
+    /// 回復データがない初回ユーザー向けに、目標の重点筋肉からメニューを生成
+    @MainActor
+    static func generateFirstTimeRecommendation(
+        modelContext: ModelContext
+    ) -> RecommendedWorkout? {
+        let profile = AppState.shared.userProfile
+        let exerciseStore = ExerciseStore.shared
+
+        // goalPriorityMusclesから最初のMuscleGroupを取得
+        let targetGroup: MuscleGroup
+        if let firstMuscleRaw = profile.goalPriorityMuscles.first,
+           let firstMuscle = Muscle(rawValue: firstMuscleRaw) {
+            targetGroup = firstMuscle.group
+        } else {
+            // goalPriorityMusclesも空 → デフォルトで胸
+            targetGroup = .chest
+        }
+
+        let pairedGroups = MenuSuggestionService.pairedGroups(for: targetGroup)
+
+        // グループ名: 「初回おすすめ」
+        let groupName = L10n.firstTimeRecommendation
+
+        // 対象グループの種目を収集
+        var candidateExercises: [ExerciseDefinition] = []
+        var seenIds: Set<String> = []
+
+        for group in pairedGroups {
+            for muscle in group.muscles {
+                let exercises = exerciseStore.exercises(targeting: muscle)
+                for ex in exercises {
+                    if !seenIds.contains(ex.id) {
+                        seenIds.insert(ex.id)
+                        candidateExercises.append(ex)
+                    }
+                }
+            }
+        }
+
+        // トレーニング場所フィルタリング
+        candidateExercises = filterByLocation(
+            exercises: candidateExercises,
+            location: profile.trainingLocation
+        )
+
+        // 重点筋肉の優先順位付け + お気に入り優先ソート
+        candidateExercises = sortByPriority(
+            exercises: candidateExercises,
+            priorityMuscles: profile.goalPriorityMuscles,
+            favoritesManager: FavoritesManager.shared
+        )
+
+        guard !candidateExercises.isEmpty else { return nil }
+
+        // 上位3種目を選出
+        let topExercises = Array(candidateExercises.prefix(3))
+
+        // 前回記録なしの初回ユーザーなのでデフォルト値で生成
+        let recommended = buildRecommendedExercises(
+            exercises: topExercises,
+            modelContext: modelContext
+        )
+
+        return RecommendedWorkout(
+            muscleGroup: groupName,
+            exercises: recommended
+        )
+    }
+
     // MARK: - 分割法の自動決定
 
     /// weeklyFrequencyに基づく分割法パートリストを返す

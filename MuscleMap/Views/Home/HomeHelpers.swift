@@ -90,7 +90,10 @@ struct TodayRecommendationInline: View {
     private var localization: LocalizationManager { LocalizationManager.shared }
 
     var body: some View {
-        if hasWorkoutHistory, let menu = suggestedMenu {
+        if !hasWorkoutHistory, let rec = recommendation, !rec.exercises.isEmpty {
+            // 初回ユーザー + メニュー提案あり → 目標ベースのメニューカード
+            firstTimeRecommendationCard(recommendation: rec)
+        } else if hasWorkoutHistory, let menu = suggestedMenu {
             if isPremium, let rec = recommendation, !rec.exercises.isEmpty {
                 // Pro: 詳細メニュー提案
                 proRecommendationCard(menu: menu, recommendation: rec)
@@ -101,8 +104,8 @@ struct TodayRecommendationInline: View {
                 // Pro だが提案なし → 従来の1行表示
                 simpleRecommendationCard(menu: menu)
             }
-        } else {
-            // 履歴なし → 初回ユーザー向け
+        } else if !hasWorkoutHistory {
+            // 履歴なし & 提案なし → フォールバック
             firstTimeCard
         }
     }
@@ -294,7 +297,64 @@ struct TodayRecommendationInline: View {
         .buttonStyle(.plain)
     }
 
-    // MARK: - 初回ユーザー向けカード
+    // MARK: - 初回ユーザー向けメニュー提案カード
+
+    private func firstTimeRecommendationCard(recommendation: RecommendedWorkout) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            // ヘッダー: 「まずはこのメニューから」
+            HStack(spacing: 8) {
+                Text(L10n.firstTimeMenuHeader)
+                    .font(.system(size: 16, weight: .bold))
+                    .foregroundStyle(Color.mmTextPrimary)
+
+                Spacer()
+            }
+
+            // 目標連動コピー
+            if let goalCopy = goalLinkedCopy(muscleGroup: recommendation.muscleGroup) {
+                Text(goalCopy)
+                    .font(.system(size: 14))
+                    .foregroundStyle(Color.mmTextSecondary)
+                    .lineLimit(1)
+            }
+
+            // 種目リスト（最大3種目）
+            ForEach(recommendation.exercises) { exercise in
+                HStack(spacing: 10) {
+                    Text(exercise.exerciseName)
+                        .font(.system(size: 15))
+                        .foregroundStyle(Color.mmTextPrimary)
+                        .lineLimit(1)
+
+                    Spacer()
+
+                    Text("\(exercise.suggestedSets) × \(exercise.suggestedReps)")
+                        .font(.system(size: 14).monospacedDigit())
+                        .foregroundStyle(Color.mmTextSecondary)
+                }
+            }
+
+            // 開始ボタン
+            Button {
+                HapticManager.lightTap()
+                onStartWithMenu(recommendation.exercises)
+            } label: {
+                Text(L10n.startWorkout)
+                    .font(.system(size: 15, weight: .bold))
+                    .foregroundStyle(Color.mmBgPrimary)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 44)
+                    .background(Color.mmAccentPrimary)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(16)
+        .background(Color.mmBgCard)
+        .clipShape(RoundedRectangle(cornerRadius: 16))
+    }
+
+    // MARK: - 初回ユーザー向けカード（フォールバック）
 
     private var firstTimeCard: some View {
         Button {
