@@ -557,36 +557,11 @@ enum L10n {
     static var onboardingDemoTitle: String { loc("鍛えた部位が光る", "Trained muscles glow") }
     static var onboardingDemoHint: String { loc("筋肉をタップして体験", "Tap muscles to try it out") }
 
-    // MARK: - 価値体験画面（InteractiveDemoPage）
-    static var demoPrimaryTitle: String { loc("あなたの体を、タップして目覚めさせよう", "Tap to awaken your body") }
-    static var demoSubtitle: String { loc("筋肉をタップすると回復状態がわかる", "Tap a muscle to see its recovery status") }
-    static func recoveryTimeRemaining(_ hours: Int) -> String {
-        loc("回復まであと\(hours)時間", "\(hours)h until recovery", zhHans: "距离恢复还有\(hours)小时", ko: "회복까지 \(hours)시간", es: "\(hours)h para recuperación", fr: "\(hours)h avant récupération", de: "\(hours)h bis zur Erholung")
-    }
-
     // MARK: - 体重入力画面（WeightInputPage）
     static var weightInputTitle: String { loc("あなたの体重を教えてください", "Tell Us Your Weight") }
     static var weightInputSubtitle: String { loc("体重比で筋力スコアを算出します", "Used to calculate your strength score by body weight ratio") }
     static var nicknamePlaceholder: String { loc("ニックネーム", "Nickname") }
 
-    // MARK: - 目標設定画面（PersonalizationPage）
-    static var goalPageTitle: String { loc("あなたの目標は？", "What's your goal?") }
-    static var goalPageSubtitle: String { loc("最適なトレーニングプランを提案します", "We'll suggest the optimal training plan") }
-    static var goalMuscleGrowth: String { loc("筋肥大", "Muscle Growth") }
-    static var goalMuscleGrowthDesc: String { loc("筋肉を大きく、強く", "Build bigger, stronger muscles") }
-    static var goalStrength: String { loc("筋力向上", "Strength") }
-    static var goalStrengthDesc: String { loc("パワーを最大化", "Maximize your power") }
-    static var goalRecovery: String { loc("回復の最適化", "Optimize Recovery") }
-    static var goalRecoveryDesc: String { loc("オーバートレーニングを防ぐ", "Prevent overtraining") }
-    static var goalHealthMaintenance: String { loc("健康維持", "Stay Healthy") }
-    static var goalHealthMaintenanceDesc: String { loc("無理なく続ける", "Maintain without strain") }
-
-    static var onboardingFeature1: String { loc("21部位の筋肉を可視化", "Visualize 21 muscle groups") }
-    static var onboardingFeature1Sub: String { loc("全身の筋肉をリアルタイムで追跡", "Track your entire body in real-time") }
-    static var onboardingFeature2: String { loc("無制限のワークアウト記録", "Unlimited workout tracking") }
-    static var onboardingFeature2Sub: String { loc("セット・レップ・重量を簡単記録", "Log sets, reps, and weight easily") }
-    static var onboardingFeature3: String { loc("EMGベースの回復計算", "EMG-based recovery calculation") }
-    static var onboardingFeature3Sub: String { loc("科学的データで最適なタイミングを提案", "Science-backed training timing") }
     static var termsOfUse: String { loc("利用規約", "Terms of Use") }
 
     // MARK: - 機能紹介画面（CallToActionPage）
@@ -629,34 +604,6 @@ enum L10n {
     static var favoriteExercisesTitle: String { loc("気になる種目はある？", "Any exercises you like?") }
     static var favoriteExercisesSub: String { loc("選んだ種目を優先的に提案します（スキップOK）", "Selected exercises will be prioritized (skip OK)") }
     static func exerciseSelectedCount(_ count: Int) -> String { loc("\(count)種目選択中", "\(count) selected") }
-
-    // MARK: - 「今ジムにいる？」画面（GymCheckPage）
-    static var gymCheckTitle: String { loc("今ジムにいる？", "At the Gym Now?") }
-    static var gymCheckSub: String { loc("MuscleMapは実際に使うのが一番早い", "The fastest way to learn is by doing") }
-    static var gymCheckAtGym: String { loc("ジムにいる", "I'm at the Gym") }
-    static var gymCheckAtGymSub: String { loc("今から一緒にやろう", "Let's get started together") }
-    static var gymCheckAtHome: String { loc("家にいる", "I'm at Home") }
-    static var gymCheckAtHomeSub: String { loc("まず情報を入れる", "Set up my info first") }
-
-    // MARK: - 分岐ページ（OnboardingBranchPage）
-    static var branchGymTitle: String { loc("準備OK！", "You're All Set!") }
-    static var branchGymSub: String { loc("セットアップ後、すぐにワークアウトを\n記録できるよ", "After setup, you can start\nlogging right away") }
-    static var branchGymStep1: String { loc("種目を選ぶ", "Choose an exercise") }
-    static var branchGymStep2: String { loc("重量・レップを記録", "Log weight & reps") }
-    static var branchGymStep3: String { loc("筋肉マップが光る！", "Watch your muscle map glow!") }
-    static var branchHomeTitle: String { loc("まずはセットアップ！", "Let's Set Up First!") }
-    static var branchHomeSub: String { loc("次回ジムに行くとき、\nすぐに使えるように準備しよう", "Get ready so you can\nstart right away next time") }
-    static var branchHomeHint1: String { loc("直近のトレーニングを記録できる", "Log your recent workouts") }
-    static var branchHomeHint2: String { loc("回復状態がすぐわかる", "See your recovery status instantly") }
-    static var branchHomeHint3: String { loc("次のメニューを提案してくれる", "Get menu suggestions") }
-
-    // MARK: - 直近トレーニング入力画面（RecentTrainingInputPage）
-    static var recentTrainingTitle: String { loc("最近どこを鍛えた？", "What Did You Train Recently?") }
-    static var recentTrainingSub: String { loc("タップして教えて — ホーム画面に反映します", "Tap to tell us — it'll show on your home screen") }
-    static var recentTrainingEmpty: String { loc("これから始めよう！", "Let's get started!") }
-    static var recentTimingToday: String { loc("今日", "Today") }
-    static var recentTimingYesterday: String { loc("昨日", "Yesterday") }
-    static var recentTimingTwoDaysAgo: String { loc("2-3日前", "2-3 days ago") }
 
     // MARK: - 通知許可画面
     static var notificationTitle: String { loc("回復したらお知らせ", "Get Notified When Recovered") }

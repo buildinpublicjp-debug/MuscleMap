@@ -8,9 +8,6 @@ struct MuscleMapApp: App {
         // エクササイズデータを起動時に読み込み
         ExerciseStore.shared.load()
 
-        // 3Dモデルの可用性を判定
-        ModelLoader.shared.evaluateModelAvailability()
-
         // Watch Connectivity セッション開始（shared初期化時にactivateSessionが呼ばれる）
         _ = PhoneSessionManager.shared
 

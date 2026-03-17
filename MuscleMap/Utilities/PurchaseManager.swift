@@ -37,7 +37,9 @@ final class PurchaseManager {
             let info = try await Purchases.shared.customerInfo()
             _isPremium = info.entitlements["premium"]?.isActive == true
         } catch {
+            #if DEBUG
             print("RevenueCat customerInfo error: \(error)")
+            #endif
         }
     }
 
