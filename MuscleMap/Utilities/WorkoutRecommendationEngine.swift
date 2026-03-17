@@ -52,7 +52,8 @@ struct WorkoutRecommendationEngine {
         // グループ名を結合
         let groupName = pairedGroups.map { $0.localizedName }.joined(separator: "・")
 
-        // 1. 回復済みグループの筋肉に対応する種目を収集
+        // 1. 回復済みグループの筋肉に対応する種目を収集（主要ターゲットフィルタ付き）
+        let targetGroupSet = Set(pairedGroups)
         var candidateExercises: [ExerciseDefinition] = []
         var seenIds: Set<String> = []
 
@@ -61,12 +62,21 @@ struct WorkoutRecommendationEngine {
                 let exercises = exerciseStore.exercises(targeting: muscle)
                 for ex in exercises {
                     if !seenIds.contains(ex.id) {
-                        seenIds.insert(ex.id)
-                        candidateExercises.append(ex)
+                        // 主要ターゲット筋肉のグループがpairedGroupsに含まれるかチェック
+                        if let primary = ex.primaryMuscle,
+                           targetGroupSet.contains(primary.group) {
+                            seenIds.insert(ex.id)
+                            candidateExercises.append(ex)
+                        }
                     }
                 }
             }
         }
+
+        #if DEBUG
+        print("[MenuEngine] pairedGroups: \(pairedGroups.map { $0.rawValue })")
+        print("[MenuEngine] candidates after primaryMuscle filter: \(candidateExercises.map { "\($0.localizedName)(\($0.primaryMuscle?.group.rawValue ?? "?"))" })")
+        #endif
 
         // 2. トレーニング場所フィルタリング
         candidateExercises = filterByLocation(
@@ -74,15 +84,20 @@ struct WorkoutRecommendationEngine {
             location: profile.trainingLocation
         )
 
-        // 3. 重点筋肉の優先順位付け + お気に入り優先ソート
+        // 3. グループ適合度 + 重点筋肉 + お気に入り優先ソート
         candidateExercises = sortByPriority(
             exercises: candidateExercises,
             priorityMuscles: profile.goalPriorityMuscles,
-            favoritesManager: favoritesManager
+            favoritesManager: favoritesManager,
+            targetGroups: targetGroupSet
         )
 
         // 4. 上位3種目を選出
         let topExercises = Array(candidateExercises.prefix(3))
+
+        #if DEBUG
+        print("[MenuEngine] top3: \(topExercises.map { $0.localizedName })")
+        #endif
 
         // 5. 各種目の前回記録を取得し、重量提案を計算
         let recommended = buildRecommendedExercises(
@@ -117,11 +132,12 @@ struct WorkoutRecommendationEngine {
         }
 
         let pairedGroups = MenuSuggestionService.pairedGroups(for: targetGroup)
+        let targetGroupSet = Set(pairedGroups)
 
         // グループ名: 「初回おすすめ」
         let groupName = L10n.firstTimeRecommendation
 
-        // 対象グループの種目を収集
+        // 対象グループの種目を収集（主要ターゲットフィルタ付き）
         var candidateExercises: [ExerciseDefinition] = []
         var seenIds: Set<String> = []
 
@@ -130,8 +146,11 @@ struct WorkoutRecommendationEngine {
                 let exercises = exerciseStore.exercises(targeting: muscle)
                 for ex in exercises {
                     if !seenIds.contains(ex.id) {
-                        seenIds.insert(ex.id)
-                        candidateExercises.append(ex)
+                        if let primary = ex.primaryMuscle,
+                           targetGroupSet.contains(primary.group) {
+                            seenIds.insert(ex.id)
+                            candidateExercises.append(ex)
+                        }
                     }
                 }
             }
@@ -143,17 +162,23 @@ struct WorkoutRecommendationEngine {
             location: profile.trainingLocation
         )
 
-        // 重点筋肉の優先順位付け + お気に入り優先ソート
+        // グループ適合度 + 重点筋肉 + お気に入り優先ソート
         candidateExercises = sortByPriority(
             exercises: candidateExercises,
             priorityMuscles: profile.goalPriorityMuscles,
-            favoritesManager: FavoritesManager.shared
+            favoritesManager: FavoritesManager.shared,
+            targetGroups: targetGroupSet
         )
 
         guard !candidateExercises.isEmpty else { return nil }
 
         // 上位3種目を選出
         let topExercises = Array(candidateExercises.prefix(3))
+
+        #if DEBUG
+        print("[MenuEngine] firstTime targetGroup: \(targetGroup.rawValue), pairedGroups: \(pairedGroups.map { $0.rawValue })")
+        print("[MenuEngine] firstTime top3: \(topExercises.map { $0.localizedName })")
+        #endif
 
         // 前回記録なしの初回ユーザーなのでデフォルト値で生成
         let recommended = buildRecommendedExercises(
@@ -298,13 +323,13 @@ struct WorkoutRecommendationEngine {
 
     // MARK: - 重点筋肉の優先順位付け
 
-    /// goalPriorityMusclesに含まれる筋肉をターゲットにする種目を上位に
-    /// さらにお気に入りを最優先
+    /// お気に入り → グループ適合度 → 重点筋肉スコア の優先順位でソート
     @MainActor
     private static func sortByPriority(
         exercises: [ExerciseDefinition],
         priorityMuscles: [String],
-        favoritesManager: FavoritesManager
+        favoritesManager: FavoritesManager,
+        targetGroups: Set<MuscleGroup>
     ) -> [ExerciseDefinition] {
         let prioritySet = Set(priorityMuscles)
 
@@ -315,14 +340,30 @@ struct WorkoutRecommendationEngine {
             // 1. お気に入り優先
             if aFav != bFav { return aFav }
 
-            // 2. 重点筋肉にヒットする種目を優先
+            // 2. 対象グループへの刺激合計スコア（pairedGroupsの筋肉へのmuscleMapping合計%）
+            let aGroupScore = groupRelevanceScore(exercise: a, targetGroups: targetGroups)
+            let bGroupScore = groupRelevanceScore(exercise: b, targetGroups: targetGroups)
+            if aGroupScore != bGroupScore { return aGroupScore > bGroupScore }
+
+            // 3. 重点筋肉にヒットする種目を優先
             let aHits = priorityMuscleScore(exercise: a, prioritySet: prioritySet)
             let bHits = priorityMuscleScore(exercise: b, prioritySet: prioritySet)
             if aHits != bHits { return aHits > bHits }
 
-            // 3. 元の順序を維持（安定ソート）
+            // 4. 元の順序を維持（安定ソート）
             return false
         }
+    }
+
+    /// 種目の対象グループ適合度（targetGroupsの筋肉へのmuscleMapping合計%）
+    private static func groupRelevanceScore(
+        exercise: ExerciseDefinition,
+        targetGroups: Set<MuscleGroup>
+    ) -> Int {
+        let targetMuscleIds = Set(targetGroups.flatMap { $0.muscles.map { $0.rawValue } })
+        return exercise.muscleMapping
+            .filter { targetMuscleIds.contains($0.key) }
+            .reduce(0) { $0 + $1.value }
     }
 
     /// 種目の重点筋肉スコア（重点筋肉への合計刺激度%）

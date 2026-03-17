@@ -10,6 +10,15 @@ struct MenuSuggestionService {
         stimulations: [Muscle: MuscleStimulation],
         exerciseStore: ExerciseStore
     ) -> SuggestedMenu {
+        // 初回ユーザー（刺激データなし）: 目標の重点筋肉からグループを決定
+        if stimulations.isEmpty {
+            let primaryGroup = primaryGroupFromGoal()
+            #if DEBUG
+            print("[MenuService] stimulations empty → goal-based group: \(primaryGroup.rawValue)")
+            #endif
+            return buildMenuForGroup(primaryGroup: primaryGroup, stimulations: stimulations, exerciseStore: exerciseStore)
+        }
+
         // 1. 各グループの回復状態を評価
         let groupScores = evaluateGroups(stimulations: stimulations)
 
@@ -25,12 +34,22 @@ struct MenuSuggestionService {
             )
         }
 
-        // 3. ペアリング
-        let pairedGroups = pairedGroups(for: primaryGroup)
+        return buildMenuForGroup(primaryGroup: primaryGroup, stimulations: stimulations, exerciseStore: exerciseStore)
+    }
 
-        // 4. 各グループの主要種目を選出
+    /// 指定グループからメニューを構築（通常フロー・初回ユーザー共通）
+    @MainActor
+    private static func buildMenuForGroup(
+        primaryGroup: MuscleGroup,
+        stimulations: [Muscle: MuscleStimulation],
+        exerciseStore: ExerciseStore
+    ) -> SuggestedMenu {
+        // ペアリング
+        let paired = pairedGroups(for: primaryGroup)
+
+        // 各グループの主要種目を選出
         var suggestedExercises: [SuggestedExercise] = []
-        for group in pairedGroups {
+        for group in paired {
             let muscles = group.muscles
             for muscle in muscles {
                 let exercises = exerciseStore.exercises(targeting: muscle)
@@ -47,13 +66,13 @@ struct MenuSuggestionService {
                     }
                 }
                 // グループあたり最大3種目
-                if suggestedExercises.count >= pairedGroups.count * 3 {
+                if suggestedExercises.count >= paired.count * 3 {
                     break
                 }
             }
         }
 
-        // 5. 未刺激7日+があれば1種目追加
+        // 未刺激7日+があれば1種目追加
         let neglected = findNeglectedMuscle(stimulations: stimulations)
         if let neglectedMuscle = neglected {
             let exercises = exerciseStore.exercises(targeting: neglectedMuscle)
@@ -83,6 +102,20 @@ struct MenuSuggestionService {
     }
 
     // MARK: - 内部ロジック
+
+    /// goalPriorityMusclesから最も重要なグループを取得（初回ユーザー用）
+    @MainActor
+    private static func primaryGroupFromGoal() -> MuscleGroup {
+        let priorityMuscles = AppState.shared.userProfile.goalPriorityMuscles
+        if let firstRaw = priorityMuscles.first,
+           let firstMuscle = Muscle(rawValue: firstRaw) {
+            return firstMuscle.group
+        }
+        // goalPriorityMusclesも空 → 分割法の最初のパートを使用
+        let frequency = AppState.shared.userProfile.weeklyFrequency
+        let parts = WorkoutRecommendationEngine.splitParts(for: frequency)
+        return parts.first?.muscleGroups.first ?? .chest
+    }
 
     /// 各グループの「刺激の必要度」スコアを計算（高い=より刺激が必要）
     private static func evaluateGroups(
