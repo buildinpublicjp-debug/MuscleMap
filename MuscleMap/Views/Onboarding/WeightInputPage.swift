@@ -1,16 +1,19 @@
 import SwiftUI
 
-// MARK: - 体重・ニックネーム入力画面
+// MARK: - 身長・体重・ニックネーム入力画面
 
 struct WeightInputPage: View {
     let onNext: () -> Void
 
+    @State private var selectedHeightCm: Int = Int(AppState.shared.userProfile.heightCm)
     @State private var selectedWeightKg: Int = Int(AppState.shared.userProfile.weightKg)
     @State private var nickname: String = AppState.shared.userProfile.nickname
     @State private var selectedUnit: WeightUnit = AppState.shared.weightUnit
     @State private var isProceeding = false
     @State private var appeared = false
 
+    /// Picker用の身長レンジ（cm）
+    private let heightRangeCm = Array(140...200)
     /// Picker用の体重レンジ（kg）
     private let weightRangeKg = Array(40...160)
 
@@ -34,90 +37,126 @@ struct WeightInputPage: View {
             .opacity(appeared ? 1 : 0)
             .offset(y: appeared ? 0 : 20)
 
-            Spacer().frame(height: 32)
+            Spacer().frame(height: 24)
 
-            // カード: ニックネーム入力
-            VStack(spacing: 16) {
-                TextField(L10n.nicknamePlaceholder, text: $nickname)
-                    .font(.system(size: 18))
-                    .foregroundStyle(Color.mmOnboardingTextMain)
-                    .padding(16)
-                    .background(Color.mmOnboardingBg.opacity(0.6))
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
-                    .onChange(of: nickname) { _, newValue in
-                        AppState.shared.userProfile.nickname = newValue
+            ScrollView(.vertical, showsIndicators: false) {
+                VStack(spacing: 16) {
+                    // カード: 身長Picker
+                    VStack(spacing: 8) {
+                        Text("身長")
+                            .font(.system(size: 16, weight: .bold))
+                            .foregroundStyle(Color.mmOnboardingTextMain)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+
+                        Picker("", selection: $selectedHeightCm) {
+                            ForEach(heightRangeCm, id: \.self) { cm in
+                                Text("\(cm) cm").tag(cm)
+                            }
+                        }
+                        .pickerStyle(.wheel)
+                        .frame(height: 120)
+                        .onChange(of: selectedHeightCm) { _, newValue in
+                            AppState.shared.userProfile.heightCm = Double(newValue)
+                        }
                     }
+                    .padding(16)
+                    .background(Color.mmOnboardingCard)
+                    .clipShape(RoundedRectangle(cornerRadius: 16))
+
+                    // カード: 体重Picker + kg/lbトグル
+                    VStack(spacing: 8) {
+                        HStack {
+                            Text("体重")
+                                .font(.system(size: 16, weight: .bold))
+                                .foregroundStyle(Color.mmOnboardingTextMain)
+
+                            Spacer()
+
+                            // kg/lb トグル（コンパクト）
+                            HStack(spacing: 0) {
+                                ForEach(WeightUnit.allCases, id: \.rawValue) { unit in
+                                    Button {
+                                        withAnimation(.easeInOut(duration: 0.2)) {
+                                            selectedUnit = unit
+                                            AppState.shared.weightUnit = unit
+                                        }
+                                        HapticManager.lightTap()
+                                    } label: {
+                                        Text(unit.displayName)
+                                            .font(.system(size: 14, weight: .bold))
+                                            .foregroundStyle(
+                                                selectedUnit == unit
+                                                    ? Color.mmOnboardingBg
+                                                    : Color.mmOnboardingTextSub
+                                            )
+                                            .frame(width: 48, height: 32)
+                                            .background(
+                                                selectedUnit == unit
+                                                    ? Color.mmOnboardingAccent
+                                                    : Color.clear
+                                            )
+                                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                                    }
+                                    .buttonStyle(.plain)
+                                }
+                            }
+                            .padding(3)
+                            .background(Color.mmOnboardingBg.opacity(0.6))
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                        }
+
+                        Picker("", selection: $selectedWeightKg) {
+                            ForEach(weightRangeKg, id: \.self) { kg in
+                                Text(pickerLabel(forKg: kg))
+                                    .tag(kg)
+                            }
+                        }
+                        .pickerStyle(.wheel)
+                        .frame(height: 120)
+                        .onChange(of: selectedWeightKg) { _, newValue in
+                            AppState.shared.userProfile.weightKg = Double(newValue)
+                        }
+                    }
+                    .padding(16)
+                    .background(Color.mmOnboardingCard)
+                    .clipShape(RoundedRectangle(cornerRadius: 16))
+
+                    // カード: ニックネーム入力
+                    VStack(spacing: 8) {
+                        Text("ニックネーム")
+                            .font(.system(size: 16, weight: .bold))
+                            .foregroundStyle(Color.mmOnboardingTextMain)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+
+                        TextField(L10n.nicknamePlaceholder, text: $nickname)
+                            .font(.system(size: 18))
+                            .foregroundStyle(Color.mmOnboardingTextMain)
+                            .padding(16)
+                            .background(Color.mmOnboardingBg.opacity(0.6))
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                            .onChange(of: nickname) { _, newValue in
+                                AppState.shared.userProfile.nickname = newValue
+                            }
+                    }
+                    .padding(16)
+                    .background(Color.mmOnboardingCard)
+                    .clipShape(RoundedRectangle(cornerRadius: 16))
+                }
+                .padding(.horizontal, 24)
+                .padding(.bottom, 8)
             }
-            .padding(16)
-            .background(Color.mmOnboardingCard)
-            .clipShape(RoundedRectangle(cornerRadius: 16))
-            .padding(.horizontal, 24)
             .opacity(appeared ? 1 : 0)
             .offset(y: appeared ? 0 : 20)
 
             Spacer().frame(height: 16)
 
-            // カード: 体重Picker + kg/lbトグル
-            VStack(spacing: 16) {
-                // kg/lb トグル
-                HStack(spacing: 0) {
-                    ForEach(WeightUnit.allCases, id: \.rawValue) { unit in
-                        Button {
-                            withAnimation(.easeInOut(duration: 0.2)) {
-                                selectedUnit = unit
-                                AppState.shared.weightUnit = unit
-                            }
-                            HapticManager.lightTap()
-                        } label: {
-                            Text(unit.displayName)
-                                .font(.system(size: 16, weight: .bold))
-                                .foregroundStyle(
-                                    selectedUnit == unit
-                                        ? Color.mmOnboardingBg
-                                        : Color.mmOnboardingTextSub
-                                )
-                                .frame(maxWidth: .infinity)
-                                .frame(height: 40)
-                                .background(
-                                    selectedUnit == unit
-                                        ? Color.mmOnboardingAccent
-                                        : Color.clear
-                                )
-                                .clipShape(RoundedRectangle(cornerRadius: 10))
-                        }
-                        .buttonStyle(.plain)
-                    }
-                }
-                .padding(4)
-                .background(Color.mmOnboardingBg.opacity(0.6))
-                .clipShape(RoundedRectangle(cornerRadius: 12))
-
-                // ドラムロールPicker
-                Picker("", selection: $selectedWeightKg) {
-                    ForEach(weightRangeKg, id: \.self) { kg in
-                        Text(pickerLabel(forKg: kg))
-                            .tag(kg)
-                    }
-                }
-                .pickerStyle(.wheel)
-                .frame(height: 150)
-                .onChange(of: selectedWeightKg) { _, newValue in
-                    AppState.shared.userProfile.weightKg = Double(newValue)
-                }
-            }
-            .padding(16)
-            .background(Color.mmOnboardingCard)
-            .clipShape(RoundedRectangle(cornerRadius: 16))
-            .padding(.horizontal, 24)
-            .opacity(appeared ? 1 : 0)
-            .offset(y: appeared ? 0 : 20)
-
-            Spacer()
-
             // 次へボタン
             Button {
                 guard !isProceeding else { return }
                 isProceeding = true
+                AppState.shared.userProfile.heightCm = Double(selectedHeightCm)
+                AppState.shared.userProfile.weightKg = Double(selectedWeightKg)
+                AppState.shared.userProfile.nickname = nickname
                 HapticManager.lightTap()
                 onNext()
             } label: {

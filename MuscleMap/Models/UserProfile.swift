@@ -4,6 +4,8 @@ import Foundation
 
 struct UserProfile: Codable {
     var nickname: String
+    /// 身長（cm）。BMI計算・体格補正に使用。未設定時は170cm
+    var heightCm: Double
     /// 体重（kg）。Strength Map計算に使用。未設定時は70kg
     var weightKg: Double
     /// トレーニング経験（オンボーディングで選択）
@@ -19,6 +21,7 @@ struct UserProfile: Codable {
 
     static let `default` = UserProfile(
         nickname: "",
+        heightCm: 170.0,
         weightKg: 70.0,
         trainingExperience: .beginner,
         initialPRs: [:],
@@ -33,6 +36,7 @@ struct UserProfile: Codable {
         nickname = try container.decode(String.self, forKey: .nickname)
         // trainingGoal, experienceLevel は削除済み（OnboardingGoalに移行）
         // 後方互換: 旧データにキーが残っていても無視される
+        heightCm = try container.decodeIfPresent(Double.self, forKey: .heightCm) ?? 170.0
         weightKg = try container.decodeIfPresent(Double.self, forKey: .weightKg) ?? 70.0
         trainingExperience = try container.decodeIfPresent(TrainingExperience.self, forKey: .trainingExperience) ?? .beginner
         initialPRs = try container.decodeIfPresent([String: Double].self, forKey: .initialPRs) ?? [:]
@@ -43,6 +47,7 @@ struct UserProfile: Codable {
 
     init(
         nickname: String,
+        heightCm: Double = 170.0,
         weightKg: Double = 70.0,
         trainingExperience: TrainingExperience = .beginner,
         initialPRs: [String: Double] = [:],
@@ -51,6 +56,7 @@ struct UserProfile: Codable {
         goalPriorityMuscles: [String] = []
     ) {
         self.nickname = nickname
+        self.heightCm = heightCm
         self.weightKg = weightKg
         self.trainingExperience = trainingExperience
         self.initialPRs = initialPRs

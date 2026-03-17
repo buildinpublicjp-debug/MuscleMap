@@ -216,6 +216,8 @@ final class StrengthScoreCalculator {
 
     private init() {}
 
+    // TODO: heightCmを使ったBMI表示、体格補正付きスコア
+
     /// 全WorkoutSetから筋肉ごとのStrengthスコア（0.0〜1.0）を算出
     func muscleStrengthScores(allSets: [WorkoutSet], bodyweightKg: Double) -> [String: Double] {
         let bodyweight = bodyweightKg > 0 ? bodyweightKg : 70.0
