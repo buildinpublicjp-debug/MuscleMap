@@ -64,7 +64,7 @@ struct RootView: View {
                 PhoneSessionManager.shared.modelContext = modelContext
 
                 #if DEBUG
-                // seedDemoDataIfNeeded(context: modelContext) // Temporarily disabled for audit
+                seedDemoDataIfNeeded(context: modelContext)
                 #endif
             }
             .onChange(of: themeManager.currentTheme) { _, _ in

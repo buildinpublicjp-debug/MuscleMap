@@ -151,8 +151,15 @@ struct ExerciseDetailView: View {
                         .minimumScaleFactor(0.7)
                 }
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button(L10n.close) { dismiss() }
-                        .foregroundStyle(Color.mmAccentPrimary)
+                    Button {
+                        dismiss()
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.system(size: 24))
+                            .foregroundStyle(Color.mmTextSecondary)
+                            .contentShape(Rectangle())
+                    }
+                    .frame(minWidth: 44, minHeight: 44)
                 }
             }
         }

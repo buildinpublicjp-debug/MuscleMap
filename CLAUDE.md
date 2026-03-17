@@ -1,6 +1,6 @@
 # MuscleMap - Claude Code Rules
 
-> **v3.3 | 2026-03-14**
+> **v4.0 | 2026-03-17**
 > 筋肉の回復状態と筋力レベルを可視化し、最適なトレーニングを導くiOSアプリ
 
 ---
@@ -17,16 +17,16 @@
 3. 7日以上未刺激の筋肉を紫で点滅警告
 4. 今日のメニュー自動提案（回復データからルールベースで生成）
 5. 92種目のEMGベース刺激度マッピング
-6. 3D部位詳細表示（RealityKit、フォールバックあり）
+6. 2D部位詳細表示（筋肉マップハイライト、同グループ薄表示）
 7. Apple Watch companion app（watchOS 10.0+、WatchConnectivity同期）
 8. **[Pro] Strength Map** — PRデータから筋肉の発達レベルを太さで可視化
 9. **Strength Mapシェアカード** — 9:16（1080×1920px @3x）のPNG書き出し。グレードS〜D、Top3ランキング付き
 10. **Workoutシェアカード** — 360×360pt @3x（1080×1080px正方形）。ダークグラデ背景 + グロー付き筋肉マップ + ボリューム大表示 + 🏆PR表示 + ウォーターマーク
 11. **次回おすすめ日** — ワークアウト完了時に回復予測から次の推奨トレーニング日を表示
 12. **初回コーチマーク** — 初回起動時にホーム画面で操作ガイドを表示（1回限り）
-13. **オンボーディングv5（最大7ページ）** — SplashView → GoalSelectionPage（「なぜ鍛える？」7目標エモーショナル複数選択） → TrainingHistoryPage（トレ歴） → [PRInputPage（経験者のみ）] → GymCheckPage（「今ジムにいる？」） → OnboardingBranchPage（ジム→showWorkoutTutorial設定+スキップ / 家→RecentTrainingInputPage直近トレ入力） → WeightInputPage（体重・ニックネーム） → CallToActionPage（目標別コピー+3つの価値） → 通知許可
-15. **ワークアウトチュートリアルバナー** — ジムルートからの初回ユーザーに対し、WorkoutIdleViewの上部にチュートリアルバナーを表示（1セット記録で消去）
-14. 課金: PurchaseManager（RevenueCat SDK v5.61.0 接続済み、entitlement "premium" で判定）
+13. **オンボーディングv6（最大8ページ）** — SplashView → GoalSelectionPage（「なぜ鍛える？」7目標エモーショナル複数選択） → FrequencySelectionPage（週間頻度） → LocationSelectionPage（トレ場所） → TrainingHistoryPage（トレ歴） → [PRInputPage（経験者のみ、種目追加・変更可能）] → GoalMusclePreviewPage（目標×筋肉ビジュアル、クライマックス演出） → WeightInputPage（体重・ニックネーム） → CallToActionPage（目標別コピー+3つの価値） → 通知許可
+14. **メニュープレビューシート** — ホームのおすすめメニューをGIF・筋肉マップ・重量付きで確認してから開始
+15. 課金: PurchaseManager（RevenueCat SDK v5.61.0 接続済み、entitlement "premium" で判定、DEBUGビルドにisPremiumトグルあり）
 
 **デザイントーン:** 「バイオモニター × G-SHOCK」 — ダーク基調、データが浮かび上がる
 
@@ -42,9 +42,7 @@
 | DB | SwiftData |
 | Architecture | MVVM + Repository Pattern |
 | 2D人体図 | SVG（カスタムSwiftUI Path） |
-| 3D表示 | RealityKit |
 | 課金 | RevenueCat SDK v5.61.0（PurchaseManager.swift、entitlement "premium" 判定） |
-| 3Dモデル | TurboSquid（USDZ） |
 
 ---
 
@@ -61,16 +59,17 @@
 現在の状態:
 - RevenueCat SDK: v5.61.0 導入済み（project.yml に依存設定済み）
 - PurchaseManager.swift: RevenueCat entitlement "premium" で isPremium を判定
-- Paywall UI: Views/Paywall/PaywallView.swift（実装済み）
+- Paywall UI: Views/Paywall/PaywallView.swift（実装済み、目標筋肉マップ+メニュープレビュー付き）
 - configure(): MuscleMapApp.init() で起動時に呼び出し済み
 - PurchaseDelegate: entitlement変更をリアルタイム反映
+- DEBUG: isPremiumトグル付き（#if DEBUG、設定画面の開発者メニューから切替可能）
 
 残作業:
 - App Store Connect で Product ID 設定・審査
 
 プラン:
 // 月額: ¥590/月
-// 年額: ¥4,900/年（推奨）
+// 年額: ¥4,900/年（推奨、7日間無料トライアル）
 // Entitlement名: "premium"
 // API Key: appl_IzrrBdSVXMDZUylPnwcaJxvdlxb
 ```
@@ -81,9 +80,10 @@
 
 | 機能 | 実装状態 | ゲートポイント |
 |:---|:---|:---|
-| Strength Map（筋力可視化マップ） | 実装中 | HomeView の Strength Mapボタン |
+| Strength Map（筋力可視化マップ） | 実装済み | HomeView の Strength Mapボタン |
+| 今日のメニュー提案（パーソナライズ） | 実装済み | HomeView TodayRecommendationInline |
+| メニュープレビューシート | 実装済み | HomeView → MenuPreviewSheet |
 | 分析メニュー（WeeklySummary等） | 将来対応 | AnalyticsMenuView入口 |
-| 履歴タブ | 将来対応 | ContentView Tab 3 |
 
 ---
 
@@ -146,35 +146,37 @@
 - **内容**: 「まずワークアウトを記録しよう」+ 下矢印アニメーション
 - **消去**: タップで閉じ、AppStateに記録（1回限り表示）
 
-### オンボーディング（最大7ページ + SplashView + 通知許可）
-- **ファイル**: `Views/Onboarding/`（11ファイル以上）
+### オンボーディング（最大8ページ + SplashView + 通知許可）
+- **ファイル**: `Views/Onboarding/`（19ファイル）
 - **フロー:**
   ```
   SplashView（2.5秒アニメーション付き）
       ↓
-  OnboardingV2View（最大7ページ横スワイプ TabView）:
+  OnboardingV2View（最大8ページ横スワイプ TabView）:
     Page 0: GoalSelectionPage（目標選択エモーショナル版）
-    Page 1: TrainingHistoryPage（トレ歴選択 → UserProfile.trainingExperience に保存）
-    Page 2: PRInputPage（BIG3のPR入力 → UserProfile.initialPRs に保存）
+    Page 1: FrequencySelectionPage（週間トレーニング頻度 → UserProfile.weeklyFrequency）
+    Page 2: LocationSelectionPage（トレーニング場所 → UserProfile.trainingLocation）
+    Page 3: TrainingHistoryPage（トレ歴選択 → UserProfile.trainingExperience）
+    Page 4: PRInputPage（PR入力、種目追加・変更可能 → UserProfile.initialPRs）
             ※ trainingExperience == .oneYearPlus || .veteran の場合のみ表示
-    Page 3: GymCheckPage（「今ジムにいる？」）
-    Page 4: OnboardingBranchPage（分岐先）
-    Page 5: WeightInputPage（体重 40-160kg + ニックネーム → UserProfile に保存）
-    Page 6: CallToActionPage（機能紹介 + CTA「無料ではじめる」）
+    Page 5: GoalMusclePreviewPage（目標×筋肉ビジュアル、クライマックス演出）
+            → GoalMusclePriority.data(for:) で重点筋肉をUserProfileに保存
+    Page 6: WeightInputPage（体重 40-160kg + ニックネーム → UserProfile に保存）
+    Page 7: CallToActionPage（機能紹介 + CTA「無料ではじめる」）
       ↓
   NotificationPermissionView（通知許可）
       ↓
   アプリ本体へ
   ```
 - **SplashView**: ロゴ/アイコン フェードイン → サブコピー → 筋肉マップデモ（順次点灯） → タグライン → 続行ボタン。グローアニメーション付き
-- **GoalSelectionPage**: 「なぜ鍛える？」7目標エモーショナル版（💪デカくなりたい / 😎舐められたくない / 🥊格闘技・武道 / ⛳スポーツに活かす / ❤️‍🔥モテたい / 🏃動ける体がほしい / ❤️健康に長生き）。複数選択可（Set\<OnboardingGoal\>）、80ptカード。primaryOnboardingGoalをAppStateに保存
-- **TrainingHistoryPage**: 4段階のトレ歴選択（🌱これから始める / 💪半年くらい / 🔥1年以上 / ⚡3年以上）。TrainingExperience enum → UserProfile に保存
-- **PRInputPage**: BIG3（ベンチプレス/スクワット/デッドリフト）のPR入力。StrengthScoreCalculator.exerciseStrengthLevel() でリアルタイムレベルバッジ表示。スキップ可能。デフォルト体重70kgで暫定計算
-- **GymCheckPage**: 「今ジムにいる？」確認ページ
-- **OnboardingBranchPage**: ジム→ガイド付きワークアウト案内（showWorkoutTutorial=trueをセットしてfirstWorkoutフェーズをスキップ） / 家→RecentTrainingInputPage（筋肉マップで直近トレーニング入力）
-- **RecentTrainingInputPage**: 「最近どこを鍛えた？」筋肉マップ（前面/背面切替）+ 部位グループボタン（胸/背中/脚/肩/腕/腹）2行3列LazyVGrid一括選択 + 「いつ鍛えた？」セグメント（今日/昨日/2-3日前）。MuscleStimulationとしてSwiftDataに保存 → ホーム画面回復マップに即反映
+- **GoalSelectionPage**: 「なぜ鍛える？」7目標エモーショナル版。複数選択可（Set\<OnboardingGoal\>）、80ptカード。primaryOnboardingGoalをAppStateに保存
+- **FrequencySelectionPage**: 週間トレーニング頻度（1-7回）。UserProfile.weeklyFrequencyに保存。メニュー提案のパーソナライズに使用
+- **LocationSelectionPage**: トレーニング場所（ジム/自宅/両方）。UserProfile.trainingLocationに保存。器具フィルタに使用
+- **TrainingHistoryPage**: 4段階のトレ歴選択。TrainingExperience enum → UserProfile に保存
+- **PRInputPage**: BIG3 + 追加種目のPR入力。種目の追加・変更が可能。StrengthScoreCalculator.exerciseStrengthLevel() でリアルタイムレベルバッジ表示。スキップ可能
+- **GoalMusclePreviewPage**: 目標に対応する重点筋肉を筋肉マップ上にハイライト表示。GoalMusclePriority.data(for:) で筋肉リストを取得し、UserProfile.goalPriorityMuscles に保存
 - **WeightInputPage**: ニックネームTextField + ドラムロールPicker（kg/lb切替）。AppState.shared.userProfile にリアルタイム保存
-- **CallToActionPage**: 目標別キャッチコピー（getBig→「90日後、鏡の前で笑える。」等）+ 3つのシンプルな価値行（🗺️鍛えた筋肉が光るマップ / 📊あとXkgでレベルアップ / 📅90日チャレンジで変化を証明）+ グロー付きCTAボタン + 利用規約/プライバシーポリシーリンク
+- **CallToActionPage**: 目標別キャッチコピー（getBig→「90日後、鏡の前で笑える。」等）+ 3つのシンプルな価値行 + グロー付きCTAボタン + 利用規約/プライバシーポリシーリンク
 - **カラーパレット（オンボーディング専用）:**
   - `.mmOnboardingAccent` = `#00E676`, `.mmOnboardingAccentDark` = `#00B35F`
   - `.mmOnboardingBg` = `#1A1A1E`, `.mmOnboardingCard` = `#2C2C2E`
@@ -219,14 +221,14 @@ UI実装・修正が完了したら、以下を必ず確認する：
 
 | 思想 | 意味 |
 |:---|:---|
-| **ビジュアルファースト** | テキストより視覚表現を優先。3Dモデル、色彩、チャートで直感的に伝える |
+| **ビジュアルファースト** | テキストより視覚表現を優先。筋肉マップ、GIF、色彩、チャートで直感的に伝える |
 | **情報階層の明確化** | 全情報を同等に扱わない。最重要データを最も目立たせる |
 | **達成感の演出** | PR更新やマイルストーンは祝福の体験としてデザインする |
 | **iOSネイティブ準拠** | SwiftUI標準コンポーネントとHIGを最大限尊重。独自パターンは最終手段 |
 
 ### ビジュアルインパクト
 
-- 部位詳細・種目詳細・ワークアウトサマリーなど、特定対象に焦点を当てる画面では、3Dビジュアルまたは画像を**画面上部の最低1/3（33%）**で大きく表示する
+- 部位詳細・種目詳細・ワークアウトサマリーなど、特定対象に焦点を当てる画面では、筋肉マップハイライトまたはGIF画像を**画面上部の最低1/3（33%）**で大きく表示する
 - リスト形式の画面でも、各行にサムネイル/アイコンを必ず配置。**テキストのみの行は禁止**
 - ハーフモーダルでも同じルールを適用。テキストリストだけのモーダルは作らない
 
@@ -318,6 +320,14 @@ VStack(alignment: .leading) {
 | サブアクセント | `.mmAccentSecondary` | `#00D4FF`（電光ブルー） |
 | ブランドパープル | `.mmBrandPurple` | `#A020F0` |
 
+### セマンティックカラー
+
+| 用途 | コード | Hex |
+|:---|:---|:---|
+| 破壊的アクション | `.mmDestructive` | `#FF453A` |
+| 警告 | `.mmWarning` | `#FF9F0A` |
+| PR達成ゴールド | `.mmPRGold` | `#FFD700` |
+
 ### 筋肉状態カラー（回復マップ用）
 
 ⚠️ **色の方向: レッド(疲労) → イエロー → グリーン(回復)。信号機と同じ。**
@@ -329,6 +339,15 @@ VStack(alignment: .leading) {
 | 回復済み | `.mmMuscleRecovered` | `#81C784` | 80-100% |
 | 記録なし | `.mmMuscleInactive` | `#3D3D42` | — |
 | 未刺激警告 | `.mmMuscleNeglected` | `#B388D4` | 7日+ |
+
+### cornerRadius 正規化（4段階）
+
+| サイズ | 用途 |
+|:---|:---|
+| `4pt` | 小バッジ、プログレスバー |
+| `8pt` | タグ、小カード内要素 |
+| `16pt` | カード、ボタン、シート内要素 |
+| `24pt` | 大モーダル、フルカード |
 
 ---
 
@@ -458,18 +477,19 @@ TabBar（4タブ）
 
 ※ 種目辞典はタブから削除。以下からアクセス可能:
   - ホーム画面ナビバー（bookアイコン）
-  - ワークアウト未開始画面（「種目を探す」ボタン）
+  - ワークアウト未開始画面（「種目を追加して始める」ボタン）
   - 設定画面（「種目辞典」セル）
 ※ ソーシャルフィードは設定画面内からプレビュー表示
 
 Onboarding（初回のみ）
 ├── SplashView                  ← 実装済み（アニメーション付きスプラッシュ）
-├── OnboardingV2View（最大7ページ）← 実装済み
+├── OnboardingV2View（最大8ページ）← 実装済み
 │   ├── GoalSelectionPage       ← 実装済み（目標選択エモーショナル版・複数選択可）
+│   ├── FrequencySelectionPage  ← 実装済み（週間トレーニング頻度）
+│   ├── LocationSelectionPage   ← 実装済み（トレーニング場所）
 │   ├── TrainingHistoryPage     ← 実装済み（トレ歴4段階選択）
-│   ├── PRInputPage             ← 実装済み（BIG3入力、経験者のみ）
-│   ├── GymCheckPage            ← 実装済み（「今ジムにいる？」2択カード）
-│   ├── OnboardingBranchPage    ← 実装済み（ジム/家で分岐）
+│   ├── PRInputPage             ← 実装済み（BIG3入力、経験者のみ、種目追加・変更可能）
+│   ├── GoalMusclePreviewPage   ← 実装済み（目標×筋肉ビジュアル）
 │   ├── WeightInputPage         ← 実装済み（体重・ニックネーム入力）
 │   └── CallToActionPage        ← 実装済み（機能紹介 + CTA）
 └── NotificationPermissionView  ← 実装済み（通知許可）
@@ -478,12 +498,13 @@ Modal / Push
 ├── 今日のメニュー提案           ← P0（実装済み）
 ├── ワークアウト実行中           ← P0（実装済み）
 ├── 種目詳細                    ← P1（実装済み）
-├── 部位詳細（3D）              ← P1（実装済み）
+├── 部位詳細（2D）              ← P1（実装済み）
 ├── 分析メニュー（4画面）        ← P1（実装済み、将来Pro化予定）
-├── Strength Map（Pro）         ← 実装中
+├── Strength Map（Pro）         ← 実装済み
 ├── Strength Mapシェアカード     ← 実装済み（PR更新時にワークアウト完了から呼出）
 ├── Workoutシェアカード          ← 実装済み（PR前回比表示 + システムカラースキーム対応）
-├── Paywall                     ← 実装中
+├── メニュープレビューシート     ← 実装済み（GIF+筋肉マップ+重量付き確認）
+├── Paywall                     ← 実装済み
 └── Homeコーチマーク             ← 実装済み（初回のみオーバーレイ表示）
 ```
 
@@ -533,9 +554,10 @@ MuscleMap/
 │   │   ├── MicroBodyMapView.swift
 │   │   ├── ExerciseGifView.swift
 │   │   └── ShareCardTemplate.swift
-│   ├── Home/                   # ホーム画面（14ファイル）
+│   ├── Home/                   # ホーム画面（15ファイル）
 │   │   ├── StrengthMapView.swift     # [Pro] 筋力可視化マップ
 │   │   ├── StrengthShareCard.swift   # Strength Mapシェアカード（@3x PNG生成）
+│   │   ├── MenuPreviewSheet.swift    # メニュープレビュー（GIF+筋肉マップ+重量付き）
 │   │   └── HomeHelpers.swift         # HomeCoachMarkView含む
 │   ├── Workout/                # ワークアウト記録（14ファイル）
 │   │   ├── WorkoutCompletionView.swift       # 完了画面本体
@@ -544,22 +566,25 @@ MuscleMap/
 │   │   └── ShareMuscleMapView.swift          # シェアカード用静的筋肉マップ（mapHeight可変）
 │   ├── Exercise/               # 種目辞典（3ファイル）
 │   ├── History/                # 履歴（7ファイル）
-│   ├── MuscleDetail/           # 部位詳細（2ファイル）
-│   ├── Onboarding/             # オンボーディング（16ファイル）
+│   ├── MuscleDetail/           # 部位詳細（2ファイル、2Dマップハイライト方式）
+│   ├── Onboarding/             # オンボーディング（19ファイル）
 │   │   ├── OnboardingView.swift          # フェーズ管理（Splash→V2→通知）
-│   │   ├── OnboardingV2View.swift        # 最大7ページ横スワイプ + 専用カラーパレット
+│   │   ├── OnboardingV2View.swift        # 最大8ページ横スワイプ + 専用カラーパレット
 │   │   ├── SplashView.swift              # プレミアムスプラッシュ（アニメーション付き）
 │   │   ├── GoalSelectionPage.swift       # 7目標エモーショナル複数選択 + OnboardingGoal enum
+│   │   ├── FrequencySelectionPage.swift  # 週間トレーニング頻度選択（NEW v4.0）
+│   │   ├── LocationSelectionPage.swift   # トレーニング場所選択（NEW v4.0）
 │   │   ├── TrainingHistoryPage.swift     # トレ歴選択
-│   │   ├── PRInputPage.swift             # BIG3 PR入力（経験者のみ）
-│   │   ├── GymCheckPage.swift            # 「今ジムにいる？」
-│   │   ├── OnboardingBranchPage.swift    # ジム/家分岐（家→RecentTrainingInputPage）
-│   │   ├── RecentTrainingInputPage.swift # 直近トレーニング入力（筋肉マップ + グループボタン）
-│   │   ├── GuidedFirstWorkoutPage.swift  # ガイド付きワークアウト
+│   │   ├── PRInputPage.swift             # BIG3 PR入力（経験者のみ、種目追加・変更可能）
+│   │   ├── GoalMusclePreviewPage.swift   # 目標×筋肉ビジュアル（NEW v4.0）
+│   │   ├── GoalMusclePriority.swift      # 目標→重点筋肉マッピング（NEW v4.0）
+│   │   ├── GymCheckPage.swift            # 「今ジムにいる？」（旧ページ、参考保持）
+│   │   ├── OnboardingBranchPage.swift    # ジム/家分岐（旧ページ、参考保持）
+│   │   ├── RecentTrainingInputPage.swift # 直近トレーニング入力（旧ページ、参考保持）
+│   │   ├── GuidedFirstWorkoutPage.swift  # ガイド付きワークアウト（旧ページ、参考保持）
 │   │   ├── WeightInputPage.swift         # 体重・ニックネーム入力（→UserProfile）
 │   │   ├── CallToActionPage.swift        # 目標別コピー + 機能紹介 + CTA
 │   │   ├── PersonalizationPage.swift     # （GoalSelectionPageへのラッパー、後方互換）
-│   │   ├── InteractiveDemoPage.swift     # （旧ページ、参考保持）
 │   │   ├── NotificationPermissionView.swift  # 通知許可
 │   │   └── ValuePropositionPage.swift    # （旧ページ、参考保持）
 │   ├── Social/                 # ソーシャルフィード（Phase 0）
@@ -580,7 +605,8 @@ MuscleMap/
 │   ├── HapticManager.swift
 │   ├── ThemeManager.swift
 │   ├── LocalizationManager.swift
-│   ├── ModelLoader.swift
+│   ├── ModelLoader.swift        # 3Dモデル可用性チェック（レガシー、2D移行済み）
+│   ├── WorkoutRecommendationEngine.swift  # おすすめメニューエンジン
 │   ├── WidgetDataProvider.swift
 │   ├── LegalURL.swift
 │   ├── AppConstants.swift
@@ -589,8 +615,7 @@ MuscleMap/
 └── Resources/
     ├── exercises.json          # 92種目
     ├── Assets.xcassets
-    ├── exercises_gif/          # folder reference
-    └── 3DModels/               # 現在は空
+    └── exercises_gif/          # folder reference（GIFアニメーション）
 
 MuscleMapWatch/                 # Apple Watch companion
 MuscleMapWidget/                # Widget extension

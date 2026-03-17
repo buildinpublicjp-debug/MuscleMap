@@ -70,14 +70,14 @@ struct WorkoutIdleView: View {
                 .padding(.vertical)
             }
 
-            // 開始ボタン（固定）
+            // 種目を追加して始める（統合CTA）
             Button {
                 HapticManager.lightTap()
-                onStart()
+                showingExerciseLibrary = true
             } label: {
                 HStack {
-                    Image(systemName: "figure.strengthtraining.traditional")
-                    Text(L10n.startFreeWorkout)
+                    Image(systemName: "plus.circle.fill")
+                    Text(L10n.addExerciseAndStart)
                 }
                 .font(.headline)
                 .foregroundStyle(Color.mmBgPrimary)
@@ -85,24 +85,6 @@ struct WorkoutIdleView: View {
                 .frame(height: 56)
                 .background(Color.mmAccentPrimary)
                 .clipShape(RoundedRectangle(cornerRadius: 16))
-            }
-            .buttonStyle(.plain)
-            .padding(.horizontal)
-            .padding(.bottom, 4)
-
-            // 種目を探すボタン
-            Button {
-                HapticManager.lightTap()
-                showingExerciseLibrary = true
-            } label: {
-                HStack(spacing: 6) {
-                    Image(systemName: "book")
-                    Text(L10n.browseExercises)
-                }
-                .font(.subheadline.bold())
-                .foregroundStyle(Color.mmAccentSecondary)
-                .frame(maxWidth: .infinity)
-                .frame(height: 44)
             }
             .buttonStyle(.plain)
             .padding(.horizontal)
