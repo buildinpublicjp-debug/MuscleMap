@@ -11,10 +11,11 @@ class PRManager {
 
     /// 指定種目の重量PR（最大重量）を取得
     func getWeightPR(exerciseId: String, context: ModelContext) -> Double? {
-        let descriptor = FetchDescriptor<WorkoutSet>(
+        var descriptor = FetchDescriptor<WorkoutSet>(
             predicate: #Predicate { $0.exerciseId == exerciseId },
             sortBy: [SortDescriptor(\.weight, order: .reverse)]
         )
+        descriptor.fetchLimit = 1
         guard let maxSet = try? context.fetch(descriptor).first else {
             return nil
         }
@@ -32,12 +33,15 @@ class PRManager {
 
     /// 指定セッション以外の過去最大重量を取得（前回比用）
     func getPreviousWeightPR(exerciseId: String, excludingSessionId: UUID, context: ModelContext) -> Double? {
-        let descriptor = FetchDescriptor<WorkoutSet>(
+        // セッション除外はSwiftDataのPredicateでは困難なため、
+        // 上位数件を取得して除外フィルタリング
+        var descriptor = FetchDescriptor<WorkoutSet>(
             predicate: #Predicate { $0.exerciseId == exerciseId },
             sortBy: [SortDescriptor(\.weight, order: .reverse)]
         )
-        guard let allSets = try? context.fetch(descriptor) else { return nil }
-        return allSets.first(where: { $0.session?.id != excludingSessionId })?.weight
+        descriptor.fetchLimit = 10
+        guard let topSets = try? context.fetch(descriptor) else { return nil }
+        return topSets.first(where: { $0.session?.id != excludingSessionId })?.weight
     }
 
     /// 今回セッションでPR更新した種目一覧を取得（前回重量と新重量のペア付き）
@@ -76,11 +80,14 @@ class PRManager {
         return weight * (1 + Double(reps) / 30.0)
     }
 
-    /// 指定種目のベスト推定1RM（全セットからEpley式で最大値を取得）
+    /// 指定種目のベスト推定1RM（重量上位セットからEpley式で最大値を取得）
     func getBestEstimated1RM(exerciseId: String, context: ModelContext) -> Double? {
-        let descriptor = FetchDescriptor<WorkoutSet>(
-            predicate: #Predicate { $0.exerciseId == exerciseId }
+        // 推定1RMは weight*(1+reps/30) のため重量上位セットに絞って計算
+        var descriptor = FetchDescriptor<WorkoutSet>(
+            predicate: #Predicate { $0.exerciseId == exerciseId },
+            sortBy: [SortDescriptor(\.weight, order: .reverse)]
         )
+        descriptor.fetchLimit = 50
         guard let sets = try? context.fetch(descriptor), !sets.isEmpty else {
             return nil
         }

@@ -381,8 +381,11 @@ struct WorkoutCompletionView: View {
             )
         }
 
-        // 総合レベルを算出
-        let allSetsDescriptor = FetchDescriptor<WorkoutSet>()
+        // 総合レベルを算出（直近1000件に制限）
+        var allSetsDescriptor = FetchDescriptor<WorkoutSet>(
+            sortBy: [SortDescriptor(\.completedAt, order: .reverse)]
+        )
+        allSetsDescriptor.fetchLimit = 1000
         let allSets = (try? modelContext.fetch(allSetsDescriptor)) ?? []
         let bodyweight = AppState.shared.userProfile.weightKg
         let level = StrengthScoreCalculator.shared.overallLevel(allSets: allSets, bodyweightKg: bodyweight)
@@ -514,7 +517,10 @@ struct WorkoutCompletionView: View {
     /// Strength Mapシェア画像を生成
     @MainActor
     private func prepareStrengthShareImage() {
-        let allSetsDescriptor = FetchDescriptor<WorkoutSet>()
+        var allSetsDescriptor = FetchDescriptor<WorkoutSet>(
+            sortBy: [SortDescriptor(\.completedAt, order: .reverse)]
+        )
+        allSetsDescriptor.fetchLimit = 1000
         guard let allSets = try? modelContext.fetch(allSetsDescriptor) else { return }
 
         let profile = UserProfile.load()

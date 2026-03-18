@@ -7,6 +7,7 @@ struct DayWorkoutDetailView: View {
     let date: Date
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
+    @State private var daySessions: [WorkoutSession] = []
     private var localization: LocalizationManager { LocalizationManager.shared }
 
     private var localizedDateString: String {
@@ -21,18 +22,22 @@ struct DayWorkoutDetailView: View {
         return formatter.string(from: date)
     }
 
-    private var sessions: [WorkoutSession] {
+    /// onAppearでセッションを取得（predicateで日付フィルタ）
+    private func loadDaySessions() {
         let calendar = Calendar.current
         let startOfDay = calendar.startOfDay(for: date)
         guard let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay) else {
-            return []
+            daySessions = []
+            return
         }
 
         let descriptor = FetchDescriptor<WorkoutSession>(
+            predicate: #Predicate {
+                $0.startDate >= startOfDay && $0.startDate < endOfDay
+            },
             sortBy: [SortDescriptor(\.startDate)]
         )
-        let allSessions = (try? modelContext.fetch(descriptor)) ?? []
-        return allSessions.filter { $0.startDate >= startOfDay && $0.startDate < endOfDay }
+        daySessions = (try? modelContext.fetch(descriptor)) ?? []
     }
 
     var body: some View {
@@ -40,7 +45,7 @@ struct DayWorkoutDetailView: View {
             ZStack {
                 Color.mmBgPrimary.ignoresSafeArea()
 
-                if sessions.isEmpty {
+                if daySessions.isEmpty {
                     VStack(spacing: 12) {
                         Image(systemName: "figure.walk")
                             .font(.system(size: 48))
@@ -52,7 +57,7 @@ struct DayWorkoutDetailView: View {
                 } else {
                     ScrollView {
                         VStack(spacing: 16) {
-                            ForEach(sessions) { session in
+                            ForEach(daySessions) { session in
                                 SessionDetailCard(session: session)
                             }
                         }
@@ -71,6 +76,9 @@ struct DayWorkoutDetailView: View {
             }
         }
         .presentationDetents([.medium, .large])
+        .onAppear {
+            loadDaySessions()
+        }
     }
 }
 

@@ -24,7 +24,7 @@
 10. **Workoutシェアカード** — 360×360pt @3x（1080×1080px正方形）。ダークグラデ背景 + グロー付き筋肉マップ + ボリューム大表示 + 🏆PR表示 + ウォーターマーク
 11. **次回おすすめ日** — ワークアウト完了時に回復予測から次の推奨トレーニング日を表示
 12. **初回コーチマーク** — 初回起動時にホーム画面で操作ガイドを表示（1回限り）
-13. **オンボーディングv6（最大8ページ）** — SplashView → GoalSelectionPage（「なぜ鍛える？」7目標エモーショナル複数選択） → FrequencySelectionPage（週間頻度） → LocationSelectionPage（トレ場所） → TrainingHistoryPage（トレ歴） → [PRInputPage（経験者のみ、種目追加・変更可能）] → GoalMusclePreviewPage（目標×筋肉ビジュアル、クライマックス演出） → WeightInputPage（体重・ニックネーム） → CallToActionPage（目標別コピー+3つの価値） → 通知許可
+13. **オンボーディングv6（最大8ページ）** — SplashView → GoalSelectionPage（「なぜ鍛える？」7目標エモーショナル単一選択） → FrequencySelectionPage（週間頻度） → LocationSelectionPage（トレ場所） → TrainingHistoryPage（トレ歴） → [PRInputPage（経験者のみ、種目追加・変更可能）] → GoalMusclePreviewPage（目標×筋肉ビジュアル、クライマックス演出） → WeightInputPage（体重・ニックネーム） → CallToActionPage（目標別コピー+3つの価値） → 通知許可
 14. **メニュープレビューシート** — ホームのおすすめメニューをGIF・筋肉マップ・重量付きで確認してから開始
 15. 課金: PurchaseManager（RevenueCat SDK v5.61.0 接続済み、entitlement "premium" で判定、DEBUGビルドにisPremiumトグルあり）
 
@@ -169,7 +169,7 @@
   アプリ本体へ
   ```
 - **SplashView**: ロゴ/アイコン フェードイン → サブコピー → 筋肉マップデモ（順次点灯） → タグライン → 続行ボタン。グローアニメーション付き
-- **GoalSelectionPage**: 「なぜ鍛える？」7目標エモーショナル版。複数選択可（Set\<OnboardingGoal\>）、80ptカード。primaryOnboardingGoalをAppStateに保存
+- **GoalSelectionPage**: 「なぜ鍛える？」7目標エモーショナル版。単一選択、80ptカード。primaryOnboardingGoalをAppStateに保存
 - **FrequencySelectionPage**: 週間トレーニング頻度（1-7回）。UserProfile.weeklyFrequencyに保存。メニュー提案のパーソナライズに使用
 - **LocationSelectionPage**: トレーニング場所（ジム/自宅/両方）。UserProfile.trainingLocationに保存。器具フィルタに使用
 - **TrainingHistoryPage**: 4段階のトレ歴選択。TrainingExperience enum → UserProfile に保存
@@ -484,7 +484,7 @@ TabBar（4タブ）
 Onboarding（初回のみ）
 ├── SplashView                  ← 実装済み（アニメーション付きスプラッシュ）
 ├── OnboardingV2View（最大8ページ）← 実装済み
-│   ├── GoalSelectionPage       ← 実装済み（目標選択エモーショナル版・複数選択可）
+│   ├── GoalSelectionPage       ← 実装済み（目標選択エモーショナル版・単一選択）
 │   ├── FrequencySelectionPage  ← 実装済み（週間トレーニング頻度）
 │   ├── LocationSelectionPage   ← 実装済み（トレーニング場所）
 │   ├── TrainingHistoryPage     ← 実装済み（トレ歴4段階選択）
@@ -571,7 +571,7 @@ MuscleMap/
 │   │   ├── OnboardingView.swift          # フェーズ管理（Splash→V2→通知）
 │   │   ├── OnboardingV2View.swift        # 最大8ページ横スワイプ + 専用カラーパレット
 │   │   ├── SplashView.swift              # プレミアムスプラッシュ（アニメーション付き）
-│   │   ├── GoalSelectionPage.swift       # 7目標エモーショナル複数選択 + OnboardingGoal enum
+│   │   ├── GoalSelectionPage.swift       # 7目標エモーショナル単一選択 + OnboardingGoal enum
 │   │   ├── FrequencySelectionPage.swift  # 週間トレーニング頻度選択（NEW v4.0）
 │   │   ├── LocationSelectionPage.swift   # トレーニング場所選択（NEW v4.0）
 │   │   ├── TrainingHistoryPage.swift     # トレ歴選択

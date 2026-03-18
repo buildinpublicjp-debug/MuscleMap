@@ -18,6 +18,7 @@ struct NeglectedMuscleInfo: Identifiable {
 class HomeViewModel {
     private let muscleStateRepo: MuscleStateRepository
     private let workoutRepo: WorkoutRepository
+    private let modelContext: ModelContext
 
     // 筋肉の視覚状態
     var muscleStates: [Muscle: MuscleVisualState] = [:]
@@ -36,21 +37,12 @@ class HomeViewModel {
 
     /// ルーティンが設定されているか
     var hasRoutine: Bool {
-        let routine = UserRoutine.load()
-        return !routine.days.isEmpty
+        RoutineManager.shared.hasRoutine
     }
 
-    /// 今日のルーティンを読み込む（曜日ベースでローテーション）
+    /// 今日のルーティンを読み込む（セッション履歴ベースでローテーション）
     func loadTodayRoutine() {
-        let routine = UserRoutine.load()
-        guard !routine.days.isEmpty else {
-            todayRoutine = nil
-            return
-        }
-        // 曜日インデックスでローテーション（日=0, 月=1, ...）
-        let weekday = Calendar.current.component(.weekday, from: Date())
-        let index = (weekday - 1) % routine.days.count
-        todayRoutine = routine.days[index]
+        todayRoutine = RoutineManager.shared.todayRoutineDay(modelContext: modelContext)
     }
 
     /// 今日のおすすめメニューを取得
@@ -70,6 +62,7 @@ class HomeViewModel {
     }
 
     init(modelContext: ModelContext) {
+        self.modelContext = modelContext
         self.muscleStateRepo = MuscleStateRepository(modelContext: modelContext)
         self.workoutRepo = WorkoutRepository(modelContext: modelContext)
     }

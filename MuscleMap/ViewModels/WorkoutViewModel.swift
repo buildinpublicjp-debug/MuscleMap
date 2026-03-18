@@ -34,7 +34,7 @@ class WorkoutViewModel {
     var restTimerSeconds: Int = 0                // カウントダウン中: 残り秒数, オーバータイム: 経過秒数
     var isRestTimerRunning: Bool = false
     var isRestTimerOvertime: Bool = false         // カウントダウン完了後のオーバータイム状態
-    private var restTimer: Timer?
+    nonisolated(unsafe) private var restTimer: Timer?
     private var restTimerStartDate: Date?         // バックグラウンド復帰時の補正用
     private var restTimerDuration: Int = 90       // このタイマーセッションの設定秒数
     private var hasPlayedCompletionHaptic: Bool = false
@@ -44,6 +44,10 @@ class WorkoutViewModel {
         self.workoutRepo = WorkoutRepository(modelContext: modelContext)
         self.muscleStateRepo = MuscleStateRepository(modelContext: modelContext)
         self.exerciseStore = ExerciseStore.shared
+    }
+
+    deinit {
+        restTimer?.invalidate()
     }
 
     // MARK: セッション操作
@@ -70,6 +74,9 @@ class WorkoutViewModel {
 
         // ウィジェットデータを更新
         updateWidgetAfterSession()
+
+        // 無料ユーザーの週間ワークアウト回数をインクリメント
+        PurchaseManager.shared.incrementWorkoutCount()
     }
 
     /// セッションを破棄（記録と筋肉刺激を削除）

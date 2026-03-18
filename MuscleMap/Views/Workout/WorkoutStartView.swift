@@ -26,6 +26,8 @@ struct WorkoutStartView: View {
                             onWorkoutCompleted: { session in
                                 vm.endSession()
                                 HapticManager.workoutEnded()
+                                // 無料ユーザーの週間記録カウントをインクリメント
+                                PurchaseManager.shared.incrementWorkoutCount()
                                 completedSession = session
                             }
                         )

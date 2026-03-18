@@ -141,7 +141,9 @@ struct RoutineBuilderPage: View {
 
     // MARK: - 種目リスト
 
+    @ViewBuilder
     private var exerciseListView: some View {
+        if days.indices.contains(selectedDayIndex) {
         VStack(spacing: 0) {
             // 種目数カウンター
             HStack {
@@ -193,6 +195,7 @@ struct RoutineBuilderPage: View {
                 .padding(.horizontal, 24)
                 .padding(.bottom, 100)
             }
+        }
         }
     }
 

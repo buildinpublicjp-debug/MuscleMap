@@ -8,7 +8,7 @@ final class PurchaseManager {
 
     /// DEBUGビルドでPro状態を強制切替するフラグ（nil=RevenueCat判定を使用）
     #if DEBUG
-    var debugOverridePremium: Bool? = true
+    var debugOverridePremium: Bool? = nil
     #endif
 
     /// Pro課金状態（DEBUG時はオーバーライド優先）
@@ -122,7 +122,9 @@ final class PurchaseManager {
         if let lastReset = UserDefaults.standard.object(forKey: Self.weeklyResetDateKey) as? Date {
             let lastWeek = calendar.component(.weekOfYear, from: lastReset)
             let currentWeek = calendar.component(.weekOfYear, from: now)
-            if lastWeek != currentWeek {
+            let lastYear = calendar.component(.yearForWeekOfYear, from: lastReset)
+            let currentYear = calendar.component(.yearForWeekOfYear, from: now)
+            if lastWeek != currentWeek || lastYear != currentYear {
                 UserDefaults.standard.set(0, forKey: Self.weeklyWorkoutCountKey)
                 UserDefaults.standard.set(now, forKey: Self.weeklyResetDateKey)
             }

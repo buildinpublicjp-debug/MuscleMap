@@ -187,7 +187,8 @@ class MuscleHeatmapViewModel {
                 currentWeek = []
             }
 
-            currentDate = calendar.date(byAdding: .day, value: 1, to: currentDate) ?? currentDate
+            guard let nextDate = calendar.date(byAdding: .day, value: 1, to: currentDate) else { break }
+            currentDate = nextDate
         }
 
         // 残りの日を追加

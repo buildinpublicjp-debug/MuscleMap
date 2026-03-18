@@ -198,11 +198,13 @@ struct AnalyticsMenuView: View {
     // MARK: - データ集計
 
     private func loadSummary() {
+        // セッション数はfetchCountで効率的に取得
         let sessionDescriptor = FetchDescriptor<WorkoutSession>()
-        let sessions = (try? modelContext.fetch(sessionDescriptor)) ?? []
-        totalSessions = sessions.count
+        totalSessions = (try? modelContext.fetchCount(sessionDescriptor)) ?? 0
 
-        let setsDescriptor = FetchDescriptor<WorkoutSet>()
+        // ボリューム合計用（直近5000セットに制限）
+        var setsDescriptor = FetchDescriptor<WorkoutSet>()
+        setsDescriptor.fetchLimit = 5000
         let sets = (try? modelContext.fetch(setsDescriptor)) ?? []
         totalVolume = sets.reduce(0.0) { $0 + $1.weight * Double($1.reps) }
 
