@@ -58,7 +58,10 @@ struct DayWorkoutDetailView: View {
                     ScrollView {
                         VStack(spacing: 16) {
                             ForEach(daySessions) { session in
-                                SessionDetailCard(session: session)
+                                SessionDetailCard(
+                                    session: session,
+                                    onSessionDeleted: { loadDaySessions() }
+                                )
                             }
                         }
                         .padding()
@@ -86,7 +89,19 @@ struct DayWorkoutDetailView: View {
 
 private struct SessionDetailCard: View {
     let session: WorkoutSession
+    var onSessionDeleted: () -> Void
+    @Environment(\.modelContext) private var modelContext
     private var localization: LocalizationManager { LocalizationManager.shared }
+
+    // セット編集用
+    @State private var setToEdit: WorkoutSet?
+
+    // セット削除用
+    @State private var setToDelete: WorkoutSet?
+    @State private var showDeleteSetConfirmation = false
+
+    // セッション削除用
+    @State private var showDeleteSessionConfirmation = false
 
     private var duration: String {
         guard let end = session.endDate else { return L10n.inProgress }
@@ -123,7 +138,9 @@ private struct SessionDetailCard: View {
             if !seen.contains(set.exerciseId) {
                 seen.insert(set.exerciseId)
                 if let exercise = ExerciseStore.shared.exercise(for: set.exerciseId) {
-                    let sets = session.sets.filter { $0.exerciseId == set.exerciseId }
+                    let sets = session.sets
+                        .filter { $0.exerciseId == set.exerciseId }
+                        .sorted { $0.setNumber < $1.setNumber }
                     result.append((exercise: exercise, sets: sets))
                 }
             }
@@ -133,7 +150,7 @@ private struct SessionDetailCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            // ヘッダー
+            // ヘッダー（セッション削除メニュー付き）
             HStack {
                 Text(session.startDate.formatted(date: .omitted, time: .shortened))
                     .font(.subheadline.bold())
@@ -145,6 +162,27 @@ private struct SessionDetailCard: View {
                 }
                 .font(.caption)
                 .foregroundStyle(Color.mmTextSecondary)
+
+                // セッション削除メニュー
+                Menu {
+                    Button(role: .destructive) {
+                        showDeleteSessionConfirmation = true
+                    } label: {
+                        Label(
+                            LocalizationManager.localized(
+                                ja: "セッションを削除",
+                                en: "Delete Session"
+                            ),
+                            systemImage: "trash"
+                        )
+                    }
+                } label: {
+                    Image(systemName: "ellipsis")
+                        .font(.subheadline)
+                        .foregroundStyle(Color.mmTextSecondary)
+                        .frame(width: 28, height: 28)
+                        .contentShape(Rectangle())
+                }
             }
 
             // サマリー行（種目数・合計ボリューム）
@@ -231,6 +269,35 @@ private struct SessionDetailCard: View {
                             }
 
                             Spacer()
+
+                            // 編集アイコン
+                            Image(systemName: "pencil")
+                                .font(.caption2)
+                                .foregroundStyle(Color.mmTextSecondary.opacity(0.5))
+                        }
+                        .padding(.vertical, 2)
+                        .padding(.horizontal, 4)
+                        .background(
+                            RoundedRectangle(cornerRadius: 4)
+                                .fill(setToEdit?.id == set.id ? Color.mmAccentPrimary.opacity(0.1) : Color.clear)
+                        )
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            setToEdit = set
+                            HapticManager.lightTap()
+                        }
+                        .contextMenu {
+                            Button {
+                                setToEdit = set
+                            } label: {
+                                Label(L10n.editSet, systemImage: "pencil")
+                            }
+                            Button(role: .destructive) {
+                                setToDelete = set
+                                showDeleteSetConfirmation = true
+                            } label: {
+                                Label(L10n.delete, systemImage: "trash")
+                            }
                         }
                     }
                 }
@@ -240,6 +307,296 @@ private struct SessionDetailCard: View {
         .padding()
         .background(Color.mmBgCard)
         .clipShape(RoundedRectangle(cornerRadius: 12))
+        // セット編集シート
+        .sheet(item: $setToEdit) { workoutSet in
+            HistorySetEditSheet(workoutSet: workoutSet) {
+                recalculateMuscleStimulations(session: session)
+            }
+        }
+        // セット削除確認
+        .alert(
+            L10n.deleteSetConfirm,
+            isPresented: $showDeleteSetConfirmation
+        ) {
+            Button(L10n.cancel, role: .cancel) {
+                setToDelete = nil
+            }
+            Button(L10n.delete, role: .destructive) {
+                if let set = setToDelete {
+                    deleteSet(set)
+                }
+                setToDelete = nil
+            }
+        }
+        // セッション削除確認
+        .alert(
+            LocalizationManager.localized(
+                ja: "このセッションを削除しますか？\n全てのセットと関連データが削除されます。",
+                en: "Delete this session?\nAll sets and related data will be removed."
+            ),
+            isPresented: $showDeleteSessionConfirmation
+        ) {
+            Button(L10n.cancel, role: .cancel) {}
+            Button(L10n.delete, role: .destructive) {
+                deleteSession()
+            }
+        }
+    }
+
+    // MARK: - セット削除処理
+
+    private func deleteSet(_ workoutSet: WorkoutSet) {
+        let exerciseId = workoutSet.exerciseId
+
+        // WorkoutSetを削除
+        modelContext.delete(workoutSet)
+        try? modelContext.save()
+
+        // 同じ種目の残りセットのsetNumberを振り直し
+        let remainingSets = session.sets
+            .filter { $0.exerciseId == exerciseId }
+            .sorted { $0.setNumber < $1.setNumber }
+
+        for (index, set) in remainingSets.enumerated() {
+            set.setNumber = index + 1
+        }
+        try? modelContext.save()
+
+        // セッションのセットが0件になったらセッションごと削除
+        if session.sets.isEmpty {
+            let muscleRepo = MuscleStateRepository(modelContext: modelContext)
+            muscleRepo.deleteStimulations(sessionId: session.id)
+            modelContext.delete(session)
+            try? modelContext.save()
+            HapticManager.error()
+            onSessionDeleted()
+            return
+        }
+
+        // MuscleStimulationの再計算
+        recalculateMuscleStimulations(session: session)
+        HapticManager.error()
+    }
+
+    // MARK: - セッション削除処理
+
+    private func deleteSession() {
+        let muscleRepo = MuscleStateRepository(modelContext: modelContext)
+        muscleRepo.deleteStimulations(sessionId: session.id)
+
+        for set in session.sets {
+            modelContext.delete(set)
+        }
+        modelContext.delete(session)
+        try? modelContext.save()
+
+        HapticManager.error()
+        onSessionDeleted()
+    }
+
+    // MARK: - MuscleStimulation再計算
+
+    private func recalculateMuscleStimulations(session: WorkoutSession) {
+        let muscleRepo = MuscleStateRepository(modelContext: modelContext)
+
+        // セッションに関連するMuscleStimulationを削除
+        muscleRepo.deleteStimulations(sessionId: session.id)
+
+        // 残りのセットから再計算
+        let exerciseStore = ExerciseStore.shared
+        // 種目ごとのセット数を集計
+        var exerciseSetCounts: [String: Int] = [:]
+        for set in session.sets {
+            exerciseSetCounts[set.exerciseId, default: 0] += 1
+        }
+
+        // 筋肉ごとに最大刺激度とセット数を集計してupsert
+        var muscleData: [Muscle: (maxIntensity: Double, totalSets: Int)] = [:]
+        for (exerciseId, setsCount) in exerciseSetCounts {
+            guard let exercise = exerciseStore.exercise(for: exerciseId) else { continue }
+            for (muscleId, percentage) in exercise.muscleMapping {
+                guard let muscle = Muscle(rawValue: muscleId) else { continue }
+                let intensity = Double(percentage) / 100.0
+                if let existing = muscleData[muscle] {
+                    muscleData[muscle] = (
+                        maxIntensity: max(existing.maxIntensity, intensity),
+                        totalSets: existing.totalSets + setsCount
+                    )
+                } else {
+                    muscleData[muscle] = (maxIntensity: intensity, totalSets: setsCount)
+                }
+            }
+        }
+
+        for (muscle, data) in muscleData {
+            muscleRepo.upsertStimulation(
+                muscle: muscle,
+                sessionId: session.id,
+                maxIntensity: data.maxIntensity,
+                totalSets: data.totalSets,
+                saveImmediately: false
+            )
+        }
+        muscleRepo.save()
+    }
+}
+
+// MARK: - セット編集シート（履歴用）
+
+private struct HistorySetEditSheet: View {
+    let workoutSet: WorkoutSet
+    var onSaved: () -> Void
+    @Environment(\.modelContext) private var modelContext
+    @Environment(\.dismiss) private var dismiss
+
+    @State private var editWeight: Double
+    @State private var editReps: Int
+
+    init(workoutSet: WorkoutSet, onSaved: @escaping () -> Void) {
+        self.workoutSet = workoutSet
+        self.onSaved = onSaved
+        _editWeight = State(initialValue: workoutSet.weight)
+        _editReps = State(initialValue: workoutSet.reps)
+    }
+
+    private var exerciseName: String {
+        if let exercise = ExerciseStore.shared.exercise(for: workoutSet.exerciseId) {
+            return LocalizationManager.shared.currentLanguage == .japanese
+                ? exercise.nameJA
+                : exercise.nameEN
+        }
+        return workoutSet.exerciseId
+    }
+
+    var body: some View {
+        NavigationStack {
+            ZStack {
+                Color.mmBgSecondary.ignoresSafeArea()
+
+                VStack(spacing: 24) {
+                    // 種目名 + セット番号
+                    VStack(spacing: 4) {
+                        Text(exerciseName)
+                            .font(.headline)
+                            .foregroundStyle(Color.mmAccentPrimary)
+                        Text(L10n.setNumber(workoutSet.setNumber))
+                            .font(.subheadline)
+                            .foregroundStyle(Color.mmTextSecondary)
+                    }
+                    .padding(.top, 8)
+
+                    // 重量入力
+                    VStack(spacing: 8) {
+                        Text(LocalizationManager.localized(ja: "重量 (kg)", en: "Weight (kg)"))
+                            .font(.caption)
+                            .foregroundStyle(Color.mmTextSecondary)
+
+                        HStack(spacing: 16) {
+                            Button {
+                                if editWeight >= 2.5 {
+                                    editWeight -= 2.5
+                                    HapticManager.stepperChanged()
+                                }
+                            } label: {
+                                Image(systemName: "minus.circle.fill")
+                                    .font(.title2)
+                                    .foregroundStyle(Color.mmTextSecondary)
+                            }
+
+                            Text(String(format: "%.1f", editWeight))
+                                .font(.system(size: 36, weight: .heavy, design: .monospaced))
+                                .foregroundStyle(Color.mmTextPrimary)
+                                .frame(minWidth: 100)
+
+                            Button {
+                                editWeight += 2.5
+                                HapticManager.stepperChanged()
+                            } label: {
+                                Image(systemName: "plus.circle.fill")
+                                    .font(.title2)
+                                    .foregroundStyle(Color.mmAccentPrimary)
+                            }
+                        }
+                    }
+                    .padding()
+                    .background(Color.mmBgCard)
+                    .clipShape(RoundedRectangle(cornerRadius: 16))
+
+                    // レップ数入力
+                    VStack(spacing: 8) {
+                        Text(LocalizationManager.localized(ja: "レップ数", en: "Reps"))
+                            .font(.caption)
+                            .foregroundStyle(Color.mmTextSecondary)
+
+                        HStack(spacing: 16) {
+                            Button {
+                                if editReps > 1 {
+                                    editReps -= 1
+                                    HapticManager.stepperChanged()
+                                }
+                            } label: {
+                                Image(systemName: "minus.circle.fill")
+                                    .font(.title2)
+                                    .foregroundStyle(Color.mmTextSecondary)
+                            }
+
+                            Text("\(editReps)")
+                                .font(.system(size: 36, weight: .heavy, design: .monospaced))
+                                .foregroundStyle(Color.mmTextPrimary)
+                                .frame(minWidth: 100)
+
+                            Button {
+                                editReps += 1
+                                HapticManager.stepperChanged()
+                            } label: {
+                                Image(systemName: "plus.circle.fill")
+                                    .font(.title2)
+                                    .foregroundStyle(Color.mmAccentPrimary)
+                            }
+                        }
+                    }
+                    .padding()
+                    .background(Color.mmBgCard)
+                    .clipShape(RoundedRectangle(cornerRadius: 16))
+
+                    Spacer()
+
+                    // 保存ボタン
+                    Button {
+                        save()
+                    } label: {
+                        Text(L10n.save)
+                            .font(.headline)
+                            .foregroundStyle(Color.mmBgPrimary)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.mmAccentPrimary)
+                            .clipShape(RoundedRectangle(cornerRadius: 16))
+                    }
+                    .padding(.bottom, 8)
+                }
+                .padding()
+            }
+            .navigationTitle(L10n.editSet)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbarColorScheme(.dark, for: .navigationBar)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button(L10n.cancel) { dismiss() }
+                        .foregroundStyle(Color.mmTextSecondary)
+                }
+            }
+        }
+        .presentationDetents([.medium])
+    }
+
+    private func save() {
+        workoutSet.weight = editWeight
+        workoutSet.reps = editReps
+        try? modelContext.save()
+        onSaved()
+        HapticManager.lightTap()
+        dismiss()
     }
 }
 
