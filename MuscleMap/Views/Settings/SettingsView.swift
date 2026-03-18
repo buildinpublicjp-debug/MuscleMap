@@ -176,6 +176,22 @@ struct SettingsView: View {
 
     private var generalSection: some View {
         Section {
+            // マイルーティン（ルーティン設定済みの場合のみ表示）
+            if RoutineManager.shared.hasRoutine {
+                NavigationLink {
+                    RoutineEditView()
+                } label: {
+                    HStack(spacing: 12) {
+                        Image(systemName: "list.bullet.clipboard")
+                            .foregroundStyle(Color.mmAccentPrimary)
+                        Text("マイルーティン")
+                            .font(.subheadline)
+                            .foregroundStyle(Color.mmTextPrimary)
+                    }
+                }
+                .listRowBackground(Color.mmBgCard)
+            }
+
             // 言語設定
             HStack(spacing: 12) {
                 Image(systemName: "globe")

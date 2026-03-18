@@ -20,6 +20,7 @@
 		13AD3003C74665609527A9FC /* MuscleDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1C20CB4DE1E596D9D14A622 /* MuscleDetailView.swift */; };
 		1815C4898809E35B9D2A658D /* FriendActivityCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72E33478209DB08A3ED130AC /* FriendActivityCard.swift */; };
 		199105C9D79242C784284B51 /* FavoritesManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B22DC43736789BB61CD239BD /* FavoritesManager.swift */; };
+		1A2230E53433B0800B65304A /* RoutineEditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC08BFA19F664169252F4A03 /* RoutineEditView.swift */; };
 		1A8C4925B1A20E8513EF6D40 /* RecentExercisesManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ADE5F383177BBB6409F7D61 /* RecentExercisesManager.swift */; };
 		1AA94FF61CC9E6126D159F9F /* CSVImportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C301C32BCB89E6F1B5349A6 /* CSVImportView.swift */; };
 		1B78DB667BFDD3E8AAB15FA6 /* PurchaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E62C3348AF8D24E0BA19F31 /* PurchaseManager.swift */; };
@@ -328,6 +329,7 @@
 		C84EB126EE103C396E174B71 /* HistoryMapComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryMapComponents.swift; sourceTree = "<group>"; };
 		C975A916E9A16C00A07248A3 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		C9B5A4E9677928F4281A2B9E /* WeeklySummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeeklySummaryView.swift; sourceTree = "<group>"; };
+		CC08BFA19F664169252F4A03 /* RoutineEditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoutineEditView.swift; sourceTree = "<group>"; };
 		D885F47DFEA8C01A9E4EFA0A /* MuscleMapWidgetBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MuscleMapWidgetBundle.swift; sourceTree = "<group>"; };
 		E23422ECC0DDBFE11BAD25A4 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		E26D800321E66EE9BBE7FE4A /* WatchExerciseListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchExerciseListView.swift; sourceTree = "<group>"; };
@@ -548,6 +550,7 @@
 			isa = PBXGroup;
 			children = (
 				6C301C32BCB89E6F1B5349A6 /* CSVImportView.swift */,
+				CC08BFA19F664169252F4A03 /* RoutineEditView.swift */,
 				181666C4D2D2CA1B1AE60F29 /* SettingsView.swift */,
 			);
 			path = Settings;
@@ -1013,6 +1016,7 @@
 				CEB8E5A272EE81B64A0B086B /* RecoveryCalculator.swift in Sources */,
 				C999EE8DAE05249956B7DE3A /* RoutineBuilderPage.swift in Sources */,
 				3BDEC598963DCB3DDB786351 /* RoutineCompletionPage.swift in Sources */,
+				1A2230E53433B0800B65304A /* RoutineEditView.swift in Sources */,
 				BC9ADB64B9C36DFEF4D57B71 /* RoutineManager.swift in Sources */,
 				3F465720D8366D33CBCC9C9A /* SetInputComponents.swift in Sources */,
 				D0FC5529011C1DCB4F1673F0 /* SettingsView.swift in Sources */,
