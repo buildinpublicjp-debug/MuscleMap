@@ -11,6 +11,7 @@ struct RoutineCompletionPage: View {
     @State private var headerAppeared = false
     @State private var cardsAppeared = false
     @State private var mapAppeared = false
+    @State private var graphAppeared = false
     @State private var buttonGlow = false
 
     /// 保存済みルーティン
@@ -39,8 +40,23 @@ struct RoutineCompletionPage: View {
         return mapping
     }
 
-    private var localization: LocalizationManager { LocalizationManager.shared }
-    private var isJapanese: Bool { localization.currentLanguage == .japanese }
+    /// Day別の筋肉グループ集計
+    private func muscleGroupsForDay(_ day: RoutineDay) -> [MuscleGroup] {
+        var groups: Set<MuscleGroup> = []
+        let store = ExerciseStore.shared
+
+        for exercise in day.exercises {
+            guard let def = store.exercise(for: exercise.exerciseId) else { continue }
+            for muscleId in def.muscleMapping.keys {
+                if let muscle = Muscle(rawValue: muscleId) {
+                    groups.insert(muscle.group)
+                }
+            }
+        }
+        return MuscleGroup.allCases.filter { groups.contains($0) }
+    }
+
+    private var isJapanese: Bool { LocalizationManager.shared.currentLanguage == .japanese }
 
     /// 目標に合わせたキャッチコピー
     private var goalBasedHeadline: String {
@@ -66,20 +82,26 @@ struct RoutineCompletionPage: View {
         }
     }
 
+    /// カバー率（マッピングされた筋肉数 / 全21筋肉）
+    private var coveragePercent: Int {
+        let coveredCount = combinedMuscleMapping.count
+        return min(100, coveredCount * 100 / max(1, Muscle.allCases.count))
+    }
+
     var body: some View {
         VStack(spacing: 0) {
-            Spacer().frame(height: 48)
+            Spacer().frame(height: 40)
 
             // 目標別キャッチコピー
             Text(goalBasedHeadline)
-                .font(.system(size: 28, weight: .heavy))
+                .font(.system(size: 26, weight: .heavy))
                 .foregroundStyle(Color.mmOnboardingAccent)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 24)
                 .opacity(headerAppeared ? 1 : 0)
                 .offset(y: headerAppeared ? 0 : 20)
 
-            Spacer().frame(height: 8)
+            Spacer().frame(height: 6)
 
             Text(L10n.routineCompletionSub)
                 .font(.subheadline)
@@ -88,18 +110,16 @@ struct RoutineCompletionPage: View {
                 .padding(.horizontal, 24)
                 .opacity(headerAppeared ? 1 : 0)
 
-            Spacer().frame(height: 20)
+            Spacer().frame(height: 16)
 
-            // ミニ筋肉マップ（ルーティン全体のカバー範囲）
-            MiniMuscleMapView(muscleMapping: combinedMuscleMapping)
-                .frame(height: 140)
-                .padding(.horizontal, 60)
+            // インタラクティブ筋肉マップ（前面+背面横並び）
+            muscleMapSection
                 .opacity(mapAppeared ? 1 : 0)
                 .scaleEffect(mapAppeared ? 1 : 0.92)
 
-            Spacer().frame(height: 20)
+            Spacer().frame(height: 16)
 
-            // Dayサマリーカード
+            // Dayサマリーカード + 成長グラフ
             ScrollView(.vertical, showsIndicators: false) {
                 VStack(spacing: 12) {
                     ForEach(routine.days) { day in
@@ -107,17 +127,10 @@ struct RoutineCompletionPage: View {
                     }
 
                     // 合計
-                    HStack {
-                        Image(systemName: "flame.fill")
-                            .foregroundStyle(Color.mmOnboardingAccent)
-                        Text(L10n.routineTotalExercises(totalExercises, routine.days.count))
-                            .font(.system(size: 14, weight: .bold))
-                            .foregroundStyle(Color.mmOnboardingAccent)
-                        Spacer()
-                    }
-                    .padding(12)
-                    .background(Color.mmOnboardingAccent.opacity(0.08))
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    totalSummaryRow
+
+                    // 成長グラフ
+                    growthGraphSection
                 }
                 .padding(.horizontal, 24)
                 .padding(.bottom, 8)
@@ -128,68 +141,7 @@ struct RoutineCompletionPage: View {
             Spacer()
 
             // CTAボタンエリア
-            VStack(spacing: 12) {
-                // Pro版ボタン
-                Button {
-                    HapticManager.lightTap()
-                    showingPaywall = true
-                } label: {
-                    HStack(spacing: 8) {
-                        Image(systemName: "crown.fill")
-                            .font(.system(size: 16))
-                        Text(L10n.routineUnlockPro)
-                    }
-                    .font(.system(size: 18, weight: .bold))
-                    .foregroundStyle(Color.mmOnboardingBg)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 56)
-                    .background(
-                        LinearGradient(
-                            colors: [Color.mmOnboardingAccent, Color.mmOnboardingAccentDark],
-                            startPoint: .leading,
-                            endPoint: .trailing
-                        )
-                    )
-                    .clipShape(RoundedRectangle(cornerRadius: 16))
-                    .shadow(
-                        color: Color.mmOnboardingAccent.opacity(buttonGlow ? 0.35 : 0.15),
-                        radius: buttonGlow ? 6 : 2
-                    )
-                }
-                .buttonStyle(.plain)
-
-                // 無料ではじめる
-                Button {
-                    HapticManager.lightTap()
-                    onComplete()
-                } label: {
-                    Text(L10n.ctaGetStartedFree)
-                        .font(.system(size: 15))
-                        .foregroundStyle(Color.mmOnboardingTextSub)
-                }
-                .buttonStyle(.plain)
-
-                // 利用規約・プライバシーポリシー
-                HStack(spacing: 4) {
-                    if let termsURL = URL(string: LegalURL.termsOfUse) {
-                        Link(destination: termsURL) {
-                            Text(L10n.termsOfUse)
-                                .underline()
-                        }
-                    }
-                    Text("|")
-                    if let privacyURL = URL(string: LegalURL.privacyPolicy) {
-                        Link(destination: privacyURL) {
-                            Text(L10n.privacyPolicy)
-                                .underline()
-                        }
-                    }
-                }
-                .font(.caption2)
-                .foregroundStyle(Color.mmOnboardingTextSub)
-            }
-            .padding(.horizontal, 24)
-            .padding(.bottom, 32)
+            ctaButtons
         }
         .onAppear {
             withAnimation(.easeOut(duration: 0.5)) {
@@ -201,6 +153,9 @@ struct RoutineCompletionPage: View {
             withAnimation(.easeOut(duration: 0.5).delay(0.4)) {
                 cardsAppeared = true
             }
+            withAnimation(.easeOut(duration: 0.6).delay(0.7)) {
+                graphAppeared = true
+            }
             withAnimation(.easeInOut(duration: 1.5).repeatForever(autoreverses: true)) {
                 buttonGlow = true
             }
@@ -210,7 +165,37 @@ struct RoutineCompletionPage: View {
         }
     }
 
-    // MARK: - Dayサマリーカード
+    // MARK: - インタラクティブ筋肉マップ（前面+背面）
+
+    private var muscleMapSection: some View {
+        VStack(spacing: 8) {
+            Text(isJapanese ? "あなたのプログラムで鍛えられる筋肉" : "Muscles targeted by your program")
+                .font(.system(size: 13, weight: .semibold))
+                .foregroundStyle(Color.mmOnboardingTextSub)
+
+            HStack(spacing: 16) {
+                // 前面
+                MiniMuscleMapView(muscleMapping: combinedMuscleMapping, showFront: true)
+                    .frame(height: 180)
+
+                // 背面
+                MiniMuscleMapView(muscleMapping: combinedMuscleMapping, showFront: false)
+                    .frame(height: 180)
+            }
+            .padding(.horizontal, 48)
+
+            // カバー率バッジ
+            Text(isJapanese ? "\(coveragePercent)%の筋肉をカバー" : "\(coveragePercent)% muscle coverage")
+                .font(.system(size: 12, weight: .bold))
+                .foregroundStyle(Color.mmOnboardingAccent)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 4)
+                .background(Color.mmOnboardingAccent.opacity(0.1))
+                .clipShape(Capsule())
+        }
+    }
+
+    // MARK: - Dayサマリーカード（筋肉チップ付き）
 
     @ViewBuilder
     private func daySummaryCard(_ day: RoutineDay) -> some View {
@@ -225,6 +210,24 @@ struct RoutineCompletionPage: View {
                     .foregroundStyle(Color.mmOnboardingAccent)
             }
 
+            // 筋肉グループチップ（横スクロール）
+            let groups = muscleGroupsForDay(day)
+            if !groups.isEmpty {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 6) {
+                        ForEach(groups, id: \.self) { group in
+                            Text(group.localizedName)
+                                .font(.system(size: 11, weight: .semibold))
+                                .foregroundStyle(Color.mmOnboardingAccent)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 3)
+                                .background(Color.mmOnboardingAccent.opacity(0.12))
+                                .clipShape(Capsule())
+                        }
+                    }
+                }
+            }
+
             // 種目名をコンパクトに表示
             let exerciseNames = day.exercises.compactMap {
                 ExerciseStore.shared.exercise(for: $0.exerciseId)?.localizedName
@@ -237,6 +240,172 @@ struct RoutineCompletionPage: View {
         .padding(12)
         .background(Color.mmOnboardingCard)
         .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+
+    // MARK: - 合計行
+
+    private var totalSummaryRow: some View {
+        HStack {
+            Image(systemName: "flame.fill")
+                .foregroundStyle(Color.mmOnboardingAccent)
+            Text(L10n.routineTotalExercises(totalExercises, routine.days.count))
+                .font(.system(size: 14, weight: .bold))
+                .foregroundStyle(Color.mmOnboardingAccent)
+            Spacer()
+        }
+        .padding(12)
+        .background(Color.mmOnboardingAccent.opacity(0.08))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+
+    // MARK: - 成長グラフ
+
+    private var growthGraphSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(isJapanese ? "4週間後の予測" : "4-Week Projection")
+                .font(.system(size: 14, weight: .bold))
+                .foregroundStyle(Color.mmOnboardingTextMain)
+
+            ZStack(alignment: .bottomLeading) {
+                // グラフ背景グリッド
+                VStack(spacing: 0) {
+                    ForEach(0..<3, id: \.self) { _ in
+                        Divider()
+                            .background(Color.mmOnboardingTextSub.opacity(0.15))
+                        Spacer()
+                    }
+                    Divider()
+                        .background(Color.mmOnboardingTextSub.opacity(0.15))
+                }
+                .frame(height: 48)
+
+                // 成長カーブ
+                GrowthCurvePath()
+                    .trim(from: 0, to: graphAppeared ? 1 : 0)
+                    .stroke(
+                        LinearGradient(
+                            colors: [Color.mmOnboardingAccent.opacity(0.5), Color.mmOnboardingAccent],
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        ),
+                        style: StrokeStyle(lineWidth: 2.5, lineCap: .round)
+                    )
+                    .frame(height: 48)
+                    .animation(.easeOut(duration: 1.0), value: graphAppeared)
+
+                // グロー効果
+                GrowthCurvePath()
+                    .trim(from: 0, to: graphAppeared ? 1 : 0)
+                    .stroke(
+                        Color.mmOnboardingAccent.opacity(0.2),
+                        style: StrokeStyle(lineWidth: 6, lineCap: .round)
+                    )
+                    .frame(height: 48)
+                    .blur(radius: 3)
+                    .animation(.easeOut(duration: 1.0), value: graphAppeared)
+            }
+
+            // 週ラベル
+            HStack {
+                Text(isJapanese ? "Week 1" : "Week 1")
+                    .font(.system(size: 10))
+                    .foregroundStyle(Color.mmOnboardingTextSub)
+                Spacer()
+                Text(isJapanese ? "Week 4" : "Week 4")
+                    .font(.system(size: 10))
+                    .foregroundStyle(Color.mmOnboardingAccent)
+            }
+
+            Text(isJapanese ? "着実にレベルアップ" : "Steady progress ahead")
+                .font(.system(size: 12, weight: .medium))
+                .foregroundStyle(Color.mmOnboardingTextSub)
+        }
+        .padding(12)
+        .background(Color.mmOnboardingCard)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+
+    // MARK: - CTAボタン
+
+    private var ctaButtons: some View {
+        VStack(spacing: 12) {
+            // Pro版ボタン
+            Button {
+                HapticManager.lightTap()
+                showingPaywall = true
+            } label: {
+                HStack(spacing: 8) {
+                    Image(systemName: "crown.fill")
+                        .font(.system(size: 16))
+                    Text(L10n.routineUnlockPro)
+                }
+                .font(.system(size: 18, weight: .bold))
+                .foregroundStyle(Color.mmOnboardingBg)
+                .frame(maxWidth: .infinity)
+                .frame(height: 56)
+                .background(
+                    LinearGradient(
+                        colors: [Color.mmOnboardingAccent, Color.mmOnboardingAccentDark],
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    )
+                )
+                .clipShape(RoundedRectangle(cornerRadius: 16))
+                .shadow(
+                    color: Color.mmOnboardingAccent.opacity(buttonGlow ? 0.35 : 0.15),
+                    radius: buttonGlow ? 6 : 2
+                )
+            }
+            .buttonStyle(.plain)
+
+            // 無料ではじめる
+            Button {
+                HapticManager.lightTap()
+                onComplete()
+            } label: {
+                Text(L10n.ctaGetStartedFree)
+                    .font(.system(size: 15))
+                    .foregroundStyle(Color.mmOnboardingTextSub)
+            }
+            .buttonStyle(.plain)
+
+            // 利用規約・プライバシーポリシー
+            HStack(spacing: 4) {
+                if let termsURL = URL(string: LegalURL.termsOfUse) {
+                    Link(destination: termsURL) {
+                        Text(L10n.termsOfUse)
+                            .underline()
+                    }
+                }
+                Text("|")
+                if let privacyURL = URL(string: LegalURL.privacyPolicy) {
+                    Link(destination: privacyURL) {
+                        Text(L10n.privacyPolicy)
+                            .underline()
+                    }
+                }
+            }
+            .font(.caption2)
+            .foregroundStyle(Color.mmOnboardingTextSub)
+        }
+        .padding(.horizontal, 24)
+        .padding(.bottom, 32)
+    }
+}
+
+// MARK: - 成長カーブ Shape
+
+/// 右肩上がりの成長カーブ（trim可能なShape）
+private struct GrowthCurvePath: Shape {
+    func path(in rect: CGRect) -> Path {
+        Path { path in
+            path.move(to: CGPoint(x: 0, y: rect.height))
+            path.addCurve(
+                to: CGPoint(x: rect.width, y: rect.height * 0.1),
+                control1: CGPoint(x: rect.width * 0.3, y: rect.height * 0.85),
+                control2: CGPoint(x: rect.width * 0.65, y: rect.height * 0.2)
+            )
+        }
     }
 }
 

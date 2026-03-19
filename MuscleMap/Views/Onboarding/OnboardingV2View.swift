@@ -1,6 +1,6 @@
 import SwiftUI
 
-// MARK: - オンボーディングV2（最大9ページ横スワイプ: 目標 → 頻度 → 場所 → トレ歴 → [PR入力] → 目標×筋肉 → 体重 → ルーティンビルダー → ルーティン完了）
+// MARK: - オンボーディングV2（最大9ページ横スワイプ: 目標 → 頻度 → 場所 → 体重 → トレ歴 → [PR入力] → 目標×筋肉 → ルーティンビルダー → ルーティン完了）
 
 struct OnboardingV2View: View {
     let onComplete: () -> Void
@@ -15,9 +15,9 @@ struct OnboardingV2View: View {
     /// トレ歴ページの「次へ」遷移先を決定
     private func afterTrainingHistory() {
         if showPRInput {
-            currentPage = 4 // PR入力ページへ
+            currentPage = 5 // PR入力ページへ
         } else {
-            currentPage = 5 // GoalMusclePreviewPageへスキップ
+            currentPage = 6 // GoalMusclePreviewPageへスキップ
         }
     }
 
@@ -46,19 +46,25 @@ struct OnboardingV2View: View {
                 }
                 .tag(2)
 
-                // ページ3: トレーニング歴
-                TrainingHistoryPage {
-                    afterTrainingHistory()
+                // ページ3: 体重・ニックネーム入力（質問フェーズのうちに完了）
+                WeightInputPage {
+                    currentPage = 4
                 }
                 .tag(3)
 
-                // ページ4: PR入力（経験者のみ: oneYearPlus / veteran）
-                PRInputPage {
-                    currentPage = 5
+                // ページ4: トレーニング歴
+                TrainingHistoryPage {
+                    afterTrainingHistory()
                 }
                 .tag(4)
 
-                // ページ5: 目標×筋肉ビジュアル（★ クライマックス）
+                // ページ5: PR入力（経験者のみ: oneYearPlus / veteran）
+                PRInputPage {
+                    currentPage = 6
+                }
+                .tag(5)
+
+                // ページ6: 目標×筋肉ビジュアル（★ クライマックス）
                 GoalMusclePreviewPage {
                     // 重点筋肉をUserProfileに保存
                     if let raw = AppState.shared.primaryOnboardingGoal,
@@ -66,17 +72,11 @@ struct OnboardingV2View: View {
                         let muscles = GoalMusclePriority.data(for: goal).muscles
                         AppState.shared.userProfile.goalPriorityMuscles = muscles.map { $0.rawValue }
                     }
-                    currentPage = 6
-                }
-                .tag(5)
-
-                // ページ6: 体重・ニックネーム入力
-                WeightInputPage {
                     currentPage = 7
                 }
                 .tag(6)
 
-                // ページ7: ルーティンビルダー
+                // ページ7: ルーティンビルダー（サンクコスト最大化後）
                 RoutineBuilderPage {
                     currentPage = 8
                 }
@@ -89,7 +89,7 @@ struct OnboardingV2View: View {
             .tabViewStyle(.page(indexDisplayMode: .never))
             .animation(.easeInOut(duration: 0.4), value: currentPage)
 
-            // ページインジケーター（PR入力スキップ時はページ4を除外）
+            // ページインジケーター（PR入力スキップ時はページ5を除外）
             VStack {
                 Spacer()
                 HStack(spacing: 8) {
@@ -105,12 +105,12 @@ struct OnboardingV2View: View {
         }
     }
 
-    /// インジケーターに表示するページ番号（PR入力スキップ時はページ4を除外）
+    /// インジケーターに表示するページ番号（PR入力スキップ時はページ5を除外）
     private var indicatorPages: [Int] {
         if showPRInput {
             return Array(0..<9)
         } else {
-            return [0, 1, 2, 3, 5, 6, 7, 8]
+            return [0, 1, 2, 3, 4, 6, 7, 8]
         }
     }
 }
