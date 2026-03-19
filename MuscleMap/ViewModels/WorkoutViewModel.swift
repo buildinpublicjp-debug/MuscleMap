@@ -351,17 +351,26 @@ class WorkoutViewModel {
     }
 
     /// 筋肉刺激記録を更新（バッチ保存で1回のsave）
+    /// セッション全体の全セットから筋肉ごとの合計セット数を累積して渡す
     private func updateMuscleStimulations(exercise: ExerciseDefinition, session: WorkoutSession) {
-        let sessionSets = workoutRepo.fetchSets(in: session, exerciseId: exercise.id)
-        let totalSets = sessionSets.count
+        // セッション全体の全セットから、筋肉ごとの合計セット数を計算
+        var muscleTotalSets: [String: Int] = [:]
+        for set in session.sets {
+            guard let ex = exerciseStore.exercise(for: set.exerciseId) else { continue }
+            for (muscleId, _) in ex.muscleMapping {
+                muscleTotalSets[muscleId, default: 0] += 1
+            }
+        }
 
+        // 今の種目がターゲットにする筋肉のみ更新
         for (muscleId, percentage) in exercise.muscleMapping {
             guard let muscle = Muscle(rawValue: muscleId) else { continue }
+            let accumulatedSets = muscleTotalSets[muscleId] ?? 1
             muscleStateRepo.upsertStimulation(
                 muscle: muscle,
                 sessionId: session.id,
                 maxIntensity: Double(percentage) / 100.0,
-                totalSets: totalSets,
+                totalSets: accumulatedSets,
                 saveImmediately: false
             )
         }
