@@ -1,6 +1,6 @@
 # MuscleMap - Claude Code Rules
 
-> **v4.0 | 2026-03-17**
+> **v5.0 | 2026-03-19**
 > 筋肉の回復状態と筋力レベルを可視化し、最適なトレーニングを導くiOSアプリ
 
 ---
@@ -21,12 +21,14 @@
 7. Apple Watch companion app（watchOS 10.0+、WatchConnectivity同期）
 8. **[Pro] Strength Map** — PRデータから筋肉の発達レベルを太さで可視化
 9. **Strength Mapシェアカード** — 9:16（1080×1920px @3x）のPNG書き出し。グレードS〜D、Top3ランキング付き
-10. **Workoutシェアカード** — 360×360pt @3x（1080×1080px正方形）。ダークグラデ背景 + グロー付き筋肉マップ + ボリューム大表示 + 🏆PR表示 + ウォーターマーク
+10. **Workoutシェアカード** — 360×360pt @3x（1080×1080px正方形）。ダークグラデ背景 + グロー付き筋肉マップ + ボリューム大表示 + PR表示 + ウォーターマーク
 11. **次回おすすめ日** — ワークアウト完了時に回復予測から次の推奨トレーニング日を表示
 12. **初回コーチマーク** — 初回起動時にホーム画面で操作ガイドを表示（1回限り）
-13. **オンボーディングv6（最大8ページ）** — SplashView → GoalSelectionPage（「なぜ鍛える？」7目標エモーショナル単一選択） → FrequencySelectionPage（週間頻度） → LocationSelectionPage（トレ場所） → TrainingHistoryPage（トレ歴） → [PRInputPage（経験者のみ、種目追加・変更可能）] → GoalMusclePreviewPage（目標×筋肉ビジュアル、クライマックス演出） → WeightInputPage（体重・ニックネーム） → CallToActionPage（目標別コピー+3つの価値） → 通知許可
+13. **オンボーディングv7（最大9ページ）** — SplashView → GoalSelectionPage → FrequencySelectionPage → LocationSelectionPage → TrainingHistoryPage → [PRInputPage] → GoalMusclePreviewPage → WeightInputPage → RoutineBuilderPage（自動ルーティン構築） → RoutineCompletionPage（ハードペイウォール付き完了画面） → 通知許可
 14. **メニュープレビューシート** — ホームのおすすめメニューをGIF・筋肉マップ・重量付きで確認してから開始
 15. 課金: PurchaseManager（RevenueCat SDK v5.61.0 接続済み、entitlement "premium" で判定、DEBUGビルドにisPremiumトグルあり）
+16. **ルーティン管理** — オンボーディングで自動生成されたDay分割ルーティンを保存・編集（RoutineManager + UserRoutine）
+17. **無料ユーザー週間制限** — 無料プランは週1回のワークアウト記録。PurchaseManager.canRecordWorkoutで判定、ContentViewでタブ遷移ゲート
 
 **デザイントーン:** 「バイオモニター × G-SHOCK」 — ダーク基調、データが浮かび上がる
 
@@ -60,9 +62,12 @@
 - RevenueCat SDK: v5.61.0 導入済み（project.yml に依存設定済み）
 - PurchaseManager.swift: RevenueCat entitlement "premium" で isPremium を判定
 - Paywall UI: Views/Paywall/PaywallView.swift（実装済み、目標筋肉マップ+メニュープレビュー付き）
+- PaywallView: isHardPaywall パラメータ対応（true: 閉じるボタン非表示、スワイプ閉じ無効）
 - configure(): MuscleMapApp.init() で起動時に呼び出し済み
 - PurchaseDelegate: entitlement変更をリアルタイム反映
 - DEBUG: isPremiumトグル付き（#if DEBUG、設定画面の開発者メニューから切替可能）
+- 無料ユーザー制限: weeklyWorkoutCount（週1回制限、月曜リセット）
+- ContentView: ワークアウトタブ遷移時に canRecordWorkout チェック → アラート → PaywallView
 
 残作業:
 - App Store Connect で Product ID 設定・審査
@@ -83,6 +88,8 @@
 | Strength Map（筋力可視化マップ） | 実装済み | HomeView の Strength Mapボタン |
 | 今日のメニュー提案（パーソナライズ） | 実装済み | HomeView TodayRecommendationInline |
 | メニュープレビューシート | 実装済み | HomeView → MenuPreviewSheet |
+| ルーティン使用（Day分割メニュー） | 実装済み | RoutineManager + RoutineEditView |
+| 無制限ワークアウト記録 | 実装済み | PurchaseManager.canRecordWorkout（無料: 週1回） |
 | 分析メニュー（WeeklySummary等） | 将来対応 | AnalyticsMenuView入口 |
 
 ---
@@ -100,6 +107,7 @@
   - 人体図は頭から足先まで完全に表示。切れてはいけない
   - 「今日のおすすめ」は筋肉マップと同等以上の視覚的存在感を持たせる
   - 画面を開いて3秒以内に「今日やること」が理解できる状態
+  - 無料ユーザー: FreeWorkoutLimitBadge表示（残回数 or 使い切り状態）
 - **NGパターン**:
   - 筋肉マップだけの画面（情報不足）
   - 「今日のおすすめ」がスクロールしないと見えない（優先度違反）
@@ -129,11 +137,11 @@
   2. タイトル: 「WORKOUT COMPLETE」mmAccentPrimaryで中央（tracking: 3）
   3. 筋肉図（140pt）: 前面・背面を並列 + グロー効果ON（`ShareMuscleMapView(mapHeight: 140, glowEnabled: true)`）
   4. メインスタット: ボリューム数値を42pt heavyで大きく中央 + 「kg」16pt + 「TOTAL VOLUME」ラベル
-  5. PR更新セクション（条件付き）: 🏆 NEW PR! ヘッダー + 最大2件表示。ゴールド(`#FFD700`)で目立たせる
+  5. PR更新セクション（条件付き）: NEW PR! ヘッダー + 最大2件表示。ゴールド(`#FFD700`)で目立たせる
   6. サブスタット: 種目数・セット数・トレーニング時間(分)を小さく横並び（divider付き）
   7. フッター: 「MuscleMap — Track Your Muscles」ウォーターマーク
 - **データ型**: `SharePRItem { exerciseName, previousWeight, newWeight, increasePercent }`
-- **共有テキスト**: 「MuscleMap で記録 💪」+ App Store URL を含む
+- **共有テキスト**: 「MuscleMap で記録」+ App Store URL を含む
 - **トリガー**: ワークアウト完了画面のシェアボタン
 
 ### ワークアウト完了 — 追加セクション
@@ -143,16 +151,21 @@
 ### ホーム — コーチマーク（HomeCoachMarkView）
 - **ファイル**: `Views/Home/HomeHelpers.swift`
 - **表示条件**: WorkoutSet 0件 かつ `AppState.hasSeenHomeCoachMark == false` の場合のみ
-- **内容**: 「まずワークアウトを記録しよう」+ 下矢印アニメーション
+- **内容**: 「まずワークアウトを記録しよう」+ 下矢印アニメーション（日英対応）
 - **消去**: タップで閉じ、AppStateに記録（1回限り表示）
 
-### オンボーディング（最大8ページ + SplashView + 通知許可）
-- **ファイル**: `Views/Onboarding/`（19ファイル）
+### ホーム — 無料ユーザー制限バッジ（FreeWorkoutLimitBadge）
+- **ファイル**: `Views/Home/HomeHelpers.swift`
+- **表示条件**: `!PurchaseManager.shared.isPremium` の場合のみ
+- **内容**: 残回数表示 or 「今週の無料ワークアウト使い切り」（日英対応）
+
+### オンボーディングv7（最大9ページ + SplashView + 通知許可）
+- **ファイル**: `Views/Onboarding/`（14ファイル）
 - **フロー:**
   ```
   SplashView（2.5秒アニメーション付き）
       ↓
-  OnboardingV2View（最大8ページ横スワイプ TabView）:
+  OnboardingV2View（最大9ページ横スワイプ TabView）:
     Page 0: GoalSelectionPage（目標選択エモーショナル版）
     Page 1: FrequencySelectionPage（週間トレーニング頻度 → UserProfile.weeklyFrequency）
     Page 2: LocationSelectionPage（トレーニング場所 → UserProfile.trainingLocation）
@@ -162,7 +175,8 @@
     Page 5: GoalMusclePreviewPage（目標×筋肉ビジュアル、クライマックス演出）
             → GoalMusclePriority.data(for:) で重点筋肉をUserProfileに保存
     Page 6: WeightInputPage（体重 40-160kg + ニックネーム → UserProfile に保存）
-    Page 7: CallToActionPage（機能紹介 + CTA「無料ではじめる」）
+    Page 7: RoutineBuilderPage（自動ルーティン構築 → RoutineManager に保存）
+    Page 8: RoutineCompletionPage（ルーティンサマリー + ハードペイウォール）
       ↓
   NotificationPermissionView（通知許可）
       ↓
@@ -176,7 +190,9 @@
 - **PRInputPage**: BIG3 + 追加種目のPR入力。種目の追加・変更が可能。StrengthScoreCalculator.exerciseStrengthLevel() でリアルタイムレベルバッジ表示。スキップ可能
 - **GoalMusclePreviewPage**: 目標に対応する重点筋肉を筋肉マップ上にハイライト表示。GoalMusclePriority.data(for:) で筋肉リストを取得し、UserProfile.goalPriorityMuscles に保存
 - **WeightInputPage**: ニックネームTextField + ドラムロールPicker（kg/lb切替）。AppState.shared.userProfile にリアルタイム保存
-- **CallToActionPage**: 目標別キャッチコピー（getBig→「90日後、鏡の前で笑える。」等）+ 3つのシンプルな価値行 + グロー付きCTAボタン + 利用規約/プライバシーポリシーリンク
+- **RoutineBuilderPage**: 目標・頻度・場所・トレ歴から自動でDay分割ルーティンを構築。RoutineManager.shared.routine に保存。種目の入替・追加可能
+- **RoutineCompletionPage**: ルーティンサマリー表示（Day別カード + MiniMuscleMapView）。ハードペイウォール付き（「Pro版を解放」ボタン → PaywallView(isHardPaywall: true)）。「無料ではじめる」で完了。目標別キャッチコピー（日英対応）
+- **CallToActionPage**: ※ RoutineCompletionPageに統合。旧ファイルは残存
 - **カラーパレット（オンボーディング専用）:**
   - `.mmOnboardingAccent` = `#00E676`, `.mmOnboardingAccentDark` = `#00B35F`
   - `.mmOnboardingBg` = `#1A1A1E`, `.mmOnboardingCard` = `#2C2C2E`
@@ -279,19 +295,19 @@ VStack(alignment: .leading) {
 2. 流用可能なら流用。不可なら理由を明記して新規作成
 3. 新規作成でも、既存コンポーネントの`aspectRatio`, `frame`, `cornerRadius`, カラーをコピー
 
-❌ NG: 「ロジックが違うから新規作成」
-✅ OK: 「ロジックは別でも、見た目の設定は既存からコピー」
+NG: 「ロジックが違うから新規作成」
+OK: 「ロジックは別でも、見た目の設定は既存からコピー」
 
 ### NGパターン（禁止事項）
 
-- ❌ テキストだけのリスト画面（ビジュアル要素なし）
-- ❌ 全要素が同サイズ・同ウェイトのフラットレイアウト
-- ❌ アクセントカラーが画面の30%以上を占める
-- ❌ 余白ゼロの詰め込みレイアウト
-- ❌ iOS標準から逸脱したナビゲーション
-- ❌ 純粋な黒（`#000000`）の背景使用
-- ❌ 既存の類似コンポーネントを無視して新規作成する
-- ❌ 彩度100%の蛍光色を使用（状態色は彩度70%以下）
+- テキストだけのリスト画面（ビジュアル要素なし）
+- 全要素が同サイズ・同ウェイトのフラットレイアウト
+- アクセントカラーが画面の30%以上を占める
+- 余白ゼロの詰め込みレイアウト
+- iOS標準から逸脱したナビゲーション
+- 純粋な黒（`#000000`）の背景使用
+- 既存の類似コンポーネントを無視して新規作成する
+- 彩度100%の蛍光色を使用（状態色は彩度70%以下）
 
 ---
 
@@ -330,7 +346,7 @@ VStack(alignment: .leading) {
 
 ### 筋肉状態カラー（回復マップ用）
 
-⚠️ **色の方向: レッド(疲労) → イエロー → グリーン(回復)。信号機と同じ。**
+**色の方向: レッド(疲労) → イエロー → グリーン(回復)。信号機と同じ。**
 
 | 状態 | コード | Hex | 回復% |
 |:---|:---|:---|:---|
@@ -418,6 +434,28 @@ enum Muscle: String, CaseIterable, Codable {
 }
 ```
 
+### ルーティンモデル（UserDefaults保存）
+
+```swift
+// Models/UserRoutine.swift
+struct UserRoutine: Codable {
+    var days: [RoutineDay]
+}
+struct RoutineDay: Codable, Identifiable {
+    var id: UUID
+    var name: String           // "Day 1: 胸・三頭" 等
+    var exercises: [RoutineExercise]
+}
+struct RoutineExercise: Codable, Identifiable {
+    var id: UUID
+    var exerciseId: String     // exercises.json の id
+}
+
+// Data/RoutineManager.swift
+// RoutineManager.shared.routine で読み書き
+// オンボーディングのRoutineBuilderPageで自動生成、設定のRoutineEditViewで編集
+```
+
 ### 回復計算
 
 ```swift
@@ -464,6 +502,16 @@ func getSessionPRUpdates(session: WorkoutSession, context: ModelContext) -> [PRU
 `Resources/exercises.json` にバンドル同梱。起動時にExerciseStoreに読み込む。
 **92種目、EMG論文ベースで刺激度%を設定済み。7言語対応（日英中韓西仏独）。**
 
+### 無料ユーザー制限（PurchaseManager）
+
+```swift
+// PurchaseManager.swift — 週間ワークアウト回数制限
+var weeklyWorkoutCount: Int     // UserDefaults、月曜リセット
+var canRecordWorkout: Bool      // isPremium || weeklyWorkoutCount < 1
+func incrementWorkoutCount()    // WorkoutViewModel.endSession() から呼出（canonical location）
+private func resetIfNewWeek()   // Calendar.firstWeekday = 2（月曜始まり）
+```
+
 ---
 
 ## 画面構成
@@ -471,7 +519,7 @@ func getSessionPRUpdates(session: WorkoutSession, context: ModelContext) -> [PRU
 ```
 TabBar（4タブ）
 ├── ホーム（筋肉マップ）         ← tag:0（実装済み）
-├── 記録（ワークアウト）          ← tag:1（実装済み）
+├── 記録（ワークアウト）          ← tag:1（実装済み、無料ユーザーは週1回制限）
 ├── 履歴（マップ/カレンダー切替） ← tag:2（実装済み）
 └── 設定                        ← tag:3（実装済み）
 
@@ -480,10 +528,11 @@ TabBar（4タブ）
   - ワークアウト未開始画面（「種目を追加して始める」ボタン）
   - 設定画面（「種目辞典」セル）
 ※ ソーシャルフィードは設定画面内からプレビュー表示
+※ ワークアウトタブ遷移時: canRecordWorkout == false → アラート → PaywallView
 
 Onboarding（初回のみ）
 ├── SplashView                  ← 実装済み（アニメーション付きスプラッシュ）
-├── OnboardingV2View（最大8ページ）← 実装済み
+├── OnboardingV2View（最大9ページ）← 実装済み
 │   ├── GoalSelectionPage       ← 実装済み（目標選択エモーショナル版・単一選択）
 │   ├── FrequencySelectionPage  ← 実装済み（週間トレーニング頻度）
 │   ├── LocationSelectionPage   ← 実装済み（トレーニング場所）
@@ -491,7 +540,8 @@ Onboarding（初回のみ）
 │   ├── PRInputPage             ← 実装済み（BIG3入力、経験者のみ、種目追加・変更可能）
 │   ├── GoalMusclePreviewPage   ← 実装済み（目標×筋肉ビジュアル）
 │   ├── WeightInputPage         ← 実装済み（体重・ニックネーム入力）
-│   └── CallToActionPage        ← 実装済み（機能紹介 + CTA）
+│   ├── RoutineBuilderPage      ← 実装済み（自動ルーティン構築）
+│   └── RoutineCompletionPage   ← 実装済み（ルーティンサマリー + ハードペイウォール）
 └── NotificationPermissionView  ← 実装済み（通知許可）
 
 Modal / Push
@@ -504,7 +554,9 @@ Modal / Push
 ├── Strength Mapシェアカード     ← 実装済み（PR更新時にワークアウト完了から呼出）
 ├── Workoutシェアカード          ← 実装済み（PR前回比表示 + システムカラースキーム対応）
 ├── メニュープレビューシート     ← 実装済み（GIF+筋肉マップ+重量付き確認）
-├── Paywall                     ← 実装済み
+├── Paywall                     ← 実装済み（isHardPaywall対応）
+├── ルーティン編集               ← 実装済み（Settings/RoutineEditView）
+├── CSVインポート                ← 実装済み（Settings/CSVImportView）
 └── Homeコーチマーク             ← 実装済み（初回のみオーバーレイ表示）
 ```
 
@@ -516,16 +568,17 @@ Modal / Push
 MuscleMap/
 ├── App/
 │   ├── MuscleMapApp.swift
-│   ├── ContentView.swift
+│   ├── ContentView.swift          # ルートビュー + タブ制御 + 無料ユーザーワークアウト制限ゲート
 │   └── AppState.swift
-├── Connectivity/               # Watch連携
+├── Connectivity/                  # Watch連携
 │   ├── PhoneSessionManager.swift
 │   └── WatchDataProcessor.swift
-├── Data/                       # ローカルキャッシュ系
+├── Data/                          # ローカルキャッシュ系
 │   ├── ExerciseDescriptions.swift
 │   ├── FavoritesManager.swift
 │   ├── MockFriendData.swift       # ソーシャルフィード用モックデータ
-│   └── RecentExercisesManager.swift
+│   ├── RecentExercisesManager.swift
+│   └── RoutineManager.swift       # ルーティン管理（UserDefaults保存）
 ├── Models/
 │   ├── WorkoutSession.swift
 │   ├── WorkoutSet.swift
@@ -533,13 +586,15 @@ MuscleMap/
 │   ├── Muscle.swift
 │   ├── ExerciseDefinition.swift
 │   ├── FriendActivity.swift       # フレンドアクティビティ（非SwiftData）
-│   └── UserProfile.swift
+│   ├── UserProfile.swift
+│   └── UserRoutine.swift          # ルーティンデータ構造（RoutineDay, RoutineExercise）
 ├── Repositories/
+│   ├── ExerciseStore.swift        # exercises.json の読み込み + 種目検索
 │   ├── WorkoutRepository.swift
 │   └── MuscleStateRepository.swift
 ├── ViewModels/
 │   ├── HomeViewModel.swift
-│   ├── WorkoutViewModel.swift
+│   ├── WorkoutViewModel.swift     # endSession() 内で incrementWorkoutCount() 呼出
 │   ├── HistoryViewModel.swift
 │   ├── ExerciseListViewModel.swift
 │   ├── MuscleDetailViewModel.swift
@@ -549,54 +604,87 @@ MuscleMap/
 │   ├── MuscleJourneyViewModel.swift
 │   └── StreakViewModel.swift
 ├── Views/
-│   ├── Components/             # 共通コンポーネント
+│   ├── Components/                # 共通コンポーネント（4ファイル）
 │   │   ├── MiniMuscleMapView.swift
 │   │   ├── MicroBodyMapView.swift
 │   │   ├── ExerciseGifView.swift
 │   │   └── ShareCardTemplate.swift
-│   ├── Home/                   # ホーム画面（15ファイル）
-│   │   ├── StrengthMapView.swift     # [Pro] 筋力可視化マップ
-│   │   ├── StrengthShareCard.swift   # Strength Mapシェアカード（@3x PNG生成）
-│   │   ├── MenuPreviewSheet.swift    # メニュープレビュー（GIF+筋肉マップ+重量付き）
-│   │   └── HomeHelpers.swift         # HomeCoachMarkView含む
-│   ├── Workout/                # ワークアウト記録（14ファイル）
-│   │   ├── WorkoutCompletionView.swift       # 完了画面本体
-│   │   ├── WorkoutCompletionComponents.swift # WorkoutShareCard（PR前回比表示）, StatBox, ShareSheet
-│   │   ├── WorkoutCompletionSections.swift   # NextRecommendedDaySection, StrengthMapShareSection含む
-│   │   └── ShareMuscleMapView.swift          # シェアカード用静的筋肉マップ（mapHeight可変）
-│   ├── Exercise/               # 種目辞典（3ファイル）
-│   ├── History/                # 履歴（7ファイル）
-│   ├── MuscleDetail/           # 部位詳細（2ファイル、2Dマップハイライト方式）
-│   ├── Onboarding/             # オンボーディング（19ファイル）
-│   │   ├── OnboardingView.swift          # フェーズ管理（Splash→V2→通知）
-│   │   ├── OnboardingV2View.swift        # 最大8ページ横スワイプ + 専用カラーパレット
-│   │   ├── SplashView.swift              # プレミアムスプラッシュ（アニメーション付き）
-│   │   ├── GoalSelectionPage.swift       # 7目標エモーショナル単一選択 + OnboardingGoal enum
-│   │   ├── FrequencySelectionPage.swift  # 週間トレーニング頻度選択（NEW v4.0）
-│   │   ├── LocationSelectionPage.swift   # トレーニング場所選択（NEW v4.0）
-│   │   ├── TrainingHistoryPage.swift     # トレ歴選択
-│   │   ├── PRInputPage.swift             # BIG3 PR入力（経験者のみ、種目追加・変更可能）
-│   │   ├── GoalMusclePreviewPage.swift   # 目標×筋肉ビジュアル（NEW v4.0）
-│   │   ├── GoalMusclePriority.swift      # 目標→重点筋肉マッピング（NEW v4.0）
-│   │   ├── GymCheckPage.swift            # 「今ジムにいる？」（旧ページ、参考保持）
-│   │   ├── OnboardingBranchPage.swift    # ジム/家分岐（旧ページ、参考保持）
-│   │   ├── RecentTrainingInputPage.swift # 直近トレーニング入力（旧ページ、参考保持）
-│   │   ├── GuidedFirstWorkoutPage.swift  # ガイド付きワークアウト（旧ページ、参考保持）
-│   │   ├── WeightInputPage.swift         # 体重・ニックネーム入力（→UserProfile）
-│   │   ├── CallToActionPage.swift        # 目標別コピー + 機能紹介 + CTA
-│   │   ├── PersonalizationPage.swift     # （GoalSelectionPageへのラッパー、後方互換）
-│   │   ├── NotificationPermissionView.swift  # 通知許可
-│   │   └── ValuePropositionPage.swift    # （旧ページ、参考保持）
-│   ├── Social/                 # ソーシャルフィード（Phase 0）
-│   │   ├── ActivityFeedView.swift       # フィードタイムライン
-│   │   └── FriendActivityCard.swift     # アクティビティカード + ミニ筋肉マップ
-│   ├── Settings/               # 設定（2ファイル）
-│   └── Paywall/                # Paywall（実装中）
-│       └── PaywallView.swift
+│   ├── Home/                      # ホーム画面（14ファイル）
+│   │   ├── HomeView.swift
+│   │   ├── HomeHelpers.swift          # HomeCoachMarkView + FreeWorkoutLimitBadge + goalLinkedCopy含む
+│   │   ├── HomeStreakComponents.swift
+│   │   ├── HomeNeglectedComponents.swift
+│   │   ├── MuscleMapView.swift
+│   │   ├── MusclePathData.swift
+│   │   ├── StrengthMapView.swift      # [Pro] 筋力可視化マップ
+│   │   ├── StrengthShareCard.swift    # Strength Mapシェアカード（@3x PNG生成）
+│   │   ├── MenuPreviewSheet.swift     # メニュープレビュー（GIF+筋肉マップ+重量付き）
+│   │   ├── AnalyticsMenuView.swift
+│   │   ├── WeeklySummaryView.swift
+│   │   ├── MuscleBalanceDiagnosisView.swift
+│   │   ├── MuscleHeatmapView.swift
+│   │   ├── MuscleJourneyView.swift
+│   │   └── ChallengeProgressBanner.swift
+│   ├── Workout/                   # ワークアウト記録（13ファイル）
+│   │   ├── WorkoutStartView.swift
+│   │   ├── WorkoutIdleComponents.swift
+│   │   ├── ActiveWorkoutComponents.swift
+│   │   ├── SetInputComponents.swift
+│   │   ├── WorkoutInputHelpers.swift
+│   │   ├── WorkoutTimerComponents.swift
+│   │   ├── RecordedSetsComponents.swift
+│   │   ├── ExercisePickerView.swift
+│   │   ├── ExercisePreviewSheet.swift
+│   │   ├── WorkoutCompletionView.swift        # 完了画面本体
+│   │   ├── WorkoutCompletionComponents.swift  # WorkoutShareCard（PR前回比表示）, StatBox, ShareSheet
+│   │   ├── WorkoutCompletionSections.swift    # NextRecommendedDaySection, StrengthMapShareSection含む
+│   │   ├── ShareMuscleMapView.swift           # シェアカード用静的筋肉マップ（mapHeight可変）
+│   │   └── FullBodyConquestView.swift
+│   ├── Exercise/                  # 種目辞典（3ファイル）
+│   │   ├── ExerciseLibraryView.swift
+│   │   ├── ExerciseDetailView.swift
+│   │   └── ExerciseMuscleMapView.swift
+│   ├── History/                   # 履歴（8ファイル）
+│   │   ├── HistoryView.swift
+│   │   ├── HistoryMapComponents.swift
+│   │   ├── HistoryCalendarComponents.swift
+│   │   ├── HistorySessionComponents.swift
+│   │   ├── HistoryStatsComponents.swift
+│   │   ├── MonthlyCalendarView.swift
+│   │   ├── MuscleHistoryDetailSheet.swift
+│   │   └── DayWorkoutDetailView.swift
+│   ├── MuscleDetail/              # 部位詳細（2ファイル、2Dマップハイライト方式）
+│   │   ├── MuscleDetailView.swift
+│   │   └── Muscle3DView.swift
+│   ├── Onboarding/                # オンボーディング（14ファイル）
+│   │   ├── OnboardingView.swift           # フェーズ管理（Splash→V2→通知）
+│   │   ├── OnboardingV2View.swift         # 最大9ページ横スワイプ + 専用カラーパレット
+│   │   ├── SplashView.swift               # プレミアムスプラッシュ（アニメーション付き）
+│   │   ├── GoalSelectionPage.swift        # 7目標エモーショナル単一選択 + OnboardingGoal enum
+│   │   ├── FrequencySelectionPage.swift   # 週間トレーニング頻度選択
+│   │   ├── LocationSelectionPage.swift    # トレーニング場所選択
+│   │   ├── TrainingHistoryPage.swift      # トレ歴選択
+│   │   ├── PRInputPage.swift              # BIG3 PR入力（経験者のみ、種目追加・変更可能）
+│   │   ├── GoalMusclePreviewPage.swift    # 目標×筋肉ビジュアル
+│   │   ├── WeightInputPage.swift          # 体重・ニックネーム入力（→UserProfile）
+│   │   ├── RoutineBuilderPage.swift       # 自動ルーティン構築（→RoutineManager）
+│   │   ├── RoutineCompletionPage.swift    # ルーティンサマリー + ハードペイウォール
+│   │   ├── CallToActionPage.swift         # 旧CTA（RoutineCompletionPageに機能統合済み）
+│   │   ├── FavoriteExercisesPage.swift    # お気に入り種目選択（オンボーディングフローでは未使用）
+│   │   └── NotificationPermissionView.swift  # 通知許可
+│   ├── Social/                    # ソーシャルフィード（Phase 0）
+│   │   ├── ActivityFeedView.swift
+│   │   └── FriendActivityCard.swift
+│   ├── Settings/                  # 設定（3ファイル）
+│   │   ├── SettingsView.swift
+│   │   ├── RoutineEditView.swift      # ルーティン編集画面
+│   │   └── CSVImportView.swift        # CSVデータインポート
+│   └── Paywall/                   # Paywall（実装済み）
+│       └── PaywallView.swift      # isHardPaywall パラメータ対応
 ├── Utilities/
 │   ├── RecoveryCalculator.swift
-│   ├── PRManager.swift         # 推定1RM（Epley式）+ PR前回比取得 + PRUpdate構造体
-│   ├── PurchaseManager.swift   # isPremium判定（RevenueCat接続予定）
+│   ├── PRManager.swift            # 推定1RM（Epley式）+ PR前回比取得 + PRUpdate構造体
+│   ├── PurchaseManager.swift      # isPremium判定 + weeklyWorkoutCount + canRecordWorkout
 │   ├── StrengthScoreCalculator.swift  # PRデータ→筋肉スコア変換
 │   ├── MenuSuggestionService.swift
 │   ├── ColorCalculator.swift
@@ -605,7 +693,10 @@ MuscleMap/
 │   ├── HapticManager.swift
 │   ├── ThemeManager.swift
 │   ├── LocalizationManager.swift
-│   ├── ModelLoader.swift        # 3Dモデル可用性チェック（レガシー、2D移行済み）
+│   ├── NotificationManager.swift  # ローカル通知管理
+│   ├── GoalMusclePriority.swift   # 目標→重点筋肉マッピング
+│   ├── CSVParser.swift            # CSVファイル解析
+│   ├── ImportDataConverter.swift  # インポートデータ変換
 │   ├── WorkoutRecommendationEngine.swift  # おすすめメニューエンジン
 │   ├── WidgetDataProvider.swift
 │   ├── LegalURL.swift
@@ -613,15 +704,19 @@ MuscleMap/
 │   ├── KeyManager.swift
 │   └── KeychainHelper.swift
 └── Resources/
-    ├── exercises.json          # 92種目
+    ├── exercises.json             # 92種目
     ├── Assets.xcassets
-    └── exercises_gif/          # folder reference（GIFアニメーション）
+    └── exercises_gif/             # folder reference（GIFアニメーション）
 
-MuscleMapWatch/                 # Apple Watch companion
-MuscleMapWidget/                # Widget extension
-Shared/                         # iOS/Watch共有コード
+MuscleMapWatch/                    # Apple Watch companion
+MuscleMapWidget/                   # Widget extension
+Shared/                            # iOS/Watch共有コード
 scripts/
-└── screenshots/                # App Storeスクショ自動生成パイプライン（準備中）
+└── screenshots/                   # App Storeスクショ自動生成パイプライン（準備中）
+docs/
+├── PRD/                           # 製品要件ドキュメント
+├── audit/                         # 監査レポート（5レポート）
+└── appstore/                      # App Store説明文・キーワード
 ```
 
 ---
@@ -653,8 +748,13 @@ scripts/
 
 ### Pro機能実装時のルール
 - `PurchaseManager.shared.isPremium` で判定
-- isPremiumがfalseの場合は`PaywallView`を`.sheet`で表示
-- Pro機能をゲートする場所は最小限に（ゲートA: HomeViewのStrengthMapボタン、ゲートB: ContentViewのHistoryTab）
+- isPremiumがfalseの場合は`PaywallView`を`.sheet`で表示（ソフト）または`.fullScreenCover`で表示（ハード）
+- `PaywallView(isHardPaywall: true)`: 閉じるボタン非表示 + `.interactiveDismissDisabled(true)`
+- Pro機能をゲートする場所: ゲートA: HomeViewのStrengthMapボタン、ゲートB: ContentViewのワークアウトタブ（週間制限）、ゲートC: RoutineCompletionPage（オンボーディング）
+
+### 多言語対応
+- `LocalizationManager.shared.currentLanguage == .japanese` で日英切替
+- L10nキー使用を推奨。インラインの場合は `isJapanese ? "日本語" : "English"` パターン
 
 ---
 
