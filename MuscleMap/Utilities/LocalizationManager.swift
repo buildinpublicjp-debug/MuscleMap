@@ -451,6 +451,18 @@ enum L10n {
     static var profileBasicInfo: String { loc("基本情報", "Basic Info") }
     static var profileWeightFooter: String { loc("体重はStrength Mapのスコア計算に使用されます", "Weight is used for Strength Map score calculations") }
     static var developerMenu: String { loc("開発者メニュー", "Developer Menu") }
+
+    // MARK: - LocationSelectionPage
+    static var locationTitle: String { loc("どこで鍛える？", "Where do you train?") }
+    static var locationSubtitle: String { loc("使える器具に合わせて種目を提案します", "We'll suggest exercises based on your equipment") }
+    static var locationGym: String { loc("ジム", "Gym") }
+    static var locationHome: String { loc("自宅", "Home") }
+    static var locationBoth: String { loc("両方", "Both") }
+    static var locationGymDesc: String { loc("マシン・バーベル・ダンベル全部使える", "Full access to machines, barbells & dumbbells") }
+    static var locationHomeDesc: String { loc("自重とダンベルでしっかり鍛える", "Bodyweight & dumbbell focused") }
+    static var locationBothDesc: String { loc("ジムと自宅を組み合わせる", "Mix gym and home workouts") }
+    static var locationExerciseCount: String { loc("収録", "included") }
+    static var locationHomeExercises: String { loc("自宅でできる種目", "home exercises") }
     static var version: String { loc("バージョン", "Version", zhHans: "版本", ko: "버전", es: "Versión", fr: "Version", de: "Version") }
     static var tagline: String {
         loc("MuscleMap — 筋肉の状態が見える。だから、迷わない。",

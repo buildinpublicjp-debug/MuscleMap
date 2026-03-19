@@ -2,6 +2,7 @@ import SwiftUI
 
 // MARK: - トレーニング場所
 
+@MainActor
 enum TrainingLocation: String, CaseIterable, Codable {
     case gym
     case home
@@ -9,9 +10,9 @@ enum TrainingLocation: String, CaseIterable, Codable {
 
     var title: String {
         switch self {
-        case .gym: return "ジム"
-        case .home: return "自宅"
-        case .both: return "両方"
+        case .gym: return L10n.locationGym
+        case .home: return L10n.locationHome
+        case .both: return L10n.locationBoth
         }
     }
 
@@ -25,9 +26,9 @@ enum TrainingLocation: String, CaseIterable, Codable {
 
     var subtitle: String {
         switch self {
-        case .gym: return "マシン・バーベル・ダンベル全部使える"
-        case .home: return "自重とダンベルでしっかり鍛える"
-        case .both: return "ジムと自宅を組み合わせる"
+        case .gym: return L10n.locationGymDesc
+        case .home: return L10n.locationHomeDesc
+        case .both: return L10n.locationBothDesc
         }
     }
 
@@ -41,7 +42,7 @@ enum TrainingLocation: String, CaseIterable, Codable {
     }
 }
 
-// MARK: - 場所選択画面（SF Symbols + 種目サンプル付き）
+// MARK: - 場所選択画面（GIFギャラリー + 種目数バッジ付き）
 
 struct LocationSelectionPage: View {
     let onNext: (TrainingLocation) -> Void
@@ -49,16 +50,36 @@ struct LocationSelectionPage: View {
     @State private var selected: TrainingLocation?
     @State private var appeared = false
     @State private var isProceeding = false
-    @State private var sampleAppeared = false
+    @State private var galleryId = UUID()
 
-    /// 選択した場所で使える種目サンプル（最大3件）
-    private var sampleExercises: [ExerciseDefinition] {
-        guard let location = selected else { return [] }
-        ExerciseStore.shared.loadIfNeeded()
-        let equipments = location.equipmentFilter
-        let filtered = ExerciseStore.shared.exercises
-            .filter { ex in equipments.contains(where: { ex.equipment.contains($0) }) }
-        return Array(filtered.prefix(3))
+    /// 選択した場所で使える種目（最大20件）
+    private var filteredExercises: [ExerciseDefinition] {
+        let store = ExerciseStore.shared
+        store.loadIfNeeded()
+
+        let exercises: [ExerciseDefinition]
+        switch selected {
+        case .home:
+            let homeEquipment: Set<String> = ["自重", "ダンベル", "ケトルベル", "Bodyweight", "Dumbbell", "Kettlebell"]
+            exercises = store.exercises.filter { homeEquipment.contains($0.equipment) }
+        case .gym, .both, .none:
+            exercises = store.exercises
+        }
+        return Array(exercises.prefix(20))
+    }
+
+    /// フィルタ後の全種目数（バッジ表示用）
+    private var totalFilteredCount: Int {
+        let store = ExerciseStore.shared
+        store.loadIfNeeded()
+
+        switch selected {
+        case .home:
+            let homeEquipment: Set<String> = ["自重", "ダンベル", "ケトルベル", "Bodyweight", "Dumbbell", "Kettlebell"]
+            return store.exercises.filter { homeEquipment.contains($0.equipment) }.count
+        case .gym, .both, .none:
+            return store.exercises.count
+        }
     }
 
     var body: some View {
@@ -67,12 +88,12 @@ struct LocationSelectionPage: View {
 
             // ヘッダー
             VStack(spacing: 8) {
-                Text("どこで鍛える？")
+                Text(L10n.locationTitle)
                     .font(.system(size: 28, weight: .heavy))
                     .foregroundStyle(Color.mmOnboardingTextMain)
                     .multilineTextAlignment(.center)
 
-                Text("使える器具に合わせて種目を提案します")
+                Text(L10n.locationSubtitle)
                     .font(.system(size: 16))
                     .foregroundStyle(Color.mmOnboardingTextSub)
                     .multilineTextAlignment(.center)
@@ -81,7 +102,42 @@ struct LocationSelectionPage: View {
             .opacity(appeared ? 1 : 0)
             .offset(y: appeared ? 0 : 20)
 
-            Spacer().frame(height: 32)
+            Spacer().frame(height: 16)
+
+            // 種目数バッジ
+            HStack(spacing: 8) {
+                Text(L10n.exerciseCountLabel(totalFilteredCount))
+                    .font(.system(size: 14, weight: .bold))
+                    .foregroundStyle(Color.mmOnboardingAccent)
+
+                if selected == .home {
+                    Text(L10n.locationHomeExercises)
+                        .font(.caption)
+                        .foregroundStyle(Color.mmOnboardingTextSub)
+                } else {
+                    Text(L10n.locationExerciseCount)
+                        .font(.caption)
+                        .foregroundStyle(Color.mmOnboardingTextSub)
+                }
+            }
+            .opacity(appeared ? 1 : 0)
+
+            Spacer().frame(height: 12)
+
+            // GIFギャラリー（横スクロール）
+            ScrollView(.horizontal, showsIndicators: false) {
+                LazyHStack(spacing: 10) {
+                    ForEach(filteredExercises, id: \.id) { exercise in
+                        ExerciseGifCard(exercise: exercise)
+                    }
+                }
+                .padding(.horizontal, 24)
+            }
+            .frame(height: 108)
+            .id(galleryId)
+            .opacity(appeared ? 1 : 0)
+
+            Spacer().frame(height: 20)
 
             // 選択カード（左バー方式）
             VStack(spacing: 10) {
@@ -94,8 +150,9 @@ struct LocationSelectionPage: View {
                             withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
                                 selected = location
                             }
-                            withAnimation(.easeOut(duration: 0.4).delay(0.15)) {
-                                sampleAppeared = true
+                            // ギャラリーをフェードで切り替え
+                            withAnimation(.easeOut(duration: 0.3)) {
+                                galleryId = UUID()
                             }
                             HapticManager.lightTap()
                         }
@@ -106,46 +163,6 @@ struct LocationSelectionPage: View {
                 }
             }
             .padding(.horizontal, 24)
-
-            // 種目サンプル表示（選択時にフェードイン）
-            if selected != nil, !sampleExercises.isEmpty {
-                VStack(alignment: .leading, spacing: 6) {
-                    Text("使える種目の例")
-                        .font(.system(size: 12, weight: .bold))
-                        .foregroundStyle(Color.mmOnboardingTextSub)
-                        .padding(.horizontal, 24)
-
-                    VStack(spacing: 4) {
-                        ForEach(sampleExercises, id: \.id) { exercise in
-                            HStack(spacing: 8) {
-                                Image(systemName: "checkmark.circle.fill")
-                                    .font(.system(size: 14))
-                                    .foregroundStyle(Color.mmOnboardingAccent)
-
-                                Text(exercise.nameJA)
-                                    .font(.system(size: 14, weight: .medium))
-                                    .foregroundStyle(Color.mmOnboardingTextMain)
-                                    .lineLimit(1)
-
-                                Spacer()
-
-                                Text(exercise.localizedEquipment)
-                                    .font(.system(size: 11))
-                                    .foregroundStyle(Color.mmOnboardingTextSub)
-                            }
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 8)
-                        }
-                    }
-                    .padding(.vertical, 4)
-                    .background(Color.mmOnboardingCard)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
-                    .padding(.horizontal, 24)
-                }
-                .padding(.top, 16)
-                .transition(.opacity.combined(with: .move(edge: .bottom)))
-                .animation(.easeOut(duration: 0.4), value: selected)
-            }
 
             Spacer()
 
@@ -187,6 +204,41 @@ struct LocationSelectionPage: View {
                 appeared = true
             }
         }
+    }
+}
+
+// MARK: - GIFカード（ギャラリー用）
+
+private struct ExerciseGifCard: View {
+    let exercise: ExerciseDefinition
+
+    var body: some View {
+        VStack(spacing: 4) {
+            if ExerciseGifView.hasGif(exerciseId: exercise.id) {
+                ExerciseGifView(exerciseId: exercise.id, size: .thumbnail)
+                    .frame(width: 64, height: 64)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+            } else {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.mmOnboardingBg)
+                        .frame(width: 64, height: 64)
+                    Image(systemName: "dumbbell.fill")
+                        .font(.system(size: 20))
+                        .foregroundStyle(Color.mmOnboardingTextSub.opacity(0.4))
+                }
+            }
+
+            Text(exercise.localizedName)
+                .font(.system(size: 10, weight: .medium))
+                .foregroundStyle(Color.mmOnboardingTextMain)
+                .lineLimit(1)
+
+            Text(exercise.localizedEquipment)
+                .font(.system(size: 9))
+                .foregroundStyle(Color.mmOnboardingTextSub)
+        }
+        .frame(width: 80)
     }
 }
 
