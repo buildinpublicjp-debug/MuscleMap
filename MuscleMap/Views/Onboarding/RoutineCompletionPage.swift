@@ -40,6 +40,30 @@ struct RoutineCompletionPage: View {
         return mapping
     }
 
+    /// MuscleMapView用: 全Dayの種目が刺激する筋肉をハイライト
+    private var programMuscleStates: [Muscle: MuscleVisualState] {
+        var stimulated: Set<Muscle> = []
+        let store = ExerciseStore.shared
+
+        for day in routine.days {
+            for exercise in day.exercises {
+                if let def = store.exercise(for: exercise.exerciseId) {
+                    for (muscleId, _) in def.muscleMapping {
+                        if let muscle = Muscle(rawValue: muscleId) {
+                            stimulated.insert(muscle)
+                        }
+                    }
+                }
+            }
+        }
+
+        var states: [Muscle: MuscleVisualState] = [:]
+        for muscle in Muscle.allCases {
+            states[muscle] = stimulated.contains(muscle) ? .recovering(progress: 0.1) : .inactive
+        }
+        return states
+    }
+
     /// Day別の筋肉グループ集計
     private func muscleGroupsForDay(_ day: RoutineDay) -> [MuscleGroup] {
         var groups: Set<MuscleGroup> = []
@@ -169,20 +193,14 @@ struct RoutineCompletionPage: View {
 
     private var muscleMapSection: some View {
         VStack(spacing: 8) {
-            Text(isJapanese ? "あなたのプログラムで鍛えられる筋肉" : "Muscles targeted by your program")
+            Text(isJapanese ? "あなたのプログラムで鍛えられる筋肉" : "Muscles trained by your program")
                 .font(.system(size: 13, weight: .semibold))
                 .foregroundStyle(Color.mmOnboardingTextSub)
 
-            HStack(spacing: 16) {
-                // 前面
-                MiniMuscleMapView(muscleMapping: combinedMuscleMapping, showFront: true)
-                    .frame(height: 180)
-
-                // 背面
-                MiniMuscleMapView(muscleMapping: combinedMuscleMapping, showFront: false)
-                    .frame(height: 180)
-            }
-            .padding(.horizontal, 48)
+            // インタラクティブ筋肉マップ（前面+背面）
+            MuscleMapView(muscleStates: programMuscleStates)
+                .frame(height: 180)
+                .padding(.horizontal, 24)
 
             // カバー率バッジ
             Text(isJapanese ? "\(coveragePercent)%の筋肉をカバー" : "\(coveragePercent)% muscle coverage")
