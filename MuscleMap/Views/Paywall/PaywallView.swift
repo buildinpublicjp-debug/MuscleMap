@@ -24,7 +24,6 @@ struct PaywallView: View {
     private var goalSubtitle: String? {
         guard let goalRaw = AppState.shared.primaryOnboardingGoal,
               let goal = OnboardingGoal(rawValue: goalRaw) else { return nil }
-        let isJapanese = localization.currentLanguage == .japanese
         return isJapanese
             ? "\(goal.localizedName)のためのメニュー"
             : "A menu designed for your goal"
