@@ -641,6 +641,10 @@ enum L10n {
     static func routineExerciseCount(_ current: Int, _ max: Int) -> String { loc("\(current)/\(max)種目", "\(current)/\(max) exercises") }
     static var routineAddExercise: String { loc("種目を追加", "Add Exercise") }
     static var routineAlreadyAdded: String { loc("追加済み", "Added") }
+    static var routineSetRepSets: String { loc("セット数", "Sets") }
+    static var routineSetRepReps: String { loc("レップ数", "Reps") }
+    static var routineLocationGym: String { loc("ジム", "Gym") }
+    static var routineLocationHome: String { loc("自宅", "Home") }
 
     // MARK: - ルーティン完了（RoutineCompletionPage）
     static var routineCompletionDefaultHeadline: String { loc("あなたの体の変化を記録しよう。", "Track your body transformation.") }

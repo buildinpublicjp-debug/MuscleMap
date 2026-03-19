@@ -323,9 +323,9 @@ struct FrequencySelectionPage: View {
         trainingDays: [Int: Int],
         parts: [SplitPart]
     ) -> Int {
-        // currentDay から過去方向に探索（最大7日分）
-        for offset in 0..<7 {
-            let checkDay = (currentDay - offset + 7) % 7
+        // currentDay から過去方向に探索（currentDayまでの範囲のみ、ラップアラウンドしない）
+        for offset in 0...currentDay {
+            let checkDay = currentDay - offset
             if let partIndex = trainingDays[checkDay], partIndex < parts.count {
                 let part = parts[partIndex]
                 // このパートに筋肉が含まれるか
@@ -335,7 +335,7 @@ struct FrequencySelectionPage: View {
                 }
             }
         }
-        return -1 // まだ刺激されてない
+        return -1 // まだ刺激されてない（今週まだトレーニングされていない）
     }
 }
 

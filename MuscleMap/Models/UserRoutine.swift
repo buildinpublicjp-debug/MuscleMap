@@ -17,12 +17,25 @@ struct RoutineDay: Codable, Identifiable {
     /// 対象筋肉グループのrawValue配列（例: ["chest", "shoulders"]）
     var muscleGroups: [String]
     var exercises: [RoutineExercise]
+    /// トレーニング場所 ("gym" / "home" / "both")
+    var location: String
 
-    init(id: UUID = UUID(), name: String, muscleGroups: [String], exercises: [RoutineExercise] = []) {
+    init(id: UUID = UUID(), name: String, muscleGroups: [String], exercises: [RoutineExercise] = [], location: String = "gym") {
         self.id = id
         self.name = name
         self.muscleGroups = muscleGroups
         self.exercises = exercises
+        self.location = location
+    }
+
+    /// 後方互換: location が保存されていない旧データでもデコード可能
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(UUID.self, forKey: .id)
+        name = try container.decode(String.self, forKey: .name)
+        muscleGroups = try container.decode([String].self, forKey: .muscleGroups)
+        exercises = try container.decode([RoutineExercise].self, forKey: .exercises)
+        location = try container.decodeIfPresent(String.self, forKey: .location) ?? "gym"
     }
 }
 

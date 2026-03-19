@@ -11,6 +11,8 @@ struct RoutineBuilderPage: View {
     @State private var selectedDayIndex: Int = 0
     @State private var headerAppeared = false
     @State private var showingExercisePicker = false
+    @State private var editingExerciseIndex: Int?
+    @State private var showSetRepEditor = false
 
     /// 1日あたりの最大種目数
     private let maxExercisesPerDay = 8
@@ -96,6 +98,19 @@ struct RoutineBuilderPage: View {
                 .presentationBackground(Color.mmOnboardingBg)
             }
         }
+        .sheet(isPresented: $showSetRepEditor) {
+            if let editIdx = editingExerciseIndex,
+               days.indices.contains(selectedDayIndex),
+               days[selectedDayIndex].exercises.indices.contains(editIdx) {
+                SetRepEditorSheet(
+                    sets: $days[selectedDayIndex].exercises[editIdx].suggestedSets,
+                    reps: $days[selectedDayIndex].exercises[editIdx].suggestedReps
+                )
+                .presentationDetents([.height(220)])
+                .presentationDragIndicator(.visible)
+                .presentationBackground(Color.mmOnboardingBg)
+            }
+        }
     }
 
     // MARK: - Day タブバー
@@ -144,59 +159,112 @@ struct RoutineBuilderPage: View {
     @ViewBuilder
     private var exerciseListView: some View {
         if days.indices.contains(selectedDayIndex) {
-        VStack(spacing: 0) {
-            // 種目数カウンター
-            HStack {
-                Text(L10n.routineExerciseCount(days[selectedDayIndex].exercises.count, maxExercisesPerDay))
-                    .font(.system(size: 13, weight: .bold))
-                    .foregroundStyle(Color.mmOnboardingAccent)
+            VStack(spacing: 0) {
+                // Day単位 location ピッカー
+                locationPicker
 
-                Spacer()
-
-                // 追加ボタン
-                if days[selectedDayIndex].exercises.count < maxExercisesPerDay {
-                    Button {
-                        showingExercisePicker = true
-                        HapticManager.lightTap()
-                    } label: {
-                        HStack(spacing: 4) {
-                            Image(systemName: "plus")
-                                .font(.system(size: 12, weight: .bold))
-                            Text(L10n.routineAddExercise)
-                                .font(.system(size: 13, weight: .bold))
-                        }
+                // 種目数カウンター + 追加ボタン
+                HStack {
+                    Text(L10n.routineExerciseCount(days[selectedDayIndex].exercises.count, maxExercisesPerDay))
+                        .font(.system(size: 13, weight: .bold))
                         .foregroundStyle(Color.mmOnboardingAccent)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 6)
-                        .background(Color.mmOnboardingAccent.opacity(0.12))
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                    }
-                    .buttonStyle(.plain)
-                }
-            }
-            .padding(.horizontal, 24)
-            .padding(.vertical, 8)
 
-            // 種目一覧
-            ScrollView(.vertical, showsIndicators: false) {
-                LazyVStack(spacing: 8) {
-                    ForEach(days[selectedDayIndex].exercises) { routineExercise in
-                        if let def = ExerciseStore.shared.exercise(for: routineExercise.exerciseId) {
-                            RoutineExerciseRow(
-                                exercise: def,
-                                routineExercise: routineExercise,
-                                onRemove: {
-                                    removeExercise(routineExercise.id)
-                                }
-                            )
+                    Spacer()
+
+                    // 追加ボタン
+                    if days[selectedDayIndex].exercises.count < maxExercisesPerDay {
+                        Button {
+                            showingExercisePicker = true
+                            HapticManager.lightTap()
+                        } label: {
+                            HStack(spacing: 4) {
+                                Image(systemName: "plus")
+                                    .font(.system(size: 12, weight: .bold))
+                                Text(L10n.routineAddExercise)
+                                    .font(.system(size: 13, weight: .bold))
+                            }
+                            .foregroundStyle(Color.mmOnboardingAccent)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
+                            .background(Color.mmOnboardingAccent.opacity(0.12))
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
                         }
+                        .buttonStyle(.plain)
                     }
                 }
                 .padding(.horizontal, 24)
-                .padding(.bottom, 100)
+                .padding(.vertical, 8)
+
+                // 種目一覧 + 筋肉マップ
+                ScrollView(.vertical, showsIndicators: false) {
+                    VStack(spacing: 12) {
+                        // 筋肉マップ（前面+背面）
+                        MuscleMapView(
+                            muscleStates: muscleStatesForDay(days[selectedDayIndex])
+                        )
+                        .frame(height: 140)
+                        .padding(.horizontal, 24)
+                        .animation(.easeInOut(duration: 0.3), value: days[selectedDayIndex].exercises.count)
+
+                        // 種目行
+                        LazyVStack(spacing: 8) {
+                            ForEach(Array(days[selectedDayIndex].exercises.enumerated()), id: \.element.id) { index, routineExercise in
+                                if let def = ExerciseStore.shared.exercise(for: routineExercise.exerciseId) {
+                                    RoutineExerciseRow(
+                                        exercise: def,
+                                        routineExercise: routineExercise,
+                                        onRemove: {
+                                            removeExercise(routineExercise.id)
+                                        },
+                                        onEditSetRep: {
+                                            editingExerciseIndex = index
+                                            showSetRepEditor = true
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                        .padding(.horizontal, 24)
+                        .padding(.bottom, 100)
+                    }
+                }
             }
         }
+    }
+
+    // MARK: - Location ピッカー
+
+    private var locationPicker: some View {
+        Picker("", selection: Binding(
+            get: { days[selectedDayIndex].location },
+            set: { newLocation in
+                days[selectedDayIndex].location = newLocation
+                rebuildExercisesForCurrentDay(location: newLocation)
+                HapticManager.lightTap()
+            }
+        )) {
+            Text(L10n.routineLocationGym).tag("gym")
+            Text(L10n.routineLocationHome).tag("home")
         }
+        .pickerStyle(.segmented)
+        .padding(.horizontal, 24)
+        .padding(.bottom, 4)
+    }
+
+    // MARK: - 筋肉マップ状態
+
+    private func muscleStatesForDay(_ day: RoutineDay) -> [Muscle: MuscleVisualState] {
+        var states: [Muscle: MuscleVisualState] = [:]
+        for exercise in day.exercises {
+            if let def = ExerciseStore.shared.exercise(for: exercise.exerciseId) {
+                for (muscleId, _) in def.muscleMapping {
+                    if let muscle = Muscle(rawValue: muscleId) {
+                        states[muscle] = .recovering(progress: 0.1)
+                    }
+                }
+            }
+        }
+        return states
     }
 
     // MARK: - 状態
@@ -221,62 +289,24 @@ struct RoutineBuilderPage: View {
         let exerciseStore = ExerciseStore.shared
         exerciseStore.loadIfNeeded()
 
+        let userLocation = profile.trainingLocation
+
         var result: [RoutineDay] = []
 
         for part in parts {
             var day = RoutineDay(
                 name: part.name,
-                muscleGroups: part.muscleGroups.map { $0.rawValue }
+                muscleGroups: part.muscleGroups.map { $0.rawValue },
+                location: userLocation
             )
 
-            // 自動ピック: 各グループの種目を収集
-            let targetGroupSet = Set(part.muscleGroups)
-            var candidateExercises: [ExerciseDefinition] = []
-            var seenIds: Set<String> = []
-
-            for group in part.muscleGroups {
-                for muscle in group.muscles {
-                    let exercises = exerciseStore.exercises(targeting: muscle)
-                    for ex in exercises {
-                        if !seenIds.contains(ex.id) {
-                            // 主要ターゲット筋肉のグループがこのパートに含まれるかチェック
-                            if let primary = ex.primaryMuscle,
-                               targetGroupSet.contains(primary.group) {
-                                seenIds.insert(ex.id)
-                                candidateExercises.append(ex)
-                            }
-                        }
-                    }
-                }
-            }
-
-            // 場所フィルタ
-            candidateExercises = filterByLocation(
-                exercises: candidateExercises,
-                location: profile.trainingLocation
-            )
-
-            // 重点筋肉 + お気に入り優先ソート
-            candidateExercises = sortByPriority(
-                exercises: candidateExercises,
+            let exercises = autoPickExercises(
+                muscleGroups: part.muscleGroups,
+                location: userLocation,
                 priorityMuscles: profile.goalPriorityMuscles,
-                targetGroups: targetGroupSet
+                experience: profile.trainingExperience
             )
-
-            // 上位3〜4種目を自動選択
-            let count = part.muscleGroups.count >= 2 ? 4 : 3
-            let topExercises = Array(candidateExercises.prefix(count))
-
-            // デフォルトのレップ/セット
-            let (defaultSets, defaultReps) = defaultSetsAndReps(for: profile.trainingExperience)
-
-            day.exercises = topExercises.map { ex in
-                RoutineExercise(
-                    exerciseId: ex.id,
-                    suggestedSets: defaultSets,
-                    suggestedReps: defaultReps
-                )
-            }
+            day.exercises = exercises
 
             result.append(day)
         }
@@ -289,6 +319,83 @@ struct RoutineBuilderPage: View {
             print("[RoutineBuilder] \(day.name): \(names)")
         }
         #endif
+    }
+
+    /// location切替時に種目を再ピック
+    private func rebuildExercisesForCurrentDay(location: String) {
+        guard days.indices.contains(selectedDayIndex) else { return }
+
+        let day = days[selectedDayIndex]
+        let groups = day.muscleGroups.compactMap { MuscleGroup(rawValue: $0) }
+        let profile = AppState.shared.userProfile
+
+        let exercises = autoPickExercises(
+            muscleGroups: groups,
+            location: location,
+            priorityMuscles: profile.goalPriorityMuscles,
+            experience: profile.trainingExperience
+        )
+
+        withAnimation(.easeInOut(duration: 0.3)) {
+            days[selectedDayIndex].exercises = exercises
+        }
+    }
+
+    /// 自動ピック共通ロジック
+    private func autoPickExercises(
+        muscleGroups: [MuscleGroup],
+        location: String,
+        priorityMuscles: [String],
+        experience: TrainingExperience
+    ) -> [RoutineExercise] {
+        let exerciseStore = ExerciseStore.shared
+        exerciseStore.loadIfNeeded()
+
+        let targetGroupSet = Set(muscleGroups)
+        var candidateExercises: [ExerciseDefinition] = []
+        var seenIds: Set<String> = []
+
+        for group in muscleGroups {
+            for muscle in group.muscles {
+                let exercises = exerciseStore.exercises(targeting: muscle)
+                for ex in exercises {
+                    if !seenIds.contains(ex.id) {
+                        if let primary = ex.primaryMuscle,
+                           targetGroupSet.contains(primary.group) {
+                            seenIds.insert(ex.id)
+                            candidateExercises.append(ex)
+                        }
+                    }
+                }
+            }
+        }
+
+        // 場所フィルタ
+        candidateExercises = filterByLocation(
+            exercises: candidateExercises,
+            location: location
+        )
+
+        // 重点筋肉 + お気に入り優先ソート
+        candidateExercises = sortByPriority(
+            exercises: candidateExercises,
+            priorityMuscles: priorityMuscles,
+            targetGroups: targetGroupSet
+        )
+
+        // 上位3〜4種目を自動選択
+        let count = muscleGroups.count >= 2 ? 4 : 3
+        let topExercises = Array(candidateExercises.prefix(count))
+
+        let (defaultSets, defaultReps) = defaultSetsAndReps(for: experience)
+
+        return topExercises.map { ex in
+            RoutineExercise(
+                exerciseId: ex.id,
+                suggestedSets: defaultSets,
+                suggestedReps: defaultReps
+            )
+        }
     }
 
     /// 種目を追加
@@ -314,7 +421,9 @@ struct RoutineBuilderPage: View {
     /// 種目を削除
     private func removeExercise(_ routineExerciseId: UUID) {
         guard days.indices.contains(selectedDayIndex) else { return }
-        days[selectedDayIndex].exercises.removeAll { $0.id == routineExerciseId }
+        withAnimation(.easeInOut(duration: 0.2)) {
+            days[selectedDayIndex].exercises.removeAll { $0.id == routineExerciseId }
+        }
         HapticManager.lightTap()
     }
 
@@ -404,12 +513,79 @@ struct RoutineBuilderPage: View {
     }
 }
 
+// MARK: - セット×レップ編集シート
+
+private struct SetRepEditorSheet: View {
+    @Binding var sets: Int
+    @Binding var reps: Int
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        VStack(spacing: 24) {
+            // ドラッグインジケーター代わりのヘッダー
+            Text("\(sets)×\(reps)")
+                .font(.system(size: 32, weight: .heavy).monospacedDigit())
+                .foregroundStyle(Color.mmOnboardingAccent)
+                .padding(.top, 20)
+
+            VStack(spacing: 16) {
+                // セット数
+                HStack {
+                    Text(L10n.routineSetRepSets)
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundStyle(Color.mmOnboardingTextMain)
+                    Spacer()
+                    Stepper("\(sets)", value: $sets, in: 1...6)
+                        .labelsHidden()
+                    Text("\(sets)")
+                        .font(.system(size: 18, weight: .bold).monospacedDigit())
+                        .foregroundStyle(Color.mmOnboardingTextMain)
+                        .frame(width: 30, alignment: .center)
+                }
+
+                // レップ数
+                HStack {
+                    Text(L10n.routineSetRepReps)
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundStyle(Color.mmOnboardingTextMain)
+                    Spacer()
+                    Stepper("\(reps)", value: $reps, in: 1...30)
+                        .labelsHidden()
+                    Text("\(reps)")
+                        .font(.system(size: 18, weight: .bold).monospacedDigit())
+                        .foregroundStyle(Color.mmOnboardingTextMain)
+                        .frame(width: 30, alignment: .center)
+                }
+            }
+            .padding(.horizontal, 24)
+
+            // 保存ボタン
+            Button {
+                HapticManager.lightTap()
+                dismiss()
+            } label: {
+                Text(L10n.save)
+                    .font(.system(size: 16, weight: .bold))
+                    .foregroundStyle(Color.mmOnboardingBg)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 48)
+                    .background(Color.mmOnboardingAccent)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+            }
+            .buttonStyle(.plain)
+            .padding(.horizontal, 24)
+            .padding(.bottom, 16)
+        }
+    }
+}
+
 // MARK: - ルーティン種目行
 
 private struct RoutineExerciseRow: View {
     let exercise: ExerciseDefinition
     let routineExercise: RoutineExercise
     let onRemove: () -> Void
+    let onEditSetRep: () -> Void
 
     var body: some View {
         HStack(spacing: 0) {
@@ -420,10 +596,10 @@ private struct RoutineExerciseRow: View {
                 .padding(.vertical, 8)
 
             HStack(spacing: 12) {
-                // GIFサムネイル
+                // GIFサムネイル（64x64に拡大）
                 exerciseThumbnail
 
-                // 種目名 + セット×レップ
+                // 種目名 + 器具 + セット×レップ
                 VStack(alignment: .leading, spacing: 2) {
                     Text(exercise.localizedName)
                         .font(.system(size: 16, weight: .medium))
@@ -431,7 +607,7 @@ private struct RoutineExerciseRow: View {
                         .lineLimit(1)
 
                     HStack(spacing: 8) {
-                        Text(exercise.equipment)
+                        Text(exercise.localizedEquipment)
                             .font(.caption)
                             .foregroundStyle(Color.mmOnboardingTextSub)
                             .padding(.horizontal, 6)
@@ -439,9 +615,17 @@ private struct RoutineExerciseRow: View {
                             .background(Color.mmOnboardingCard)
                             .clipShape(RoundedRectangle(cornerRadius: 4))
 
-                        Text("\(routineExercise.suggestedSets)x\(routineExercise.suggestedReps)")
-                            .font(.caption.bold())
-                            .foregroundStyle(Color.mmOnboardingAccent)
+                        // セット×レップ（タップで編集）
+                        Button(action: onEditSetRep) {
+                            Text("\(routineExercise.suggestedSets)×\(routineExercise.suggestedReps)")
+                                .font(.caption.bold().monospacedDigit())
+                                .foregroundStyle(Color.mmOnboardingAccent)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4)
+                                .background(Color.mmOnboardingAccent.opacity(0.15))
+                                .clipShape(Capsule())
+                        }
+                        .buttonStyle(.plain)
                     }
                 }
 
@@ -457,7 +641,7 @@ private struct RoutineExerciseRow: View {
             }
             .padding(.horizontal, 12)
         }
-        .frame(minHeight: 56)
+        .frame(minHeight: 72)
         .background(Color.mmOnboardingAccent.opacity(0.06))
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
@@ -466,15 +650,15 @@ private struct RoutineExerciseRow: View {
     private var exerciseThumbnail: some View {
         if ExerciseGifView.hasGif(exerciseId: exercise.id) {
             ExerciseGifView(exerciseId: exercise.id, size: .thumbnail)
-                .frame(width: 40, height: 40)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .frame(width: 64, height: 64)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
         } else {
             ZStack {
-                RoundedRectangle(cornerRadius: 8)
+                RoundedRectangle(cornerRadius: 12)
                     .fill(Color.mmOnboardingBg)
-                    .frame(width: 40, height: 40)
+                    .frame(width: 64, height: 64)
                 Image(systemName: "dumbbell.fill")
-                    .font(.system(size: 16))
+                    .font(.system(size: 22))
                     .foregroundStyle(Color.mmOnboardingTextSub.opacity(0.4))
             }
         }
@@ -491,7 +675,7 @@ private struct RoutineExercisePickerSheet: View {
     @Environment(\.dismiss) private var dismiss
     @State private var searchText = ""
 
-    /// 対象グループの種目
+    /// 対象グループの種目（Day の location でフィルタ）
     private var targetExercises: [ExerciseDefinition] {
         let store = ExerciseStore.shared
         let groups = day.muscleGroups.compactMap { MuscleGroup(rawValue: $0) }
@@ -513,9 +697,8 @@ private struct RoutineExercisePickerSheet: View {
             }
         }
 
-        // 場所フィルタ
-        let location = AppState.shared.userProfile.trainingLocation
-        if location == "home" {
+        // Day の location でフィルタ
+        if day.location == "home" {
             let homeEquipment: Set<String> = ["自重", "ダンベル", "ケトルベル"]
             let filtered = result.filter { homeEquipment.contains($0.equipment) }
             if !filtered.isEmpty { result = filtered }
@@ -597,7 +780,7 @@ private struct RoutineExercisePickerSheet: View {
                                             .foregroundStyle(Color.mmOnboardingTextMain)
                                             .lineLimit(1)
 
-                                        Text(exercise.equipment)
+                                        Text(exercise.localizedEquipment)
                                             .font(.caption)
                                             .foregroundStyle(Color.mmOnboardingTextSub)
                                     }

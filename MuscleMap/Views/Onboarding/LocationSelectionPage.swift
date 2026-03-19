@@ -52,7 +52,7 @@ struct LocationSelectionPage: View {
     @State private var isProceeding = false
     @State private var galleryId = UUID()
 
-    /// 選択した場所で使える種目（最大20件）
+    /// 選択した場所で使える種目（最大12件、2行グリッド用）
     private var filteredExercises: [ExerciseDefinition] {
         let store = ExerciseStore.shared
         store.loadIfNeeded()
@@ -65,7 +65,23 @@ struct LocationSelectionPage: View {
         case .gym, .both, .none:
             exercises = store.exercises
         }
-        return Array(exercises.prefix(20))
+        return Array(exercises.prefix(12))
+    }
+
+    /// 2行グリッド用カラムデータ（上下ペア）
+    private var gridColumns: [(Int, (ExerciseDefinition, ExerciseDefinition?))] {
+        let items = filteredExercises
+        var columns: [(Int, (ExerciseDefinition, ExerciseDefinition?))] = []
+        let rowCount = 2
+        let colCount = (items.count + rowCount - 1) / rowCount
+        for col in 0..<colCount {
+            let topIndex = col
+            let bottomIndex = col + colCount
+            let top = items[topIndex]
+            let bottom = bottomIndex < items.count ? items[bottomIndex] : nil
+            columns.append((col, (top, bottom)))
+        }
+        return columns
     }
 
     /// フィルタ後の全種目数（バッジ表示用）
@@ -102,7 +118,7 @@ struct LocationSelectionPage: View {
             .opacity(appeared ? 1 : 0)
             .offset(y: appeared ? 0 : 20)
 
-            Spacer().frame(height: 16)
+            Spacer().frame(height: 12)
 
             // 種目数バッジ
             HStack(spacing: 8) {
@@ -124,23 +140,27 @@ struct LocationSelectionPage: View {
 
             Spacer().frame(height: 12)
 
-            // GIFギャラリー（横スクロール）
+            // GIFギャラリー（2行グリッド）
             ScrollView(.horizontal, showsIndicators: false) {
-                LazyHStack(spacing: 10) {
-                    ForEach(filteredExercises, id: \.id) { exercise in
-                        ExerciseGifCard(exercise: exercise)
+                LazyHStack(alignment: .top, spacing: 10) {
+                    ForEach(gridColumns, id: \.0) { columnIndex, pair in
+                        VStack(spacing: 10) {
+                            ExerciseGifCard(exercise: pair.0)
+                            if let second = pair.1 {
+                                ExerciseGifCard(exercise: second)
+                            }
+                        }
                     }
                 }
                 .padding(.horizontal, 24)
             }
-            .frame(height: 108)
             .id(galleryId)
             .opacity(appeared ? 1 : 0)
 
-            Spacer().frame(height: 20)
+            Spacer()
 
-            // 選択カード（左バー方式）
-            VStack(spacing: 10) {
+            // 選択カード（次へボタン直上、コンパクト）
+            VStack(spacing: 6) {
                 ForEach(Array(TrainingLocation.allCases.enumerated()), id: \.element) { index, location in
                     LocationCard(
                         location: location,
@@ -163,8 +183,7 @@ struct LocationSelectionPage: View {
                 }
             }
             .padding(.horizontal, 24)
-
-            Spacer()
+            .padding(.bottom, 12)
 
             // 次へボタン
             Button {
@@ -213,32 +232,33 @@ private struct ExerciseGifCard: View {
     let exercise: ExerciseDefinition
 
     var body: some View {
-        VStack(spacing: 4) {
+        VStack(spacing: 6) {
             if ExerciseGifView.hasGif(exerciseId: exercise.id) {
                 ExerciseGifView(exerciseId: exercise.id, size: .thumbnail)
-                    .frame(width: 64, height: 64)
+                    .frame(width: 80, height: 80)
                     .clipShape(RoundedRectangle(cornerRadius: 12))
             } else {
                 ZStack {
                     RoundedRectangle(cornerRadius: 12)
                         .fill(Color.mmOnboardingBg)
-                        .frame(width: 64, height: 64)
+                        .frame(width: 80, height: 80)
                     Image(systemName: "dumbbell.fill")
-                        .font(.system(size: 20))
+                        .font(.system(size: 24))
                         .foregroundStyle(Color.mmOnboardingTextSub.opacity(0.4))
                 }
             }
 
             Text(exercise.localizedName)
-                .font(.system(size: 10, weight: .medium))
+                .font(.system(size: 11, weight: .medium))
                 .foregroundStyle(Color.mmOnboardingTextMain)
-                .lineLimit(1)
+                .lineLimit(2)
+                .multilineTextAlignment(.center)
 
             Text(exercise.localizedEquipment)
                 .font(.system(size: 9))
                 .foregroundStyle(Color.mmOnboardingTextSub)
         }
-        .frame(width: 80)
+        .frame(width: 100)
     }
 }
 
@@ -256,25 +276,19 @@ private struct LocationCard: View {
                 RoundedRectangle(cornerRadius: 2)
                     .fill(isSelected ? Color.mmOnboardingAccent : Color.clear)
                     .frame(width: 3)
-                    .padding(.vertical, 12)
+                    .padding(.vertical, 8)
 
-                HStack(spacing: 12) {
+                HStack(spacing: 10) {
                     // SFシンボルアイコン
                     Image(systemName: location.sfSymbol)
-                        .font(.system(size: 20, weight: .medium))
+                        .font(.system(size: 18, weight: .medium))
                         .foregroundStyle(isSelected ? Color.mmOnboardingAccent : Color.mmOnboardingTextSub)
-                        .frame(width: 36, height: 36)
+                        .frame(width: 28, height: 28)
 
-                    // テキスト
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(location.title)
-                            .font(.system(size: 18, weight: .bold))
-                            .foregroundStyle(Color.mmOnboardingTextMain)
-
-                        Text(location.subtitle)
-                            .font(.system(size: 13))
-                            .foregroundStyle(Color.mmOnboardingTextSub)
-                    }
+                    // テキスト（1行）
+                    Text(location.title)
+                        .font(.system(size: 16, weight: .bold))
+                        .foregroundStyle(Color.mmOnboardingTextMain)
 
                     Spacer()
 
@@ -283,10 +297,10 @@ private struct LocationCard: View {
                         ZStack {
                             Circle()
                                 .fill(Color.mmOnboardingAccent)
-                                .frame(width: 24, height: 24)
+                                .frame(width: 22, height: 22)
 
                             Image(systemName: "checkmark")
-                                .font(.system(size: 12, weight: .bold))
+                                .font(.system(size: 11, weight: .bold))
                                 .foregroundStyle(Color.mmOnboardingBg)
                         }
                         .transition(.scale.combined(with: .opacity))
@@ -294,11 +308,11 @@ private struct LocationCard: View {
                 }
                 .padding(.horizontal, 12)
             }
-            .frame(height: 60)
+            .frame(height: 48)
             .background(isSelected ? Color.mmOnboardingAccent.opacity(0.08) : Color.mmOnboardingCard)
-            .clipShape(RoundedRectangle(cornerRadius: 16))
+            .clipShape(RoundedRectangle(cornerRadius: 12))
             .overlay(
-                RoundedRectangle(cornerRadius: 16)
+                RoundedRectangle(cornerRadius: 12)
                     .stroke(
                         isSelected ? Color.mmOnboardingAccent.opacity(0.3) : Color.clear,
                         lineWidth: 1
