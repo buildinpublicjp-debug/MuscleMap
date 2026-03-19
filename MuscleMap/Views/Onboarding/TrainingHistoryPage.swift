@@ -1,185 +1,332 @@
 import SwiftUI
 
-// MARK: - トレーニング経験選択画面（左バー方式・絵文字なし）
+// MARK: - プロフィール入力画面（トレ歴 + 体重 + ニックネーム統合）
 
-struct TrainingHistoryPage: View {
+/// TrainingHistoryPage + WeightInputPage を1ページに統合
+/// コンパクト横並び経験セレクター + 体重ステッパー + ニックネーム
+struct ProfileInputPage: View {
     let onNext: () -> Void
 
     @State private var selectedExperience: TrainingExperience?
-    @State private var cardAppearances: [Bool] = [false, false, false, false]
+    @State private var weightKg: Int = Int(AppState.shared.userProfile.weightKg)
+    @State private var nickname: String = AppState.shared.userProfile.nickname
+    @State private var selectedUnit: WeightUnit = AppState.shared.weightUnit
     @State private var isProceeding = false
+    @State private var appeared = false
 
-    /// 選択肢の定義（SF Symbols使用）
-    private let options: [(experience: TrainingExperience, icon: String, title: String, subtitle: String)] = [
-        (.beginner, "leaf.fill", L10n.trainingExpBeginner, L10n.trainingExpBeginnerSub),
-        (.halfYear, "dumbbell.fill", L10n.trainingExpHalfYear, L10n.trainingExpHalfYearSub),
-        (.oneYearPlus, "flame.fill", L10n.trainingExpOneYearPlus, L10n.trainingExpOneYearPlusSub),
-        (.veteran, "bolt.fill", L10n.trainingExpVeteran, L10n.trainingExpVeteranSub),
-    ]
+    private var isJapanese: Bool { LocalizationManager.shared.currentLanguage == .japanese }
+
+    /// 経験選択肢の定義
+    private struct ExpOption {
+        let experience: TrainingExperience
+        let icon: String
+        let shortName: String
+    }
+
+    private var expOptions: [ExpOption] {
+        [
+            ExpOption(experience: .beginner, icon: "leaf.fill",
+                      shortName: isJapanese ? "初心者" : "Newbie"),
+            ExpOption(experience: .halfYear, icon: "dumbbell.fill",
+                      shortName: isJapanese ? "半年" : "6 Mo"),
+            ExpOption(experience: .oneYearPlus, icon: "flame.fill",
+                      shortName: isJapanese ? "1年+" : "1 Yr+"),
+            ExpOption(experience: .veteran, icon: "bolt.fill",
+                      shortName: isJapanese ? "ベテラン" : "Veteran"),
+        ]
+    }
+
+    /// 体重の表示値（単位に応じて変換）
+    private var displayWeight: Int {
+        switch selectedUnit {
+        case .kg: return weightKg
+        case .lb: return Int(round(Double(weightKg) * 2.20462))
+        }
+    }
 
     var body: some View {
         VStack(spacing: 0) {
             Spacer().frame(height: 60)
 
-            // タイトルエリア
+            // タイトル
             VStack(spacing: 8) {
-                Text(L10n.trainingExpTitle)
+                Text(L10n.profileInputTitle)
                     .font(.system(size: 28, weight: .heavy))
                     .foregroundStyle(Color.mmOnboardingTextMain)
                     .multilineTextAlignment(.center)
 
-                Text(L10n.trainingExpSubtitle)
+                Text(L10n.profileInputSubtitle)
                     .font(.subheadline)
                     .foregroundStyle(Color.mmOnboardingTextSub)
                     .multilineTextAlignment(.center)
             }
             .padding(.horizontal, 24)
+            .opacity(appeared ? 1 : 0)
+            .offset(y: appeared ? 0 : 20)
 
-            Spacer().frame(height: 32)
+            Spacer().frame(height: 28)
 
-            // 経験カード（左バー方式）
-            VStack(spacing: 10) {
-                ForEach(Array(options.enumerated()), id: \.element.experience.id) { index, option in
-                    ExperienceCard(
-                        icon: option.icon,
-                        title: option.title,
-                        subtitle: option.subtitle,
-                        isSelected: selectedExperience == option.experience,
-                        onTap: {
-                            guard !isProceeding else { return }
-                            withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
-                                selectedExperience = option.experience
-                            }
-                            HapticManager.lightTap()
+            ScrollView(.vertical, showsIndicators: false) {
+                VStack(spacing: 20) {
+                    // セクション1: トレーニング経験（横並び4択）
+                    experienceSection
 
-                            // UserProfileに保存
-                            AppState.shared.userProfile.trainingExperience = option.experience
-                        }
-                    )
-                    .opacity(cardAppearances[index] ? 1 : 0)
-                    .offset(y: cardAppearances[index] ? 0 : 20)
+                    // セクション2: 体重ステッパー
+                    weightStepperSection
+
+                    // セクション3: ニックネーム
+                    nicknameSection
                 }
+                .padding(.horizontal, 24)
+                .padding(.bottom, 16)
             }
-            .padding(.horizontal, 24)
+            .opacity(appeared ? 1 : 0)
+            .offset(y: appeared ? 0 : 20)
 
             Spacer()
 
             // 次へボタン
-            Button {
-                guard !isProceeding, selectedExperience != nil else { return }
-                isProceeding = true
-                HapticManager.lightTap()
-                onNext()
-            } label: {
-                Text(L10n.next)
-                    .font(.system(size: 18, weight: .bold))
-                    .foregroundStyle(selectedExperience != nil ? Color.mmOnboardingBg : Color.mmOnboardingTextSub)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 56)
-                    .background(
-                        Group {
-                            if selectedExperience != nil {
-                                LinearGradient(
-                                    colors: [.mmOnboardingAccent, .mmOnboardingAccentDark],
-                                    startPoint: .leading,
-                                    endPoint: .trailing
-                                )
-                            } else {
-                                Color.mmOnboardingCard
-                            }
-                        }
-                    )
-                    .clipShape(RoundedRectangle(cornerRadius: 16))
-            }
-            .buttonStyle(.plain)
-            .disabled(selectedExperience == nil)
-            .padding(.horizontal, 24)
-            .padding(.bottom, 32)
-            .animation(.easeInOut(duration: 0.2), value: selectedExperience != nil)
+            nextButton
         }
         .onAppear {
-            // Staggered fade-in animation
-            for index in 0..<4 {
-                withAnimation(.easeOut(duration: 0.5).delay(Double(index) * 0.1 + 0.2)) {
-                    cardAppearances[index] = true
+            // 既存の値を読み込み
+            let profile = AppState.shared.userProfile
+            if profile.trainingExperience != .beginner || profile.weightKg != 70 {
+                selectedExperience = profile.trainingExperience
+            }
+            weightKg = max(30, Int(profile.weightKg))
+            nickname = profile.nickname
+
+            withAnimation(.easeOut(duration: 0.5).delay(0.2)) {
+                appeared = true
+            }
+        }
+    }
+
+    // MARK: - トレーニング経験セクション
+
+    private var experienceSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text(L10n.trainingExpTitle)
+                .font(.system(size: 15, weight: .bold))
+                .foregroundStyle(Color.mmOnboardingTextMain)
+
+            HStack(spacing: 8) {
+                ForEach(expOptions, id: \.experience) { option in
+                    expButton(option)
                 }
             }
         }
     }
-}
 
-// MARK: - 経験カード（左バー方式）
+    private func expButton(_ option: ExpOption) -> some View {
+        let isSelected = selectedExperience == option.experience
 
-private struct ExperienceCard: View {
-    let icon: String
-    let title: String
-    let subtitle: String
-    let isSelected: Bool
-    let onTap: () -> Void
-
-    var body: some View {
-        Button(action: onTap) {
-            HStack(spacing: 0) {
-                // 左アクセントバー
-                RoundedRectangle(cornerRadius: 2)
-                    .fill(isSelected ? Color.mmOnboardingAccent : Color.clear)
-                    .frame(width: 3)
-                    .padding(.vertical, 12)
-
-                HStack(spacing: 12) {
-                    // SFシンボルアイコン
-                    Image(systemName: icon)
-                        .font(.system(size: 20, weight: .medium))
-                        .foregroundStyle(isSelected ? Color.mmOnboardingAccent : Color.mmOnboardingTextSub)
-                        .frame(width: 36, height: 36)
-
-                    // テキスト
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(title)
-                            .font(.system(size: 18, weight: .bold))
-                            .foregroundStyle(Color.mmOnboardingTextMain)
-
-                        Text(subtitle)
-                            .font(.system(size: 13))
-                            .foregroundStyle(Color.mmOnboardingTextSub)
-                    }
-
-                    Spacer()
-
-                    // チェックマーク
-                    if isSelected {
-                        ZStack {
-                            Circle()
-                                .fill(Color.mmOnboardingAccent)
-                                .frame(width: 24, height: 24)
-
-                            Image(systemName: "checkmark")
-                                .font(.system(size: 12, weight: .bold))
-                                .foregroundStyle(Color.mmOnboardingBg)
-                        }
-                        .transition(.scale.combined(with: .opacity))
-                    }
-                }
-                .padding(.horizontal, 12)
+        return Button {
+            guard !isProceeding else { return }
+            withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
+                selectedExperience = option.experience
             }
-            .frame(height: 60)
-            .background(isSelected ? Color.mmOnboardingAccent.opacity(0.08) : Color.mmOnboardingCard)
-            .clipShape(RoundedRectangle(cornerRadius: 16))
+            HapticManager.lightTap()
+            AppState.shared.userProfile.trainingExperience = option.experience
+        } label: {
+            VStack(spacing: 6) {
+                Image(systemName: option.icon)
+                    .font(.system(size: 18, weight: .medium))
+                    .foregroundStyle(isSelected ? Color.mmOnboardingAccent : Color.mmOnboardingTextSub)
+
+                Text(option.shortName)
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(isSelected ? Color.mmOnboardingAccent : Color.mmOnboardingTextSub)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
+            }
+            .frame(maxWidth: .infinity)
+            .frame(height: 64)
+            .background(isSelected ? Color.mmOnboardingAccent.opacity(0.1) : Color.mmOnboardingCard)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
             .overlay(
-                RoundedRectangle(cornerRadius: 16)
+                RoundedRectangle(cornerRadius: 12)
                     .stroke(
-                        isSelected ? Color.mmOnboardingAccent.opacity(0.3) : Color.clear,
-                        lineWidth: 1
+                        isSelected ? Color.mmOnboardingAccent : Color.clear,
+                        lineWidth: 1.5
                     )
             )
         }
         .buttonStyle(.plain)
+    }
+
+    // MARK: - 体重ステッパーセクション
+
+    private var weightStepperSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                Text(L10n.profileWeightLabel)
+                    .font(.system(size: 15, weight: .bold))
+                    .foregroundStyle(Color.mmOnboardingTextMain)
+
+                Spacer()
+
+                // kg/lb トグル
+                HStack(spacing: 0) {
+                    ForEach(WeightUnit.allCases, id: \.rawValue) { unit in
+                        Button {
+                            withAnimation(.easeInOut(duration: 0.2)) {
+                                selectedUnit = unit
+                                AppState.shared.weightUnit = unit
+                            }
+                            HapticManager.lightTap()
+                        } label: {
+                            Text(unit.displayName)
+                                .font(.system(size: 13, weight: .bold))
+                                .foregroundStyle(
+                                    selectedUnit == unit
+                                        ? Color.mmOnboardingBg
+                                        : Color.mmOnboardingTextSub
+                                )
+                                .frame(width: 40, height: 28)
+                                .background(
+                                    selectedUnit == unit
+                                        ? Color.mmOnboardingAccent
+                                        : Color.clear
+                                )
+                                .clipShape(RoundedRectangle(cornerRadius: 6))
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+                .padding(2)
+                .background(Color.mmOnboardingBg.opacity(0.6))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+            }
+
+            // ステッパー本体
+            HStack {
+                // マイナスボタン
+                Button {
+                    guard weightKg > 30 else { return }
+                    weightKg -= 1
+                    AppState.shared.userProfile.weightKg = Double(weightKg)
+                    HapticManager.lightTap()
+                } label: {
+                    Image(systemName: "minus")
+                        .font(.system(size: 18, weight: .bold))
+                        .foregroundStyle(Color.mmOnboardingAccent)
+                        .frame(width: 48, height: 48)
+                        .background(Color.mmOnboardingAccent.opacity(0.1))
+                        .clipShape(Circle())
+                }
+                .buttonStyle(.plain)
+
+                Spacer()
+
+                // 体重表示
+                HStack(alignment: .firstTextBaseline, spacing: 4) {
+                    Text("\(displayWeight)")
+                        .font(.system(size: 42, weight: .heavy))
+                        .foregroundStyle(Color.mmOnboardingTextMain)
+                        .contentTransition(.numericText())
+                        .animation(.snappy(duration: 0.2), value: weightKg)
+
+                    Text(selectedUnit.displayName)
+                        .font(.system(size: 18, weight: .bold))
+                        .foregroundStyle(Color.mmOnboardingTextSub)
+                }
+
+                Spacer()
+
+                // プラスボタン
+                Button {
+                    guard weightKg < 200 else { return }
+                    weightKg += 1
+                    AppState.shared.userProfile.weightKg = Double(weightKg)
+                    HapticManager.lightTap()
+                } label: {
+                    Image(systemName: "plus")
+                        .font(.system(size: 18, weight: .bold))
+                        .foregroundStyle(Color.mmOnboardingAccent)
+                        .frame(width: 48, height: 48)
+                        .background(Color.mmOnboardingAccent.opacity(0.1))
+                        .clipShape(Circle())
+                }
+                .buttonStyle(.plain)
+            }
+            .padding(.vertical, 8)
+            .padding(.horizontal, 16)
+            .background(Color.mmOnboardingCard)
+            .clipShape(RoundedRectangle(cornerRadius: 16))
+        }
+    }
+
+    // MARK: - ニックネームセクション
+
+    private var nicknameSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 6) {
+                Text(L10n.profileNicknameLabel)
+                    .font(.system(size: 15, weight: .bold))
+                    .foregroundStyle(Color.mmOnboardingTextMain)
+
+                Text(L10n.profileOptional)
+                    .font(.system(size: 12))
+                    .foregroundStyle(Color.mmOnboardingTextSub)
+            }
+
+            TextField(L10n.nicknamePlaceholder, text: $nickname)
+                .font(.system(size: 18))
+                .foregroundStyle(Color.mmOnboardingTextMain)
+                .padding(16)
+                .background(Color.mmOnboardingCard)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .onChange(of: nickname) { _, newValue in
+                    AppState.shared.userProfile.nickname = newValue
+                }
+        }
+    }
+
+    // MARK: - 次へボタン
+
+    private var nextButton: some View {
+        Button {
+            guard !isProceeding, selectedExperience != nil else { return }
+            isProceeding = true
+            AppState.shared.userProfile.weightKg = Double(weightKg)
+            AppState.shared.userProfile.nickname = nickname
+            HapticManager.lightTap()
+            onNext()
+        } label: {
+            Text(L10n.next)
+                .font(.system(size: 18, weight: .bold))
+                .foregroundStyle(selectedExperience != nil ? Color.mmOnboardingBg : Color.mmOnboardingTextSub)
+                .frame(maxWidth: .infinity)
+                .frame(height: 56)
+                .background(
+                    Group {
+                        if selectedExperience != nil {
+                            LinearGradient(
+                                colors: [.mmOnboardingAccent, .mmOnboardingAccentDark],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            )
+                        } else {
+                            Color.mmOnboardingCard
+                        }
+                    }
+                )
+                .clipShape(RoundedRectangle(cornerRadius: 16))
+        }
+        .buttonStyle(.plain)
+        .disabled(selectedExperience == nil)
+        .padding(.horizontal, 24)
+        .padding(.bottom, 32)
+        .animation(.easeInOut(duration: 0.2), value: selectedExperience != nil)
+        .opacity(appeared ? 1 : 0)
     }
 }
 
 #Preview {
     ZStack {
         Color.mmOnboardingBg.ignoresSafeArea()
-        TrainingHistoryPage(onNext: {})
+        ProfileInputPage(onNext: {})
     }
 }

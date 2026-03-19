@@ -604,7 +604,14 @@ enum L10n {
     static var ctaStrengthMapHint: String { loc("Strength Mapで筋力を可視化", "Visualize strength with Strength Map") }
     static var ctaProHint: String { loc("Pro版でさらに詳しく分析", "Unlock deeper analysis with Pro") }
 
-    // MARK: - トレーニング経験画面（TrainingHistoryPage）
+    // MARK: - プロフィール入力画面（ProfileInputPage: トレ歴+体重+ニックネーム統合）
+    static var profileInputTitle: String { loc("あなたについて教えて", "Tell Us About You") }
+    static var profileInputSubtitle: String { loc("最適なメニューを提案します", "We'll build the perfect plan for you") }
+    static var profileWeightLabel: String { loc("体重", "Weight") }
+    static var profileNicknameLabel: String { loc("ニックネーム", "Nickname") }
+    static var profileOptional: String { loc("（任意）", "(optional)") }
+
+    // MARK: - トレーニング経験（ProfileInputPage内セクション）
     static var trainingExpTitle: String { loc("トレーニングの経験は？", "Training Experience?") }
     static var trainingExpSubtitle: String { loc("あなたに合った提案をします", "We'll tailor suggestions for you") }
     static var trainingExpBeginner: String { loc("これから始める", "Just Starting") }
