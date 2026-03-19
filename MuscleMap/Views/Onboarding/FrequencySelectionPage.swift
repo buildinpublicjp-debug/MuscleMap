@@ -40,29 +40,26 @@ enum WeeklyFrequency: Int, CaseIterable, Codable {
         }
     }
 
-    /// スケジュールプレビュー用の曜日割り当て
-    var schedulePreview: [(day: String, content: String)] {
+    /// スケジュールプレビュー用の曜日割り当て（日英対応）
+    var schedulePreview: [String] {
+        let isJapanese = LocalizationManager.shared.currentLanguage == .japanese
         switch self {
         case .twice:
-            return [
-                ("月", "上半身"), ("火", "OFF"), ("水", "下半身"),
-                ("木", "OFF"), ("金", "OFF"), ("土", "OFF"), ("日", "OFF"),
-            ]
+            return isJapanese
+                ? ["上半身", "OFF", "下半身", "OFF", "OFF", "OFF", "OFF"]
+                : ["Upper", "OFF", "Lower", "OFF", "OFF", "OFF", "OFF"]
         case .thrice:
-            return [
-                ("月", "プッシュ"), ("火", "OFF"), ("水", "プル"),
-                ("木", "OFF"), ("金", "脚"), ("土", "OFF"), ("日", "OFF"),
-            ]
+            return isJapanese
+                ? ["プッシュ", "OFF", "プル", "OFF", "脚", "OFF", "OFF"]
+                : ["Push", "OFF", "Pull", "OFF", "Legs", "OFF", "OFF"]
         case .four:
-            return [
-                ("月", "胸"), ("火", "背中"), ("水", "OFF"),
-                ("木", "肩・腕"), ("金", "脚"), ("土", "OFF"), ("日", "OFF"),
-            ]
+            return isJapanese
+                ? ["胸", "背中", "OFF", "肩・腕", "脚", "OFF", "OFF"]
+                : ["Chest", "Back", "OFF", "Arms", "Legs", "OFF", "OFF"]
         case .fivePlus:
-            return [
-                ("月", "胸"), ("火", "背中"), ("水", "肩"),
-                ("木", "腕"), ("金", "脚"), ("土", "OFF"), ("日", "OFF"),
-            ]
+            return isJapanese
+                ? ["胸", "背中", "肩", "腕", "脚", "OFF", "OFF"]
+                : ["Chest", "Back", "Shldrs", "Arms", "Legs", "OFF", "OFF"]
         }
     }
 
@@ -127,12 +124,19 @@ struct FrequencySelectionPage: View {
             .opacity(appeared ? 1 : 0)
             .animation(.easeOut(duration: 0.5).delay(0.2), value: appeared)
 
-            // タイムラインバー
-            timelineBar
-                .padding(.horizontal, 24)
-                .padding(.top, 8)
-                .opacity(selected != nil ? 1 : 0.3)
-                .animation(.easeOut(duration: 0.3), value: selected)
+            // ヒントテキスト or タイムラインバー
+            if selected == nil {
+                Text(isJapanese ? "頻度を選ぶとサイクルが動きます" : "Select to see the recovery cycle")
+                    .font(.caption)
+                    .foregroundStyle(Color.mmOnboardingTextSub)
+                    .padding(.top, 8)
+                    .opacity(appeared ? 1 : 0)
+            } else {
+                timelineBar
+                    .padding(.horizontal, 24)
+                    .padding(.top, 8)
+                    .transition(.opacity)
+            }
 
             Spacer().frame(height: 16)
 
@@ -228,17 +232,39 @@ struct FrequencySelectionPage: View {
         let dayLabels = isJapanese
             ? ["月", "火", "水", "木", "金", "土", "日"]
             : ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+        let schedule = selected?.schedulePreview ?? []
 
-        return HStack(spacing: 2) {
+        return HStack(spacing: 3) {
             ForEach(0..<7, id: \.self) { day in
-                VStack(spacing: 2) {
-                    Text(dayLabels[day])
-                        .font(.system(size: 10, weight: .medium))
-                        .foregroundStyle(day == animationDay ? Color.mmOnboardingAccent : Color.mmOnboardingTextSub)
+                let content = day < schedule.count ? schedule[day] : "OFF"
+                let isTrainingDay = content != "OFF"
+                let isCurrentAnimDay = day == animationDay && selected != nil
 
+                VStack(spacing: 3) {
+                    // 曜日
+                    Text(dayLabels[day])
+                        .font(.system(size: 9, weight: .medium))
+                        .foregroundStyle(isCurrentAnimDay ? Color.mmOnboardingAccent : Color.mmOnboardingTextSub)
+
+                    // トレーニング内容（「胸」「背中」等）or 「−」
+                    if isTrainingDay {
+                        Text(content)
+                            .font(.system(size: 8, weight: .bold))
+                            .foregroundStyle(isCurrentAnimDay ? Color.mmOnboardingAccent : Color.mmOnboardingTextMain)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.7)
+                    } else {
+                        Text("−")
+                            .font(.system(size: 8))
+                            .foregroundStyle(Color.mmOnboardingTextSub.opacity(0.3))
+                    }
+
+                    // バー（トレーニング日は太く、OFFは細く）
                     RoundedRectangle(cornerRadius: 2)
-                        .fill(day == animationDay ? Color.mmOnboardingAccent : Color.mmOnboardingCard)
-                        .frame(height: 4)
+                        .fill(isCurrentAnimDay ? Color.mmOnboardingAccent
+                              : isTrainingDay ? Color.mmOnboardingCard
+                              : Color.mmOnboardingCard.opacity(0.3))
+                        .frame(height: isTrainingDay ? 6 : 3)
                 }
                 .frame(maxWidth: .infinity)
             }
@@ -289,26 +315,29 @@ struct FrequencySelectionPage: View {
     }
 
     private func updateMuscleStatesForDay(_ day: Int, parts: [SplitPart], trainingDays: [Int: Int]) {
+        // まず全筋肉をinactiveに（刺激なし = 暗いまま）
         var states: [Muscle: MuscleVisualState] = [:]
+        for muscle in Muscle.allCases {
+            states[muscle] = .inactive
+        }
 
+        // 刺激があった筋肉だけ色を設定
         for muscle in Muscle.allCases {
             let daysSince = calculateDaysSinceStimulation(
                 muscle: muscle, currentDay: day, trainingDays: trainingDays, parts: parts
             )
 
             if daysSince == 0 {
-                // 今日刺激 → 赤（疲労）
-                states[muscle] = .recovering(progress: 0.1)
-            } else if daysSince < 0 {
-                // まだ刺激されてない → グレー
-                states[muscle] = .inactive
-            } else {
-                // 回復中 → 日数に応じて赤→黄→緑
+                // 今日刺激 → 赤（疲労開始）
+                states[muscle] = .recovering(progress: 0.05)
+            } else if daysSince > 0 {
+                // 回復中 → 経過時間に応じて赤→黄→緑
                 let recoveryHours = Double(muscle.baseRecoveryHours)
                 let elapsedHours = Double(daysSince) * 24.0
                 let progress = min(1.0, elapsedHours / recoveryHours)
                 states[muscle] = .recovering(progress: progress)
             }
+            // daysSince < 0 → .inactive のまま（暗い色）
         }
 
         withAnimation(.easeInOut(duration: 0.4)) {
