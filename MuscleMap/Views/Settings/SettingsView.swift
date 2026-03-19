@@ -499,6 +499,12 @@ struct ProfileEditSheet: View {
     @Environment(\.dismiss) private var dismiss
     @State private var nickname: String = ""
     @State private var weightText: String = ""
+    @State private var selectedExperience: TrainingExperience = .beginner
+    @State private var showingSavedToast = false
+
+    private var isJapanese: Bool {
+        LocalizationManager.shared.currentLanguage == .japanese
+    }
 
     var body: some View {
         NavigationStack {
@@ -539,8 +545,50 @@ struct ProfileEditSheet: View {
                         Text(L10n.profileWeightFooter)
                             .foregroundStyle(Color.mmTextSecondary)
                     }
+
+                    // トレーニング経験セクション
+                    Section {
+                        Picker(isJapanese ? "トレーニング経験" : "Training Experience",
+                               selection: $selectedExperience) {
+                            Text(isJapanese ? "これから始める" : "Beginner")
+                                .tag(TrainingExperience.beginner)
+                            Text(isJapanese ? "半年くらい" : "About 6 months")
+                                .tag(TrainingExperience.halfYear)
+                            Text(isJapanese ? "1年以上" : "1+ years")
+                                .tag(TrainingExperience.oneYearPlus)
+                            Text(isJapanese ? "3年以上のベテラン" : "3+ years veteran")
+                                .tag(TrainingExperience.veteran)
+                        }
+                        .foregroundStyle(Color.mmTextPrimary)
+                        .tint(Color.mmAccentPrimary)
+                        .listRowBackground(Color.mmBgCard)
+                    } header: {
+                        Text(isJapanese ? "経験レベル" : "Experience Level")
+                            .foregroundStyle(Color.mmTextSecondary)
+                    } footer: {
+                        Text(isJapanese
+                             ? "メニュー提案のセット数・レップ数に影響します"
+                             : "Affects suggested sets & reps in menu recommendations")
+                            .foregroundStyle(Color.mmTextSecondary)
+                    }
                 }
                 .scrollContentBackground(.hidden)
+
+                // 保存トースト
+                if showingSavedToast {
+                    VStack {
+                        Spacer()
+                        Text(isJapanese ? "変更しました" : "Changes saved")
+                            .font(.subheadline.bold())
+                            .foregroundStyle(Color.mmBgPrimary)
+                            .padding(.horizontal, 20)
+                            .padding(.vertical, 10)
+                            .background(Color.mmAccentPrimary)
+                            .clipShape(Capsule())
+                            .padding(.bottom, 48)
+                            .transition(.move(edge: .bottom).combined(with: .opacity))
+                    }
+                }
             }
             .navigationTitle(L10n.profileEdit)
             .navigationBarTitleDisplayMode(.inline)
@@ -559,9 +607,19 @@ struct ProfileEditSheet: View {
                         if let weight = Double(weightText), weight > 0 {
                             profile.weightKg = weight
                         }
+                        profile.trainingExperience = selectedExperience
                         AppState.shared.userProfile = profile
                         HapticManager.lightTap()
-                        dismiss()
+
+                        withAnimation(.easeInOut(duration: 0.3)) {
+                            showingSavedToast = true
+                        }
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                showingSavedToast = false
+                            }
+                            dismiss()
+                        }
                     }
                     .foregroundStyle(Color.mmAccentPrimary)
                     .fontWeight(.bold)
@@ -570,6 +628,7 @@ struct ProfileEditSheet: View {
             .onAppear {
                 nickname = AppState.shared.userProfile.nickname
                 weightText = String(format: "%.1f", AppState.shared.userProfile.weightKg)
+                selectedExperience = AppState.shared.userProfile.trainingExperience
             }
         }
     }
