@@ -107,7 +107,7 @@ struct SettingsView: View {
                 HStack(spacing: 12) {
                     Image(systemName: "person.circle")
                         .foregroundStyle(Color.mmAccentPrimary)
-                    Text("プロフィール編集")
+                    Text(L10n.profileEdit)
                         .font(.subheadline)
                         .foregroundStyle(Color.mmTextPrimary)
                     Spacer()
@@ -151,10 +151,10 @@ struct SettingsView: View {
                         Image(systemName: "bolt.shield.fill")
                             .foregroundStyle(Color.mmAccentPrimary)
                         VStack(alignment: .leading, spacing: 2) {
-                            Text("MuscleMap Pro — アップグレード")
+                            Text(L10n.proUpgradeCellTitle)
                                 .font(.subheadline.bold())
                                 .foregroundStyle(Color.mmAccentPrimary)
-                            Text("90日後、あなたの変化が証明される")
+                            Text(L10n.proUpgradeCellSubtitle)
                                 .font(.caption)
                                 .foregroundStyle(Color.mmTextSecondary)
                         }
@@ -167,7 +167,7 @@ struct SettingsView: View {
                 .listRowBackground(Color.mmBgCard)
             }
         } header: {
-            Text("アカウント")
+            Text(L10n.account)
                 .foregroundStyle(Color.mmTextSecondary)
         }
     }
@@ -184,7 +184,7 @@ struct SettingsView: View {
                     HStack(spacing: 12) {
                         Image(systemName: "list.bullet.clipboard")
                             .foregroundStyle(Color.mmAccentPrimary)
-                        Text("マイルーティン")
+                        Text(L10n.myRoutine)
                             .font(.subheadline)
                             .foregroundStyle(Color.mmTextPrimary)
                     }
@@ -364,7 +364,7 @@ struct SettingsView: View {
                 HStack(spacing: 12) {
                     Image(systemName: "person.2.fill")
                         .foregroundStyle(Color.mmAccentSecondary)
-                    Text("ソーシャルフィード")
+                    Text(L10n.socialFeed)
                         .font(.subheadline)
                         .foregroundStyle(Color.mmTextPrimary)
                     Spacer()
@@ -419,10 +419,10 @@ struct SettingsView: View {
                         .foregroundStyle(Color.mmAccentPrimary)
 
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("Pro版にアップグレード")
+                        Text(L10n.proUpgradeTitle)
                             .font(.headline.bold())
                             .foregroundStyle(Color.mmTextPrimary)
-                        Text("筋力マップ・種目別推移グラフを解放")
+                        Text(L10n.proUpgradeSubtitle)
                             .font(.caption)
                             .foregroundStyle(Color.mmTextSecondary)
                     }
@@ -486,7 +486,7 @@ struct SettingsView: View {
             }
             .listRowBackground(Color.mmBgCard)
         } header: {
-            Text("開発者メニュー")
+            Text(L10n.developerMenu)
                 .foregroundStyle(Color.mmTextSecondary)
         }
     }
@@ -509,10 +509,10 @@ struct ProfileEditSheet: View {
                     Section {
                         // ニックネーム
                         HStack {
-                            Text("ニックネーム")
+                            Text(L10n.profileNickname)
                                 .foregroundStyle(Color.mmTextPrimary)
                             Spacer()
-                            TextField("名前", text: $nickname)
+                            TextField(L10n.profileNickname, text: $nickname)
                                 .multilineTextAlignment(.trailing)
                                 .foregroundStyle(Color.mmTextPrimary)
                         }
@@ -520,7 +520,7 @@ struct ProfileEditSheet: View {
 
                         // 体重
                         HStack {
-                            Text("体重")
+                            Text(L10n.profileWeight)
                                 .foregroundStyle(Color.mmTextPrimary)
                             Spacer()
                             TextField("70", text: $weightText)
@@ -533,25 +533,25 @@ struct ProfileEditSheet: View {
                         }
                         .listRowBackground(Color.mmBgCard)
                     } header: {
-                        Text("基本情報")
+                        Text(L10n.profileBasicInfo)
                             .foregroundStyle(Color.mmTextSecondary)
                     } footer: {
-                        Text("体重はStrength Mapのスコア計算に使用されます")
+                        Text(L10n.profileWeightFooter)
                             .foregroundStyle(Color.mmTextSecondary)
                     }
                 }
                 .scrollContentBackground(.hidden)
             }
-            .navigationTitle("プロフィール編集")
+            .navigationTitle(L10n.profileEdit)
             .navigationBarTitleDisplayMode(.inline)
             .toolbarColorScheme(.dark, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button("キャンセル") { dismiss() }
+                    Button(L10n.cancel) { dismiss() }
                         .foregroundStyle(Color.mmTextSecondary)
                 }
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("保存") {
+                    Button(L10n.save) {
                         var profile = AppState.shared.userProfile
                         if !nickname.isEmpty {
                             profile.nickname = nickname

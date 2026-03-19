@@ -438,6 +438,19 @@ enum L10n {
     }
     static var feedback: String { loc("フィードバック", "Feedback", zhHans: "反馈", ko: "피드백", es: "Comentarios", fr: "Commentaires", de: "Feedback") }
     static var appInfo: String { loc("アプリ情報", "About", zhHans: "关于", ko: "앱 정보", es: "Acerca de", fr: "À propos", de: "Über") }
+    static var account: String { loc("アカウント", "Account") }
+    static var profileEdit: String { loc("プロフィール編集", "Edit Profile") }
+    static var proUpgradeTitle: String { loc("Pro版にアップグレード", "Upgrade to Pro") }
+    static var proUpgradeSubtitle: String { loc("筋力マップ・種目別推移グラフを解放", "Unlock Strength Map & exercise trend charts") }
+    static var proUpgradeCellTitle: String { loc("MuscleMap Pro — アップグレード", "MuscleMap Pro — Upgrade") }
+    static var proUpgradeCellSubtitle: String { loc("筋力マップ・種目提案・無制限記録を解放", "Unlock Strength Map, suggestions & unlimited tracking") }
+    static var myRoutine: String { loc("マイルーティン", "My Routine") }
+    static var socialFeed: String { loc("ソーシャルフィード", "Social Feed") }
+    static var profileNickname: String { loc("ニックネーム", "Nickname") }
+    static var profileWeight: String { loc("体重", "Weight") }
+    static var profileBasicInfo: String { loc("基本情報", "Basic Info") }
+    static var profileWeightFooter: String { loc("体重はStrength Mapのスコア計算に使用されます", "Weight is used for Strength Map score calculations") }
+    static var developerMenu: String { loc("開発者メニュー", "Developer Menu") }
     static var version: String { loc("バージョン", "Version", zhHans: "版本", ko: "버전", es: "Versión", fr: "Version", de: "Version") }
     static var tagline: String {
         loc("MuscleMap — 筋肉の状態が見える。だから、迷わない。",
