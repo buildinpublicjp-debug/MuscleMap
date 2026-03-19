@@ -39,6 +39,9 @@ struct RoutineCompletionPage: View {
         return mapping
     }
 
+    private var localization: LocalizationManager { LocalizationManager.shared }
+    private var isJapanese: Bool { localization.currentLanguage == .japanese }
+
     /// 目標に合わせたキャッチコピー
     private var goalBasedHeadline: String {
         guard let raw = AppState.shared.primaryOnboardingGoal,
@@ -47,19 +50,19 @@ struct RoutineCompletionPage: View {
         }
         switch goal {
         case .getBig:
-            return "90日後、鏡の前で笑える。"
+            return isJapanese ? "90日後、鏡の前で笑える。" : "In 90 days, you'll smile in the mirror."
         case .martialArts:
-            return "パンチ力も、全部フィジカルが土台。"
+            return isJapanese ? "パンチ力も、全部フィジカルが土台。" : "Power starts with your physique."
         case .getAttractive:
-            return "変わる旅を始めよう。"
+            return isJapanese ? "変わる旅を始めよう。" : "Start your transformation."
         case .dontGetDisrespected:
-            return "存在感は、体が作る。"
+            return isJapanese ? "存在感は、体が作る。" : "Presence is built by your body."
         case .sports:
-            return "パフォーマンスの土台を作ろう。"
+            return isJapanese ? "パフォーマンスの土台を作ろう。" : "Build the foundation for performance."
         case .moveWell:
-            return "動ける体は、日々の積み重ね。"
+            return isJapanese ? "動ける体は、日々の積み重ね。" : "A body that moves well, built daily."
         case .health:
-            return "健康な体が、全ての基盤。"
+            return isJapanese ? "健康な体が、全ての基盤。" : "A healthy body is the foundation of everything."
         }
     }
 

@@ -48,7 +48,9 @@ struct HomeCoachMarkView: View {
     var body: some View {
         VStack(spacing: 4) {
             // テキストバッジ
-            Text("まずワークアウトを記録しよう 👆")
+            Text(LocalizationManager.shared.currentLanguage == .japanese
+                 ? "まずワークアウトを記録しよう 👆"
+                 : "Record your first workout 👆")
                 .font(.subheadline.bold())
                 .foregroundStyle(Color.mmBgPrimary)
                 .padding(.horizontal, 16)
@@ -78,6 +80,8 @@ struct HomeCoachMarkView: View {
 /// 無料ユーザーに今週の残りワークアウト回数を表示する
 /// Proユーザーには表示しない
 struct FreeWorkoutLimitBadge: View {
+    private var isJapanese: Bool { LocalizationManager.shared.currentLanguage == .japanese }
+
     var body: some View {
         if !PurchaseManager.shared.isPremium {
             let remaining = max(0, 1 - PurchaseManager.shared.weeklyWorkoutCount)
@@ -85,7 +89,9 @@ struct FreeWorkoutLimitBadge: View {
                 Image(systemName: remaining > 0 ? "checkmark.circle" : "lock.circle")
                     .font(.caption2)
                     .foregroundStyle(remaining > 0 ? Color.mmAccentPrimary : Color.mmWarning)
-                Text(remaining > 0 ? "今週あと\(remaining)回無料" : "今週の無料枠を使い切りました")
+                Text(remaining > 0
+                     ? (isJapanese ? "今週あと\(remaining)回無料" : "\(remaining) free this week")
+                     : (isJapanese ? "今週の無料枠を使い切りました" : "Free workouts used this week"))
                     .font(.caption2)
                     .foregroundStyle(Color.mmTextSecondary)
             }
@@ -403,7 +409,7 @@ struct TodayRecommendationInline: View {
                     HStack(spacing: 6) {
                         Image(systemName: "lock.fill")
                             .font(.caption)
-                        Text("Proでメニューを見る")
+                        Text(localization.currentLanguage == .japanese ? "Proでメニューを見る" : "View Menu with Pro")
                             .font(.subheadline.bold())
                     }
                     .foregroundStyle(Color.mmTextPrimary)
@@ -531,7 +537,7 @@ struct TodayRecommendationInline: View {
                     .font(.subheadline)
                     .foregroundStyle(Color.mmAccentPrimary)
 
-                Text("筋肉マップを赤くしてみよう")
+                Text(localization.currentLanguage == .japanese ? "筋肉マップを赤くしてみよう" : "Light up your muscle map")
                     .font(.subheadline.bold())
                     .foregroundStyle(Color.mmTextPrimary)
 
@@ -558,21 +564,29 @@ struct TodayRecommendationInline: View {
     private func goalLinkedCopy(muscleGroup: String) -> String? {
         guard let goalRaw = AppState.shared.primaryOnboardingGoal,
               let goal = OnboardingGoal(rawValue: goalRaw) else { return nil }
+        let isJP = localization.currentLanguage == .japanese
         switch goal {
         case .getBig:
-            return "\(goal.localizedName) → 今日は\(muscleGroup)でサイズアップ"
+            return isJP ? "\(goal.localizedName) → 今日は\(muscleGroup)でサイズアップ"
+                        : "\(goal.localizedName) → \(muscleGroup) for size today"
         case .dontGetDisrespected:
-            return "威圧感・存在感 → 今日は\(muscleGroup)で幅を作る"
+            return isJP ? "威圧感・存在感 → 今日は\(muscleGroup)で幅を作る"
+                        : "Presence → Build \(muscleGroup) width today"
         case .martialArts:
-            return "\(goal.localizedName) → 今日は\(muscleGroup)でパワー強化"
+            return isJP ? "\(goal.localizedName) → 今日は\(muscleGroup)でパワー強化"
+                        : "\(goal.localizedName) → \(muscleGroup) for power today"
         case .sports:
-            return "\(goal.localizedName) → 今日は\(muscleGroup)でパフォーマンスアップ"
+            return isJP ? "\(goal.localizedName) → 今日は\(muscleGroup)でパフォーマンスアップ"
+                        : "\(goal.localizedName) → \(muscleGroup) for performance today"
         case .getAttractive:
-            return "\(goal.localizedName) → 今日は\(muscleGroup)でシルエット強化"
+            return isJP ? "\(goal.localizedName) → 今日は\(muscleGroup)でシルエット強化"
+                        : "\(goal.localizedName) → Shape \(muscleGroup) today"
         case .moveWell:
-            return "\(goal.localizedName) → 今日は\(muscleGroup)で動ける体に"
+            return isJP ? "\(goal.localizedName) → 今日は\(muscleGroup)で動ける体に"
+                        : "\(goal.localizedName) → \(muscleGroup) for mobility today"
         case .health:
-            return "\(goal.localizedName) → 今日は\(muscleGroup)で基礎体力アップ"
+            return isJP ? "\(goal.localizedName) → 今日は\(muscleGroup)で基礎体力アップ"
+                        : "\(goal.localizedName) → \(muscleGroup) for fitness today"
         }
     }
 
@@ -641,7 +655,7 @@ struct StrengthMapPreviewBanner: View {
                             .background(Color.mmAccentPrimary)
                             .clipShape(Capsule())
                     }
-                    Text("筋力レベルを見る")
+                    Text(LocalizationManager.shared.currentLanguage == .japanese ? "筋力レベルを見る" : "View strength levels")
                         .font(.caption)
                         .foregroundStyle(Color.mmTextSecondary)
                 }

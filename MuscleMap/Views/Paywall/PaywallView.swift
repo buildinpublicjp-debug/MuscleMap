@@ -24,21 +24,32 @@ struct PaywallView: View {
     private var goalSubtitle: String? {
         guard let goalRaw = AppState.shared.primaryOnboardingGoal,
               let goal = OnboardingGoal(rawValue: goalRaw) else { return nil }
-        return "\(goal.localizedName)のためのメニュー"
+        let isJapanese = localization.currentLanguage == .japanese
+        return isJapanese
+            ? "\(goal.localizedName)のためのメニュー"
+            : "A menu designed for your goal"
     }
 
-    /// メニュープレビュー用の種目データ
+    private var isJapanese: Bool {
+        localization.currentLanguage == .japanese
+    }
+
+    /// メニュープレビュー用の種目データ（primaryMuscleGroup重複回避）
     private var previewExercises: [(name: String, detail: String)] {
-        // ExerciseStoreから重点筋肉に関連する種目を取得
         let priorityMuscles = AppState.shared.userProfile.goalPriorityMuscles
         var exercises: [ExerciseDefinition] = []
+        var addedPrimaryGroups: Set<String> = []
 
         for muscleId in priorityMuscles {
             if let muscle = Muscle(rawValue: muscleId) {
                 let targeting = ExerciseStore.shared.exercises(targeting: muscle)
-                for ex in targeting where !exercises.contains(where: { $0.id == ex.id }) {
-                    exercises.append(ex)
-                    if exercises.count >= 3 { break }
+                for ex in targeting {
+                    let primaryMuscle = ex.muscleMapping.max(by: { $0.value < $1.value })?.key ?? ""
+                    if !exercises.contains(where: { $0.id == ex.id }) && !addedPrimaryGroups.contains(primaryMuscle) {
+                        exercises.append(ex)
+                        addedPrimaryGroups.insert(primaryMuscle)
+                        if exercises.count >= 3 { break }
+                    }
                 }
             }
             if exercises.count >= 3 { break }
@@ -50,8 +61,7 @@ struct PaywallView: View {
         }
 
         return exercises.prefix(3).map { ex in
-            let name = localization.currentLanguage == .japanese ? ex.nameJA : ex.nameEN
-            // サンプルの重量・セット（プレビュー用）
+            let name = isJapanese ? ex.nameJA : ex.nameEN
             let sampleDetails = sampleDetail(for: ex)
             return (name: name, detail: sampleDetails)
         }
@@ -102,7 +112,7 @@ struct PaywallView: View {
                         ProgressView()
                             .scaleEffect(1.4)
                             .tint(Color.mmAccentPrimary)
-                        Text("処理中...")
+                        Text(isJapanese ? "処理中..." : "Processing...")
                             .font(.subheadline)
                             .foregroundStyle(Color.mmTextSecondary)
                     }
@@ -112,10 +122,10 @@ struct PaywallView: View {
                 }
             }
         }
-        .alert("購入エラー", isPresented: $showingError) {
+        .alert(isJapanese ? "購入エラー" : "Purchase Error", isPresented: $showingError) {
             Button("OK") {}
         } message: {
-            Text(errorMessage ?? "不明なエラーが発生しました。")
+            Text(errorMessage ?? (isJapanese ? "不明なエラーが発生しました。" : "An unknown error occurred."))
         }
         .interactiveDismissDisabled(isHardPaywall)
         .onAppear {
@@ -140,9 +150,21 @@ struct PaywallView: View {
 
     // MARK: - ヘッドライン
 
+    private var headlineText: String {
+        if isHardPaywall {
+            return isJapanese
+                ? "あなた専用のプログラムを解放"
+                : "Unlock Your Custom Program"
+        } else {
+            return isJapanese
+                ? "あなた専用のメニューを毎日届ける"
+                : "Your Personalized Menu, Every Day"
+        }
+    }
+
     private var headlineSection: some View {
         VStack(spacing: 8) {
-            Text(isHardPaywall ? "あなた専用のプログラムを解放" : "あなた専用のメニューを毎日届ける")
+            Text(headlineText)
                 .font(.system(size: 24, weight: .heavy))
                 .foregroundStyle(Color.mmTextPrimary)
                 .multilineTextAlignment(.center)
@@ -160,7 +182,7 @@ struct PaywallView: View {
 
     private var menuPreviewSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("今日のメニュー例")
+            Text(isJapanese ? "今日のメニュー例" : "Today's Menu Example")
                 .font(.caption.bold())
                 .foregroundStyle(Color.mmAccentPrimary)
 
@@ -193,9 +215,9 @@ struct PaywallView: View {
 
     private var featureListSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            featureCheckRow("種目・重量・セット数の自動提案")
-            featureCheckRow("強さレベル & Strength Map")
-            featureCheckRow("レベルアップまでの距離表示")
+            featureCheckRow(isJapanese ? "種目・重量・セット数の自動提案" : "Auto-suggested exercises, weight & sets")
+            featureCheckRow(isJapanese ? "強さレベル & Strength Map" : "Strength Level & Strength Map")
+            featureCheckRow(isJapanese ? "レベルアップまでの距離表示" : "Track your progress to next level")
         }
         .padding(.horizontal, 32)
     }
@@ -221,7 +243,7 @@ struct PaywallView: View {
                 purchase(productId: "yearly")
             } label: {
                 VStack(spacing: 6) {
-                    Text("7日間無料で始める")
+                    Text(isJapanese ? "7日間無料で始める" : "Start Free for 7 Days")
                         .font(.system(size: 18, weight: .bold))
                         .foregroundStyle(Color.mmBgPrimary)
 
@@ -281,7 +303,9 @@ struct PaywallView: View {
                     if restored {
                         dismiss()
                     } else {
-                        errorMessage = "復元できる購入履歴が見つかりませんでした。"
+                        errorMessage = isJapanese
+                            ? "復元できる購入履歴が見つかりませんでした。"
+                            : "No restorable purchases were found."
                         showingError = true
                     }
                 } catch {
@@ -290,7 +314,7 @@ struct PaywallView: View {
                 }
             }
         } label: {
-            Text("購入を復元")
+            Text(isJapanese ? "購入を復元" : "Restore Purchase")
                 .font(.caption)
                 .foregroundStyle(Color.mmTextSecondary)
         }
@@ -306,7 +330,7 @@ struct PaywallView: View {
                 HapticManager.lightTap()
                 dismiss()
             } label: {
-                Text("無料で続ける")
+                Text(isJapanese ? "無料で続ける" : "Continue for Free")
                     .font(.caption)
                     .foregroundStyle(Color.mmTextSecondary.opacity(0.6))
             }
@@ -320,12 +344,12 @@ struct PaywallView: View {
     private var legalLinks: some View {
         HStack(spacing: 16) {
             if let termsURL = URL(string: LegalURL.termsOfUse) {
-                Link("利用規約", destination: termsURL)
+                Link(isJapanese ? "利用規約" : "Terms of Use", destination: termsURL)
                     .font(.caption2)
                     .foregroundStyle(Color.mmTextSecondary.opacity(0.6))
             }
             if let privacyURL = URL(string: LegalURL.privacyPolicy) {
-                Link("プライバシーポリシー", destination: privacyURL)
+                Link(isJapanese ? "プライバシーポリシー" : "Privacy Policy", destination: privacyURL)
                     .font(.caption2)
                     .foregroundStyle(Color.mmTextSecondary.opacity(0.6))
             }
@@ -336,7 +360,9 @@ struct PaywallView: View {
     // MARK: - 法的表記
 
     private var legalText: some View {
-        Text("購入によりApple IDに請求されます。定期購読は期限切れの24時間以内に自動更新されます。iTunesアカウント設定から自動更新をオフにすることができます。")
+        Text(isJapanese
+            ? "購入によりApple IDに請求されます。定期購読は期限切れの24時間以内に自動更新されます。iTunesアカウント設定から自動更新をオフにすることができます。"
+            : "Payment will be charged to your Apple ID. Subscriptions automatically renew within 24 hours before expiration. You can turn off auto-renewal in your iTunes account settings.")
             .font(.caption2)
             .foregroundStyle(Color.mmTextSecondary.opacity(0.6))
             .multilineTextAlignment(.center)
@@ -364,12 +390,15 @@ struct PaywallView: View {
     /// 種目ごとのサンプル重量・レップ・セット（プレビュー用）
     private func sampleDetail(for exercise: ExerciseDefinition) -> String {
         let category = exercise.category.lowercased()
-        if category.contains("compound") || category.contains("barbell") {
+        let equipment = exercise.equipment.lowercased()
+        if equipment.contains("自重") || equipment.contains("bodyweight") {
+            return isJapanese ? "自重 × 12 × 3" : "BW × 12 × 3"
+        } else if category.contains("compound") || category.contains("barbell") {
             return "60kg × 8 × 3"
         } else if category.contains("dumbbell") {
-            return "12kg × 12 × 3"
+            return "14kg × 10 × 3"
         } else {
-            return "20kg × 15 × 3"
+            return "20kg × 12 × 3"
         }
     }
 }
