@@ -19,7 +19,11 @@ struct MuscleDetailView: View {
                 if let vm = viewModel {
                     ScrollView {
                         VStack(spacing: 8) {
-                            // 2Dマップハイライト
+                            // 1. 回復ゲージ（最上部）
+                            RecoveryGaugeCard(viewModel: vm)
+                                .padding(.horizontal)
+
+                            // 2. 2Dマップハイライト
                             Muscle3DView(
                                 muscle: muscle,
                                 visualState: vm.recoveryStatus.visualState
@@ -37,11 +41,7 @@ struct MuscleDetailView: View {
                             }
                             .padding(.horizontal)
 
-                            // 回復ステータスカード（コンパクト版）
-                            RecoveryStatusCard(viewModel: vm)
-                                .padding(.horizontal)
-
-                            // 関連種目
+                            // 3. 関連種目（GIF拡大）
                             if !vm.allRelatedExercises.isEmpty {
                                 RelatedExercisesSection(
                                     muscle: muscle,
@@ -49,7 +49,7 @@ struct MuscleDetailView: View {
                                 )
                             }
 
-                            // 直近の履歴
+                            // 4. 直近の履歴
                             if !vm.recentSets.isEmpty {
                                 RecentHistorySection(
                                     recentSets: vm.recentSets
@@ -79,91 +79,91 @@ struct MuscleDetailView: View {
     }
 }
 
-// MARK: - 回復ステータスカード
+// MARK: - 回復ゲージカード（最上部に配置）
 
-private struct RecoveryStatusCard: View {
+private struct RecoveryGaugeCard: View {
     let viewModel: MuscleDetailViewModel
     private var localization: LocalizationManager { LocalizationManager.shared }
 
     var body: some View {
-        VStack(spacing: 16) {
-            // ステータスヘッダー
-            HStack {
-                statusIcon
-                Text(statusText)
-                    .font(.headline)
-                    .foregroundStyle(Color.mmTextPrimary)
-                Spacer()
-            }
-
-            // プログレスバー
+        if viewModel.lastStimulationDate != nil {
+            // 刺激記録あり → 回復ゲージ表示
             VStack(spacing: 8) {
-                GeometryReader { geo in
-                    ZStack(alignment: .leading) {
-                        RoundedRectangle(cornerRadius: 6)
-                            .fill(Color.mmBgPrimary)
-                            .frame(height: 12)
-
-                        RoundedRectangle(cornerRadius: 6)
-                            .fill(progressColor)
-                            .frame(width: geo.size.width * viewModel.recoveryProgress, height: 12)
-                    }
-                }
-                .frame(height: 12)
-
                 HStack {
-                    Text("\(Int(viewModel.recoveryProgress * 100))%")
-                        .font(.caption.monospaced().bold())
-                        .foregroundStyle(progressColor)
+                    // 回復ステータスアイコン
+                    statusIcon
+                    Text(statusText)
+                        .font(.subheadline.bold())
+                        .foregroundStyle(Color.mmTextPrimary)
 
                     Spacer()
 
-                    if let remaining = viewModel.remainingHours {
-                        Text(formatRemainingTime(remaining))
-                            .font(.caption)
-                            .foregroundStyle(Color.mmTextSecondary)
-                    } else {
-                        Text(L10n.recoveryComplete)
-                            .font(.caption)
-                            .foregroundStyle(Color.mmMuscleBioGreen)
+                    Text(recoveryDetailText)
+                        .font(.caption)
+                        .foregroundStyle(Color.mmTextSecondary)
+                }
+
+                // プログレスバー
+                GeometryReader { geo in
+                    ZStack(alignment: .leading) {
+                        RoundedRectangle(cornerRadius: 4)
+                            .fill(Color.mmBgCard)
+                            .frame(height: 8)
+                        RoundedRectangle(cornerRadius: 4)
+                            .fill(progressColor)
+                            .frame(width: geo.size.width * viewModel.recoveryProgress, height: 8)
+                    }
+                }
+                .frame(height: 8)
+
+                // 詳細情報
+                HStack(spacing: 24) {
+                    if let date = viewModel.lastStimulationDate {
+                        DetailItem(
+                            label: L10n.lastStimulation,
+                            value: formatDate(date)
+                        )
+                    }
+
+                    if viewModel.lastTotalSets > 0 {
+                        DetailItem(
+                            label: L10n.setCount,
+                            value: L10n.setsLabel(viewModel.lastTotalSets)
+                        )
+                    }
+
+                    if let recoveryDate = viewModel.estimatedRecoveryDate {
+                        DetailItem(
+                            label: L10n.estimatedRecovery,
+                            value: formatDate(recoveryDate)
+                        )
                     }
                 }
             }
-
-            // 詳細情報
-            HStack(spacing: 24) {
-                if let date = viewModel.lastStimulationDate {
-                    DetailItem(
-                        label: L10n.lastStimulation,
-                        value: formatDate(date)
-                    )
-                }
-
-                if viewModel.lastTotalSets > 0 {
-                    DetailItem(
-                        label: L10n.setCount,
-                        value: L10n.setsLabel(viewModel.lastTotalSets)
-                    )
-                }
-
-                if let recoveryDate = viewModel.estimatedRecoveryDate {
-                    DetailItem(
-                        label: L10n.estimatedRecovery,
-                        value: formatDate(recoveryDate)
-                    )
-                }
+            .padding(16)
+            .background(Color.mmBgSecondary)
+            .clipShape(RoundedRectangle(cornerRadius: 16))
+        } else {
+            // 未刺激 → フォールバック表示
+            HStack(spacing: 8) {
+                Image(systemName: "info.circle")
+                    .foregroundStyle(Color.mmTextSecondary)
+                Text(L10n.noRecord)
+                    .font(.subheadline)
+                    .foregroundStyle(Color.mmTextSecondary)
+                Spacer()
             }
+            .padding(16)
+            .background(Color.mmBgSecondary)
+            .clipShape(RoundedRectangle(cornerRadius: 16))
         }
-        .padding()
-        .background(Color.mmBgCard)
-        .clipShape(RoundedRectangle(cornerRadius: 16))
     }
 
     private var statusIcon: some View {
         Group {
             switch viewModel.recoveryStatus {
             case .recovering:
-                Image(systemName: "arrow.triangle.2.circlepath")
+                Image(systemName: "clock.fill")
                     .foregroundStyle(progressColor)
             case .fullyRecovered:
                 Image(systemName: "checkmark.circle.fill")
@@ -176,7 +176,7 @@ private struct RecoveryStatusCard: View {
                     .foregroundStyle(Color.mmMuscleNeglected)
             }
         }
-        .font(.title3)
+        .font(.subheadline)
     }
 
     private var statusText: String {
@@ -192,6 +192,13 @@ private struct RecoveryStatusCard: View {
         case .neglectedSevere:
             return L10n.neglected14Days
         }
+    }
+
+    private var recoveryDetailText: String {
+        if let remaining = viewModel.remainingHours {
+            return formatRemainingTime(remaining)
+        }
+        return L10n.recoveryComplete
     }
 
     private var progressColor: Color {
@@ -351,7 +358,7 @@ private struct RelatedExercisesSection: View {
             .pickerStyle(.segmented)
             .padding(.horizontal)
 
-            // 種目カード（横レイアウト: GIF 50% + テキスト 50%）
+            // 種目カード（GIF 80x80 + テキスト横並び）
             if viewModel.filteredExercises.isEmpty {
                 Text(L10n.noExercisesForLocation)
                     .font(.caption)
@@ -375,59 +382,47 @@ private struct RelatedExercisesSection: View {
         }
     }
 
-    // MARK: - 種目カード（横レイアウト）
+    // MARK: - 種目カード（横レイアウト — GIF 80x80）
 
     @ViewBuilder
     private func exerciseCard(_ exercise: ExerciseDefinition) -> some View {
-        HStack(spacing: 0) {
-            // 左: GIF / 筋肉マップ（固定幅160pt ≈ 画面幅の50%弱）
+        HStack(spacing: 12) {
+            // 左: GIF 80x80 / 筋肉マップフォールバック
             Group {
                 if ExerciseGifView.hasGif(exerciseId: exercise.id) {
                     ExerciseGifView(exerciseId: exercise.id, size: .thumbnail)
-                        .frame(width: 160, height: 130)
+                        .frame(width: 80, height: 80)
                 } else {
                     MiniMuscleMapView(muscleMapping: exercise.muscleMapping)
-                        .padding(8)
-                        .frame(width: 160, height: 130)
+                        .padding(4)
+                        .frame(width: 80, height: 80)
                         .background(Color.mmBgPrimary.opacity(0.5))
                 }
             }
-            .clipShape(
-                UnevenRoundedRectangle(
-                    topLeadingRadius: 16,
-                    bottomLeadingRadius: 16,
-                    bottomTrailingRadius: 0,
-                    topTrailingRadius: 0
-                )
-            )
+            .clipShape(RoundedRectangle(cornerRadius: 12))
 
-            // 右: 種目情報
-            VStack(alignment: .leading, spacing: 6) {
+            // 中央: 種目情報
+            VStack(alignment: .leading, spacing: 4) {
                 Text(localization.currentLanguage == .japanese ? exercise.nameJA : exercise.nameEN)
-                    .font(.system(size: 15, weight: .bold))
+                    .font(.subheadline.bold())
                     .foregroundStyle(Color.mmTextPrimary)
                     .lineLimit(2)
                     .minimumScaleFactor(0.8)
 
-                // 器具バッジ
-                HStack(spacing: 4) {
-                    Image(systemName: "dumbbell")
-                    Text(exercise.localizedEquipment)
-                }
-                .font(.caption)
-                .foregroundStyle(Color.mmTextSecondary)
+                // 器具
+                Text(exercise.localizedEquipment)
+                    .font(.caption)
+                    .foregroundStyle(Color.mmTextSecondary)
 
-                Spacer(minLength: 4)
-
-                // 対象筋肉チップ
+                // 刺激度バッジ
                 if let primary = exercise.primaryMuscle {
                     Text(primary.localizedName)
-                        .font(.caption2)
+                        .font(.caption2.bold())
                         .padding(.horizontal, 6)
                         .padding(.vertical, 2)
-                        .background(Color.mmAccentPrimary.opacity(0.15))
+                        .background(Color.mmAccentPrimary.opacity(0.2))
                         .foregroundStyle(Color.mmAccentPrimary)
-                        .clipShape(Capsule())
+                        .clipShape(RoundedRectangle(cornerRadius: 4))
                 }
 
                 // 前回記録
@@ -437,15 +432,14 @@ private struct RelatedExercisesSection: View {
                         .foregroundStyle(Color.mmAccentPrimary)
                 }
             }
-            .padding(12)
-            .frame(maxWidth: .infinity, alignment: .leading)
+
+            Spacer()
 
             Image(systemName: "chevron.right")
                 .font(.caption)
                 .foregroundStyle(Color.mmTextSecondary)
-                .padding(.trailing, 12)
         }
-        .frame(height: 130)
+        .padding(12)
         .background(Color.mmBgCard)
         .clipShape(RoundedRectangle(cornerRadius: 16))
     }
