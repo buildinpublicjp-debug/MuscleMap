@@ -50,9 +50,10 @@ struct LocationSelectionPage: View {
     @State private var selected: TrainingLocation?
     @State private var appeared = false
     @State private var isProceeding = false
-    @State private var galleryId = UUID()
+    @State private var scrollOffset: CGFloat = 0
+    @State private var autoScrollTimer: Timer?
 
-    /// 選択した場所で使える種目（最大12件、2行グリッド用）
+    /// 選択した場所で使える種目（最大20件、2行グリッド用）
     private var filteredExercises: [ExerciseDefinition] {
         let store = ExerciseStore.shared
         store.loadIfNeeded()
@@ -65,7 +66,7 @@ struct LocationSelectionPage: View {
         case .gym, .both, .none:
             exercises = store.exercises
         }
-        return Array(exercises.prefix(12))
+        return Array(exercises.prefix(20))
     }
 
     /// 2行グリッド用カラムデータ（上下ペア）
@@ -140,10 +141,12 @@ struct LocationSelectionPage: View {
 
             Spacer().frame(height: 12)
 
-            // GIFギャラリー（2行グリッド）
-            ScrollView(.horizontal, showsIndicators: false) {
-                LazyHStack(alignment: .top, spacing: 10) {
-                    ForEach(gridColumns, id: \.0) { columnIndex, pair in
+            // GIFギャラリー（2行グリッド、マーキー自動スクロール）
+            GeometryReader { geo in
+                let columnWidth: CGFloat = 130 // カード幅120 + spacing10
+                let contentWidth = CGFloat(gridColumns.count) * columnWidth + 48 // padding分
+                HStack(alignment: .top, spacing: 10) {
+                    ForEach(gridColumns, id: \.0) { _, pair in
                         VStack(spacing: 10) {
                             ExerciseGifCard(exercise: pair.0)
                             if let second = pair.1 {
@@ -153,8 +156,16 @@ struct LocationSelectionPage: View {
                     }
                 }
                 .padding(.horizontal, 24)
+                .offset(x: scrollOffset)
+                .onChange(of: scrollOffset) {
+                    // ループ: コンテンツが画面外に出たらリセット
+                    let resetPoint = -(contentWidth - geo.size.width)
+                    if scrollOffset < resetPoint {
+                        scrollOffset = 0
+                    }
+                }
             }
-            .id(galleryId)
+            .clipped()
             .opacity(appeared ? 1 : 0)
 
             Spacer()
@@ -170,10 +181,8 @@ struct LocationSelectionPage: View {
                             withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
                                 selected = location
                             }
-                            // ギャラリーをフェードで切り替え
-                            withAnimation(.easeOut(duration: 0.3)) {
-                                galleryId = UUID()
-                            }
+                            // マーキーをリセット＆再開
+                            restartAutoScroll()
                             HapticManager.lightTap()
                         }
                     )
@@ -189,6 +198,7 @@ struct LocationSelectionPage: View {
             Button {
                 guard !isProceeding, let loc = selected else { return }
                 isProceeding = true
+                stopAutoScroll()
                 HapticManager.lightTap()
                 onNext(loc)
             } label: {
@@ -222,7 +232,32 @@ struct LocationSelectionPage: View {
             withAnimation(.easeOut(duration: 0.5)) {
                 appeared = true
             }
+            startAutoScroll()
         }
+        .onDisappear {
+            stopAutoScroll()
+        }
+    }
+
+    // MARK: - マーキー自動スクロール
+
+    private func startAutoScroll() {
+        stopAutoScroll()
+        autoScrollTimer = Timer.scheduledTimer(withTimeInterval: 0.03, repeats: true) { _ in
+            Task { @MainActor in
+                scrollOffset -= 0.5
+            }
+        }
+    }
+
+    private func stopAutoScroll() {
+        autoScrollTimer?.invalidate()
+        autoScrollTimer = nil
+    }
+
+    private func restartAutoScroll() {
+        scrollOffset = 0
+        startAutoScroll()
     }
 }
 
@@ -235,21 +270,21 @@ private struct ExerciseGifCard: View {
         VStack(spacing: 6) {
             if ExerciseGifView.hasGif(exerciseId: exercise.id) {
                 ExerciseGifView(exerciseId: exercise.id, size: .thumbnail)
-                    .frame(width: 80, height: 80)
+                    .frame(width: 100, height: 100)
                     .clipShape(RoundedRectangle(cornerRadius: 12))
             } else {
                 ZStack {
                     RoundedRectangle(cornerRadius: 12)
                         .fill(Color.mmOnboardingBg)
-                        .frame(width: 80, height: 80)
+                        .frame(width: 100, height: 100)
                     Image(systemName: "dumbbell.fill")
-                        .font(.system(size: 24))
+                        .font(.system(size: 28))
                         .foregroundStyle(Color.mmOnboardingTextSub.opacity(0.4))
                 }
             }
 
             Text(exercise.localizedName)
-                .font(.system(size: 11, weight: .medium))
+                .font(.system(size: 12, weight: .medium))
                 .foregroundStyle(Color.mmOnboardingTextMain)
                 .lineLimit(2)
                 .multilineTextAlignment(.center)
@@ -258,7 +293,7 @@ private struct ExerciseGifCard: View {
                 .font(.system(size: 9))
                 .foregroundStyle(Color.mmOnboardingTextSub)
         }
-        .frame(width: 100)
+        .frame(width: 120)
     }
 }
 
