@@ -7,6 +7,7 @@ struct PaywallView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var errorMessage: String?
     @State private var showingError = false
+    @State private var showFreeOption = false
 
     private var localization: LocalizationManager { LocalizationManager.shared }
 
@@ -68,6 +69,8 @@ struct PaywallView: View {
                     featureListSection
                     pricingSection
                     restoreButton
+                    freeOptionButton
+                    legalLinks
                     legalText
                 }
                 .padding(.vertical)
@@ -115,6 +118,15 @@ struct PaywallView: View {
             Text(errorMessage ?? "不明なエラーが発生しました。")
         }
         .interactiveDismissDisabled(isHardPaywall)
+        .onAppear {
+            if isHardPaywall {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+                    withAnimation(.easeIn(duration: 0.5)) {
+                        showFreeOption = true
+                    }
+                }
+            }
+        }
     }
 
     // MARK: - 筋肉マップセクション
@@ -283,6 +295,42 @@ struct PaywallView: View {
                 .foregroundStyle(Color.mmTextSecondary)
         }
         .disabled(PurchaseManager.shared.isLoading)
+    }
+
+    // MARK: - 無料で続けるボタン（ハードPaywall用、3秒遅延表示）
+
+    @ViewBuilder
+    private var freeOptionButton: some View {
+        if isHardPaywall && showFreeOption {
+            Button {
+                HapticManager.lightTap()
+                dismiss()
+            } label: {
+                Text("無料で続ける")
+                    .font(.caption)
+                    .foregroundStyle(Color.mmTextSecondary.opacity(0.6))
+            }
+            .transition(.opacity)
+            .padding(.top, 8)
+        }
+    }
+
+    // MARK: - 利用規約/プライバシーポリシーリンク
+
+    private var legalLinks: some View {
+        HStack(spacing: 16) {
+            if let termsURL = URL(string: LegalURL.termsOfUse) {
+                Link("利用規約", destination: termsURL)
+                    .font(.caption2)
+                    .foregroundStyle(Color.mmTextSecondary.opacity(0.6))
+            }
+            if let privacyURL = URL(string: LegalURL.privacyPolicy) {
+                Link("プライバシーポリシー", destination: privacyURL)
+                    .font(.caption2)
+                    .foregroundStyle(Color.mmTextSecondary.opacity(0.6))
+            }
+        }
+        .padding(.bottom, 4)
     }
 
     // MARK: - 法的表記
