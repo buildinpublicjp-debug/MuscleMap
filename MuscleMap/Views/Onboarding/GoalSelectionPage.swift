@@ -322,15 +322,15 @@ private struct MuscleExerciseSheet: View {
                         HStack(spacing: 12) {
                             if ExerciseGifView.hasGif(exerciseId: exercise.id) {
                                 ExerciseGifView(exerciseId: exercise.id, size: .thumbnail)
-                                    .frame(width: 64, height: 64)
-                                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                                    .frame(width: 100, height: 100)
+                                    .clipShape(RoundedRectangle(cornerRadius: 14))
                             } else {
-                                RoundedRectangle(cornerRadius: 12)
+                                RoundedRectangle(cornerRadius: 14)
                                     .fill(Color.mmOnboardingCard)
-                                    .frame(width: 64, height: 64)
+                                    .frame(width: 100, height: 100)
                                     .overlay(
                                         Image(systemName: "dumbbell")
-                                            .font(.system(size: 18))
+                                            .font(.system(size: 24))
                                             .foregroundStyle(Color.mmOnboardingTextSub.opacity(0.4))
                                     )
                             }

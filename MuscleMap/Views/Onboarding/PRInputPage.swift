@@ -46,6 +46,13 @@ struct PRInputPage: View {
         return states
     }
 
+    /// デフォルト表示するBIG3種目
+    private var defaultExercises: [ExerciseDefinition] {
+        let ids = ["barbell_bench_press", "barbell_squat", "barbell_deadlift"]
+        let store = ExerciseStore.shared
+        return ids.compactMap { store.exercise(for: $0) }
+    }
+
     /// 総合レベル
     private var overallLevel: StrengthLevel? {
         guard !recordedPRs.isEmpty else { return nil }
@@ -90,7 +97,7 @@ struct PRInputPage: View {
                     HapticManager.lightTap()
                 }
             )
-            .frame(height: 180)
+            .frame(height: 220)
             .padding(.horizontal, 24)
             .animation(.spring(response: 0.4, dampingFraction: 0.8), value: recordedPRs.count)
             .opacity(appeared ? 1 : 0)
@@ -111,6 +118,65 @@ struct PRInputPage: View {
             }
 
             Spacer().frame(height: 8)
+
+            // BIG3デフォルト種目セクション
+            VStack(spacing: 8) {
+                Text(isJapanese ? "まずはこの3つから" : "Start with these 3")
+                    .font(.caption.bold())
+                    .foregroundStyle(Color.mmOnboardingTextSub)
+
+                HStack(spacing: 12) {
+                    ForEach(defaultExercises, id: \.id) { exercise in
+                        Button {
+                            selectedExercise = exercise
+                            HapticManager.lightTap()
+                        } label: {
+                            VStack(spacing: 4) {
+                                if ExerciseGifView.hasGif(exerciseId: exercise.id) {
+                                    ExerciseGifView(exerciseId: exercise.id, size: .thumbnail)
+                                        .frame(width: 72, height: 72)
+                                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                                } else {
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .fill(Color.mmOnboardingBg)
+                                        .frame(width: 72, height: 72)
+                                        .overlay(
+                                            Image(systemName: "dumbbell.fill")
+                                                .font(.system(size: 20))
+                                                .foregroundStyle(Color.mmOnboardingTextSub.opacity(0.4))
+                                        )
+                                }
+
+                                Text(exercise.localizedName)
+                                    .font(.system(size: 11, weight: .medium))
+                                    .foregroundStyle(Color.mmOnboardingTextMain)
+                                    .lineLimit(2)
+                                    .multilineTextAlignment(.center)
+
+                                // 入力済みならkgバッジ
+                                if let weight = recordedPRs[exercise.id] {
+                                    Text("\(Int(weight))kg")
+                                        .font(.system(size: 10, weight: .bold))
+                                        .foregroundStyle(Color.mmOnboardingAccent)
+                                }
+                            }
+                            .frame(width: 90)
+                            .padding(.vertical, 8)
+                            .background(
+                                recordedPRs[exercise.id] != nil
+                                    ? Color.mmOnboardingAccent.opacity(0.08)
+                                    : Color.mmOnboardingCard
+                            )
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+            }
+            .padding(.horizontal, 24)
+            .opacity(appeared ? 1 : 0)
+
+            Spacer().frame(height: 6)
 
             // 入力済みPRチップ（横スクロール）
             if !recordedPRs.isEmpty {
@@ -142,18 +208,22 @@ struct PRInputPage: View {
                 .frame(height: 28)
                 .transition(.opacity)
                 .animation(.easeOut(duration: 0.3), value: recordedPRs.count)
-            } else {
-                // ヒントテキスト
-                HStack(spacing: 6) {
-                    Image(systemName: "hand.tap")
-                        .font(.caption)
-                    Text(isJapanese ? "筋肉をタップして種目を選んでください" : "Tap a muscle to select an exercise")
-                        .font(.caption)
-                }
-                .foregroundStyle(Color.mmOnboardingTextSub)
-                .padding(.top, 4)
-                .opacity(appeared ? 1 : 0)
             }
+
+            // ヒントテキスト
+            HStack(spacing: 6) {
+                Image(systemName: "hand.tap")
+                    .font(.caption)
+                Text(isJapanese
+                     ? "上の3つをタップして重量を入力。もっと追加したい場合は筋肉マップをタップ"
+                     : "Tap the 3 above to enter weights. Tap the muscle map for more")
+                    .font(.caption)
+            }
+            .foregroundStyle(Color.mmOnboardingTextSub)
+            .multilineTextAlignment(.center)
+            .padding(.horizontal, 24)
+            .padding(.top, 4)
+            .opacity(appeared ? 1 : 0)
 
             Spacer()
 
@@ -282,18 +352,18 @@ private struct MuscleExerciseSheet: View {
                             onSelectExercise(exercise)
                         } label: {
                             HStack(spacing: 12) {
-                                // GIF 56x56
+                                // GIF 100x100
                                 if ExerciseGifView.hasGif(exerciseId: exercise.id) {
                                     ExerciseGifView(exerciseId: exercise.id, size: .thumbnail)
-                                        .frame(width: 56, height: 56)
-                                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                                        .frame(width: 100, height: 100)
+                                        .clipShape(RoundedRectangle(cornerRadius: 14))
                                 } else {
-                                    RoundedRectangle(cornerRadius: 10)
+                                    RoundedRectangle(cornerRadius: 14)
                                         .fill(Color.mmOnboardingBg)
-                                        .frame(width: 56, height: 56)
+                                        .frame(width: 100, height: 100)
                                         .overlay(
                                             Image(systemName: "dumbbell")
-                                                .font(.title3)
+                                                .font(.title2)
                                                 .foregroundStyle(Color.mmOnboardingTextSub)
                                         )
                                 }
