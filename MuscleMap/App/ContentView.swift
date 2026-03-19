@@ -25,6 +25,7 @@ private struct MainTabView: View {
     @State private var appState = AppState.shared
     @State private var previousTab: Int = 0
     @State private var showingPaywall = false
+    @State private var showWorkoutLimitAlert = false
 
     var body: some View {
         TabView(selection: $appState.selectedTab) {
@@ -55,12 +56,20 @@ private struct MainTabView: View {
         .tint(Color.mmAccentPrimary)
         .onChange(of: appState.selectedTab) { oldValue, newValue in
             if newValue == 1 && !PurchaseManager.shared.canRecordWorkout {
-                // 週間制限に達した場合はペイウォールを表示
+                // 週間制限に達した場合はアラートで説明してからペイウォールへ
                 appState.selectedTab = oldValue
-                showingPaywall = true
+                showWorkoutLimitAlert = true
             } else {
                 previousTab = newValue
             }
+        }
+        .alert("今週の無料ワークアウト", isPresented: $showWorkoutLimitAlert) {
+            Button("Proにアップグレード") {
+                showingPaywall = true
+            }
+            Button("閉じる", role: .cancel) {}
+        } message: {
+            Text("無料プランでは週1回までワークアウトを記録できます。Proにアップグレードすると無制限に記録できます。")
         }
         .sheet(isPresented: $showingPaywall) {
             PaywallView(isHardPaywall: false)

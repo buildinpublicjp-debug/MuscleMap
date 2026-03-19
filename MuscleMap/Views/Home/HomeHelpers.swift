@@ -73,6 +73,30 @@ struct HomeCoachMarkView: View {
     }
 }
 
+// MARK: - 無料ユーザー向けワークアウト残回数バッジ
+
+/// 無料ユーザーに今週の残りワークアウト回数を表示する
+/// Proユーザーには表示しない
+struct FreeWorkoutLimitBadge: View {
+    var body: some View {
+        if !PurchaseManager.shared.isPremium {
+            let remaining = max(0, 1 - PurchaseManager.shared.weeklyWorkoutCount)
+            HStack(spacing: 4) {
+                Image(systemName: remaining > 0 ? "checkmark.circle" : "lock.circle")
+                    .font(.caption2)
+                    .foregroundStyle(remaining > 0 ? Color.mmAccentPrimary : Color.mmWarning)
+                Text(remaining > 0 ? "今週あと\(remaining)回無料" : "今週の無料枠を使い切りました")
+                    .font(.caption2)
+                    .foregroundStyle(Color.mmTextSecondary)
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 6)
+            .background(Color.mmBgCard)
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+        }
+    }
+}
+
 // MARK: - 今日のおすすめインライン（筋肉マップ直下）
 
 /// 筋肉マップの直下に常時表示するおすすめカード
