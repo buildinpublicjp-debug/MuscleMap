@@ -52,43 +52,55 @@ enum OnboardingGoal: String, CaseIterable, Identifiable {
     }
 }
 
-// MARK: - 目標選択画面（筋肉マップ + インタラクティブハイライト）
+// MARK: - 目標選択画面（複数選択 + 筋肉マップ + インタラクティブハイライト）
 
 struct GoalSelectionPage: View {
     let onNext: () -> Void
 
-    @State private var selectedGoal: OnboardingGoal?
+    @State private var selectedGoals: Set<OnboardingGoal> = []
     @State private var cardAppearances: [Bool] = Array(repeating: false, count: OnboardingGoal.allCases.count)
     @State private var isProceeding = false
     @State private var headerAppeared = false
     @State private var tappedMuscle: Muscle?
 
-    private var localization: LocalizationManager { LocalizationManager.shared }
-
-    /// 選択した目標の重点筋肉リスト
-    private var priorityMuscles: [Muscle] {
-        guard let goal = selectedGoal else { return [] }
-        return GoalMusclePriority.data(for: goal).muscles
+    private var isJapanese: Bool {
+        LocalizationManager.shared.currentLanguage == .japanese
     }
 
-    /// 筋肉マップの状態（選択目標に応じてハイライト）
+    /// 全選択目標の重点筋肉を合算
+    private var priorityMuscles: [Muscle] {
+        guard !selectedGoals.isEmpty else { return [] }
+        var muscles: [Muscle] = []
+        var seen: Set<Muscle> = []
+        for goal in selectedGoals {
+            for muscle in GoalMusclePriority.data(for: goal).muscles {
+                if seen.insert(muscle).inserted {
+                    muscles.append(muscle)
+                }
+            }
+        }
+        return muscles
+    }
+
+    /// 筋肉マップの状態（全選択目標の筋肉を合算ハイライト）
     private var muscleStates: [Muscle: MuscleVisualState] {
-        guard let goal = selectedGoal else {
-            // 未選択: 全筋肉 inactive
+        guard !selectedGoals.isEmpty else {
             var states: [Muscle: MuscleVisualState] = [:]
             for muscle in Muscle.allCases {
                 states[muscle] = .inactive
             }
             return states
         }
-        let priority = GoalMusclePriority.data(for: goal)
+        var prioritySet: Set<Muscle> = []
+        for goal in selectedGoals {
+            let priority = GoalMusclePriority.data(for: goal)
+            prioritySet.formUnion(priority.muscles)
+        }
         var states: [Muscle: MuscleVisualState] = [:]
         for muscle in Muscle.allCases {
-            if priority.muscles.contains(muscle) {
-                states[muscle] = .recovering(progress: 0.1)
-            } else {
-                states[muscle] = .inactive
-            }
+            states[muscle] = prioritySet.contains(muscle)
+                ? .recovering(progress: 0.1)
+                : .inactive
         }
         return states
     }
@@ -117,13 +129,13 @@ struct GoalSelectionPage: View {
             )
             .frame(height: 200)
             .padding(.horizontal, 24)
-            .animation(.spring(response: 0.4, dampingFraction: 0.8), value: selectedGoal)
+            .animation(.spring(response: 0.4, dampingFraction: 0.8), value: selectedGoals)
 
             // 重点筋肉チップ（横スクロール）
             if !priorityMuscles.isEmpty {
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 6) {
-                        Text(localization.currentLanguage == .japanese ? "重点部位" : "Key Targets")
+                        Text(isJapanese ? "重点部位" : "Key Targets")
                             .font(.caption2)
                             .foregroundStyle(Color.mmOnboardingTextSub)
 
@@ -132,7 +144,7 @@ struct GoalSelectionPage: View {
                                 Circle()
                                     .fill(Color.mmOnboardingAccent)
                                     .frame(width: 6, height: 6)
-                                Text(localization.currentLanguage == .japanese ? muscle.japaneseName : muscle.englishName)
+                                Text(muscle.localizedName)
                                     .font(.caption2.bold())
                                     .foregroundStyle(Color.mmOnboardingTextMain)
                             }
@@ -146,7 +158,7 @@ struct GoalSelectionPage: View {
                 }
                 .frame(height: 28)
                 .transition(.opacity)
-                .animation(.easeOut(duration: 0.3), value: selectedGoal)
+                .animation(.easeOut(duration: 0.3), value: selectedGoals)
             }
 
             Spacer().frame(height: 12)
@@ -156,14 +168,21 @@ struct GoalSelectionPage: View {
                 ForEach(Array(OnboardingGoal.allCases.enumerated()), id: \.element.id) { index, goal in
                     CompactGoalCard(
                         goal: goal,
-                        isSelected: selectedGoal == goal,
+                        isSelected: selectedGoals.contains(goal),
                         onTap: {
                             guard !isProceeding else { return }
                             withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
-                                selectedGoal = goal
+                                if selectedGoals.contains(goal) {
+                                    selectedGoals.remove(goal)
+                                } else {
+                                    selectedGoals.insert(goal)
+                                }
                             }
                             HapticManager.lightTap()
-                            AppState.shared.primaryOnboardingGoal = goal.rawValue
+                            // 最初の選択を primaryOnboardingGoal に保存（互換性）
+                            if let first = selectedGoals.first {
+                                AppState.shared.primaryOnboardingGoal = first.rawValue
+                            }
                         }
                     )
                     .opacity(cardAppearances.indices.contains(index) && cardAppearances[index] ? 1 : 0)
@@ -176,28 +195,39 @@ struct GoalSelectionPage: View {
 
             // 次へボタン
             Button {
-                guard !isProceeding, selectedGoal != nil else { return }
+                guard !isProceeding, !selectedGoals.isEmpty else { return }
                 isProceeding = true
                 HapticManager.lightTap()
+                // 全選択目標の筋肉を合算してgoPriorityMusclesに保存
+                var allMuscles: [String] = []
+                var seen: Set<String> = []
+                for goal in selectedGoals {
+                    for muscle in GoalMusclePriority.data(for: goal).muscles {
+                        if seen.insert(muscle.rawValue).inserted {
+                            allMuscles.append(muscle.rawValue)
+                        }
+                    }
+                }
+                AppState.shared.userProfile.goalPriorityMuscles = allMuscles
                 onNext()
             } label: {
                 Text(L10n.next)
                     .font(.system(size: 18, weight: .bold))
-                    .foregroundStyle(selectedGoal != nil ? Color.mmOnboardingBg : Color.mmOnboardingTextSub)
+                    .foregroundStyle(!selectedGoals.isEmpty ? Color.mmOnboardingBg : Color.mmOnboardingTextSub)
                     .frame(maxWidth: .infinity)
                     .frame(height: 56)
-                    .background(selectedGoal != nil ? Color.mmOnboardingAccent : Color.mmOnboardingCard)
+                    .background(!selectedGoals.isEmpty ? Color.mmOnboardingAccent : Color.mmOnboardingCard)
                     .clipShape(RoundedRectangle(cornerRadius: 16))
             }
             .buttonStyle(.plain)
-            .disabled(selectedGoal == nil)
+            .disabled(selectedGoals.isEmpty)
             .padding(.horizontal, 24)
             .padding(.bottom, 32)
-            .animation(.easeInOut(duration: 0.2), value: selectedGoal)
+            .animation(.easeInOut(duration: 0.2), value: selectedGoals)
         }
         .sheet(item: $tappedMuscle) { muscle in
-            MuscleExercisePopover(muscle: muscle)
-                .presentationDetents([.height(280)])
+            MuscleExerciseSheet(muscle: muscle)
+                .presentationDetents([.large])
                 .presentationDragIndicator(.visible)
         }
         .onAppear {
@@ -271,74 +301,62 @@ private struct CompactGoalCard: View {
     }
 }
 
-// MARK: - 筋肉タップ → 種目ポップオーバー
+// MARK: - 筋肉タップ → フルシート（全種目GIF付き）
 
-private struct MuscleExercisePopover: View {
+private struct MuscleExerciseSheet: View {
     let muscle: Muscle
-    private var localization: LocalizationManager { LocalizationManager.shared }
+
+    private var isJapanese: Bool {
+        LocalizationManager.shared.currentLanguage == .japanese
+    }
 
     private var exercises: [ExerciseDefinition] {
         ExerciseStore.shared.exercises(targeting: muscle)
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            // ヘッダー
-            HStack {
-                Text(localization.currentLanguage == .japanese ? muscle.japaneseName : muscle.englishName)
-                    .font(.headline.bold())
-                    .foregroundStyle(Color.mmOnboardingTextMain)
-                Spacer()
-                Text(localization.currentLanguage == .japanese
-                     ? "\(exercises.count)種目"
-                     : "\(exercises.count) exercises")
-                    .font(.caption)
-                    .foregroundStyle(Color.mmOnboardingTextSub)
-            }
+        NavigationStack {
+            ScrollView {
+                LazyVStack(spacing: 12) {
+                    ForEach(exercises) { exercise in
+                        HStack(spacing: 12) {
+                            if ExerciseGifView.hasGif(exerciseId: exercise.id) {
+                                ExerciseGifView(exerciseId: exercise.id, size: .thumbnail)
+                                    .frame(width: 64, height: 64)
+                                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                            } else {
+                                RoundedRectangle(cornerRadius: 12)
+                                    .fill(Color.mmOnboardingCard)
+                                    .frame(width: 64, height: 64)
+                                    .overlay(
+                                        Image(systemName: "dumbbell")
+                                            .font(.system(size: 18))
+                                            .foregroundStyle(Color.mmOnboardingTextSub.opacity(0.4))
+                                    )
+                            }
 
-            // 上位3種目（GIF付き）
-            ForEach(exercises.prefix(3)) { exercise in
-                HStack(spacing: 8) {
-                    if ExerciseGifView.hasGif(exerciseId: exercise.id) {
-                        ExerciseGifView(exerciseId: exercise.id, size: .thumbnail)
-                            .frame(width: 40, height: 40)
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
-                    } else {
-                        RoundedRectangle(cornerRadius: 8)
-                            .fill(Color.mmOnboardingCard)
-                            .frame(width: 40, height: 40)
-                            .overlay(
-                                Image(systemName: "dumbbell")
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(exercise.localizedName)
+                                    .font(.subheadline.bold())
+                                    .foregroundStyle(Color.mmOnboardingTextMain)
+                                Text(exercise.localizedEquipment)
                                     .font(.caption)
                                     .foregroundStyle(Color.mmOnboardingTextSub)
-                            )
-                    }
+                            }
 
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(exercise.localizedName)
-                            .font(.subheadline)
-                            .foregroundStyle(Color.mmOnboardingTextMain)
-                            .lineLimit(1)
-                        Text(exercise.localizedEquipment)
-                            .font(.caption2)
-                            .foregroundStyle(Color.mmOnboardingTextSub)
+                            Spacer()
+                        }
+                        .padding(.horizontal, 16)
                     }
-
-                    Spacer()
                 }
+                .padding(.vertical, 16)
             }
-
-            // 残りの種目数
-            if exercises.count > 3 {
-                Text(localization.currentLanguage == .japanese
-                     ? "他 \(exercises.count - 3)種目"
-                     : "+\(exercises.count - 3) more")
-                    .font(.caption)
-                    .foregroundStyle(Color.mmOnboardingTextSub)
-            }
+            .background(Color.mmOnboardingBg)
+            .navigationTitle(isJapanese
+                ? "\(muscle.japaneseName) — \(exercises.count)種目"
+                : "\(muscle.englishName) — \(exercises.count) exercises")
+            .navigationBarTitleDisplayMode(.inline)
         }
-        .padding(20)
-        .background(Color.mmOnboardingBg)
     }
 }
 
