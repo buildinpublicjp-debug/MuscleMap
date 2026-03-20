@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@500;900&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    width: 1284px;
+    height: 2778px;
+    background: linear-gradient(180deg, #121212 0%, #1A1A2E 100%);
+    font-family: 'Noto Sans JP', sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow: hidden;
+  }
+
+  .copy-area {
+    padding: 120px 80px 40px;
+    text-align: center;
+    width: 100%;
+  }
+
+  .main-copy {
+    font-size: 72px;
+    font-weight: 900;
+    color: #FFFFFF;
+    line-height: 1.3;
+    letter-spacing: 2px;
+  }
+
+  .sub-copy {
+    font-size: 32px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.6);
+    margin-top: 24px;
+    letter-spacing: 1px;
+  }
+
+  .accent { color: #00FFB3; }
+
+  .feature-chips {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    margin-top: 32px;
+  }
+
+  .chip {
+    padding: 10px 24px;
+    background: rgba(0, 255, 179, 0.08);
+    border: 1px solid rgba(0, 255, 179, 0.25);
+    border-radius: 30px;
+    color: #00FFB3;
+    font-size: 24px;
+    font-weight: 900;
+  }
+
+  .screen-area {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 60px 60px;
+    width: 100%;
+  }
+
+  .device-frame {
+    width: 580px;
+    border-radius: 52px;
+    overflow: hidden;
+    border: 4px solid rgba(255, 255, 255, 0.1);
+    box-shadow:
+      0 40px 100px rgba(0, 255, 179, 0.08),
+      0 0 0 1px rgba(255, 255, 255, 0.05);
+    background: #000;
+  }
+
+  .device-frame img {
+    width: 100%;
+    display: block;
+  }
+
+  .placeholder {
+    width: 100%;
+    aspect-ratio: 1284 / 2778;
+    background: linear-gradient(180deg, #1a1a1a 0%, #0d0d0d 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.2);
+    font-size: 28px;
+    font-weight: 500;
+  }
+</style>
+</head>
+<body>
+  <div class="copy-area">
+    <div class="main-copy">
+      あなた専用メニュー、<br><span class="accent">自動</span>で作る。
+    </div>
+    <div class="sub-copy">目標・頻度・場所からDay分割を構築</div>
+    <div class="feature-chips">
+      <span class="chip">目標</span>
+      <span class="chip">頻度</span>
+      <span class="chip">場所</span>
+    </div>
+  </div>
+  <div class="screen-area">
+    <div class="device-frame">
+      <img src="screens/shot4_screen.png"
+           alt="Routine Builder"
+           onerror="this.outerHTML='<div class=placeholder>shot4_screen.png</div>'">
+    </div>
+  </div>
+</body>
+</html>

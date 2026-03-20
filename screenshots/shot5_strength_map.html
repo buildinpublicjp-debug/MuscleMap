@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@500;900&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    width: 1284px;
+    height: 2778px;
+    background: linear-gradient(180deg, #121212 0%, #1A1A2E 100%);
+    font-family: 'Noto Sans JP', sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow: hidden;
+  }
+
+  .copy-area {
+    padding: 120px 80px 40px;
+    text-align: center;
+    width: 100%;
+  }
+
+  .main-copy {
+    font-size: 72px;
+    font-weight: 900;
+    color: #FFFFFF;
+    line-height: 1.3;
+    letter-spacing: 2px;
+  }
+
+  .sub-copy {
+    font-size: 32px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.6);
+    margin-top: 24px;
+    letter-spacing: 1px;
+  }
+
+  .accent { color: #00FFB3; }
+
+  .pro-badge {
+    display: inline-block;
+    margin-top: 28px;
+    padding: 8px 28px;
+    background: linear-gradient(135deg, #00FFB3 0%, #00D4FF 100%);
+    border-radius: 30px;
+    color: #121212;
+    font-size: 24px;
+    font-weight: 900;
+    letter-spacing: 2px;
+  }
+
+  .grade-row {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    margin-top: 24px;
+  }
+
+  .grade {
+    width: 64px;
+    height: 64px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    font-weight: 900;
+    color: #121212;
+  }
+
+  .grade-s { background: #FFD700; }
+  .grade-a { background: #00FFB3; }
+  .grade-b { background: #00D4FF; }
+  .grade-c { background: rgba(255, 255, 255, 0.3); }
+
+  .screen-area {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 60px 60px;
+    width: 100%;
+  }
+
+  .device-frame {
+    width: 580px;
+    border-radius: 52px;
+    overflow: hidden;
+    border: 4px solid rgba(255, 255, 255, 0.1);
+    box-shadow:
+      0 40px 100px rgba(0, 212, 255, 0.08),
+      0 0 0 1px rgba(255, 255, 255, 0.05);
+    background: #000;
+  }
+
+  .device-frame img {
+    width: 100%;
+    display: block;
+  }
+
+  .placeholder {
+    width: 100%;
+    aspect-ratio: 1284 / 2778;
+    background: linear-gradient(180deg, #1a1a1a 0%, #0d0d0d 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.2);
+    font-size: 28px;
+    font-weight: 500;
+  }
+</style>
+</head>
+<body>
+  <div class="copy-area">
+    <div class="main-copy">
+      筋力が<span class="accent">太さ</span>で見える。
+    </div>
+    <div class="sub-copy">PRデータから筋力レベルを可視化</div>
+    <div class="pro-badge">PRO</div>
+    <div class="grade-row">
+      <div class="grade grade-s">S</div>
+      <div class="grade grade-a">A</div>
+      <div class="grade grade-b">B</div>
+      <div class="grade grade-c">C</div>
+    </div>
+  </div>
+  <div class="screen-area">
+    <div class="device-frame">
+      <img src="screens/shot5_screen.png"
+           alt="Strength Map"
+           onerror="this.outerHTML='<div class=placeholder>shot5_screen.png</div>'">
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@500;900&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    width: 1284px;
+    height: 2778px;
+    background: linear-gradient(180deg, #121212 0%, #1A1A2E 100%);
+    font-family: 'Noto Sans JP', sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow: hidden;
+  }
+
+  .copy-area {
+    padding: 120px 80px 40px;
+    text-align: center;
+    width: 100%;
+  }
+
+  .main-copy {
+    font-size: 72px;
+    font-weight: 900;
+    color: #FFFFFF;
+    line-height: 1.3;
+    letter-spacing: 2px;
+  }
+
+  .sub-copy {
+    font-size: 32px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.6);
+    margin-top: 24px;
+    letter-spacing: 1px;
+  }
+
+  .accent { color: #00FFB3; }
+
+  .screen-area {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 60px 60px;
+    width: 100%;
+  }
+
+  .device-frame {
+    width: 580px;
+    border-radius: 52px;
+    overflow: hidden;
+    border: 4px solid rgba(255, 255, 255, 0.1);
+    box-shadow:
+      0 40px 100px rgba(0, 255, 179, 0.08),
+      0 0 0 1px rgba(255, 255, 255, 0.05);
+    background: #000;
+  }
+
+  .device-frame img {
+    width: 100%;
+    display: block;
+  }
+
+  /* プレースホルダー（スクショ未配置時） */
+  .placeholder {
+    width: 100%;
+    aspect-ratio: 1284 / 2778;
+    background: linear-gradient(180deg, #1a1a1a 0%, #0d0d0d 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.2);
+    font-size: 28px;
+    font-weight: 500;
+  }
+</style>
+</head>
+<body>
+  <div class="copy-area">
+    <div class="main-copy">
+      鍛えた筋肉が、<span class="accent">光る</span>。
+    </div>
+    <div class="sub-copy">21部位のリアルタイム回復マップ</div>
+  </div>
+  <div class="screen-area">
+    <div class="device-frame">
+      <img src="screens/shot1_screen.png"
+           alt="Recovery Map"
+           onerror="this.outerHTML='<div class=placeholder>shot1_screen.png</div>'">
+    </div>
+  </div>
+</body>
+</html>

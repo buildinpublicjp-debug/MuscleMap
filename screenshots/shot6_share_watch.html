@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@500;900&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    width: 1284px;
+    height: 2778px;
+    background: linear-gradient(180deg, #121212 0%, #1A1A2E 100%);
+    font-family: 'Noto Sans JP', sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow: hidden;
+  }
+
+  .copy-area {
+    padding: 120px 80px 40px;
+    text-align: center;
+    width: 100%;
+  }
+
+  .main-copy {
+    font-size: 72px;
+    font-weight: 900;
+    color: #FFFFFF;
+    line-height: 1.3;
+    letter-spacing: 2px;
+  }
+
+  .sub-copy {
+    font-size: 32px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.6);
+    margin-top: 24px;
+    letter-spacing: 1px;
+  }
+
+  .accent { color: #00FFB3; }
+
+  .platform-icons {
+    display: flex;
+    gap: 24px;
+    justify-content: center;
+    margin-top: 28px;
+  }
+
+  .platform-icon {
+    padding: 10px 24px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 30px;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 22px;
+    font-weight: 500;
+  }
+
+  .screen-area-dual {
+    flex: 1;
+    display: flex;
+    gap: 48px;
+    align-items: center;
+    justify-content: center;
+    padding: 0 40px 80px;
+    width: 100%;
+  }
+
+  .device-frame-main {
+    width: 480px;
+    border-radius: 48px;
+    overflow: hidden;
+    border: 4px solid rgba(255, 255, 255, 0.1);
+    box-shadow:
+      0 40px 100px rgba(0, 255, 179, 0.08),
+      0 0 0 1px rgba(255, 255, 255, 0.05);
+    background: #000;
+    transform: perspective(1200px) rotateY(-5deg);
+  }
+
+  .device-frame-watch {
+    width: 220px;
+    border-radius: 52px;
+    overflow: hidden;
+    border: 4px solid rgba(255, 255, 255, 0.1);
+    box-shadow:
+      0 40px 80px rgba(0, 255, 179, 0.06),
+      0 0 0 1px rgba(255, 255, 255, 0.05);
+    background: #000;
+    transform: perspective(1200px) rotateY(5deg);
+    align-self: center;
+  }
+
+  .device-frame-main img,
+  .device-frame-watch img {
+    width: 100%;
+    display: block;
+  }
+
+  .placeholder {
+    width: 100%;
+    aspect-ratio: 1284 / 2778;
+    background: linear-gradient(180deg, #1a1a1a 0%, #0d0d0d 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.2);
+    font-size: 24px;
+    font-weight: 500;
+  }
+
+  .placeholder-watch {
+    width: 100%;
+    aspect-ratio: 1 / 1.2;
+    background: linear-gradient(180deg, #1a1a1a 0%, #0d0d0d 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.2);
+    font-size: 18px;
+    font-weight: 500;
+  }
+</style>
+</head>
+<body>
+  <div class="copy-area">
+    <div class="main-copy">
+      記録を、<span class="accent">自慢</span>に変える。
+    </div>
+    <div class="sub-copy">シェアカード + Apple Watch対応</div>
+    <div class="platform-icons">
+      <span class="platform-icon">Instagram</span>
+      <span class="platform-icon">X / Twitter</span>
+      <span class="platform-icon">Apple Watch</span>
+    </div>
+  </div>
+  <div class="screen-area-dual">
+    <div class="device-frame-main">
+      <img src="screens/shot6_share_screen.png"
+           alt="Share Card"
+           onerror="this.outerHTML='<div class=placeholder>shot6_share_screen.png</div>'">
+    </div>
+    <div class="device-frame-watch">
+      <img src="screens/shot6_watch_screen.png"
+           alt="Apple Watch"
+           onerror="this.outerHTML='<div class=placeholder-watch>shot6_watch.png</div>'">
+    </div>
+  </div>
+</body>
+</html>
