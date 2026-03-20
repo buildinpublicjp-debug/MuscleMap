@@ -30,45 +30,32 @@ struct RoutineBuilderPage: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            Spacer().frame(height: 48)
+            Spacer().frame(height: 16)
 
-            // ヘッダー
-            VStack(spacing: 8) {
+            // ヘッダー（コンパクト）
+            VStack(spacing: 4) {
                 Text(L10n.routineBuilderTitle)
-                    .font(.system(size: 28, weight: .heavy))
+                    .font(.system(size: 24, weight: .heavy))
                     .foregroundStyle(Color.mmOnboardingTextMain)
                     .multilineTextAlignment(.center)
 
-                Text(L10n.routineBuilderSub)
-                    .font(.system(size: 14))
-                    .foregroundStyle(Color.mmOnboardingTextSub)
+                Text(isJapanese
+                    ? "あなたの目標に合わせて自動提案しました"
+                    : "Auto-generated for your goals")
+                    .font(.system(size: 12))
+                    .foregroundStyle(Color.mmOnboardingAccent.opacity(0.8))
                     .multilineTextAlignment(.center)
             }
             .padding(.horizontal, 24)
             .opacity(headerAppeared ? 1 : 0)
-            .offset(y: headerAppeared ? 0 : 20)
+            .offset(y: headerAppeared ? 0 : 12)
 
-            Spacer().frame(height: 16)
+            Spacer().frame(height: 8)
 
             // Day タブバー
             dayTabBar
 
-            Spacer().frame(height: 8)
-
-            // 自動提案ヒント
-            HStack(spacing: 4) {
-                Image(systemName: "sparkles")
-                    .font(.system(size: 11))
-                    .foregroundStyle(Color.mmOnboardingAccent)
-                Text(isJapanese
-                    ? "あなたの目標に合わせて自動提案しました"
-                    : "Auto-suggested based on your goals")
-                    .font(.system(size: 11))
-                    .foregroundStyle(Color.mmOnboardingAccent)
-            }
-            .padding(.horizontal, 24)
-
-            Spacer().frame(height: 8)
+            Spacer().frame(height: 6)
 
             // 種目リスト
             if days.indices.contains(selectedDayIndex) {
@@ -168,7 +155,7 @@ struct RoutineBuilderPage: View {
 
     private var dayTabBar: some View {
         ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 8) {
+            HStack(spacing: 6) {
                 ForEach(days.indices, id: \.self) { index in
                     Button {
                         withAnimation(.easeInOut(duration: 0.2)) {
@@ -176,11 +163,11 @@ struct RoutineBuilderPage: View {
                         }
                         HapticManager.lightTap()
                     } label: {
-                        VStack(spacing: 4) {
+                        VStack(spacing: 2) {
                             Text("Day \(index + 1)")
-                                .font(.system(size: 14, weight: .bold))
+                                .font(.system(size: 12, weight: .bold))
                             Text(days[index].name)
-                                .font(.system(size: 11))
+                                .font(.system(size: 10))
                                 .lineLimit(1)
                         }
                         .foregroundStyle(
@@ -188,15 +175,14 @@ struct RoutineBuilderPage: View {
                                 ? Color.mmOnboardingBg
                                 : Color.mmOnboardingTextMain
                         )
-                        .frame(minWidth: 72)
                         .padding(.horizontal, 12)
-                        .padding(.vertical, 10)
+                        .padding(.vertical, 6)
                         .background(
                             selectedDayIndex == index
                                 ? Color.mmOnboardingAccent
                                 : Color.mmOnboardingCard
                         )
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
                     }
                     .buttonStyle(.plain)
                 }
@@ -211,24 +197,15 @@ struct RoutineBuilderPage: View {
     private var exerciseListView: some View {
         if days.indices.contains(selectedDayIndex) {
             VStack(spacing: 0) {
-                // Day単位 location ピッカー
-                locationPicker
+                // Day単位 location ピッカー + 種目数 + 追加ボタン（1行統合）
+                HStack(spacing: 8) {
+                    locationPicker
 
-                // 変更可能ヒント
-                Text(isJapanese
-                    ? "種目は後からいつでも変更できます"
-                    : "You can change exercises anytime later")
-                    .font(.system(size: 10))
-                    .foregroundStyle(Color.mmOnboardingTextSub)
-                    .padding(.horizontal, 24)
+                    Spacer(minLength: 0)
 
-                // 種目数カウンター + 追加ボタン
-                HStack {
                     Text(L10n.routineExerciseCount(days[selectedDayIndex].exercises.count, maxExercisesPerDay))
-                        .font(.system(size: 13, weight: .bold))
-                        .foregroundStyle(Color.mmOnboardingAccent)
-
-                    Spacer()
+                        .font(.system(size: 12, weight: .bold))
+                        .foregroundStyle(Color.mmOnboardingTextSub)
 
                     // 追加ボタン
                     if days[selectedDayIndex].exercises.count < maxExercisesPerDay {
@@ -238,21 +215,21 @@ struct RoutineBuilderPage: View {
                         } label: {
                             HStack(spacing: 4) {
                                 Image(systemName: "plus")
-                                    .font(.system(size: 12, weight: .bold))
-                                Text(L10n.routineAddExercise)
-                                    .font(.system(size: 13, weight: .bold))
+                                    .font(.system(size: 10, weight: .bold))
+                                Text(isJapanese ? "追加" : "Add")
+                                    .font(.system(size: 11, weight: .bold))
                             }
                             .foregroundStyle(Color.mmOnboardingAccent)
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 6)
-                            .background(Color.mmOnboardingAccent.opacity(0.12))
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 5)
+                            .background(Color.mmOnboardingAccent.opacity(0.1))
+                            .clipShape(Capsule())
                         }
                         .buttonStyle(.plain)
                     }
                 }
                 .padding(.horizontal, 24)
-                .padding(.vertical, 8)
+                .padding(.vertical, 6)
 
                 // 種目一覧 + 筋肉マップ
                 ScrollView(.vertical, showsIndicators: false) {
@@ -365,31 +342,40 @@ struct RoutineBuilderPage: View {
     // MARK: - Location ピッカー
 
     private var locationPicker: some View {
-        VStack(spacing: 0) {
-            Picker("", selection: Binding(
-                get: { days.indices.contains(selectedDayIndex) ? days[selectedDayIndex].location : "gym" },
-                set: { newLocation in
-                    guard days.indices.contains(selectedDayIndex) else { return }
-                    days[selectedDayIndex].location = newLocation
-                    rebuildExercisesForCurrentDay(location: newLocation)
-                    HapticManager.lightTap()
-                }
-            )) {
-                Text(L10n.routineLocationGym).tag("gym")
-                Text(L10n.routineLocationHome).tag("home")
-            }
-            .pickerStyle(.segmented)
-            .padding(.horizontal, 24)
-            .padding(.bottom, 2)
+        let currentLocation = days.indices.contains(selectedDayIndex) ? days[selectedDayIndex].location : "gym"
+        let options: [(String, String)] = [
+            ("gym", isJapanese ? "ジム" : "Gym"),
+            ("home", isJapanese ? "自宅" : "Home"),
+        ]
 
-            Text(isJapanese
-                ? "このDayのトレーニング場所を選ぶと種目が変わります"
-                : "Change location to see different exercises for this day")
-                .font(.system(size: 10))
-                .foregroundStyle(Color.mmOnboardingTextSub)
-                .padding(.horizontal, 24)
-                .padding(.bottom, 4)
+        return HStack(spacing: 0) {
+            ForEach(options, id: \.0) { value, label in
+                Button {
+                    guard days.indices.contains(selectedDayIndex), days[selectedDayIndex].location != value else { return }
+                    days[selectedDayIndex].location = value
+                    rebuildExercisesForCurrentDay(location: value)
+                    HapticManager.lightTap()
+                } label: {
+                    Text(label)
+                        .font(.system(size: 11, weight: .bold))
+                        .foregroundStyle(
+                            currentLocation == value
+                                ? Color.mmOnboardingBg
+                                : Color.mmOnboardingTextSub
+                        )
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 6)
+                        .background(
+                            currentLocation == value
+                                ? Color.mmOnboardingAccent
+                                : Color.clear
+                        )
+                }
+                .buttonStyle(.plain)
+            }
         }
+        .background(Color.mmOnboardingCard)
+        .clipShape(Capsule())
     }
 
     // MARK: - 筋肉マップ状態
