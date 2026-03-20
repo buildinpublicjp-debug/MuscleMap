@@ -71,7 +71,7 @@ struct PRInputPage: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            Spacer().frame(height: 24)
+            Spacer().frame(height: 16)
 
             // ヘッダー
             VStack(spacing: 4) {
@@ -87,9 +87,9 @@ struct PRInputPage: View {
             .opacity(appeared ? 1 : 0)
             .offset(y: appeared ? 0 : 12)
 
-            Spacer().frame(height: 12)
+            Spacer().frame(height: 8)
 
-            // 筋肉マップ（タップ可能 + 未入力時ガイド）
+            // 筋肉マップ（タップ可能 + 未入力時タップガイド）
             ZStack {
                 MuscleMapView(
                     muscleStates: muscleStates,
@@ -98,83 +98,82 @@ struct PRInputPage: View {
                         HapticManager.lightTap()
                     }
                 )
-                .frame(height: 220)
+                .frame(height: 300)
 
-                // PR未入力時のみガイドテキスト
+                // 未入力時のタップガイド（マップ中央下部）
                 if recordedPRs.isEmpty {
-                    Text(isJapanese ? "PRを入力すると筋肉が光ります" : "Enter PRs to light up muscles")
-                        .font(.system(size: 13))
-                        .foregroundStyle(Color.mmOnboardingTextSub.opacity(0.6))
+                    VStack {
+                        Spacer()
+                        HStack(spacing: 6) {
+                            Image(systemName: "hand.tap")
+                                .font(.system(size: 12))
+                            Text(isJapanese ? "筋肉をタップして重量を入力" : "Tap muscles to enter weights")
+                                .font(.system(size: 12, weight: .medium))
+                        }
+                        .foregroundStyle(Color.mmOnboardingTextSub)
                         .padding(.horizontal, 16)
                         .padding(.vertical, 8)
-                        .background(Color.mmOnboardingBg.opacity(0.7))
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .background(Color.mmOnboardingBg.opacity(0.8))
+                        .clipShape(Capsule())
+                        .padding(.bottom, 8)
+                    }
                 }
             }
-            .padding(.horizontal, 24)
+            .padding(.horizontal, 16)
             .animation(.spring(response: 0.4, dampingFraction: 0.8), value: recordedPRs.count)
             .opacity(appeared ? 1 : 0)
 
-            Spacer().frame(height: 8)
+            Spacer().frame(height: 4)
 
-            // BIG3デフォルト種目セクション
-            VStack(spacing: 8) {
-                Text(isJapanese ? "まずはこの3つから" : "Start with these 3")
-                    .font(.caption.bold())
-                    .foregroundStyle(Color.mmOnboardingTextSub)
-
-                HStack(spacing: 12) {
+            // BIG3コンパクトチップ（横スクロール）
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
                     ForEach(defaultExercises, id: \.id) { exercise in
                         Button {
                             selectedExercise = exercise
                             HapticManager.lightTap()
                         } label: {
-                            VStack(spacing: 4) {
+                            HStack(spacing: 6) {
                                 if ExerciseGifView.hasGif(exerciseId: exercise.id) {
                                     ExerciseGifView(exerciseId: exercise.id, size: .thumbnail)
-                                        .frame(width: 72, height: 72)
-                                        .clipShape(RoundedRectangle(cornerRadius: 12))
-                                } else {
-                                    RoundedRectangle(cornerRadius: 12)
-                                        .fill(Color.mmOnboardingBg)
-                                        .frame(width: 72, height: 72)
-                                        .overlay(
-                                            Image(systemName: "dumbbell.fill")
-                                                .font(.system(size: 20))
-                                                .foregroundStyle(Color.mmOnboardingTextSub.opacity(0.4))
-                                        )
+                                        .frame(width: 40, height: 40)
+                                        .clipShape(RoundedRectangle(cornerRadius: 8))
                                 }
 
-                                Text(exercise.localizedName)
-                                    .font(.system(size: 11, weight: .medium))
-                                    .foregroundStyle(Color.mmOnboardingTextMain)
-                                    .lineLimit(2)
-                                    .multilineTextAlignment(.center)
+                                VStack(alignment: .leading, spacing: 1) {
+                                    Text(exercise.localizedName)
+                                        .font(.system(size: 11, weight: .bold))
+                                        .foregroundStyle(Color.mmOnboardingTextMain)
+                                        .lineLimit(1)
 
-                                // 入力済みならkgバッジ
-                                if let weight = recordedPRs[exercise.id] {
-                                    Text("\(Int(weight))kg")
-                                        .font(.system(size: 10, weight: .bold))
-                                        .foregroundStyle(Color.mmOnboardingAccent)
+                                    if let weight = recordedPRs[exercise.id] {
+                                        Text("\(Int(weight))kg")
+                                            .font(.system(size: 10, weight: .bold))
+                                            .foregroundStyle(Color.mmOnboardingAccent)
+                                    } else {
+                                        Text(isJapanese ? "タップで入力" : "Tap to enter")
+                                            .font(.system(size: 9))
+                                            .foregroundStyle(Color.mmOnboardingTextSub)
+                                    }
                                 }
                             }
-                            .frame(width: 90)
+                            .padding(.horizontal, 10)
                             .padding(.vertical, 8)
                             .background(
                                 recordedPRs[exercise.id] != nil
                                     ? Color.mmOnboardingAccent.opacity(0.08)
                                     : Color.mmOnboardingCard
                             )
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
                         }
                         .buttonStyle(.plain)
                     }
                 }
+                .padding(.horizontal, 24)
             }
-            .padding(.horizontal, 24)
             .opacity(appeared ? 1 : 0)
 
-            Spacer().frame(height: 6)
+            Spacer().frame(height: 4)
 
             // 入力済みPRチップ（横スクロール）
             if !recordedPRs.isEmpty {
@@ -207,21 +206,6 @@ struct PRInputPage: View {
                 .transition(.opacity)
                 .animation(.easeOut(duration: 0.3), value: recordedPRs.count)
             }
-
-            // ヒントテキスト
-            HStack(spacing: 6) {
-                Image(systemName: "hand.tap")
-                    .font(.caption)
-                Text(isJapanese
-                     ? "上の3つをタップして重量を入力。もっと追加したい場合は筋肉マップをタップ"
-                     : "Tap the 3 above to enter weights. Tap the muscle map for more")
-                    .font(.caption)
-            }
-            .foregroundStyle(Color.mmOnboardingTextSub)
-            .multilineTextAlignment(.center)
-            .padding(.horizontal, 24)
-            .padding(.top, 4)
-            .opacity(appeared ? 1 : 0)
 
             // 強さレベルプレビュー or 動機付けテキスト
             if recordedPRs.isEmpty {
