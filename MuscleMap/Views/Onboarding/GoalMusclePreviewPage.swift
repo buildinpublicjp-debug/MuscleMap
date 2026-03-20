@@ -138,7 +138,7 @@ struct GoalMusclePreviewPage: View {
                 .padding(.horizontal, 24)
             }
 
-            Spacer(minLength: 8)
+            Spacer(minLength: 0)
 
             // ティーザーテキスト
             HStack(spacing: 4) {
@@ -175,7 +175,7 @@ struct GoalMusclePreviewPage: View {
             }
             .buttonStyle(.plain)
             .padding(.horizontal, 24)
-            .padding(.bottom, 24)
+            .padding(.bottom, 20)
             .opacity(appeared ? 1 : 0)
         }
         .onAppear {
@@ -196,12 +196,18 @@ struct GoalMusclePreviewPage: View {
         }
     }
 
+    /// 現在アニメーション中のDayカードインデックス
+    private var currentAnimDayIndex: Int? {
+        trainingDays[animationDay]
+    }
+
     // MARK: - Dayカード
 
     private func dayCard(index: Int, part: SplitPart) -> some View {
         let groups = part.muscleGroups
         let partName = isJapanese ? part.name : splitPartEnglishName(part.name)
         let exerciseCount = groups.count >= 2 ? 4 : 3
+        let isActive = index == currentAnimDayIndex
 
         return VStack(spacing: 6) {
             Text("Day \(index + 1)")
@@ -233,8 +239,13 @@ struct GoalMusclePreviewPage: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
-        .background(Color.mmOnboardingCard)
+        .background(isActive ? Color.mmOnboardingAccent.opacity(0.15) : Color.mmOnboardingCard)
         .clipShape(RoundedRectangle(cornerRadius: 14))
+        .overlay(
+            RoundedRectangle(cornerRadius: 14)
+                .stroke(isActive ? Color.mmOnboardingAccent : Color.clear, lineWidth: 2)
+        )
+        .animation(.easeInOut(duration: 0.3), value: currentAnimDayIndex)
     }
 
     // MARK: - 超回復アニメーション（FrequencySelectionPageと同じロジック）

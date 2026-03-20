@@ -462,6 +462,7 @@ private struct WeightInputSheet: View {
 
     @Environment(\.dismiss) private var dismiss
     @State private var weight: Double = 0
+    @State private var holdTimer: Timer?
 
     private var localization: LocalizationManager { LocalizationManager.shared }
     private var isJapanese: Bool { localization.currentLanguage == .japanese }
@@ -528,16 +529,23 @@ private struct WeightInputSheet: View {
                     .foregroundStyle(Color.mmOnboardingTextSub.opacity(0.7))
 
                 HStack(spacing: 16) {
-                    // マイナスボタン
-                    Button {
-                        weight = max(0, weight - 2.5)
-                        HapticManager.stepperChanged()
-                    } label: {
-                        Image(systemName: "minus.circle.fill")
-                            .font(.system(size: 32))
-                            .foregroundStyle(Color.mmOnboardingTextSub)
-                    }
-                    .buttonStyle(.plain)
+                    // マイナスボタン（タップ + 長押し連続減少）
+                    Image(systemName: "minus.circle.fill")
+                        .font(.system(size: 32))
+                        .foregroundStyle(Color.mmOnboardingTextSub)
+                        .onTapGesture {
+                            withAnimation(.snappy(duration: 0.15)) {
+                                weight = max(0, weight - 2.5)
+                            }
+                            HapticManager.stepperChanged()
+                        }
+                        .onLongPressGesture(minimumDuration: 0.3, perform: {}) { pressing in
+                            if pressing {
+                                startHoldTimer(increment: -2.5)
+                            } else {
+                                stopHoldTimer()
+                            }
+                        }
 
                     // 重量表示
                     VStack(spacing: 0) {
@@ -554,16 +562,23 @@ private struct WeightInputSheet: View {
                             .foregroundStyle(Color.mmOnboardingTextSub)
                     }
 
-                    // プラスボタン
-                    Button {
-                        weight += 2.5
-                        HapticManager.stepperChanged()
-                    } label: {
-                        Image(systemName: "plus.circle.fill")
-                            .font(.system(size: 32))
-                            .foregroundStyle(Color.mmOnboardingAccent)
-                    }
-                    .buttonStyle(.plain)
+                    // プラスボタン（タップ + 長押し連続増加）
+                    Image(systemName: "plus.circle.fill")
+                        .font(.system(size: 32))
+                        .foregroundStyle(Color.mmOnboardingAccent)
+                        .onTapGesture {
+                            withAnimation(.snappy(duration: 0.15)) {
+                                weight += 2.5
+                            }
+                            HapticManager.stepperChanged()
+                        }
+                        .onLongPressGesture(minimumDuration: 0.3, perform: {}) { pressing in
+                            if pressing {
+                                startHoldTimer(increment: 2.5)
+                            } else {
+                                stopHoldTimer()
+                            }
+                        }
                 }
             }
 
@@ -590,6 +605,28 @@ private struct WeightInputSheet: View {
         .onAppear {
             weight = initialWeight ?? 0
         }
+        .onDisappear {
+            stopHoldTimer()
+        }
+    }
+
+    // MARK: - 長押し連続増減
+
+    private func startHoldTimer(increment: Double) {
+        stopHoldTimer()
+        holdTimer = Timer.scheduledTimer(withTimeInterval: 0.12, repeats: true) { _ in
+            Task { @MainActor in
+                withAnimation(.snappy(duration: 0.1)) {
+                    weight = max(0, weight + increment)
+                }
+                HapticManager.stepperChanged()
+            }
+        }
+    }
+
+    private func stopHoldTimer() {
+        holdTimer?.invalidate()
+        holdTimer = nil
     }
 }
 
