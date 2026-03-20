@@ -162,7 +162,7 @@ struct GoalSelectionPage: View {
                 .animation(.easeOut(duration: 0.3), value: selectedGoals)
             }
 
-            Spacer().frame(height: 12)
+            Spacer(minLength: 8)
 
             // 目標カード（コンパクト、スクロール不要）
             VStack(spacing: 6) {
@@ -195,8 +195,6 @@ struct GoalSelectionPage: View {
                 }
             }
             .padding(.horizontal, 24)
-
-            Spacer()
 
             // 次へボタン
             Button {

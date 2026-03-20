@@ -333,11 +333,17 @@ struct FrequencySelectionPage: View {
                 // 今日刺激 → 赤（疲労開始）
                 states[muscle] = .recovering(progress: 0.05)
             } else if daysSince > 0 {
-                // 回復中 → 経過時間に応じて赤→黄→緑
+                // 回復中 → 経過時間に応じて赤→黄
                 let recoveryHours = Double(muscle.baseRecoveryHours)
                 let elapsedHours = Double(daysSince) * 24.0
-                let progress = min(1.0, elapsedHours / recoveryHours)
-                states[muscle] = .recovering(progress: progress)
+                let progress = elapsedHours / recoveryHours
+                if progress >= 1.0 {
+                    // 回復完了 → 暗い色に戻す（inactiveのまま）
+                    states[muscle] = .inactive
+                } else {
+                    // まだ回復中 → 赤→黄のグラデーション
+                    states[muscle] = .recovering(progress: progress)
+                }
             }
             // daysSince < 0 → .inactive のまま（暗い色）
         }

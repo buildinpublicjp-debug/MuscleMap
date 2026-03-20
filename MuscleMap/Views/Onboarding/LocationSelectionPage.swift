@@ -6,13 +6,19 @@ import SwiftUI
 enum TrainingLocation: String, CaseIterable, Codable {
     case gym
     case home
+    case bodyweight
     case both
+
+    private var isJapanese: Bool {
+        LocalizationManager.shared.currentLanguage == .japanese
+    }
 
     var title: String {
         switch self {
-        case .gym: return L10n.locationGym
-        case .home: return L10n.locationHome
-        case .both: return L10n.locationBoth
+        case .gym: return isJapanese ? "ジム" : "Gym"
+        case .home: return isJapanese ? "自宅" : "Home"
+        case .bodyweight: return isJapanese ? "自重のみ" : "Bodyweight Only"
+        case .both: return isJapanese ? "両方" : "Both"
         }
     }
 
@@ -20,15 +26,17 @@ enum TrainingLocation: String, CaseIterable, Codable {
         switch self {
         case .gym: return "dumbbell.fill"
         case .home: return "house.fill"
+        case .bodyweight: return "figure.walk"
         case .both: return "arrow.left.arrow.right"
         }
     }
 
     var subtitle: String {
         switch self {
-        case .gym: return L10n.locationGymDesc
-        case .home: return L10n.locationHomeDesc
-        case .both: return L10n.locationBothDesc
+        case .gym: return isJapanese ? "マシン・バーベル・ダンベル全部" : "Full equipment access"
+        case .home: return isJapanese ? "ダンベルと自重で鍛える" : "Dumbbells & bodyweight"
+        case .bodyweight: return isJapanese ? "器具なし、体ひとつで" : "No equipment needed"
+        case .both: return isJapanese ? "ジムと自宅を組み合わせ" : "Mix gym and home"
         }
     }
 
@@ -37,6 +45,7 @@ enum TrainingLocation: String, CaseIterable, Codable {
         switch self {
         case .gym: return ["バーベル", "マシン", "ダンベル", "ケーブル"]
         case .home: return ["ダンベル", "自重"]
+        case .bodyweight: return ["自重"]
         case .both: return ["バーベル", "ダンベル", "自重"]
         }
     }
@@ -60,6 +69,9 @@ struct LocationSelectionPage: View {
 
         let exercises: [ExerciseDefinition]
         switch selected {
+        case .bodyweight:
+            let bwEquipment: Set<String> = ["自重", "Bodyweight"]
+            exercises = store.exercises.filter { bwEquipment.contains($0.equipment) }
         case .home:
             let homeEquipment: Set<String> = ["自重", "ダンベル", "ケトルベル", "Bodyweight", "Dumbbell", "Kettlebell"]
             exercises = store.exercises.filter { homeEquipment.contains($0.equipment) }
@@ -91,6 +103,9 @@ struct LocationSelectionPage: View {
         store.loadIfNeeded()
 
         switch selected {
+        case .bodyweight:
+            let bwEquipment: Set<String> = ["自重", "Bodyweight"]
+            return store.exercises.filter { bwEquipment.contains($0.equipment) }.count
         case .home:
             let homeEquipment: Set<String> = ["自重", "ダンベル", "ケトルベル", "Bodyweight", "Dumbbell", "Kettlebell"]
             return store.exercises.filter { homeEquipment.contains($0.equipment) }.count
@@ -127,7 +142,7 @@ struct LocationSelectionPage: View {
                     .font(.system(size: 14, weight: .bold))
                     .foregroundStyle(Color.mmOnboardingAccent)
 
-                if selected == .home {
+                if selected == .home || selected == .bodyweight {
                     Text(L10n.locationHomeExercises)
                         .font(.caption)
                         .foregroundStyle(Color.mmOnboardingTextSub)
@@ -143,11 +158,11 @@ struct LocationSelectionPage: View {
 
             // GIFギャラリー（2行グリッド、マーキー自動スクロール）
             GeometryReader { geo in
-                let columnWidth: CGFloat = 130 // カード幅120 + spacing10
+                let columnWidth: CGFloat = 130 // カード幅120 + spacing8
                 let contentWidth = CGFloat(gridColumns.count) * columnWidth + 48 // padding分
-                HStack(alignment: .top, spacing: 10) {
+                HStack(alignment: .top, spacing: 8) {
                     ForEach(gridColumns, id: \.0) { _, pair in
-                        VStack(spacing: 10) {
+                        VStack(spacing: 8) {
                             ExerciseGifCard(exercise: pair.0)
                             if let second = pair.1 {
                                 ExerciseGifCard(exercise: second)
@@ -168,10 +183,10 @@ struct LocationSelectionPage: View {
             .clipped()
             .opacity(appeared ? 1 : 0)
 
-            Spacer()
+            Spacer().frame(height: 12)
 
             // 選択カード（次へボタン直上、コンパクト）
-            VStack(spacing: 6) {
+            VStack(spacing: 5) {
                 ForEach(Array(TrainingLocation.allCases.enumerated()), id: \.element) { index, location in
                     LocationCard(
                         location: location,
@@ -268,16 +283,16 @@ private struct ExerciseGifCard: View {
     let exercise: ExerciseDefinition
 
     var body: some View {
-        VStack(spacing: 6) {
+        VStack(spacing: 4) {
             if ExerciseGifView.hasGif(exerciseId: exercise.id) {
                 ExerciseGifView(exerciseId: exercise.id, size: .thumbnail)
-                    .frame(width: 100, height: 100)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .frame(width: 110, height: 110)
+                    .clipShape(RoundedRectangle(cornerRadius: 14))
             } else {
                 ZStack {
-                    RoundedRectangle(cornerRadius: 12)
+                    RoundedRectangle(cornerRadius: 14)
                         .fill(Color.mmOnboardingBg)
-                        .frame(width: 100, height: 100)
+                        .frame(width: 110, height: 110)
                     Image(systemName: "dumbbell.fill")
                         .font(.system(size: 28))
                         .foregroundStyle(Color.mmOnboardingTextSub.opacity(0.4))
@@ -285,16 +300,16 @@ private struct ExerciseGifCard: View {
             }
 
             Text(exercise.localizedName)
-                .font(.system(size: 12, weight: .medium))
+                .font(.system(size: 10, weight: .medium))
                 .foregroundStyle(Color.mmOnboardingTextMain)
-                .lineLimit(2)
-                .multilineTextAlignment(.center)
+                .lineLimit(1)
+                .truncationMode(.tail)
 
             Text(exercise.localizedEquipment)
                 .font(.system(size: 9))
                 .foregroundStyle(Color.mmOnboardingTextSub)
         }
-        .frame(width: 120)
+        .frame(width: 120, height: 150)
     }
 }
 
@@ -312,18 +327,18 @@ private struct LocationCard: View {
                 RoundedRectangle(cornerRadius: 2)
                     .fill(isSelected ? Color.mmOnboardingAccent : Color.clear)
                     .frame(width: 3)
-                    .padding(.vertical, 8)
+                    .padding(.vertical, 6)
 
                 HStack(spacing: 10) {
                     // SFシンボルアイコン
                     Image(systemName: location.sfSymbol)
-                        .font(.system(size: 18, weight: .medium))
+                        .font(.system(size: 16, weight: .medium))
                         .foregroundStyle(isSelected ? Color.mmOnboardingAccent : Color.mmOnboardingTextSub)
-                        .frame(width: 28, height: 28)
+                        .frame(width: 24, height: 24)
 
                     // テキスト（1行）
                     Text(location.title)
-                        .font(.system(size: 16, weight: .bold))
+                        .font(.system(size: 15, weight: .bold))
                         .foregroundStyle(Color.mmOnboardingTextMain)
 
                     Spacer()
@@ -333,10 +348,10 @@ private struct LocationCard: View {
                         ZStack {
                             Circle()
                                 .fill(Color.mmOnboardingAccent)
-                                .frame(width: 22, height: 22)
+                                .frame(width: 20, height: 20)
 
                             Image(systemName: "checkmark")
-                                .font(.system(size: 11, weight: .bold))
+                                .font(.system(size: 10, weight: .bold))
                                 .foregroundStyle(Color.mmOnboardingBg)
                         }
                         .transition(.scale.combined(with: .opacity))
@@ -344,7 +359,7 @@ private struct LocationCard: View {
                 }
                 .padding(.horizontal, 12)
             }
-            .frame(height: 48)
+            .frame(height: 42)
             .background(isSelected ? Color.mmOnboardingAccent.opacity(0.08) : Color.mmOnboardingCard)
             .clipShape(RoundedRectangle(cornerRadius: 12))
             .overlay(
