@@ -41,17 +41,26 @@ private struct MainTabView: View {
                 }
                 .tag(1)
 
+            ExerciseDictionaryView()
+                .tabItem {
+                    Label(
+                        LocalizationManager.shared.currentLanguage == .japanese ? "種目辞典" : "Exercises",
+                        systemImage: "book.fill"
+                    )
+                }
+                .tag(2)
+
             HistoryView()
                 .tabItem {
                     Label(L10n.history, systemImage: "chart.bar")
                 }
-                .tag(2)
+                .tag(3)
 
             SettingsView()
                 .tabItem {
                     Label(L10n.settings, systemImage: "gearshape")
                 }
-                .tag(3)
+                .tag(4)
         }
         .tint(Color.mmAccentPrimary)
         .onChange(of: appState.selectedTab) { oldValue, newValue in
