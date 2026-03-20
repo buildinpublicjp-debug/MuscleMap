@@ -213,7 +213,7 @@ struct HomeView: View {
             .onAppear {
                 #if DEBUG
                 let profile = AppState.shared.userProfile
-                print("[DataFlow] primaryGoal: \(AppState.shared.primaryOnboardingGoal ?? \"nil\")")
+                print("[DataFlow] primaryGoal: \(AppState.shared.primaryOnboardingGoal ?? "nil")")
                 print("[DataFlow] frequency: \(profile.weeklyFrequency)")
                 print("[DataFlow] location: \(profile.trainingLocation)")
                 print("[DataFlow] priorityMuscles: \(profile.goalPriorityMuscles)")
