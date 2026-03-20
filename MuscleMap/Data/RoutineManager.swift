@@ -65,6 +65,36 @@ class RoutineManager {
         return routine.days[nextIndex]
     }
 
+    // MARK: - 個別種目CRUD
+
+    /// 種目を差替え
+    func replaceExercise(dayIndex: Int, exerciseIndex: Int, newExerciseId: String) {
+        guard routine.days.indices.contains(dayIndex),
+              routine.days[dayIndex].exercises.indices.contains(exerciseIndex) else { return }
+        var updated = routine
+        updated.days[dayIndex].exercises[exerciseIndex].exerciseId = newExerciseId
+        saveRoutine(updated)
+    }
+
+    /// 種目を削除
+    func removeExercise(dayIndex: Int, exerciseIndex: Int) {
+        guard routine.days.indices.contains(dayIndex),
+              routine.days[dayIndex].exercises.indices.contains(exerciseIndex) else { return }
+        var updated = routine
+        updated.days[dayIndex].exercises.remove(at: exerciseIndex)
+        saveRoutine(updated)
+    }
+
+    /// 種目を追加
+    func addExercise(dayIndex: Int, exerciseId: String, sets: Int = 3, reps: Int = 10) {
+        guard routine.days.indices.contains(dayIndex) else { return }
+        var updated = routine
+        updated.days[dayIndex].exercises.append(
+            RoutineExercise(exerciseId: exerciseId, suggestedSets: sets, suggestedReps: reps)
+        )
+        saveRoutine(updated)
+    }
+
     /// ルーティンをリロード（設定変更後などに使用）
     func reload() {
         self.routine = UserRoutine.load()

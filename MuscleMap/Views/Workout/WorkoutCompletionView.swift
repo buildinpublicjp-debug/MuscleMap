@@ -449,12 +449,21 @@ struct WorkoutCompletionView: View {
         var results: [LevelUpInfo] = []
         for update in prUpdates {
             // セッション前の推定1RM（前回最大重量ベース、reps=1で概算）
-            let previous1RM = PRManager.shared.estimated1RM(weight: update.previousWeight, reps: 1)
+            let previous1RM = PRManager.shared.effectiveEstimated1RM(
+                weight: update.previousWeight, reps: 1,
+                exerciseId: update.exerciseId, bodyweightKg: bodyweight
+            )
             // セッション後の推定1RM（今回の最大重量で、セッション内最大repsを考慮）
             let sessionSets = session.sets.filter { $0.exerciseId == update.exerciseId }
             let best1RMInSession = sessionSets.map {
-                PRManager.shared.estimated1RM(weight: $0.weight, reps: $0.reps)
-            }.max() ?? PRManager.shared.estimated1RM(weight: update.newWeight, reps: 1)
+                PRManager.shared.effectiveEstimated1RM(
+                    weight: $0.weight, reps: $0.reps,
+                    exerciseId: update.exerciseId, bodyweightKg: bodyweight
+                )
+            }.max() ?? PRManager.shared.effectiveEstimated1RM(
+                weight: update.newWeight, reps: 1,
+                exerciseId: update.exerciseId, bodyweightKg: bodyweight
+            )
 
             let previousResult = StrengthScoreCalculator.exerciseStrengthLevel(
                 exerciseId: update.exerciseId,

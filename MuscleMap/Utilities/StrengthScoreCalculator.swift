@@ -218,16 +218,30 @@ final class StrengthScoreCalculator {
 
     // TODO: heightCmを使ったBMI表示、体格補正付きスコア
 
+    /// スコア算出から除外するexerciseId（重量ベースの1RM計算が不適切な種目）
+    private let strengthScoreExcludedIds: Set<String> = [
+        "plank", "side_plank", "mountain_climber",
+        "bicycle_crunch", "ab_roller", "burpee"
+    ]
+
     /// 全WorkoutSetから筋肉ごとのStrengthスコア（0.0〜1.0）を算出
     func muscleStrengthScores(allSets: [WorkoutSet], bodyweightKg: Double) -> [String: Double] {
         let bodyweight = bodyweightKg > 0 ? bodyweightKg : 70.0
+        let exerciseStore = ExerciseStore.shared
 
-        // Step 1: 種目ごとの最大推定1RMを算出
+        // Step 1: 種目ごとの最大effective1RMを算出（bodyweight/assisted/weighted考慮）
         var exerciseBest1RM: [String: Double] = [:]
         for set in allSets {
-            let estimated = PRManager.shared.estimated1RM(weight: set.weight, reps: set.reps)
-            if estimated > (exerciseBest1RM[set.exerciseId] ?? 0) {
-                exerciseBest1RM[set.exerciseId] = estimated
+            let exercise = exerciseStore.exercise(for: set.exerciseId)
+            let isExcluded = exercise?.isStrengthScoreExcluded ?? strengthScoreExcludedIds.contains(set.exerciseId)
+            guard !isExcluded else { continue }
+
+            let effective = PRManager.shared.effectiveEstimated1RM(
+                weight: set.weight, reps: set.reps,
+                exerciseId: set.exerciseId, bodyweightKg: bodyweight
+            )
+            if effective > (exerciseBest1RM[set.exerciseId] ?? 0) {
+                exerciseBest1RM[set.exerciseId] = effective
             }
         }
 
@@ -241,7 +255,6 @@ final class StrengthScoreCalculator {
 
         // Step 2: 種目→筋肉の逆引きで、筋肉ごとの最高スコアを算出
         var muscleScores: [String: Double] = [:]
-        let exerciseStore = ExerciseStore.shared
 
         for (exerciseId, best1RM) in exerciseBest1RM {
             guard let definition = exerciseStore.exercise(for: exerciseId) else { continue }

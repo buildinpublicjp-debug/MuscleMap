@@ -24,10 +24,12 @@ struct SetInputCard: View {
 
     /// 現在の種目の強さレベル情報
     private var strengthLevelInfo: (level: StrengthLevel, kgToNext: Double?, nextLevel: StrengthLevel?)? {
-        guard let best1RM = PRManager.shared.getBestEstimated1RM(exerciseId: exercise.id, context: modelContext) else {
+        let bodyweight = AppState.shared.userProfile.weightKg
+        guard let best1RM = PRManager.shared.getBestEffective1RM(
+            exerciseId: exercise.id, bodyweightKg: bodyweight, context: modelContext
+        ) else {
             return nil
         }
-        let bodyweight = AppState.shared.userProfile.weightKg
         return StrengthScoreCalculator.exerciseStrengthLevel(
             exerciseId: exercise.id,
             estimated1RM: best1RM,
@@ -295,6 +297,39 @@ struct SetInputCard: View {
             }
             .scaleEffect(recordButtonScale)
             .buttonStyle(.plain)
+
+            // 次のルーティン種目ボタン
+            if let nextExercise = viewModel.nextRoutineExercise,
+               nextExercise.id != viewModel.selectedExercise?.id {
+                Button {
+                    viewModel.goToNextRoutineExercise()
+                    HapticManager.lightTap()
+                } label: {
+                    HStack(spacing: 8) {
+                        if ExerciseGifView.hasGif(exerciseId: nextExercise.id) {
+                            ExerciseGifView(exerciseId: nextExercise.id, size: .thumbnail)
+                                .frame(width: 32, height: 32)
+                                .clipShape(Circle())
+                        }
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(localization.currentLanguage == .japanese ? "次の種目" : "Next Exercise")
+                                .font(.system(size: 10))
+                                .foregroundStyle(Color.mmTextSecondary)
+                            Text(localization.currentLanguage == .japanese ? nextExercise.nameJA : nextExercise.nameEN)
+                                .font(.system(size: 14, weight: .bold))
+                                .foregroundStyle(Color.mmTextPrimary)
+                                .lineLimit(1)
+                        }
+                        Spacer()
+                        Image(systemName: "chevron.right")
+                            .foregroundStyle(Color.mmAccentPrimary)
+                    }
+                    .padding(12)
+                    .background(Color.mmBgSecondary)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                }
+                .buttonStyle(.plain)
+            }
         }
         .padding()
         }

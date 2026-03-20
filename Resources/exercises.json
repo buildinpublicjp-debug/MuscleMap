@@ -16,7 +16,8 @@
     "nameKO": "바벨 벤치프레스",
     "nameES": "Press de banca con barra",
     "nameFR": "Développé couché barre",
-    "nameDE": "Langhantel-Bankdrücken"
+    "nameDE": "Langhantel-Bankdrücken",
+    "exerciseType": "weighted"
   },
   {
     "id": "incline_barbell_bench_press",
@@ -35,7 +36,8 @@
     "nameKO": "인클라인 바벨 벤치프레스",
     "nameES": "Press inclinado con barra",
     "nameFR": "Développé incliné barre",
-    "nameDE": "Schrägbank-Langhanteldrücken"
+    "nameDE": "Schrägbank-Langhanteldrücken",
+    "exerciseType": "weighted"
   },
   {
     "id": "decline_barbell_bench_press",
@@ -53,7 +55,8 @@
     "nameKO": "디클라인 바벨 벤치프레스",
     "nameES": "Press declinado con barra",
     "nameFR": "Développé décliné barre",
-    "nameDE": "Negativ-Bankdrücken"
+    "nameDE": "Negativ-Bankdrücken",
+    "exerciseType": "weighted"
   },
   {
     "id": "dumbbell_bench_press",
@@ -72,7 +75,8 @@
     "nameKO": "덤벨 벤치프레스",
     "nameES": "Press de banca con mancuernas",
     "nameFR": "Développé couché haltères",
-    "nameDE": "Kurzhantel-Bankdrücken"
+    "nameDE": "Kurzhantel-Bankdrücken",
+    "exerciseType": "weighted"
   },
   {
     "id": "incline_dumbbell_press",
@@ -91,7 +95,8 @@
     "nameKO": "인클라인 덤벨 프레스",
     "nameES": "Press inclinado con mancuernas",
     "nameFR": "Développé incliné haltères",
-    "nameDE": "Schrägbank-Kurzhanteldrücken"
+    "nameDE": "Schrägbank-Kurzhanteldrücken",
+    "exerciseType": "weighted"
   },
   {
     "id": "dumbbell_fly",
@@ -109,7 +114,8 @@
     "nameKO": "덤벨 플라이",
     "nameES": "Aperturas con mancuernas",
     "nameFR": "Écarté couché haltères",
-    "nameDE": "Kurzhantel-Fliegende"
+    "nameDE": "Kurzhantel-Fliegende",
+    "exerciseType": "weighted"
   },
   {
     "id": "cable_crossover",
@@ -127,7 +133,8 @@
     "nameKO": "케이블 크로스오버",
     "nameES": "Cruce de cables",
     "nameFR": "Écarté à la poulie",
-    "nameDE": "Kabelzug-Crossover"
+    "nameDE": "Kabelzug-Crossover",
+    "exerciseType": "weighted"
   },
   {
     "id": "push_up",
@@ -147,7 +154,8 @@
     "nameKO": "푸쉬업",
     "nameES": "Flexiones",
     "nameFR": "Pompes",
-    "nameDE": "Liegestütz"
+    "nameDE": "Liegestütz",
+    "exerciseType": "bodyweight"
   },
   {
     "id": "chest_dip",
@@ -165,7 +173,8 @@
     "nameKO": "체스트 딥",
     "nameES": "Fondos de pecho",
     "nameFR": "Dips pectoraux",
-    "nameDE": "Brust-Dips"
+    "nameDE": "Brust-Dips",
+    "exerciseType": "bodyweight"
   },
   {
     "id": "pec_deck_machine",
@@ -182,7 +191,8 @@
     "nameKO": "펙덱 머신",
     "nameES": "Máquina pec deck",
     "nameFR": "Pec deck machine",
-    "nameDE": "Pec-Deck-Maschine"
+    "nameDE": "Pec-Deck-Maschine",
+    "exerciseType": "weighted"
   },
   {
     "id": "machine_chest_press",
@@ -201,7 +211,8 @@
     "nameKO": "머신 체스트 프레스",
     "nameES": "Press de pecho en máquina",
     "nameFR": "Presse pectorale",
-    "nameDE": "Brustpresse-Maschine"
+    "nameDE": "Brustpresse-Maschine",
+    "exerciseType": "weighted"
   },
   {
     "id": "machine_incline_press",
@@ -220,7 +231,8 @@
     "nameKO": "머신 인클라인 프레스",
     "nameES": "Press inclinado en máquina",
     "nameFR": "Presse inclinée machine",
-    "nameDE": "Schrägbank-Maschine"
+    "nameDE": "Schrägbank-Maschine",
+    "exerciseType": "weighted"
   },
   {
     "id": "deadlift",
@@ -243,7 +255,8 @@
     "nameKO": "데드리프트",
     "nameES": "Peso muerto",
     "nameFR": "Soulevé de terre",
-    "nameDE": "Kreuzheben"
+    "nameDE": "Kreuzheben",
+    "exerciseType": "weighted"
   },
   {
     "id": "barbell_bent_over_row",
@@ -264,7 +277,8 @@
     "nameKO": "바벨 벤트오버 로우",
     "nameES": "Remo inclinado con barra",
     "nameFR": "Rowing penché barre",
-    "nameDE": "Vorgebeugtes Langhantel-Rudern"
+    "nameDE": "Vorgebeugtes Langhantel-Rudern",
+    "exerciseType": "weighted"
   },
   {
     "id": "dumbbell_row",
@@ -284,7 +298,8 @@
     "nameKO": "덤벨 로우",
     "nameES": "Remo con mancuerna",
     "nameFR": "Rowing haltère",
-    "nameDE": "Kurzhantel-Rudern"
+    "nameDE": "Kurzhantel-Rudern",
+    "exerciseType": "weighted"
   },
   {
     "id": "lat_pulldown",
@@ -304,7 +319,8 @@
     "nameKO": "랫 풀다운",
     "nameES": "Jalón al pecho",
     "nameFR": "Tirage vertical",
-    "nameDE": "Latzug"
+    "nameDE": "Latzug",
+    "exerciseType": "weighted"
   },
   {
     "id": "pull_up",
@@ -325,7 +341,8 @@
     "nameKO": "풀업",
     "nameES": "Dominadas",
     "nameFR": "Tractions",
-    "nameDE": "Klimmzüge"
+    "nameDE": "Klimmzüge",
+    "exerciseType": "bodyweight"
   },
   {
     "id": "chin_up",
@@ -344,7 +361,8 @@
     "nameKO": "친업",
     "nameES": "Dominadas supinas",
     "nameFR": "Tractions supination",
-    "nameDE": "Klimmzüge Untergriff"
+    "nameDE": "Klimmzüge Untergriff",
+    "exerciseType": "bodyweight"
   },
   {
     "id": "seated_cable_row",
@@ -364,7 +382,8 @@
     "nameKO": "시티드 케이블 로우",
     "nameES": "Remo en polea sentado",
     "nameFR": "Tirage horizontal assis",
-    "nameDE": "Sitzend Kabelrudern"
+    "nameDE": "Sitzend Kabelrudern",
+    "exerciseType": "weighted"
   },
   {
     "id": "t_bar_row",
@@ -385,7 +404,8 @@
     "nameKO": "T바 로우",
     "nameES": "Remo T-bar",
     "nameFR": "Rowing T-bar",
-    "nameDE": "T-Bar-Rudern"
+    "nameDE": "T-Bar-Rudern",
+    "exerciseType": "weighted"
   },
   {
     "id": "face_pull",
@@ -403,7 +423,8 @@
     "nameKO": "페이스 풀",
     "nameES": "Face pull",
     "nameFR": "Face pull",
-    "nameDE": "Face Pull"
+    "nameDE": "Face Pull",
+    "exerciseType": "weighted"
   },
   {
     "id": "hyperextension",
@@ -421,7 +442,8 @@
     "nameKO": "하이퍼익스텐션",
     "nameES": "Hiperextensión",
     "nameFR": "Hyperextension",
-    "nameDE": "Hyperextension"
+    "nameDE": "Hyperextension",
+    "exerciseType": "bodyweight"
   },
   {
     "id": "barbell_shrug",
@@ -439,7 +461,8 @@
     "nameKO": "바벨 슈러그",
     "nameES": "Encogimientos con barra",
     "nameFR": "Haussements barre",
-    "nameDE": "Langhantel-Schulterheben"
+    "nameDE": "Langhantel-Schulterheben",
+    "exerciseType": "weighted"
   },
   {
     "id": "machine_row",
@@ -458,7 +481,8 @@
     "nameKO": "머신 로우",
     "nameES": "Remo en máquina",
     "nameFR": "Rowing machine",
-    "nameDE": "Maschinen-Rudern"
+    "nameDE": "Maschinen-Rudern",
+    "exerciseType": "weighted"
   },
   {
     "id": "assisted_pull_up",
@@ -477,7 +501,8 @@
     "nameKO": "어시스트 풀업",
     "nameES": "Dominadas asistidas",
     "nameFR": "Tractions assistées",
-    "nameDE": "Unterstützte Klimmzüge"
+    "nameDE": "Unterstützte Klimmzüge",
+    "exerciseType": "assisted"
   },
   {
     "id": "overhead_press_barbell",
@@ -496,7 +521,8 @@
     "nameKO": "오버헤드 프레스 (바벨)",
     "nameES": "Press militar con barra",
     "nameFR": "Développé militaire barre",
-    "nameDE": "Langhantel-Schulterdrücken"
+    "nameDE": "Langhantel-Schulterdrücken",
+    "exerciseType": "weighted"
   },
   {
     "id": "dumbbell_shoulder_press",
@@ -515,7 +541,8 @@
     "nameKO": "덤벨 숄더 프레스",
     "nameES": "Press de hombros con mancuernas",
     "nameFR": "Développé épaules haltères",
-    "nameDE": "Kurzhantel-Schulterdrücken"
+    "nameDE": "Kurzhantel-Schulterdrücken",
+    "exerciseType": "weighted"
   },
   {
     "id": "lateral_raise",
@@ -532,7 +559,8 @@
     "nameKO": "레터럴 레이즈",
     "nameES": "Elevaciones laterales",
     "nameFR": "Élévations latérales",
-    "nameDE": "Seitheben"
+    "nameDE": "Seitheben",
+    "exerciseType": "weighted"
   },
   {
     "id": "front_raise",
@@ -549,7 +577,8 @@
     "nameKO": "프론트 레이즈",
     "nameES": "Elevaciones frontales",
     "nameFR": "Élévations frontales",
-    "nameDE": "Frontheben"
+    "nameDE": "Frontheben",
+    "exerciseType": "weighted"
   },
   {
     "id": "rear_delt_fly",
@@ -566,7 +595,8 @@
     "nameKO": "리어 델트 플라이",
     "nameES": "Aperturas posteriores",
     "nameFR": "Oiseau",
-    "nameDE": "Hintere Schulter-Fliegende"
+    "nameDE": "Hintere Schulter-Fliegende",
+    "exerciseType": "weighted"
   },
   {
     "id": "arnold_press",
@@ -585,7 +615,8 @@
     "nameKO": "아놀드 프레스",
     "nameES": "Press Arnold",
     "nameFR": "Arnold press",
-    "nameDE": "Arnold-Presse"
+    "nameDE": "Arnold-Presse",
+    "exerciseType": "weighted"
   },
   {
     "id": "upright_row",
@@ -604,7 +635,8 @@
     "nameKO": "업라이트 로우",
     "nameES": "Remo al mentón",
     "nameFR": "Rowing menton",
-    "nameDE": "Aufrechtes Rudern"
+    "nameDE": "Aufrechtes Rudern",
+    "exerciseType": "weighted"
   },
   {
     "id": "cable_lateral_raise",
@@ -621,7 +653,8 @@
     "nameKO": "케이블 레터럴 레이즈",
     "nameES": "Elevaciones laterales en polea",
     "nameFR": "Élévations latérales poulie",
-    "nameDE": "Kabel-Seitheben"
+    "nameDE": "Kabel-Seitheben",
+    "exerciseType": "weighted"
   },
   {
     "id": "machine_shoulder_press",
@@ -639,7 +672,8 @@
     "nameKO": "머신 숄더 프레스",
     "nameES": "Press de hombros en máquina",
     "nameFR": "Presse épaules",
-    "nameDE": "Schulterdrück-Maschine"
+    "nameDE": "Schulterdrück-Maschine",
+    "exerciseType": "weighted"
   },
   {
     "id": "machine_lateral_raise",
@@ -656,7 +690,8 @@
     "nameKO": "머신 레터럴 레이즈",
     "nameES": "Elevaciones laterales en máquina",
     "nameFR": "Élévations latérales machine",
-    "nameDE": "Maschinen-Seitheben"
+    "nameDE": "Maschinen-Seitheben",
+    "exerciseType": "weighted"
   },
   {
     "id": "machine_rear_delt",
@@ -673,7 +708,8 @@
     "nameKO": "머신 리어 델트 플라이",
     "nameES": "Aperturas posteriores en máquina",
     "nameFR": "Oiseau machine",
-    "nameDE": "Maschinen-Hinterschulter"
+    "nameDE": "Maschinen-Hinterschulter",
+    "exerciseType": "weighted"
   },
   {
     "id": "barbell_curl",
@@ -690,7 +726,8 @@
     "nameKO": "바벨 컬",
     "nameES": "Curl con barra",
     "nameFR": "Curl barre",
-    "nameDE": "Langhantel-Curl"
+    "nameDE": "Langhantel-Curl",
+    "exerciseType": "weighted"
   },
   {
     "id": "dumbbell_curl",
@@ -707,7 +744,8 @@
     "nameKO": "덤벨 컬",
     "nameES": "Curl con mancuernas",
     "nameFR": "Curl haltères",
-    "nameDE": "Kurzhantel-Curl"
+    "nameDE": "Kurzhantel-Curl",
+    "exerciseType": "weighted"
   },
   {
     "id": "hammer_curl",
@@ -724,7 +762,8 @@
     "nameKO": "해머 컬",
     "nameES": "Curl martillo",
     "nameFR": "Curl marteau",
-    "nameDE": "Hammer-Curl"
+    "nameDE": "Hammer-Curl",
+    "exerciseType": "weighted"
   },
   {
     "id": "preacher_curl",
@@ -741,7 +780,8 @@
     "nameKO": "프리처 컬",
     "nameES": "Curl predicador",
     "nameFR": "Curl pupitre",
-    "nameDE": "Scott-Curl"
+    "nameDE": "Scott-Curl",
+    "exerciseType": "weighted"
   },
   {
     "id": "concentration_curl",
@@ -758,7 +798,8 @@
     "nameKO": "컨센트레이션 컬",
     "nameES": "Curl concentrado",
     "nameFR": "Curl concentré",
-    "nameDE": "Konzentrations-Curl"
+    "nameDE": "Konzentrations-Curl",
+    "exerciseType": "weighted"
   },
   {
     "id": "cable_curl",
@@ -775,7 +816,8 @@
     "nameKO": "케이블 컬",
     "nameES": "Curl en polea",
     "nameFR": "Curl poulie",
-    "nameDE": "Kabel-Curl"
+    "nameDE": "Kabel-Curl",
+    "exerciseType": "weighted"
   },
   {
     "id": "incline_dumbbell_curl",
@@ -792,7 +834,8 @@
     "nameKO": "인클라인 덤벨 컬",
     "nameES": "Curl inclinado",
     "nameFR": "Curl incliné",
-    "nameDE": "Schrägbank-Curl"
+    "nameDE": "Schrägbank-Curl",
+    "exerciseType": "weighted"
   },
   {
     "id": "machine_bicep_curl",
@@ -809,7 +852,8 @@
     "nameKO": "머신 바이셉 컬",
     "nameES": "Curl de bíceps en máquina",
     "nameFR": "Curl biceps machine",
-    "nameDE": "Bizeps-Maschine"
+    "nameDE": "Bizeps-Maschine",
+    "exerciseType": "weighted"
   },
   {
     "id": "tricep_pushdown",
@@ -825,7 +869,8 @@
     "nameKO": "트라이셉 푸시다운",
     "nameES": "Empuje de tríceps",
     "nameFR": "Extension triceps poulie",
-    "nameDE": "Trizeps-Drücken"
+    "nameDE": "Trizeps-Drücken",
+    "exerciseType": "weighted"
   },
   {
     "id": "overhead_tricep_extension",
@@ -841,7 +886,8 @@
     "nameKO": "오버헤드 트라이셉 익스텐션",
     "nameES": "Extensión de tríceps sobre la cabeza",
     "nameFR": "Extension triceps au-dessus de la tête",
-    "nameDE": "Trizeps-Überkopfstrecken"
+    "nameDE": "Trizeps-Überkopfstrecken",
+    "exerciseType": "weighted"
   },
   {
     "id": "skull_crusher",
@@ -858,7 +904,8 @@
     "nameKO": "스컬 크러셔",
     "nameES": "Rompecráneos",
     "nameFR": "Barre au front",
-    "nameDE": "Stirndrücken"
+    "nameDE": "Stirndrücken",
+    "exerciseType": "weighted"
   },
   {
     "id": "close_grip_bench_press",
@@ -876,7 +923,8 @@
     "nameKO": "클로즈 그립 벤치프레스",
     "nameES": "Press de banca agarre cerrado",
     "nameFR": "Développé couché serré",
-    "nameDE": "Enges Bankdrücken"
+    "nameDE": "Enges Bankdrücken",
+    "exerciseType": "weighted"
   },
   {
     "id": "tricep_dip",
@@ -894,7 +942,8 @@
     "nameKO": "트라이셉 딥",
     "nameES": "Fondos de tríceps",
     "nameFR": "Dips triceps",
-    "nameDE": "Trizeps-Dips"
+    "nameDE": "Trizeps-Dips",
+    "exerciseType": "bodyweight"
   },
   {
     "id": "tricep_kickback",
@@ -910,7 +959,8 @@
     "nameKO": "트라이셉 킥백",
     "nameES": "Kickback de tríceps",
     "nameFR": "Kickback triceps",
-    "nameDE": "Trizeps-Kickback"
+    "nameDE": "Trizeps-Kickback",
+    "exerciseType": "weighted"
   },
   {
     "id": "machine_tricep_extension",
@@ -926,7 +976,8 @@
     "nameKO": "머신 트라이셉 익스텐션",
     "nameES": "Extensión de tríceps en máquina",
     "nameFR": "Extension triceps machine",
-    "nameDE": "Trizeps-Maschine"
+    "nameDE": "Trizeps-Maschine",
+    "exerciseType": "weighted"
   },
   {
     "id": "wrist_curl",
@@ -942,7 +993,8 @@
     "nameKO": "리스트 컬",
     "nameES": "Curl de muñeca",
     "nameFR": "Curl de poignet",
-    "nameDE": "Handgelenk-Curl"
+    "nameDE": "Handgelenk-Curl",
+    "exerciseType": "weighted"
   },
   {
     "id": "reverse_wrist_curl",
@@ -958,7 +1010,8 @@
     "nameKO": "리버스 리스트 컬",
     "nameES": "Curl de muñeca inverso",
     "nameFR": "Curl de poignet inversé",
-    "nameDE": "Reverse Handgelenk-Curl"
+    "nameDE": "Reverse Handgelenk-Curl",
+    "exerciseType": "weighted"
   },
   {
     "id": "farmer's_walk",
@@ -979,7 +1032,8 @@
     "nameKO": "파머스 워크",
     "nameES": "Paseo del granjero",
     "nameFR": "Marche du fermier",
-    "nameDE": "Farmers Walk"
+    "nameDE": "Farmers Walk",
+    "exerciseType": "weighted"
   },
   {
     "id": "crunch",
@@ -995,7 +1049,8 @@
     "nameKO": "크런치",
     "nameES": "Crunch",
     "nameFR": "Crunch",
-    "nameDE": "Crunch"
+    "nameDE": "Crunch",
+    "exerciseType": "bodyweight"
   },
   {
     "id": "sit_up",
@@ -1012,7 +1067,8 @@
     "nameKO": "싯업",
     "nameES": "Sit up",
     "nameFR": "Sit up",
-    "nameDE": "Sit-Up"
+    "nameDE": "Sit-Up",
+    "exerciseType": "bodyweight"
   },
   {
     "id": "hanging_leg_raise",
@@ -1031,7 +1087,8 @@
     "nameKO": "행잉 레그 레이즈",
     "nameES": "Elevación de piernas colgado",
     "nameFR": "Relevé de jambes suspendu",
-    "nameDE": "Hängendes Beinheben"
+    "nameDE": "Hängendes Beinheben",
+    "exerciseType": "bodyweight"
   },
   {
     "id": "plank",
@@ -1050,7 +1107,8 @@
     "nameKO": "플랭크",
     "nameES": "Plancha",
     "nameFR": "Planche",
-    "nameDE": "Plank"
+    "nameDE": "Plank",
+    "exerciseType": "bodyweight"
   },
   {
     "id": "side_plank",
@@ -1067,7 +1125,8 @@
     "nameKO": "사이드 플랭크",
     "nameES": "Plancha lateral",
     "nameFR": "Planche latérale",
-    "nameDE": "Seitlicher Plank"
+    "nameDE": "Seitlicher Plank",
+    "exerciseType": "bodyweight"
   },
   {
     "id": "russian_twist",
@@ -1085,7 +1144,8 @@
     "nameKO": "러시안 트위스트",
     "nameES": "Giro ruso",
     "nameFR": "Twist russe",
-    "nameDE": "Russian Twist"
+    "nameDE": "Russian Twist",
+    "exerciseType": "bodyweight"
   },
   {
     "id": "cable_woodchop",
@@ -1103,7 +1163,8 @@
     "nameKO": "케이블 우드찹",
     "nameES": "Corte de leñador",
     "nameFR": "Bûcheron câble",
-    "nameDE": "Kabel-Holzhacker"
+    "nameDE": "Kabel-Holzhacker",
+    "exerciseType": "weighted"
   },
   {
     "id": "ab_roller",
@@ -1122,7 +1183,8 @@
     "nameKO": "앱 롤러",
     "nameES": "Rueda abdominal",
     "nameFR": "Roue abdominale",
-    "nameDE": "Ab-Roller"
+    "nameDE": "Ab-Roller",
+    "exerciseType": "bodyweight"
   },
   {
     "id": "mountain_climber",
@@ -1141,7 +1203,8 @@
     "nameKO": "마운틴 클라이머",
     "nameES": "Escalador",
     "nameFR": "Mountain climber",
-    "nameDE": "Mountain Climber"
+    "nameDE": "Mountain Climber",
+    "exerciseType": "bodyweight"
   },
   {
     "id": "machine_crunch",
@@ -1158,7 +1221,8 @@
     "nameKO": "머신 크런치",
     "nameES": "Crunch en máquina",
     "nameFR": "Crunch machine",
-    "nameDE": "Crunch-Maschine"
+    "nameDE": "Crunch-Maschine",
+    "exerciseType": "weighted"
   },
   {
     "id": "torso_rotation",
@@ -1175,7 +1239,8 @@
     "nameKO": "토르소 로테이션 머신",
     "nameES": "Máquina de rotación de torso",
     "nameFR": "Machine de rotation du tronc",
-    "nameDE": "Rumpfrotations-Maschine"
+    "nameDE": "Rumpfrotations-Maschine",
+    "exerciseType": "weighted"
   },
   {
     "id": "barbell_back_squat",
@@ -1197,7 +1262,8 @@
     "nameKO": "바벨 백 스쿼트",
     "nameES": "Sentadilla trasera con barra",
     "nameFR": "Back squat barre",
-    "nameDE": "Langhantel-Kniebeuge"
+    "nameDE": "Langhantel-Kniebeuge",
+    "exerciseType": "weighted"
   },
   {
     "id": "front_squat",
@@ -1217,7 +1283,8 @@
     "nameKO": "프론트 스쿼트",
     "nameES": "Sentadilla frontal",
     "nameFR": "Front squat",
-    "nameDE": "Frontkniebeuge"
+    "nameDE": "Frontkniebeuge",
+    "exerciseType": "weighted"
   },
   {
     "id": "goblet_squat",
@@ -1235,7 +1302,8 @@
     "nameKO": "고블렛 스쿼트",
     "nameES": "Sentadilla goblet",
     "nameFR": "Goblet squat",
-    "nameDE": "Goblet-Kniebeuge"
+    "nameDE": "Goblet-Kniebeuge",
+    "exerciseType": "weighted"
   },
   {
     "id": "leg_press",
@@ -1254,7 +1322,8 @@
     "nameKO": "레그 프레스",
     "nameES": "Prensa de piernas",
     "nameFR": "Presse à cuisses",
-    "nameDE": "Beinpresse"
+    "nameDE": "Beinpresse",
+    "exerciseType": "weighted"
   },
   {
     "id": "hack_squat",
@@ -1271,7 +1340,8 @@
     "nameKO": "핵 스쿼트",
     "nameES": "Sentadilla hack",
     "nameFR": "Hack squat",
-    "nameDE": "Hackenschmidt-Kniebeuge"
+    "nameDE": "Hackenschmidt-Kniebeuge",
+    "exerciseType": "weighted"
   },
   {
     "id": "leg_extension",
@@ -1287,7 +1357,8 @@
     "nameKO": "레그 익스텐션",
     "nameES": "Extensión de piernas",
     "nameFR": "Extension de jambes",
-    "nameDE": "Beinstrecken"
+    "nameDE": "Beinstrecken",
+    "exerciseType": "weighted"
   },
   {
     "id": "bulgarian_split_squat",
@@ -1307,7 +1378,8 @@
     "nameKO": "불가리안 스플릿 스쿼트",
     "nameES": "Sentadilla búlgara",
     "nameFR": "Squat bulgare",
-    "nameDE": "Bulgarische Kniebeuge"
+    "nameDE": "Bulgarische Kniebeuge",
+    "exerciseType": "weighted"
   },
   {
     "id": "walking_lunge",
@@ -1327,7 +1399,8 @@
     "nameKO": "워킹 런지",
     "nameES": "Zancada caminando",
     "nameFR": "Fente marchée",
-    "nameDE": "Walking Lunges"
+    "nameDE": "Walking Lunges",
+    "exerciseType": "weighted"
   },
   {
     "id": "step_up",
@@ -1345,7 +1418,8 @@
     "nameKO": "스텝업",
     "nameES": "Step up",
     "nameFR": "Step up",
-    "nameDE": "Step-Up"
+    "nameDE": "Step-Up",
+    "exerciseType": "weighted"
   },
   {
     "id": "sumo_squat",
@@ -1363,7 +1437,8 @@
     "nameKO": "스모 스쿼트",
     "nameES": "Sentadilla sumo",
     "nameFR": "Squat sumo",
-    "nameDE": "Sumo-Kniebeuge"
+    "nameDE": "Sumo-Kniebeuge",
+    "exerciseType": "weighted"
   },
   {
     "id": "smith_squat",
@@ -1381,7 +1456,8 @@
     "nameKO": "스미스 머신 스쿼트",
     "nameES": "Sentadilla Smith",
     "nameFR": "Squat Smith",
-    "nameDE": "Smith-Maschinen-Kniebeuge"
+    "nameDE": "Smith-Maschinen-Kniebeuge",
+    "exerciseType": "weighted"
   },
   {
     "id": "romanian_deadlift",
@@ -1400,7 +1476,8 @@
     "nameKO": "루마니안 데드리프트",
     "nameES": "Peso muerto rumano",
     "nameFR": "Soulevé de terre roumain",
-    "nameDE": "Rumänisches Kreuzheben"
+    "nameDE": "Rumänisches Kreuzheben",
+    "exerciseType": "weighted"
   },
   {
     "id": "stiff_leg_deadlift",
@@ -1418,7 +1495,8 @@
     "nameKO": "스티프 레그 데드리프트",
     "nameES": "Peso muerto piernas rígidas",
     "nameFR": "Soulevé jambes tendues",
-    "nameDE": "Gestrecktes Kreuzheben"
+    "nameDE": "Gestrecktes Kreuzheben",
+    "exerciseType": "weighted"
   },
   {
     "id": "lying_leg_curl",
@@ -1435,7 +1513,8 @@
     "nameKO": "라잉 레그 컬",
     "nameES": "Curl de piernas acostado",
     "nameFR": "Leg curl couché",
-    "nameDE": "Liegend Beincurl"
+    "nameDE": "Liegend Beincurl",
+    "exerciseType": "weighted"
   },
   {
     "id": "seated_leg_curl",
@@ -1451,7 +1530,8 @@
     "nameKO": "시티드 레그 컬",
     "nameES": "Curl de piernas sentado",
     "nameFR": "Leg curl assis",
-    "nameDE": "Sitzend Beincurl"
+    "nameDE": "Sitzend Beincurl",
+    "exerciseType": "weighted"
   },
   {
     "id": "hip_thrust",
@@ -1469,7 +1549,8 @@
     "nameKO": "힙 쓰러스트",
     "nameES": "Empuje de cadera",
     "nameFR": "Hip thrust",
-    "nameDE": "Hip Thrust"
+    "nameDE": "Hip Thrust",
+    "exerciseType": "weighted"
   },
   {
     "id": "glute_bridge",
@@ -1486,7 +1567,8 @@
     "nameKO": "글루트 브릿지",
     "nameES": "Puente de glúteos",
     "nameFR": "Pont fessier",
-    "nameDE": "Glute-Brücke"
+    "nameDE": "Glute-Brücke",
+    "exerciseType": "bodyweight"
   },
   {
     "id": "cable_kickback",
@@ -1503,7 +1585,8 @@
     "nameKO": "케이블 킥백",
     "nameES": "Kickback en polea",
     "nameFR": "Kickback câble",
-    "nameDE": "Kabel-Kickback"
+    "nameDE": "Kabel-Kickback",
+    "exerciseType": "weighted"
   },
   {
     "id": "sumo_deadlift",
@@ -1525,7 +1608,8 @@
     "nameKO": "스모 데드리프트",
     "nameES": "Peso muerto sumo",
     "nameFR": "Soulevé de terre sumo",
-    "nameDE": "Sumo-Kreuzheben"
+    "nameDE": "Sumo-Kreuzheben",
+    "exerciseType": "weighted"
   },
   {
     "id": "adductor_machine",
@@ -1541,7 +1625,8 @@
     "nameKO": "어덕터 머신",
     "nameES": "Máquina de aductores",
     "nameFR": "Machine adducteurs",
-    "nameDE": "Adduktoren-Maschine"
+    "nameDE": "Adduktoren-Maschine",
+    "exerciseType": "weighted"
   },
   {
     "id": "hip_abductor",
@@ -1557,7 +1642,8 @@
     "nameKO": "힙 앱덕터 머신",
     "nameES": "Máquina abductora de cadera",
     "nameFR": "Machine abducteur de hanche",
-    "nameDE": "Hüftabduktoren-Maschine"
+    "nameDE": "Hüftabduktoren-Maschine",
+    "exerciseType": "weighted"
   },
   {
     "id": "glute_drive",
@@ -1574,7 +1660,8 @@
     "nameKO": "글루트 드라이브 머신",
     "nameES": "Máquina de glúteos",
     "nameFR": "Machine glute drive",
-    "nameDE": "Gesäß-Maschine"
+    "nameDE": "Gesäß-Maschine",
+    "exerciseType": "weighted"
   },
   {
     "id": "standing_calf_raise",
@@ -1591,7 +1678,8 @@
     "nameKO": "스탠딩 카프 레이즈",
     "nameES": "Elevación de talones de pie",
     "nameFR": "Mollets debout",
-    "nameDE": "Wadenheben stehend"
+    "nameDE": "Wadenheben stehend",
+    "exerciseType": "weighted"
   },
   {
     "id": "seated_calf_raise",
@@ -1608,7 +1696,8 @@
     "nameKO": "시티드 카프 레이즈",
     "nameES": "Elevación de talones sentado",
     "nameFR": "Mollets assis",
-    "nameDE": "Wadenheben sitzend"
+    "nameDE": "Wadenheben sitzend",
+    "exerciseType": "weighted"
   },
   {
     "id": "kettlebell_swing",
@@ -1629,7 +1718,8 @@
     "nameKO": "케틀벨 스윙",
     "nameES": "Balanceo de kettlebell",
     "nameFR": "Kettlebell swing",
-    "nameDE": "Kettlebell-Swing"
+    "nameDE": "Kettlebell-Swing",
+    "exerciseType": "weighted"
   },
   {
     "id": "burpee",
@@ -1656,7 +1746,8 @@
     "nameKO": "버피",
     "nameES": "Burpee",
     "nameFR": "Burpee",
-    "nameDE": "Burpee"
+    "nameDE": "Burpee",
+    "exerciseType": "bodyweight"
   },
   {
     "id": "bicycle_crunch",
@@ -1674,6 +1765,7 @@
     "nameKO": "바이시클 크런치",
     "nameES": "Crunch bicicleta",
     "nameFR": "Crunch vélo",
-    "nameDE": "Fahrrad-Crunch"
+    "nameDE": "Fahrrad-Crunch",
+    "exerciseType": "bodyweight"
   }
 ]

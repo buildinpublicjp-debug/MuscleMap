@@ -17,10 +17,12 @@ struct ExerciseDetailView: View {
 
     /// 現在の種目の強さレベル情報
     private var strengthLevelInfo: (level: StrengthLevel, kgToNext: Double?, nextLevel: StrengthLevel?)? {
-        guard let best1RM = PRManager.shared.getBestEstimated1RM(exerciseId: exercise.id, context: modelContext) else {
+        let bodyweight = AppState.shared.userProfile.weightKg
+        guard let best1RM = PRManager.shared.getBestEffective1RM(
+            exerciseId: exercise.id, bodyweightKg: bodyweight, context: modelContext
+        ) else {
             return nil
         }
-        let bodyweight = AppState.shared.userProfile.weightKg
         return StrengthScoreCalculator.exerciseStrengthLevel(
             exerciseId: exercise.id,
             estimated1RM: best1RM,

@@ -30,6 +30,44 @@ class WorkoutViewModel {
     var lastWeight: Double?
     var lastReps: Int?
 
+    // MARK: ルーティンモード
+
+    /// ルーティンモードか（nil = フリーモード）
+    var activeRoutineDay: RoutineDay?
+
+    /// ルーティン種目の完了状態を追跡（Key = exerciseId, Value = true で1セット以上記録済み）
+    var routineExerciseCompletion: [String: Bool] = [:]
+
+    /// ルーティンの次の未完了種目
+    var nextRoutineExercise: ExerciseDefinition? {
+        guard let day = activeRoutineDay else { return nil }
+        for re in day.exercises {
+            if routineExerciseCompletion[re.exerciseId] != true {
+                return ExerciseStore.shared.exercise(for: re.exerciseId)
+            }
+        }
+        return nil
+    }
+
+    /// ルーティン進捗（0.0〜1.0）
+    var routineProgress: Double {
+        guard let day = activeRoutineDay, !day.exercises.isEmpty else { return 0 }
+        let completed = day.exercises.filter { routineExerciseCompletion[$0.exerciseId] == true }.count
+        return Double(completed) / Double(day.exercises.count)
+    }
+
+    /// ルーティン全種目完了か
+    var isRoutineComplete: Bool {
+        guard let day = activeRoutineDay else { return false }
+        return day.exercises.allSatisfy { routineExerciseCompletion[$0.exerciseId] == true }
+    }
+
+    /// 現在選択中の種目がルーティン内か
+    var isCurrentExerciseInRoutine: Bool {
+        guard let day = activeRoutineDay, let exercise = selectedExercise else { return false }
+        return day.exercises.contains { $0.exerciseId == exercise.id }
+    }
+
     // セット間タイマー
     var restTimerSeconds: Int = 0                // カウントダウン中: 残り秒数, オーバータイム: 経過秒数
     var isRestTimerRunning: Bool = false
@@ -63,6 +101,24 @@ class WorkoutViewModel {
         }
     }
 
+    /// ルーティンモードでセッションを開始
+    func startWithRoutine(day: RoutineDay) {
+        activeRoutineDay = day
+        routineExerciseCompletion = [:]
+        startOrResumeSession()
+        // ルーティンの最初の種目を自動選択
+        if let firstExercise = day.exercises.first,
+           let def = ExerciseStore.shared.exercise(for: firstExercise.exerciseId) {
+            selectExercise(def)
+        }
+    }
+
+    /// ルーティンの次の未完了種目に移動
+    func goToNextRoutineExercise() {
+        guard let next = nextRoutineExercise else { return }
+        selectExercise(next)
+    }
+
     /// セッションを終了（記録を保存）
     func endSession() {
         // [Fix #4] セッション終了時にレストタイマーを停止
@@ -72,6 +128,8 @@ class WorkoutViewModel {
         workoutRepo.endSession(session)
         activeSession = nil
         exerciseSets = []
+        activeRoutineDay = nil
+        routineExerciseCompletion = [:]
 
         // ウィジェットデータを更新
         updateWidgetAfterSession()
@@ -91,6 +149,8 @@ class WorkoutViewModel {
         activeSession = nil
         exerciseSets = []
         selectedExercise = nil
+        activeRoutineDay = nil
+        routineExerciseCompletion = [:]
     }
 
     // MARK: エクササイズ選択
@@ -192,6 +252,11 @@ class WorkoutViewModel {
 
         // 筋肉刺激を記録
         updateMuscleStimulations(exercise: exercise, session: session)
+
+        // ルーティン完了状態を更新
+        if activeRoutineDay != nil {
+            routineExerciseCompletion[exercise.id] = true
+        }
 
         // 次のセットへ
         currentSetNumber += 1

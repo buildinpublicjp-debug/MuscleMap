@@ -17,6 +17,22 @@ struct ActiveWorkoutView: View {
         VStack(spacing: 0) {
             ScrollView {
                 VStack(spacing: 16) {
+                    // ルーティン進捗バー（ルーティンモード時のみ）
+                    if let routineDay = viewModel.activeRoutineDay {
+                        RoutineProgressBar(
+                            day: routineDay,
+                            completion: viewModel.routineExerciseCompletion,
+                            currentExerciseId: viewModel.selectedExercise?.id,
+                            onExerciseTap: { exerciseId in
+                                if let def = ExerciseStore.shared.exercise(for: exerciseId) {
+                                    viewModel.selectExercise(def)
+                                    HapticManager.lightTap()
+                                }
+                            }
+                        )
+                        .padding(.horizontal)
+                    }
+
                     // 選択中の種目のセット入力
                     if let exercise = viewModel.selectedExercise {
                         // 戻るボタン
@@ -56,6 +72,12 @@ struct ActiveWorkoutView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 16))
                     }
                     .padding(.horizontal)
+
+                    // ルーティン完了メッセージ
+                    if viewModel.isRoutineComplete {
+                        RoutineCompleteCard()
+                            .padding(.horizontal)
+                    }
 
                     // 空状態のガイダンス（種目未選択かつセット未記録）
                     if viewModel.selectedExercise == nil && viewModel.exerciseSets.isEmpty {
@@ -285,6 +307,161 @@ struct EmptyWorkoutGuidance: View {
                 .frame(height: 60)
         }
         .frame(maxWidth: .infinity)
+    }
+}
+
+// MARK: - ルーティン進捗バー
+
+struct RoutineProgressBar: View {
+    let day: RoutineDay
+    let completion: [String: Bool]
+    let currentExerciseId: String?
+    let onExerciseTap: (String) -> Void
+
+    private var isJapanese: Bool {
+        LocalizationManager.shared.currentLanguage == .japanese
+    }
+
+    private var completedCount: Int {
+        day.exercises.filter { completion[$0.exerciseId] == true }.count
+    }
+
+    private var totalCount: Int {
+        day.exercises.count
+    }
+
+    private var progress: Double {
+        guard totalCount > 0 else { return 0 }
+        return Double(completedCount) / Double(totalCount)
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            // ヘッダー: Day名 + 進捗カウント
+            HStack {
+                Text(day.name)
+                    .font(.system(size: 13, weight: .bold))
+                    .foregroundStyle(Color.mmTextPrimary)
+                    .lineLimit(1)
+
+                Spacer()
+
+                Text(isJapanese
+                    ? "\(completedCount)/\(totalCount) 種目完了"
+                    : "\(completedCount)/\(totalCount) done")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(Color.mmAccentPrimary)
+            }
+
+            // 種目チップ（横スクロール）
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 6) {
+                    ForEach(day.exercises) { routineEx in
+                        let isDone = completion[routineEx.exerciseId] == true
+                        let isCurrent = routineEx.exerciseId == currentExerciseId
+                        let def = ExerciseStore.shared.exercise(for: routineEx.exerciseId)
+                        let name = def?.localizedName ?? routineEx.exerciseId
+
+                        Button {
+                            onExerciseTap(routineEx.exerciseId)
+                        } label: {
+                            HStack(spacing: 4) {
+                                // GIFサムネイル（丸）
+                                if ExerciseGifView.hasGif(exerciseId: routineEx.exerciseId) {
+                                    ExerciseGifView(exerciseId: routineEx.exerciseId, size: .thumbnail)
+                                        .frame(width: 24, height: 24)
+                                        .clipShape(Circle())
+                                }
+
+                                // ステータスアイコン + 名前
+                                if isDone {
+                                    Image(systemName: "checkmark.circle.fill")
+                                        .font(.system(size: 10))
+                                        .foregroundStyle(Color.mmAccentPrimary)
+                                } else if isCurrent {
+                                    Image(systemName: "play.fill")
+                                        .font(.system(size: 8))
+                                        .foregroundStyle(Color.mmAccentPrimary)
+                                } else {
+                                    Circle()
+                                        .stroke(Color.mmTextSecondary.opacity(0.4), lineWidth: 1.5)
+                                        .frame(width: 10, height: 10)
+                                }
+
+                                Text(name)
+                                    .font(.system(size: 11, weight: isDone || isCurrent ? .bold : .medium))
+                                    .foregroundStyle(
+                                        isDone ? Color.mmAccentPrimary :
+                                        isCurrent ? Color.mmTextPrimary :
+                                        Color.mmTextSecondary
+                                    )
+                                    .lineLimit(1)
+                            }
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 6)
+                            .background(
+                                isCurrent ? Color.mmAccentPrimary.opacity(0.15) :
+                                isDone ? Color.mmAccentPrimary.opacity(0.08) :
+                                Color.mmBgSecondary
+                            )
+                            .clipShape(Capsule())
+                            .overlay(
+                                Capsule()
+                                    .stroke(isCurrent ? Color.mmAccentPrimary : Color.clear, lineWidth: 1.5)
+                            )
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+            }
+
+            // プログレスバー
+            GeometryReader { geo in
+                ZStack(alignment: .leading) {
+                    RoundedRectangle(cornerRadius: 3)
+                        .fill(Color.mmBgSecondary)
+                        .frame(height: 6)
+
+                    RoundedRectangle(cornerRadius: 3)
+                        .fill(Color.mmAccentPrimary)
+                        .frame(width: geo.size.width * progress, height: 6)
+                        .animation(.easeInOut(duration: 0.3), value: progress)
+                }
+            }
+            .frame(height: 6)
+        }
+        .padding(12)
+        .background(Color.mmBgCard)
+        .clipShape(RoundedRectangle(cornerRadius: 16))
+    }
+}
+
+// MARK: - ルーティン完了カード
+
+struct RoutineCompleteCard: View {
+    private var isJapanese: Bool {
+        LocalizationManager.shared.currentLanguage == .japanese
+    }
+
+    var body: some View {
+        VStack(spacing: 8) {
+            Image(systemName: "checkmark.circle.fill")
+                .font(.system(size: 32))
+                .foregroundStyle(Color.mmAccentPrimary)
+            Text(isJapanese ? "ルーティン完了!" : "Routine Complete!")
+                .font(.system(size: 16, weight: .bold))
+                .foregroundStyle(Color.mmAccentPrimary)
+            Text(isJapanese
+                ? "追加で種目を記録するか、ワークアウトを終了できます"
+                : "Add more exercises or finish your workout")
+                .font(.system(size: 12))
+                .foregroundStyle(Color.mmTextSecondary)
+                .multilineTextAlignment(.center)
+        }
+        .padding(16)
+        .frame(maxWidth: .infinity)
+        .background(Color.mmAccentPrimary.opacity(0.1))
+        .clipShape(RoundedRectangle(cornerRadius: 16))
     }
 }
 
