@@ -75,6 +75,51 @@ struct HomeCoachMarkView: View {
     }
 }
 
+// MARK: - 筋肉マップ色説明オーバーレイ（初回1回のみ）
+
+/// オンボーディング完了直後にマップの色の意味を説明する
+struct MapExplanationOverlay: View {
+    let onDismiss: () -> Void
+
+    private var isJapanese: Bool { LocalizationManager.shared.currentLanguage == .japanese }
+
+    var body: some View {
+        VStack(spacing: 8) {
+            Text(isJapanese
+                ? "これがあなたの筋肉マップ"
+                : "This is your muscle map")
+                .font(.system(size: 16, weight: .bold))
+                .foregroundStyle(Color.mmTextPrimary)
+
+            Text(isJapanese
+                ? "トレーニングすると筋肉が赤く光ります。\n回復すると黄→暗い色に戻ります。"
+                : "Muscles turn red after training.\nThey fade as they recover.")
+                .font(.system(size: 13))
+                .foregroundStyle(Color.mmTextSecondary)
+                .multilineTextAlignment(.center)
+
+            Button {
+                HapticManager.lightTap()
+                onDismiss()
+            } label: {
+                Text(isJapanese ? "わかった！" : "Got it!")
+                    .font(.system(size: 14, weight: .bold))
+                    .foregroundStyle(Color.mmBgPrimary)
+                    .padding(.horizontal, 24)
+                    .padding(.vertical, 10)
+                    .background(Color.mmAccentPrimary)
+                    .clipShape(Capsule())
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(20)
+        .background(Color.mmBgCard)
+        .clipShape(RoundedRectangle(cornerRadius: 20))
+        .shadow(color: Color.mmAccentPrimary.opacity(0.3), radius: 20)
+        .padding(.horizontal, 24)
+    }
+}
+
 // MARK: - 無料ユーザー向けワークアウト残回数バッジ
 
 /// 無料ユーザーに今週の残りワークアウト回数を表示する

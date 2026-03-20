@@ -197,6 +197,14 @@ struct GoalSelectionPage: View {
 
             Spacer(minLength: 12)
 
+            // 未選択ヒント
+            if selectedGoals.isEmpty {
+                Text(isJapanese ? "1つ以上選んでください" : "Select at least one")
+                    .font(.system(size: 13))
+                    .foregroundStyle(Color.mmOnboardingTextSub)
+                    .padding(.bottom, 4)
+            }
+
             // 次へボタン
             Button {
                 guard !isProceeding, !selectedGoals.isEmpty else { return }

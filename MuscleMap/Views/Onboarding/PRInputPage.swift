@@ -235,9 +235,13 @@ struct PRInputPage: View {
                     HapticManager.lightTap()
                     onNext()
                 } label: {
-                    Text(L10n.skip)
-                        .font(.system(size: 15, weight: .medium))
-                        .foregroundStyle(Color.mmOnboardingTextSub)
+                    HStack(spacing: 4) {
+                        Text(isJapanese ? "わからない場合はスキップ" : "Skip if unsure")
+                            .font(.system(size: 15, weight: .medium))
+                        Image(systemName: "arrow.right")
+                            .font(.system(size: 13, weight: .medium))
+                    }
+                    .foregroundStyle(Color.mmOnboardingTextSub)
                 }
                 .buttonStyle(.plain)
 
@@ -481,6 +485,10 @@ private struct WeightInputSheet: View {
                 Text(isJapanese ? "最大重量 (1RM)" : "Max Weight (1RM)")
                     .font(.caption)
                     .foregroundStyle(Color.mmOnboardingTextSub)
+
+                Text(isJapanese ? "1回だけ挙げられる最大の重量" : "The heaviest weight you can lift once")
+                    .font(.system(size: 10))
+                    .foregroundStyle(Color.mmOnboardingTextSub.opacity(0.7))
 
                 HStack(spacing: 16) {
                     // マイナスボタン

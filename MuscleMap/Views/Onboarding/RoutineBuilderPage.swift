@@ -77,18 +77,64 @@ struct RoutineBuilderPage: View {
             Spacer(minLength: 0)
 
             // ボタンエリア
-            VStack(spacing: 12) {
-                // 次へボタン
+            VStack(spacing: 8) {
+                // 初心者/半年ユーザー: 「提案メニューでそのまま始める」一括確定ボタン
+                if AppState.shared.userProfile.trainingExperience == .beginner
+                    || AppState.shared.userProfile.trainingExperience == .halfYear {
+                    Button {
+                        HapticManager.lightTap()
+                        let routine = UserRoutine(days: days, createdAt: Date())
+                        RoutineManager.shared.saveRoutine(routine)
+                        for day in days {
+                            for exercise in day.exercises {
+                                FavoritesManager.shared.add(exercise.exerciseId)
+                            }
+                        }
+                        onNext()
+                    } label: {
+                        HStack(spacing: 6) {
+                            Image(systemName: "sparkles")
+                                .font(.system(size: 14))
+                            Text(isJapanese
+                                ? "提案メニューでそのまま始める"
+                                : "Start with suggested menu")
+                                .font(.system(size: 15, weight: .bold))
+                        }
+                        .foregroundStyle(Color.mmOnboardingBg)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 50)
+                        .background(Color.mmOnboardingAccent)
+                        .clipShape(RoundedRectangle(cornerRadius: 14))
+                    }
+                    .buttonStyle(.plain)
+
+                    Text(isJapanese
+                        ? "後からいつでも変更できます"
+                        : "You can always change this later")
+                        .font(.system(size: 10))
+                        .foregroundStyle(Color.mmOnboardingTextSub)
+                        .padding(.bottom, 4)
+                }
+
+                // Day別確認ボタン
+                let showsQuickStart = AppState.shared.userProfile.trainingExperience == .beginner
+                    || AppState.shared.userProfile.trainingExperience == .halfYear
                 Button {
                     saveAndProceed()
                 } label: {
-                    Text(nextButtonLabel)
-                        .font(.system(size: 18, weight: .bold))
-                        .foregroundStyle(canProceed ? Color.mmOnboardingBg : Color.mmOnboardingTextSub)
+                    Text(showsQuickStart
+                        ? (isJapanese ? "自分でDay別に確認する" : "Review each Day manually")
+                        : nextButtonLabel)
+                        .font(.system(size: showsQuickStart ? 14 : 18, weight: .bold))
+                        .foregroundStyle(
+                            showsQuickStart
+                                ? (canProceed ? Color.mmOnboardingTextMain : Color.mmOnboardingTextSub)
+                                : (canProceed ? Color.mmOnboardingBg : Color.mmOnboardingTextSub)
+                        )
                         .frame(maxWidth: .infinity)
-                        .frame(height: 56)
-                        .background(canProceed ? Color.mmOnboardingAccent : Color.mmOnboardingCard)
-                        .clipShape(RoundedRectangle(cornerRadius: 16))
+                        .frame(height: showsQuickStart ? 44 : 56)
+                        .background(showsQuickStart ? Color.mmOnboardingCard : (canProceed ? Color.mmOnboardingAccent : Color.mmOnboardingCard))
+                        .clipShape(RoundedRectangle(cornerRadius: showsQuickStart ? 12 : 16))
                 }
                 .buttonStyle(.plain)
                 .disabled(!canProceed)
@@ -181,6 +227,14 @@ struct RoutineBuilderPage: View {
             VStack(spacing: 0) {
                 // Day単位 location ピッカー
                 locationPicker
+
+                // 変更可能ヒント
+                Text(isJapanese
+                    ? "種目は後からいつでも変更できます"
+                    : "You can change exercises anytime later")
+                    .font(.system(size: 10))
+                    .foregroundStyle(Color.mmOnboardingTextSub)
+                    .padding(.horizontal, 24)
 
                 // 種目数カウンター + 追加ボタン
                 HStack {

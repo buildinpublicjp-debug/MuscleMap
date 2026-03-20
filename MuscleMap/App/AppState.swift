@@ -123,6 +123,11 @@ class AppState {
         didSet { UserDefaults.standard.set(hasSeenHomeCoachMark, forKey: "hasSeenHomeCoachMark") }
     }
 
+    // 筋肉マップ色説明オーバーレイ表示済みフラグ
+    var hasSeenMapExplanation: Bool = UserDefaults.standard.bool(forKey: "hasSeenMapExplanation") {
+        didSet { UserDefaults.standard.set(hasSeenMapExplanation, forKey: "hasSeenMapExplanation") }
+    }
+
     // オンボーディングで選んだ主要目標（CallToActionPageのコピーに使用）
     var primaryOnboardingGoal: String? {
         get { UserDefaults.standard.string(forKey: "primaryOnboardingGoal") }

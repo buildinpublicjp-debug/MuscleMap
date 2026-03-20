@@ -14,6 +14,7 @@ struct HomeView: View {
     @State private var showingPaywall = false
     @State private var strengthScores: [String: Double] = [:]
     @State private var showCoachMark = false
+    @State private var showMapExplanation = false
     @State private var showingExerciseLibrary = false
     @State private var recommendedWorkout: RecommendedWorkout?
     @State private var showingMenuPreview = false
@@ -66,6 +67,18 @@ struct HomeView: View {
                                     }
                                     .transition(.opacity.combined(with: .scale(scale: 0.9)))
                                     .zIndex(10)
+                                }
+
+                                // 初回筋肉マップ説明オーバーレイ
+                                if showMapExplanation {
+                                    MapExplanationOverlay {
+                                        withAnimation(.easeOut(duration: 0.3)) {
+                                            showMapExplanation = false
+                                        }
+                                        AppState.shared.hasSeenMapExplanation = true
+                                    }
+                                    .transition(.opacity.combined(with: .scale(scale: 0.95)))
+                                    .zIndex(11)
                                 }
                             }
                             .padding(.horizontal)
@@ -263,6 +276,16 @@ struct HomeView: View {
                             withAnimation(.easeIn(duration: 0.3)) {
                                 showCoachMark = true
                             }
+                        }
+                    }
+                }
+
+                // 初回筋肉マップ説明（オンボーディング完了直後、コーチマーク非該当時）
+                if !AppState.shared.hasSeenMapExplanation && AppState.shared.hasSeenHomeCoachMark {
+                    Task {
+                        try? await Task.sleep(for: .seconds(0.8))
+                        withAnimation(.easeIn(duration: 0.3)) {
+                            showMapExplanation = true
                         }
                     }
                 }

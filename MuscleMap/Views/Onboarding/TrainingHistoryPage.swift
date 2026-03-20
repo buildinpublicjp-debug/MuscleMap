@@ -118,6 +118,12 @@ struct ProfileInputPage: View {
                     expButton(option)
                 }
             }
+
+            if selectedExperience == nil {
+                Text(isJapanese ? "わからない場合は「初心者」がおすすめ" : "If unsure, select \"Newbie\"")
+                    .font(.system(size: 11))
+                    .foregroundStyle(Color.mmOnboardingTextSub.opacity(0.7))
+            }
         }
     }
 
@@ -166,6 +172,10 @@ struct ProfileInputPage: View {
                 Text(L10n.profileWeightLabel)
                     .font(.system(size: 15, weight: .bold))
                     .foregroundStyle(Color.mmOnboardingTextMain)
+
+                Text(isJapanese ? "体重から最適な重量を提案します" : "Used to suggest optimal weights")
+                    .font(.system(size: 11))
+                    .foregroundStyle(Color.mmOnboardingTextSub.opacity(0.7))
 
                 Spacer()
 

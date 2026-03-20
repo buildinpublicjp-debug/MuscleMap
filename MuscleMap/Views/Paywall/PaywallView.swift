@@ -210,13 +210,15 @@ struct PaywallView: View {
         .padding(.horizontal, 24)
     }
 
-    // MARK: - Pro機能リスト（3つのみ）
+    // MARK: - Pro機能リスト（初心者に刺さる順）
 
     private var featureListSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            featureCheckRow(isJapanese ? "種目・重量・セット数の自動提案" : "Auto-suggested exercises, weight & sets")
-            featureCheckRow(isJapanese ? "強さレベル & Strength Map" : "Strength Level & Strength Map")
-            featureCheckRow(isJapanese ? "レベルアップまでの距離表示" : "Track your progress to next level")
+            featureCheckRow(isJapanese ? "ワークアウト記録が無制限" : "Unlimited workout tracking")
+            featureCheckRow(isJapanese ? "今日のメニューを毎日自動提案" : "Daily personalized workout suggestions")
+            featureCheckRow(isJapanese ? "筋肉が回復したらお知らせ" : "Recovery notifications when muscles are ready")
+            featureCheckRow(isJapanese ? "種目・重量・セット数の自動最適化" : "Auto-optimized exercises, weight & sets")
+            featureCheckRow(isJapanese ? "Strength Map — 筋力を可視化" : "Strength Map — Visualize your power")
         }
         .padding(.horizontal, 32)
     }
@@ -258,6 +260,13 @@ struct PaywallView: View {
             .buttonStyle(.plain)
             .disabled(PurchaseManager.shared.isLoading)
 
+            // 年額の割安感
+            Text(isJapanese
+                ? "月額\(monthlyPriceText)が月¥408に — 31%お得"
+                : "Save 31% vs monthly")
+                .font(.system(size: 11, weight: .bold))
+                .foregroundStyle(Color.mmAccentPrimary)
+
             // 月額ボタン（小さく）
             Button {
                 HapticManager.lightTap()
@@ -277,6 +286,11 @@ struct PaywallView: View {
             }
             .buttonStyle(.plain)
             .disabled(PurchaseManager.shared.isLoading)
+
+            // いつでもキャンセル可能
+            Text(isJapanese ? "いつでもキャンセル可能" : "Cancel anytime")
+                .font(.system(size: 12))
+                .foregroundStyle(Color.mmTextSecondary)
         }
         .padding(.horizontal, 24)
     }
@@ -329,7 +343,7 @@ struct PaywallView: View {
                 HapticManager.lightTap()
                 dismiss()
             } label: {
-                Text(isJapanese ? "無料で続ける" : "Continue for Free")
+                Text(isJapanese ? "無料で今すぐ始める" : "Start Free Now")
                     .font(.caption)
                     .foregroundStyle(Color.mmTextSecondary.opacity(0.6))
             }
