@@ -11,6 +11,7 @@ struct SplashView: View {
     @State private var muscleMapOpacity: Double = 0
     @State private var muscleMapScale: Double = 0.9
     @State private var showContinue: Bool = false
+    @State private var glowOpacity: Double = 0.4
 
     private var isJapanese: Bool {
         LocalizationManager.shared.currentLanguage == .japanese
@@ -18,14 +19,24 @@ struct SplashView: View {
 
     var body: some View {
         ZStack {
-            Color.mmOnboardingBg.ignoresSafeArea()
+            // 背景: 上部が少し明るいグラデーション
+            LinearGradient(
+                colors: [
+                    Color(hex: "#222226"),
+                    Color.mmOnboardingBg,
+                    Color.mmOnboardingBg
+                ],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .ignoresSafeArea()
 
             VStack(spacing: 0) {
                 Spacer().frame(height: 60)
 
-                // アプリ名（コンパクト）
+                // アプリ名
                 Text("MuscleMap")
-                    .font(.system(size: 32, weight: .heavy))
+                    .font(.system(size: 36, weight: .heavy))
                     .foregroundStyle(
                         LinearGradient(
                             colors: [Color.mmOnboardingAccent, Color.mmOnboardingAccentDark],
@@ -38,7 +49,7 @@ struct SplashView: View {
 
                 Spacer().frame(height: 24)
 
-                // ヒーロー: 筋肉マップ（大きく表示）
+                // ヒーロー: 筋肉マップ（全筋肉ウェーブアニメーション）
                 SplashMuscleMapHero()
                     .frame(height: 360)
                     .opacity(muscleMapOpacity)
@@ -46,14 +57,14 @@ struct SplashView: View {
 
                 Spacer().frame(height: 24)
 
-                // タグライン（エモーショナル）
+                // タグライン（エモーショナル、大きめ）
                 VStack(spacing: 8) {
                     Text(isJapanese ? "鍛えた筋肉が光る。" : "Watch your muscles light up.")
-                        .font(.system(size: 24, weight: .bold))
+                        .font(.system(size: 28, weight: .heavy))
                         .foregroundStyle(Color.mmOnboardingTextMain)
 
                     Text(isJapanese ? "あなたの体の変化を、目で見る。" : "See your body transform.")
-                        .font(.subheadline)
+                        .font(.system(size: 16))
                         .foregroundStyle(Color.mmOnboardingTextSub)
                 }
                 .opacity(taglineOpacity)
@@ -61,7 +72,7 @@ struct SplashView: View {
 
                 Spacer()
 
-                // 続行ボタン
+                // 続行ボタン（グロー効果付き）
                 if showContinue {
                     Button {
                         HapticManager.lightTap()
@@ -80,11 +91,21 @@ struct SplashView: View {
                                 )
                             )
                             .clipShape(RoundedRectangle(cornerRadius: 16))
+                            .shadow(
+                                color: Color.mmOnboardingAccent.opacity(glowOpacity),
+                                radius: 16, x: 0, y: 4
+                            )
                     }
                     .buttonStyle(.plain)
                     .padding(.horizontal, 32)
                     .padding(.bottom, 48)
                     .transition(.opacity.combined(with: .move(edge: .bottom)))
+                    .onAppear {
+                        // 脈動グロー
+                        withAnimation(.easeInOut(duration: 1.5).repeatForever(autoreverses: true)) {
+                            glowOpacity = 0.8
+                        }
+                    }
                 }
             }
         }
@@ -124,17 +145,10 @@ struct SplashView: View {
     }
 }
 
-// MARK: - スプラッシュ用ヒーロー筋肉マップ
+// MARK: - スプラッシュ用ヒーロー筋肉マップ（全筋肉ウェーブ + ループ）
 
 private struct SplashMuscleMapHero: View {
-    @State private var highlightedMuscles: Set<Muscle> = []
-
-    private let frontWave: [Muscle] = [
-        .chestUpper, .chestLower, .deltoidAnterior, .biceps, .rectusAbdominis, .quadriceps
-    ]
-    private let backWave: [Muscle] = [
-        .lats, .trapsUpper, .trapsMiddleLower, .glutes, .hamstrings, .triceps
-    ]
+    @State private var animatedMuscles: Set<Muscle> = []
 
     var body: some View {
         HStack(spacing: 16) {
@@ -143,7 +157,7 @@ private struct SplashMuscleMapHero: View {
                 let rect = CGRect(origin: .zero, size: geo.size)
                 ZStack {
                     ForEach(MusclePathData.frontMuscles, id: \.muscle) { entry in
-                        let isHighlighted = highlightedMuscles.contains(entry.muscle)
+                        let isHighlighted = animatedMuscles.contains(entry.muscle)
                         entry.path(rect)
                             .fill(isHighlighted
                                 ? Color.mmOnboardingAccent.opacity(0.85)
@@ -161,7 +175,7 @@ private struct SplashMuscleMapHero: View {
                                 color: isHighlighted ? Color.mmOnboardingAccent.opacity(0.6) : .clear,
                                 radius: isHighlighted ? 8 : 0
                             )
-                            .animation(.easeInOut(duration: 0.5), value: isHighlighted)
+                            .animation(.easeInOut(duration: 0.3), value: isHighlighted)
                     }
                 }
             }
@@ -172,7 +186,7 @@ private struct SplashMuscleMapHero: View {
                 let rect = CGRect(origin: .zero, size: geo.size)
                 ZStack {
                     ForEach(MusclePathData.backMuscles, id: \.muscle) { entry in
-                        let isHighlighted = highlightedMuscles.contains(entry.muscle)
+                        let isHighlighted = animatedMuscles.contains(entry.muscle)
                         entry.path(rect)
                             .fill(isHighlighted
                                 ? Color.mmOnboardingAccent.opacity(0.85)
@@ -190,7 +204,7 @@ private struct SplashMuscleMapHero: View {
                                 color: isHighlighted ? Color.mmOnboardingAccent.opacity(0.6) : .clear,
                                 radius: isHighlighted ? 8 : 0
                             )
-                            .animation(.easeInOut(duration: 0.5), value: isHighlighted)
+                            .animation(.easeInOut(duration: 0.3), value: isHighlighted)
                     }
                 }
             }
@@ -198,21 +212,29 @@ private struct SplashMuscleMapHero: View {
         }
         .padding(.horizontal, 40)
         .onAppear {
-            runMuscleWave()
+            // 初回はマップ表示後に開始
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                startWaveAnimation()
+            }
         }
     }
 
-    private func runMuscleWave() {
-        // 前面を順に点灯
-        for (index, muscle) in frontWave.enumerated() {
-            DispatchQueue.main.asyncAfter(deadline: .now() + Double(index) * 0.15 + 0.5) {
-                _ = highlightedMuscles.insert(muscle)
+    private func startWaveAnimation() {
+        let allMuscles = Muscle.allCases
+
+        // 全筋肉を0.05秒間隔で順番に点灯
+        for (index, muscle) in allMuscles.enumerated() {
+            DispatchQueue.main.asyncAfter(deadline: .now() + Double(index) * 0.05) {
+                animatedMuscles.insert(muscle)
             }
         }
-        // 背面を順に点灯
-        for (index, muscle) in backWave.enumerated() {
-            DispatchQueue.main.asyncAfter(deadline: .now() + Double(index) * 0.15 + 1.2) {
-                _ = highlightedMuscles.insert(muscle)
+
+        // 全部光ったら2秒待って → リセット → 1秒後に再開
+        let totalLightUpTime = Double(allMuscles.count) * 0.05
+        DispatchQueue.main.asyncAfter(deadline: .now() + totalLightUpTime + 2.0) {
+            animatedMuscles.removeAll()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                startWaveAnimation()
             }
         }
     }

@@ -61,7 +61,12 @@ struct LocationSelectionPage: View {
     @State private var isProceeding = false
     @State private var selectedExercise: ExerciseDefinition?
     @State private var scrollOffset: CGFloat = 0
-    @State private var isAnimating = false
+    @State private var scrollTimer: Timer?
+    @State private var isUserScrolling = false
+    @State private var dragBaseOffset: CGFloat = 0
+
+    /// スクロール速度（px/フレーム、30fps想定 → 約15px/秒）
+    private let scrollSpeed: CGFloat = 0.5
 
     /// 器具が必要な「自重」種目を除外するID判定
     private static let bodyweightExcludeIds: Set<String> = [
@@ -207,7 +212,7 @@ struct LocationSelectionPage: View {
             Button {
                 guard !isProceeding, let loc = selected else { return }
                 isProceeding = true
-                isAnimating = false
+                stopScrollTimer()
                 HapticManager.lightTap()
                 onNext(loc)
             } label: {
@@ -244,7 +249,7 @@ struct LocationSelectionPage: View {
             }
         }
         .onDisappear {
-            isAnimating = false
+            stopScrollTimer()
         }
         .sheet(item: $selectedExercise) { exercise in
             NavigationStack {
@@ -255,91 +260,100 @@ struct LocationSelectionPage: View {
         }
     }
 
-    // MARK: - GIFギャラリー（滑らか自動スクロール）
+    // MARK: - 1セット分のコンテンツ幅
+
+    private var oneSetWidth: CGFloat {
+        CGFloat(gridColumns.count) * columnWidth
+    }
+
+    // MARK: - GIFギャラリー（Timerベース滑らか自動スクロール）
 
     private var gifGallery: some View {
-        let colCount = gridColumns.count
-        let oneSetWidth = CGFloat(colCount) * columnWidth + 48
-
-        return GeometryReader { _ in
+        GeometryReader { _ in
             HStack(alignment: .top, spacing: 8) {
                 // 1セット目
                 ForEach(gridColumns, id: \.0) { _, pair in
-                    VStack(spacing: 8) {
-                        ExerciseGifCard(exercise: pair.0) {
-                            selectedExercise = pair.0
-                            HapticManager.lightTap()
-                        }
-                        if let second = pair.1 {
-                            ExerciseGifCard(exercise: second) {
-                                selectedExercise = second
-                                HapticManager.lightTap()
-                            }
-                        }
-                    }
+                    gifColumn(pair: pair)
                 }
-                // 2セット目（ループ用複製）
+                // 2セット目（無限ループ用複製）
                 ForEach(gridColumns, id: \.0) { _, pair in
-                    VStack(spacing: 8) {
-                        ExerciseGifCard(exercise: pair.0) {
-                            selectedExercise = pair.0
-                            HapticManager.lightTap()
-                        }
-                        if let second = pair.1 {
-                            ExerciseGifCard(exercise: second) {
-                                selectedExercise = second
-                                HapticManager.lightTap()
-                            }
-                        }
-                    }
+                    gifColumn(pair: pair)
                 }
             }
             .padding(.horizontal, 24)
             .offset(x: scrollOffset)
-            .onChange(of: scrollOffset) {
-                if scrollOffset <= -oneSetWidth {
-                    // 1セット分スクロールしたらリセットして再開
-                    scrollOffset = 0
-                    isAnimating = false
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-                        startSmoothScroll(oneSetWidth: oneSetWidth)
-                    }
-                }
-            }
         }
         .contentShape(Rectangle())
         .clipped()
         .simultaneousGesture(
             DragGesture(minimumDistance: 10, coordinateSpace: .local)
                 .onChanged { value in
-                    isAnimating = false
-                    scrollOffset = value.translation.width
+                    if !isUserScrolling {
+                        isUserScrolling = true
+                        stopScrollTimer()
+                        dragBaseOffset = scrollOffset
+                    }
+                    scrollOffset = dragBaseOffset + value.translation.width / 3
                 }
                 .onEnded { _ in
-                    startSmoothScroll(oneSetWidth: oneSetWidth)
+                    // 2秒後に自動スクロール再開
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                        isUserScrolling = false
+                        startScrollTimer()
+                    }
                 }
         )
         .onAppear {
-            startSmoothScroll(oneSetWidth: oneSetWidth)
+            startScrollTimer()
         }
         .onChange(of: selected) {
+            stopScrollTimer()
             scrollOffset = 0
-            isAnimating = false
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                startSmoothScroll(oneSetWidth: oneSetWidth)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                startScrollTimer()
             }
         }
     }
 
-    // MARK: - 滑らか自動スクロール
-
-    private func startSmoothScroll(oneSetWidth: CGFloat) {
-        guard !isAnimating else { return }
-        isAnimating = true
-        let duration = Double(gridColumns.count) * 2.0
-        withAnimation(.linear(duration: duration)) {
-            scrollOffset = -oneSetWidth
+    @ViewBuilder
+    private func gifColumn(pair: (ExerciseDefinition, ExerciseDefinition?)) -> some View {
+        VStack(spacing: 8) {
+            ExerciseGifCard(exercise: pair.0) {
+                selectedExercise = pair.0
+                HapticManager.lightTap()
+            }
+            if let second = pair.1 {
+                ExerciseGifCard(exercise: second) {
+                    selectedExercise = second
+                    HapticManager.lightTap()
+                }
+            }
         }
+    }
+
+    // MARK: - Timerベース自動スクロール（30fps）
+
+    private func startScrollTimer() {
+        stopScrollTimer()
+        let setWidth = oneSetWidth
+        guard setWidth > 0 else { return }
+
+        scrollTimer = Timer.scheduledTimer(withTimeInterval: 1.0 / 30.0, repeats: true) { _ in
+            Task { @MainActor in
+                guard !isUserScrolling else { return }
+                scrollOffset -= scrollSpeed
+
+                // 1セット分スクロールしたらリセット（継ぎ目なしループ）
+                if scrollOffset <= -setWidth {
+                    scrollOffset += setWidth
+                }
+            }
+        }
+    }
+
+    private func stopScrollTimer() {
+        scrollTimer?.invalidate()
+        scrollTimer = nil
     }
 }
 
