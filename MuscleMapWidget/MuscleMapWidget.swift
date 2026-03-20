@@ -146,69 +146,121 @@ enum WidgetL10n {
     }
 }
 
-// MARK: - Smallウィジェットビュー（前面のみ）
+// MARK: - Smallウィジェットビュー（前面 + 提案1行 + アプリ名）
 
 struct SmallWidgetView: View {
     let entry: MuscleMapEntry
 
-    var body: some View {
-        GeometryReader { geo in
-            WidgetMuscleMapView(muscleStates: entry.muscleStates, showFront: true)
-                .frame(width: geo.size.height * 0.5, height: geo.size.height)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-        }
-        .containerBackground(Color.mmBgPrimary, for: .widget)
-    }
-}
-
-// MARK: - Mediumウィジェットビュー（前面 + 背面 + 今日の提案）
-
-struct MediumWidgetView: View {
-    let entry: MuscleMapEntry
-
-    /// 今日鍛えるべき部位ペア（最大2つ）
     private var suggestedPairs: [WidgetTrainingPair] {
         WidgetSuggestionLogic.suggest(from: entry.muscleStates)
     }
 
     var body: some View {
-        GeometryReader { geo in
-            let bodyHeight = geo.size.height
-            let bodyWidth = bodyHeight * 0.5
-            HStack(spacing: 4) {
-                WidgetMuscleMapView(muscleStates: entry.muscleStates, showFront: true)
-                    .frame(width: bodyWidth, height: bodyHeight)
-                WidgetMuscleMapView(muscleStates: entry.muscleStates, showFront: false)
-                    .frame(width: bodyWidth, height: bodyHeight)
+        VStack(spacing: 4) {
+            // マップ（前面のみ、できるだけ大きく）
+            WidgetMuscleMapView(muscleStates: entry.muscleStates, showFront: true)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-                // 提案カラム
-                VStack(alignment: .leading, spacing: 6) {
+            // 今日の提案（1行）
+            if let first = suggestedPairs.first {
+                HStack(spacing: 3) {
+                    Circle()
+                        .fill(Color.mmAccentPrimary)
+                        .frame(width: 4, height: 4)
+                    Text(first.label)
+                        .font(.system(size: 10, weight: .bold))
+                        .foregroundStyle(Color.mmAccentPrimary)
+                        .lineLimit(1)
+                }
+            }
+
+            // アプリ名
+            Text("MuscleMap")
+                .font(.system(size: 8, weight: .medium))
+                .foregroundStyle(Color.mmTextSecondary.opacity(0.5))
+        }
+        .padding(8)
+        .containerBackground(Color.mmBgPrimary, for: .widget)
+    }
+}
+
+// MARK: - Mediumウィジェットビュー（前面 + 背面 + 今日の提案 + ステータス）
+
+struct MediumWidgetView: View {
+    let entry: MuscleMapEntry
+
+    private var suggestedPairs: [WidgetTrainingPair] {
+        WidgetSuggestionLogic.suggest(from: entry.muscleStates)
+    }
+
+    private var recoveringCount: Int {
+        entry.muscleStates.values.filter { $0.stateType == .recovering }.count
+    }
+
+    private var readyCount: Int {
+        entry.muscleStates.values.filter {
+            $0.stateType == .inactive || ($0.stateType == .recovering && $0.progress >= 0.8)
+        }.count
+    }
+
+    var body: some View {
+        GeometryReader { geo in
+            HStack(spacing: 0) {
+                // 左: マップ2体（55%）
+                HStack(spacing: 2) {
+                    WidgetMuscleMapView(muscleStates: entry.muscleStates, showFront: true)
+                    WidgetMuscleMapView(muscleStates: entry.muscleStates, showFront: false)
+                }
+                .frame(width: geo.size.width * 0.55)
+                .padding(.vertical, 4)
+
+                // 右: 提案 + ステータス
+                VStack(alignment: .leading, spacing: 8) {
                     Spacer()
 
-                    Text(WidgetL10n.todaysSuggestion)
-                        .font(.system(size: 9, weight: .medium))
-                        .foregroundStyle(Color.mmTextSecondary)
+                    // 今日の提案
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(WidgetL10n.todaysSuggestion)
+                            .font(.system(size: 10, weight: .medium))
+                            .foregroundStyle(Color.mmTextSecondary)
 
-                    ForEach(suggestedPairs, id: \.label) { pair in
-                        HStack(spacing: 4) {
-                            Circle()
-                                .fill(Color.mmAccentPrimary)
-                                .frame(width: 5, height: 5)
-                            Text(pair.label)
-                                .font(.system(size: 12, weight: .bold))
-                                .foregroundStyle(Color.mmAccentPrimary)
-                                .lineLimit(1)
-                                .minimumScaleFactor(0.7)
+                        ForEach(suggestedPairs, id: \.label) { pair in
+                            HStack(spacing: 4) {
+                                Circle()
+                                    .fill(Color.mmAccentPrimary)
+                                    .frame(width: 5, height: 5)
+                                Text(pair.label)
+                                    .font(.system(size: 13, weight: .bold))
+                                    .foregroundStyle(Color.mmAccentPrimary)
+                                    .lineLimit(1)
+                                    .minimumScaleFactor(0.7)
+                            }
+                        }
+                    }
+
+                    // ステータスバッジ
+                    HStack(spacing: 8) {
+                        HStack(spacing: 3) {
+                            Circle().fill(Color.mmMuscleCoral).frame(width: 6, height: 6)
+                            Text("\(recoveringCount)")
+                                .font(.system(size: 11, weight: .bold))
+                                .foregroundStyle(Color.mmMuscleCoral)
+                        }
+                        HStack(spacing: 3) {
+                            Circle().fill(Color.mmMuscleBioGreen).frame(width: 6, height: 6)
+                            Text("\(readyCount)")
+                                .font(.system(size: 11, weight: .bold))
+                                .foregroundStyle(Color.mmMuscleBioGreen)
                         }
                     }
 
                     Spacer()
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.leading, 8)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .padding(.vertical, 4)
+        .padding(8)
         .containerBackground(Color.mmBgPrimary, for: .widget)
     }
 }
@@ -299,45 +351,97 @@ enum WidgetSuggestionLogic {
     }
 }
 
-// MARK: - Largeウィジェットビュー（前面 + 背面 + ステータス）
+// MARK: - Largeウィジェットビュー（ヘッダー + マップ + 提案 + ステータス）
 
 struct LargeWidgetView: View {
     let entry: MuscleMapEntry
+
+    private var suggestedPairs: [WidgetTrainingPair] {
+        WidgetSuggestionLogic.suggest(from: entry.muscleStates)
+    }
 
     private var recoveringCount: Int {
         entry.muscleStates.values.filter { $0.stateType == .recovering }.count
     }
 
     private var readyCount: Int {
-        entry.muscleStates.values.filter { $0.stateType == .inactive }.count
+        entry.muscleStates.values.filter {
+            $0.stateType == .inactive || ($0.stateType == .recovering && $0.progress >= 0.8)
+        }.count
     }
 
-    var body: some View {
-        GeometryReader { geo in
-            VStack(spacing: 8) {
-                HStack(spacing: 16) {
-                    WidgetMuscleMapView(muscleStates: entry.muscleStates, showFront: true)
-                        .frame(width: geo.size.width * 0.38)
-                    WidgetMuscleMapView(muscleStates: entry.muscleStates, showFront: false)
-                        .frame(width: geo.size.width * 0.38)
-                }
-                .frame(height: geo.size.height * 0.8)
+    private var neglectedCount: Int {
+        entry.muscleStates.values.filter {
+            $0.stateType == .neglected || $0.stateType == .neglectedSevere
+        }.count
+    }
 
-                // 簡易ステータス
-                HStack {
-                    Label("\(recoveringCount)", systemImage: "arrow.triangle.2.circlepath")
-                        .foregroundStyle(Color.mmMuscleCoral)
-                    Spacer()
-                    Label("\(readyCount)", systemImage: "checkmark.circle")
-                        .foregroundStyle(Color.mmMuscleBioGreen)
+    private var isJa: Bool { WidgetDataReader.isJapanese() }
+
+    var body: some View {
+        VStack(spacing: 12) {
+            // ヘッダー: アプリ名 + ステータスバッジ
+            HStack {
+                Text("MuscleMap")
+                    .font(.system(size: 14, weight: .heavy))
+                    .foregroundStyle(Color.mmAccentPrimary)
+                Spacer()
+                HStack(spacing: 10) {
+                    statusBadge(color: .mmMuscleCoral, count: recoveringCount)
+                    statusBadge(color: .mmMuscleBioGreen, count: readyCount)
+                    if neglectedCount > 0 {
+                        statusBadge(color: .mmMuscleNeglected, count: neglectedCount)
+                    }
                 }
-                .font(.caption)
-                .padding(.horizontal, 4)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+            // マップ（大きく、前面+背面）
+            GeometryReader { geo in
+                HStack(spacing: 8) {
+                    WidgetMuscleMapView(muscleStates: entry.muscleStates, showFront: true)
+                        .frame(width: geo.size.width * 0.45)
+                    WidgetMuscleMapView(muscleStates: entry.muscleStates, showFront: false)
+                        .frame(width: geo.size.width * 0.45)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
+
+            // 今日の提案（大きく）
+            VStack(spacing: 6) {
+                Text(WidgetL10n.todaysSuggestion)
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundStyle(Color.mmTextSecondary)
+
+                HStack(spacing: 12) {
+                    ForEach(suggestedPairs, id: \.label) { pair in
+                        HStack(spacing: 5) {
+                            Circle()
+                                .fill(Color.mmAccentPrimary)
+                                .frame(width: 6, height: 6)
+                            Text(pair.label)
+                                .font(.system(size: 15, weight: .heavy))
+                                .foregroundStyle(Color.mmAccentPrimary)
+                                .lineLimit(1)
+                        }
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(Color.mmAccentPrimary.opacity(0.1))
+                        .clipShape(Capsule())
+                    }
+                }
+            }
         }
-        .padding(12)
+        .padding(16)
         .containerBackground(Color.mmBgPrimary, for: .widget)
+    }
+
+    private func statusBadge(color: Color, count: Int) -> some View {
+        HStack(spacing: 3) {
+            Circle().fill(color).frame(width: 6, height: 6)
+            Text("\(count)")
+                .font(.system(size: 11, weight: .bold))
+                .foregroundStyle(color)
+        }
     }
 }
 
@@ -369,7 +473,7 @@ struct WidgetMuscleMapView: View {
                 }
             }
         }
-        .aspectRatio(0.5, contentMode: .fit)
+        .aspectRatio(0.45, contentMode: .fit)
     }
 }
 
