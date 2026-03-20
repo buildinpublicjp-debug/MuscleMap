@@ -94,10 +94,10 @@ struct FrequencySelectionPage: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            Spacer().frame(height: 32)
+            Spacer().frame(height: 20)
 
             // ヘッダー
-            VStack(spacing: 8) {
+            VStack(spacing: 6) {
                 Text(isJapanese ? "週にどれくらいやれる？" : "How often can you train?")
                     .font(.system(size: 28, weight: .heavy))
                     .foregroundStyle(Color.mmOnboardingTextMain)
@@ -112,15 +112,15 @@ struct FrequencySelectionPage: View {
             .opacity(appeared ? 1 : 0)
             .offset(y: appeared ? 0 : 20)
 
-            Spacer().frame(height: 16)
+            Spacer().frame(height: 8)
 
             // 筋肉マップ（超回復アニメーション）
             MuscleMapView(
                 muscleStates: muscleStates,
                 onMuscleTapped: nil
             )
-            .frame(height: 220)
-            .padding(.horizontal, 24)
+            .frame(height: 260)
+            .padding(.horizontal, 16)
             .opacity(appeared ? 1 : 0)
             .animation(.easeOut(duration: 0.5).delay(0.2), value: appeared)
 
@@ -131,7 +131,7 @@ struct FrequencySelectionPage: View {
                 legendItem(color: Color.mmOnboardingTextSub.opacity(0.3), text: isJapanese ? "未刺激" : "Inactive")
             }
             .font(.system(size: 9))
-            .padding(.top, 4)
+            .padding(.top, 2)
             .opacity(appeared ? 1 : 0)
 
             // ヒントテキスト or タイムラインバー
@@ -139,7 +139,7 @@ struct FrequencySelectionPage: View {
                 Text(isJapanese ? "頻度を選ぶとサイクルが動きます" : "Select to see the recovery cycle")
                     .font(.caption)
                     .foregroundStyle(Color.mmOnboardingTextSub)
-                    .padding(.top, 8)
+                    .padding(.top, 6)
                     .opacity(appeared ? 1 : 0)
             } else {
                 // 超回復の1行説明
@@ -150,16 +150,16 @@ struct FrequencySelectionPage: View {
                     .foregroundStyle(Color.mmOnboardingTextSub)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 24)
-                    .padding(.top, 4)
+                    .padding(.top, 2)
                     .transition(.opacity)
 
                 timelineBar
                     .padding(.horizontal, 24)
-                    .padding(.top, 4)
+                    .padding(.top, 2)
                     .transition(.opacity)
             }
 
-            Spacer().frame(height: 16)
+            Spacer().frame(height: 10)
 
             // 選択カード（コンパクトリスト）
             ScrollView {
@@ -188,13 +188,13 @@ struct FrequencySelectionPage: View {
                 if let freq = selected {
                     evidenceSection(for: freq)
                         .padding(.horizontal, 24)
-                        .padding(.top, 12)
+                        .padding(.top, 8)
                         .transition(.opacity.combined(with: .move(edge: .bottom)))
                 }
             }
             .scrollIndicators(.hidden)
 
-            Spacer()
+            Spacer(minLength: 4)
 
             // 次へボタン
             Button {
