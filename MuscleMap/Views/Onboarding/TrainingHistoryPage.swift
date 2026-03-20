@@ -46,7 +46,7 @@ struct ProfileInputPage: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            Spacer().frame(height: 60)
+            Spacer().frame(height: 24)
 
             // タイトル
             VStack(spacing: 8) {
@@ -64,10 +64,10 @@ struct ProfileInputPage: View {
             .opacity(appeared ? 1 : 0)
             .offset(y: appeared ? 0 : 20)
 
-            Spacer().frame(height: 28)
+            Spacer().frame(height: 16)
 
             ScrollView(.vertical, showsIndicators: false) {
-                VStack(spacing: 20) {
+                VStack(spacing: 16) {
                     // セクション1: トレーニング経験（横並び4択）
                     experienceSection
 
@@ -83,7 +83,7 @@ struct ProfileInputPage: View {
             .opacity(appeared ? 1 : 0)
             .offset(y: appeared ? 0 : 20)
 
-            Spacer()
+            Spacer(minLength: 16)
 
             // 次へボタン
             nextButton
