@@ -120,34 +120,6 @@ struct MapExplanationOverlay: View {
     }
 }
 
-// MARK: - 無料ユーザー向けワークアウト残回数バッジ
-
-/// 無料ユーザーに今週の残りワークアウト回数を表示する
-/// Proユーザーには表示しない
-struct FreeWorkoutLimitBadge: View {
-    private var isJapanese: Bool { LocalizationManager.shared.currentLanguage == .japanese }
-
-    var body: some View {
-        if !PurchaseManager.shared.isPremium {
-            let remaining = max(0, 1 - PurchaseManager.shared.weeklyWorkoutCount)
-            HStack(spacing: 4) {
-                Image(systemName: remaining > 0 ? "checkmark.circle" : "lock.circle")
-                    .font(.caption2)
-                    .foregroundStyle(remaining > 0 ? Color.mmAccentPrimary : Color.mmWarning)
-                Text(remaining > 0
-                     ? (isJapanese ? "今週あと\(remaining)回無料" : "\(remaining) free this week")
-                     : (isJapanese ? "今週の無料枠を使い切りました" : "Free workouts used this week"))
-                    .font(.caption2)
-                    .foregroundStyle(Color.mmTextSecondary)
-            }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 6)
-            .background(Color.mmBgCard)
-            .clipShape(RoundedRectangle(cornerRadius: 8))
-        }
-    }
-}
-
 // MARK: - 今日のおすすめインライン（筋肉マップ直下）
 
 /// 筋肉マップの直下に常時表示するおすすめカード
@@ -307,33 +279,48 @@ struct TodayRecommendationInline: View {
                 }
                 .buttonStyle(.plain)
             } else {
-                Button {
-                    HapticManager.lightTap()
-                    onShowPaywall()
-                } label: {
-                    HStack(spacing: 6) {
-                        Image(systemName: "lock.fill")
-                            .font(.caption)
-                        Text(L10n.startRoutine)
-                            .font(.system(size: 15, weight: .bold))
-                        Text("Pro")
-                            .font(.caption2.bold())
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 2)
-                            .background(Color.mmAccentPrimary)
-                            .clipShape(Capsule())
+                // 無料ユーザー: ロック付きボタン + 残回数テキスト
+                VStack(spacing: 6) {
+                    Button {
+                        HapticManager.lightTap()
+                        onShowPaywall()
+                    } label: {
+                        HStack(spacing: 6) {
+                            Image(systemName: "lock.fill")
+                                .font(.caption)
+                            Text(L10n.startRoutine)
+                                .font(.system(size: 15, weight: .bold))
+                            Text("Pro")
+                                .font(.caption2.bold())
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 2)
+                                .background(Color.mmAccentPrimary)
+                                .clipShape(Capsule())
+                        }
+                        .foregroundStyle(Color.mmTextPrimary)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 44)
+                        .background(Color.mmBgPrimary)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(Color.mmTextSecondary.opacity(0.3), lineWidth: 1)
+                        )
                     }
-                    .foregroundStyle(Color.mmTextPrimary)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 44)
-                    .background(Color.mmBgPrimary)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 12)
-                            .stroke(Color.mmTextSecondary.opacity(0.3), lineWidth: 1)
-                    )
+                    .buttonStyle(.plain)
+
+                    // 無料枠残回数（ボタン直下にインライン表示）
+                    let remaining = max(0, 1 - PurchaseManager.shared.weeklyWorkoutCount)
+                    HStack(spacing: 4) {
+                        Image(systemName: remaining > 0 ? "checkmark.circle" : "lock.circle")
+                            .font(.system(size: 10))
+                        Text(remaining > 0
+                             ? (localization.currentLanguage == .japanese ? "今週あと\(remaining)回無料" : "\(remaining) free this week")
+                             : (localization.currentLanguage == .japanese ? "今週の無料枠を使い切りました" : "Free workouts used this week"))
+                            .font(.system(size: 11))
+                    }
+                    .foregroundStyle(remaining > 0 ? Color.mmAccentPrimary : Color.mmWarning)
                 }
-                .buttonStyle(.plain)
             }
         }
         .padding(16)
