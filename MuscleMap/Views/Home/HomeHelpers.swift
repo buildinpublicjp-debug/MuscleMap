@@ -165,6 +165,8 @@ struct TodayRecommendationInline: View {
     var todayRoutine: RoutineDay?
     var previousWeightProvider: ((String) -> Double?)?
 
+    @State private var selectedExerciseDefinition: ExerciseDefinition?
+
     private var localization: LocalizationManager { LocalizationManager.shared }
 
     var body: some View {
@@ -208,49 +210,70 @@ struct TodayRecommendationInline: View {
                 Spacer()
             }
 
-            // 種目リスト
-            ForEach(routine.exercises) { exercise in
-                let def = ExerciseStore.shared.exercise(for: exercise.exerciseId)
-                let name = exerciseName(for: exercise)
-                HStack(spacing: 10) {
-                    // GIFサムネイル
-                    if ExerciseGifView.hasGif(exerciseId: exercise.exerciseId) {
-                        ExerciseGifView(exerciseId: exercise.exerciseId, size: .thumbnail)
-                            .frame(width: 48, height: 48)
-                            .clipShape(RoundedRectangle(cornerRadius: 6))
-                    } else {
-                        ZStack {
-                            RoundedRectangle(cornerRadius: 6)
-                                .fill(Color.mmBgPrimary)
-                                .frame(width: 48, height: 48)
-                            Image(systemName: "dumbbell.fill")
-                                .font(.system(size: 16))
-                                .foregroundStyle(Color.mmTextSecondary.opacity(0.4))
+            // 種目グリッド（2列）
+            let gridColumns = [
+                GridItem(.flexible(), spacing: 8),
+                GridItem(.flexible(), spacing: 8),
+            ]
+            LazyVGrid(columns: gridColumns, spacing: 8) {
+                ForEach(routine.exercises) { exercise in
+                    let def = ExerciseStore.shared.exercise(for: exercise.exerciseId)
+                    let name = exerciseName(for: exercise)
+                    Button {
+                        HapticManager.lightTap()
+                        if let d = def {
+                            selectedExerciseDefinition = d
                         }
-                    }
+                    } label: {
+                        ZStack {
+                            // GIF or プレースホルダー
+                            Color.mmBgPrimary
 
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(name)
-                            .font(.system(size: 15))
-                            .foregroundStyle(Color.mmTextPrimary)
-                            .lineLimit(1)
+                            if ExerciseGifView.hasGif(exerciseId: exercise.exerciseId) {
+                                ExerciseGifView(exerciseId: exercise.exerciseId, size: .card)
+                                    .scaledToFill()
+                            } else {
+                                Image(systemName: "dumbbell.fill")
+                                    .font(.system(size: 24))
+                                    .foregroundStyle(Color.mmTextSecondary.opacity(0.4))
+                            }
 
-                        HStack(spacing: 8) {
-                            // セット × レップ
-                            Text("\(exercise.suggestedSets) × \(exercise.suggestedReps)")
-                                .font(.system(size: 14).monospacedDigit())
-                                .foregroundStyle(Color.mmTextSecondary)
+                            // オーバーレイ: 種目名（上）+ セット情報（下）
+                            VStack {
+                                // 種目名（左上）
+                                HStack {
+                                    Text(name)
+                                        .font(.system(size: 11, weight: .bold))
+                                        .foregroundStyle(.white)
+                                        .lineLimit(1)
+                                        .padding(.horizontal, 6)
+                                        .padding(.vertical, 3)
+                                        .background(Color.black.opacity(0.55))
+                                        .clipShape(RoundedRectangle(cornerRadius: 4))
+                                    Spacer()
+                                }
+                                .padding(6)
 
-                            // 前回重量
-                            if let prevW = previousWeightProvider?(exercise.exerciseId), prevW > 0 {
-                                Text(L10n.previousRecord("\(formatWeight(prevW))kg"))
-                                    .font(.system(size: 12))
-                                    .foregroundStyle(Color.mmTextSecondary.opacity(0.7))
+                                Spacer()
+
+                                // セット × レップ（右下）
+                                HStack {
+                                    Spacer()
+                                    Text("\(exercise.suggestedSets) × \(exercise.suggestedReps)")
+                                        .font(.system(size: 11, weight: .semibold).monospacedDigit())
+                                        .foregroundStyle(.white)
+                                        .padding(.horizontal, 6)
+                                        .padding(.vertical, 3)
+                                        .background(Color.black.opacity(0.55))
+                                        .clipShape(RoundedRectangle(cornerRadius: 4))
+                                }
+                                .padding(6)
                             }
                         }
+                        .aspectRatio(1, contentMode: .fit)
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
                     }
-
-                    Spacer(minLength: 0)
+                    .buttonStyle(.plain)
                 }
             }
 
@@ -316,6 +339,9 @@ struct TodayRecommendationInline: View {
         .padding(16)
         .background(Color.mmBgCard)
         .clipShape(RoundedRectangle(cornerRadius: 16))
+        .sheet(item: $selectedExerciseDefinition) { def in
+            ExerciseDetailView(exercise: def)
+        }
     }
 
     /// ルーティン種目名を取得
