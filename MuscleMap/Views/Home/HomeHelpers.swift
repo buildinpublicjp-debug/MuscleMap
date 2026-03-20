@@ -138,6 +138,7 @@ struct TodayRecommendationInline: View {
     var previousWeightProvider: ((String) -> Double?)?
 
     @State private var selectedExerciseDefinition: ExerciseDefinition?
+    @State private var showRoutineEdit = false
 
     private var localization: LocalizationManager { LocalizationManager.shared }
 
@@ -145,6 +146,9 @@ struct TodayRecommendationInline: View {
         if let routine = todayRoutine, !routine.exercises.isEmpty {
             // ルーティン設定済み → ルーティンカード
             routineCard(routine: routine)
+        } else if RoutineManager.shared.hasRoutine {
+            // ルーティンあるが今日のDayの種目が空 → 休息日
+            restDayCard
         } else if !hasWorkoutHistory, let rec = recommendation, !rec.exercises.isEmpty {
             // 初回ユーザー + メニュー提案あり → 目標ベースのメニューカード
             firstTimeRecommendationCard(recommendation: rec)
@@ -159,9 +163,9 @@ struct TodayRecommendationInline: View {
                 // Pro だが提案なし → 従来の1行表示
                 simpleRecommendationCard(menu: menu)
             }
-        } else if !hasWorkoutHistory {
-            // 履歴なし & 提案なし → フォールバック
-            firstTimeCard
+        } else {
+            // ルーティンなし → ルーティン作成導線付きフォールバック
+            noRoutineCard
         }
     }
 
@@ -583,37 +587,132 @@ struct TodayRecommendationInline: View {
         .clipShape(RoundedRectangle(cornerRadius: 16))
     }
 
-    // MARK: - 初回ユーザー向けカード（フォールバック）
+    // MARK: - 休息日カード（ルーティンあり・今日の種目なし）
 
-    private var firstTimeCard: some View {
-        Button {
-            HapticManager.lightTap()
-            onStart()
-        } label: {
-            HStack(spacing: 10) {
-                Image(systemName: "target")
-                    .font(.subheadline)
+    private var restDayCard: some View {
+        let isJP = localization.currentLanguage == .japanese
+        let routineDays = RoutineManager.shared.routine.days
+        // 次の種目ありDayを探す
+        let nextDay = routineDays.first { !$0.exercises.isEmpty }
+
+        return VStack(alignment: .leading, spacing: 12) {
+            // ヘッダー
+            HStack(spacing: 8) {
+                Image(systemName: "moon.zzz.fill")
+                    .font(.system(size: 18))
                     .foregroundStyle(Color.mmAccentPrimary)
 
-                Text(localization.currentLanguage == .japanese ? "筋肉マップを赤くしてみよう" : "Light up your muscle map")
-                    .font(.subheadline.bold())
+                Text(isJP ? "今日は休息日" : "Rest Day")
+                    .font(.system(size: 16, weight: .bold))
                     .foregroundStyle(Color.mmTextPrimary)
 
                 Spacer()
-
-                Text(L10n.startWorkout)
-                    .font(.caption.bold())
-                    .foregroundStyle(Color.mmBgPrimary)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 6)
-                    .background(Color.mmAccentPrimary)
-                    .clipShape(Capsule())
             }
-            .padding(16)
-            .background(Color.mmBgCard)
-            .clipShape(RoundedRectangle(cornerRadius: 12))
+
+            Text(isJP
+                ? "筋肉を回復させて、次のトレーニングに備えましょう"
+                : "Let your muscles recover for the next session")
+                .font(.system(size: 13))
+                .foregroundStyle(Color.mmTextSecondary)
+
+            // 次のトレーニング日
+            if let next = nextDay {
+                HStack(spacing: 8) {
+                    Image(systemName: "arrow.right.circle.fill")
+                        .font(.system(size: 14))
+                        .foregroundStyle(Color.mmAccentPrimary)
+
+                    Text(isJP
+                        ? "次回: \(next.name)（\(next.exercises.count)種目）"
+                        : "Next: \(next.name) (\(next.exercises.count) exercises)")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundStyle(Color.mmTextPrimary)
+
+                    Spacer()
+                }
+                .padding(10)
+                .background(Color.mmBgPrimary.opacity(0.5))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+            }
+
+            // 「それでもトレーニングする」ボタン
+            Button {
+                HapticManager.lightTap()
+                onStart()
+            } label: {
+                Text(isJP ? "それでもトレーニングする" : "Train Anyway")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(Color.mmAccentPrimary)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 40)
+                    .background(Color.mmAccentPrimary.opacity(0.1))
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+            }
+            .buttonStyle(.plain)
         }
-        .buttonStyle(.plain)
+        .padding(16)
+        .background(Color.mmBgCard)
+        .clipShape(RoundedRectangle(cornerRadius: 16))
+    }
+
+    // MARK: - ルーティン未設定カード（フォールバック）
+
+    private var noRoutineCard: some View {
+        let isJP = localization.currentLanguage == .japanese
+
+        return VStack(spacing: 12) {
+            HStack(spacing: 8) {
+                Image(systemName: "calendar.badge.plus")
+                    .font(.system(size: 18))
+                    .foregroundStyle(Color.mmAccentPrimary)
+
+                Text(isJP ? "今日のおすすめ" : "Today's Recommendation")
+                    .font(.system(size: 16, weight: .bold))
+                    .foregroundStyle(Color.mmTextPrimary)
+
+                Spacer()
+            }
+
+            Text(isJP
+                ? "ルーティンを設定すると、毎日最適なメニューを提案します"
+                : "Set up a routine to get daily personalized suggestions")
+                .font(.system(size: 13))
+                .foregroundStyle(Color.mmTextSecondary)
+
+            // ルーティン作成ボタン
+            Button {
+                HapticManager.lightTap()
+                showRoutineEdit = true
+            } label: {
+                Text(isJP ? "ルーティンを作成" : "Create Routine")
+                    .font(.system(size: 15, weight: .bold))
+                    .foregroundStyle(Color.mmBgPrimary)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 44)
+                    .background(Color.mmAccentPrimary)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+            }
+            .buttonStyle(.plain)
+
+            // ルーティンなしでトレーニング開始
+            Button {
+                HapticManager.lightTap()
+                onStart()
+            } label: {
+                Text(isJP ? "ルーティンなしで始める" : "Start Without Routine")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(Color.mmAccentPrimary)
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(16)
+        .background(Color.mmBgCard)
+        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .sheet(isPresented: $showRoutineEdit) {
+            NavigationStack {
+                RoutineEditView()
+            }
+        }
     }
 
     // MARK: - ヘルパー
