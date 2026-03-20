@@ -70,37 +70,30 @@ class MuscleStateRepository {
             }
         )
 
-        let existing: MuscleStimulation?
         do {
-            existing = try modelContext.fetch(descriptor).first
-        } catch {
-            #if DEBUG
-            print("[MuscleStateRepository] Failed to fetch for upsert: \(error)")
-            #endif
-            existing = nil
-        }
+            let existing = try modelContext.fetch(descriptor).first
 
-        if let existing {
-            existing.maxIntensity = max(existing.maxIntensity, maxIntensity)
-            existing.totalSets = totalSets
-        } else {
-            let stim = MuscleStimulation(
-                muscle: muscleRaw,
-                maxIntensity: maxIntensity,
-                totalSets: totalSets,
-                sessionId: sessionId
-            )
-            modelContext.insert(stim)
-        }
-
-        if saveImmediately {
-            do {
-                try modelContext.save()
-            } catch {
-                #if DEBUG
-            print("[MuscleStateRepository] Failed to upsert stimulation: \(error)")
-            #endif
+            if let existing {
+                existing.maxIntensity = max(existing.maxIntensity, maxIntensity)
+                existing.totalSets = totalSets
+            } else {
+                let stim = MuscleStimulation(
+                    muscle: muscleRaw,
+                    maxIntensity: maxIntensity,
+                    totalSets: totalSets,
+                    sessionId: sessionId
+                )
+                modelContext.insert(stim)
             }
+
+            if saveImmediately {
+                try modelContext.save()
+            }
+        } catch {
+            // fetch失敗時は何もしない（既存データを壊さない）
+            #if DEBUG
+            print("[ERROR] upsertStimulation fetch failed: \(error)")
+            #endif
         }
     }
 

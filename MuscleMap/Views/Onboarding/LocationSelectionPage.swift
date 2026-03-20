@@ -229,6 +229,7 @@ struct LocationSelectionPage: View {
             .animation(.easeInOut(duration: 0.2), value: selected)
         }
         .onAppear {
+            isProceeding = false  // スワイプ戻り時にボタンを有効化
             withAnimation(.easeOut(duration: 0.5)) {
                 appeared = true
             }

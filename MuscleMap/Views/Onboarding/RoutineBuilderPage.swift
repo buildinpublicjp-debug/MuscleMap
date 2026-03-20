@@ -236,8 +236,9 @@ struct RoutineBuilderPage: View {
 
     private var locationPicker: some View {
         Picker("", selection: Binding(
-            get: { days[selectedDayIndex].location },
+            get: { days.indices.contains(selectedDayIndex) ? days[selectedDayIndex].location : "gym" },
             set: { newLocation in
+                guard days.indices.contains(selectedDayIndex) else { return }
                 days[selectedDayIndex].location = newLocation
                 rebuildExercisesForCurrentDay(location: newLocation)
                 HapticManager.lightTap()
@@ -421,6 +422,7 @@ struct RoutineBuilderPage: View {
     /// 種目を削除
     private func removeExercise(_ routineExerciseId: UUID) {
         guard days.indices.contains(selectedDayIndex) else { return }
+        editingExerciseIndex = nil
         withAnimation(.easeInOut(duration: 0.2)) {
             days[selectedDayIndex].exercises.removeAll { $0.id == routineExerciseId }
         }
@@ -447,7 +449,7 @@ struct RoutineBuilderPage: View {
         } else {
             // 次のDayタブへ
             withAnimation(.easeInOut(duration: 0.3)) {
-                selectedDayIndex += 1
+                selectedDayIndex = min(selectedDayIndex + 1, max(0, days.count - 1))
             }
         }
     }
@@ -468,7 +470,7 @@ struct RoutineBuilderPage: View {
         location: String
     ) -> [ExerciseDefinition] {
         guard location == "home" else { return exercises }
-        let homeEquipment: Set<String> = ["自重", "ダンベル", "ケトルベル"]
+        let homeEquipment: Set<String> = ["自重", "ダンベル", "ケトルベル", "Bodyweight", "Dumbbell", "Kettlebell"]
         let filtered = exercises.filter { homeEquipment.contains($0.equipment) }
         return filtered.isEmpty ? exercises : filtered
     }
@@ -699,7 +701,7 @@ private struct RoutineExercisePickerSheet: View {
 
         // Day の location でフィルタ
         if day.location == "home" {
-            let homeEquipment: Set<String> = ["自重", "ダンベル", "ケトルベル"]
+            let homeEquipment: Set<String> = ["自重", "ダンベル", "ケトルベル", "Bodyweight", "Dumbbell", "Kettlebell"]
             let filtered = result.filter { homeEquipment.contains($0.equipment) }
             if !filtered.isEmpty { result = filtered }
         }

@@ -269,6 +269,7 @@ struct PRInputPage: View {
             .opacity(appeared ? 1 : 0)
         }
         .onAppear {
+            isProceeding = false  // スワイプ戻り時にボタンを有効化
             ExerciseStore.shared.loadIfNeeded()
             withAnimation(.easeOut(duration: 0.5).delay(0.2)) {
                 appeared = true

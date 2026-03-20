@@ -348,32 +348,43 @@ private struct SessionDetailCard: View {
     private func deleteSet(_ workoutSet: WorkoutSet) {
         let exerciseId = workoutSet.exerciseId
 
-        // WorkoutSetを削除
+        // 1. セット削除
         modelContext.delete(workoutSet)
-        try? modelContext.save()
 
-        // 同じ種目の残りセットのsetNumberを振り直し
+        // 2. 同じ種目の残りセットのsetNumberを振り直し
         let remainingSets = session.sets
-            .filter { $0.exerciseId == exerciseId }
+            .filter { $0.exerciseId == exerciseId && $0.id != workoutSet.id }
             .sorted { $0.setNumber < $1.setNumber }
 
         for (index, set) in remainingSets.enumerated() {
             set.setNumber = index + 1
         }
-        try? modelContext.save()
 
-        // セッションのセットが0件になったらセッションごと削除
-        if session.sets.isEmpty {
+        // 3. セッションのセットが0件になったらセッションごと削除
+        let allRemaining = session.sets.filter { $0.id != workoutSet.id }
+        if allRemaining.isEmpty {
             let muscleRepo = MuscleStateRepository(modelContext: modelContext)
             muscleRepo.deleteStimulations(sessionId: session.id)
             modelContext.delete(session)
-            try? modelContext.save()
+        }
+
+        // 4. 1回だけsave
+        do {
+            try modelContext.save()
+        } catch {
+            #if DEBUG
+            print("[ERROR] deleteSet save failed: \(error)")
+            #endif
+        }
+
+        // 5. セッション削除済みならコールバックして終了
+        if allRemaining.isEmpty {
             HapticManager.error()
             onSessionDeleted()
             return
         }
 
-        // MuscleStimulationの再計算
+        // 6. MuscleStimulationの再計算
         recalculateMuscleStimulations(session: session)
         HapticManager.error()
     }

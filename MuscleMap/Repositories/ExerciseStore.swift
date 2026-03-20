@@ -86,7 +86,7 @@ final class ExerciseStore {
 
     /// 指定筋肉リストの代表種目を取得（場所フィルター対応、重複除去、最大limit件）
     func sampleExercises(for muscles: [Muscle], location: String, limit: Int = 3) -> [ExerciseDefinition] {
-        let homeEquipment: Set<String> = ["自重", "ダンベル", "ケトルベル"]
+        let homeEquipment: Set<String> = ["自重", "ダンベル", "ケトルベル", "Bodyweight", "Dumbbell", "Kettlebell"]
         var result: [ExerciseDefinition] = []
         for muscle in muscles {
             let matching = exercises(targeting: muscle)

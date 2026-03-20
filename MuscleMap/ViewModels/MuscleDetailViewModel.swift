@@ -51,7 +51,7 @@ class MuscleDetailViewModel {
 
     // フィルタ済み種目（場所フィルタ適用後）
     var filteredExercises: [ExerciseDefinition] {
-        let homeEquipment: Set<String> = ["自重", "ダンベル", "ケトルベル"]
+        let homeEquipment: Set<String> = ["自重", "ダンベル", "ケトルベル", "Bodyweight", "Dumbbell", "Kettlebell"]
         switch locationFilter {
         case .all:  return allRelatedExercises
         case .gym:  return allRelatedExercises

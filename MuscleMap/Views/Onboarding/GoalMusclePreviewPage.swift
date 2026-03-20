@@ -197,6 +197,7 @@ struct GoalMusclePreviewPage: View {
             .opacity(appeared ? 1 : 0)
         }
         .onAppear {
+            isProceeding = false  // スワイプ戻り時にボタンを有効化
             withAnimation(.easeOut(duration: 0.5)) {
                 appeared = true
             }
@@ -217,7 +218,7 @@ struct GoalMusclePreviewPage: View {
             // gym / both → フィルタなし
             return exercises
         }
-        let homeEquipment: Set<String> = ["自重", "ダンベル", "ケトルベル"]
+        let homeEquipment: Set<String> = ["自重", "ダンベル", "ケトルベル", "Bodyweight", "Dumbbell", "Kettlebell"]
         return exercises.filter { homeEquipment.contains($0.equipment) }
     }
 

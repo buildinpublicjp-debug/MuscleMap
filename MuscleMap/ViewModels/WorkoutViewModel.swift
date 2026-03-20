@@ -59,6 +59,7 @@ class WorkoutViewModel {
             refreshExerciseSets()
         } else {
             activeSession = workoutRepo.startSession()
+            guard activeSession != nil else { return }
         }
     }
 

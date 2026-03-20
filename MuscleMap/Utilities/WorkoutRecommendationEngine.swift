@@ -314,7 +314,7 @@ struct WorkoutRecommendationEngine {
         guard location == "home" else { return exercises }
 
         // 自宅トレーニング: 自重・ダンベル・ケトルベルのみ許可
-        let homeEquipment: Set<String> = ["自重", "ダンベル", "ケトルベル"]
+        let homeEquipment: Set<String> = ["自重", "ダンベル", "ケトルベル", "Bodyweight", "Dumbbell", "Kettlebell"]
         let filtered = exercises.filter { homeEquipment.contains($0.equipment) }
 
         // フィルタ後に空にならないよう最低限を保証

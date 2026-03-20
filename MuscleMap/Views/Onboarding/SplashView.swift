@@ -12,6 +12,10 @@ struct SplashView: View {
     @State private var muscleMapScale: Double = 0.9
     @State private var showContinue: Bool = false
 
+    private var isJapanese: Bool {
+        LocalizationManager.shared.currentLanguage == .japanese
+    }
+
     var body: some View {
         ZStack {
             Color.mmOnboardingBg.ignoresSafeArea()
@@ -44,11 +48,11 @@ struct SplashView: View {
 
                 // タグライン（エモーショナル）
                 VStack(spacing: 8) {
-                    Text("鍛えた筋肉が光る。")
+                    Text(isJapanese ? "鍛えた筋肉が光る。" : "Watch your muscles light up.")
                         .font(.system(size: 24, weight: .bold))
                         .foregroundStyle(Color.mmOnboardingTextMain)
 
-                    Text("あなたの体の変化を、目で見る。")
+                    Text(isJapanese ? "あなたの体の変化を、目で見る。" : "See your body transform.")
                         .font(.subheadline)
                         .foregroundStyle(Color.mmOnboardingTextSub)
                 }
@@ -63,7 +67,7 @@ struct SplashView: View {
                         HapticManager.lightTap()
                         onComplete()
                     } label: {
-                        Text("始める")
+                        Text(isJapanese ? "始める" : "Get Started")
                             .font(.system(size: 18, weight: .bold))
                             .foregroundStyle(Color.mmOnboardingBg)
                             .frame(maxWidth: .infinity)

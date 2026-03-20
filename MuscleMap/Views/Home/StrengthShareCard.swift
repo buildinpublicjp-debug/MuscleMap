@@ -205,7 +205,7 @@ struct StrengthShareCard: View {
 
             // ランク行（3行 or 少なければ少なく）
             let medals = ["🥇", "🥈", "🥉"]
-            ForEach(Array(topMuscles.enumerated()), id: \.offset) { index, entry in
+            ForEach(Array(topMuscles.prefix(3).enumerated()), id: \.offset) { index, entry in
                 rankRow(
                     medal: medals[index],
                     name: muscleJapaneseName(entry.muscle),

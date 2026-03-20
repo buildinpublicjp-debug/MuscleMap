@@ -59,13 +59,8 @@ struct OnboardingV2View: View {
                 .tag(4)
 
                 // ページ5: 目標×筋肉ビジュアル（★ クライマックス）
+                // goalPriorityMuscles は GoalSelectionPage で全目標の合算を保存済み
                 GoalMusclePreviewPage {
-                    // 重点筋肉をUserProfileに保存
-                    if let raw = AppState.shared.primaryOnboardingGoal,
-                       let goal = OnboardingGoal(rawValue: raw) {
-                        let muscles = GoalMusclePriority.data(for: goal).muscles
-                        AppState.shared.userProfile.goalPriorityMuscles = muscles.map { $0.rawValue }
-                    }
                     currentPage = 6
                 }
                 .tag(5)

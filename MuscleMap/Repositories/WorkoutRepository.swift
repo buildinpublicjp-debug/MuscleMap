@@ -30,18 +30,20 @@ class WorkoutRepository {
         }
     }
 
-    /// 新しいセッションを開始
-    func startSession() -> WorkoutSession {
+    /// 新しいセッションを開始（保存失敗時はnilを返す）
+    func startSession() -> WorkoutSession? {
         let session = WorkoutSession()
         modelContext.insert(session)
         do {
             try modelContext.save()
+            return session
         } catch {
             #if DEBUG
             print("[WorkoutRepository] Failed to start session: \(error)")
             #endif
+            modelContext.delete(session)
+            return nil
         }
-        return session
     }
 
     /// セッションを終了

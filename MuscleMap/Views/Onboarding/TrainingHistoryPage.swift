@@ -89,6 +89,8 @@ struct ProfileInputPage: View {
             nextButton
         }
         .onAppear {
+            isProceeding = false  // スワイプ戻り時にボタンを有効化
+
             // 既存の値を読み込み
             let profile = AppState.shared.userProfile
             if profile.trainingExperience != .beginner || profile.weightKg != 70 {

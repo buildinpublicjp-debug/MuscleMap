@@ -58,6 +58,7 @@ struct GoalSelectionPage: View {
     let onNext: () -> Void
 
     @State private var selectedGoals: Set<OnboardingGoal> = []
+    @State private var selectionOrder: [OnboardingGoal] = []
     @State private var cardAppearances: [Bool] = Array(repeating: false, count: OnboardingGoal.allCases.count)
     @State private var isProceeding = false
     @State private var headerAppeared = false
@@ -174,14 +175,18 @@ struct GoalSelectionPage: View {
                             withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
                                 if selectedGoals.contains(goal) {
                                     selectedGoals.remove(goal)
+                                    selectionOrder.removeAll { $0 == goal }
                                 } else {
                                     selectedGoals.insert(goal)
+                                    selectionOrder.append(goal)
                                 }
                             }
                             HapticManager.lightTap()
-                            // 最初の選択を primaryOnboardingGoal に保存（互換性）
-                            if let first = selectedGoals.first {
+                            // 最初に選択した目標を primaryOnboardingGoal に保存（選択順序で決定的）
+                            if let first = selectionOrder.first {
                                 AppState.shared.primaryOnboardingGoal = first.rawValue
+                            } else {
+                                AppState.shared.primaryOnboardingGoal = nil
                             }
                         }
                     )
@@ -198,10 +203,10 @@ struct GoalSelectionPage: View {
                 guard !isProceeding, !selectedGoals.isEmpty else { return }
                 isProceeding = true
                 HapticManager.lightTap()
-                // 全選択目標の筋肉を合算してgoPriorityMusclesに保存
+                // 選択順序で合算（決定的な順序を保証）
                 var allMuscles: [String] = []
                 var seen: Set<String> = []
-                for goal in selectedGoals {
+                for goal in selectionOrder {
                     for muscle in GoalMusclePriority.data(for: goal).muscles {
                         if seen.insert(muscle.rawValue).inserted {
                             allMuscles.append(muscle.rawValue)
@@ -231,6 +236,7 @@ struct GoalSelectionPage: View {
                 .presentationDragIndicator(.visible)
         }
         .onAppear {
+            isProceeding = false  // スワイプ戻り時にボタンを有効化
             withAnimation(.easeOut(duration: 0.5)) {
                 headerAppeared = true
             }

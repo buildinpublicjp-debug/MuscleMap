@@ -197,12 +197,14 @@ struct RoutineEditView: View {
     }
 
     private func deleteExercises(at offsets: IndexSet) {
+        guard days.indices.contains(selectedDayIndex) else { return }
         days[selectedDayIndex].exercises.remove(atOffsets: offsets)
         saveRoutine()
         HapticManager.lightTap()
     }
 
     private func moveExercises(from source: IndexSet, to destination: Int) {
+        guard days.indices.contains(selectedDayIndex) else { return }
         days[selectedDayIndex].exercises.move(fromOffsets: source, toOffset: destination)
         saveRoutine()
     }
@@ -436,7 +438,7 @@ private struct RoutineEditExercisePickerSheet: View {
         // 場所フィルタ
         let location = AppState.shared.userProfile.trainingLocation
         if location == "home" {
-            let homeEquipment: Set<String> = ["自重", "ダンベル", "ケトルベル"]
+            let homeEquipment: Set<String> = ["自重", "ダンベル", "ケトルベル", "Bodyweight", "Dumbbell", "Kettlebell"]
             let filtered = result.filter { homeEquipment.contains($0.equipment) }
             if !filtered.isEmpty { result = filtered }
         }

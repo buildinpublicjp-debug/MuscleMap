@@ -210,6 +210,8 @@ struct FrequencySelectionPage: View {
             .animation(.easeInOut(duration: 0.2), value: selected)
         }
         .onAppear {
+            isProceeding = false  // スワイプ戻り時にボタンを有効化
+
             // 初期状態: 全筋肉inactive
             var initial: [Muscle: MuscleVisualState] = [:]
             for muscle in Muscle.allCases {
