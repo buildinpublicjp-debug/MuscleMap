@@ -109,7 +109,7 @@ struct GoalSelectionPage: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            Spacer().frame(height: 24)
+            Spacer().frame(height: 16)
 
             // ヘッダー（コンパクト）
             Text(L10n.goalSelectionHeadline)
@@ -120,7 +120,7 @@ struct GoalSelectionPage: View {
                 .offset(y: headerAppeared ? 0 : 12)
                 .padding(.horizontal, 24)
 
-            Spacer().frame(height: 12)
+            Spacer().frame(height: 8)
 
             // 筋肉マップ（前面+背面横並び、タップ可能）
             MuscleMapView(
@@ -129,8 +129,8 @@ struct GoalSelectionPage: View {
                     tappedMuscle = muscle
                 }
             )
-            .frame(height: 240)
-            .padding(.horizontal, 24)
+            .frame(height: 280)
+            .padding(.horizontal, 16)
             .animation(.spring(response: 0.4, dampingFraction: 0.8), value: selectedGoals)
 
             // 重点筋肉チップ（横スクロール）
@@ -162,6 +162,8 @@ struct GoalSelectionPage: View {
                 .transition(.opacity)
                 .animation(.easeOut(duration: 0.3), value: selectedGoals)
             }
+
+            Spacer().frame(height: 4)
 
             // 目標カード（コンパクト、スクロール不要）
             VStack(spacing: 6) {
@@ -195,7 +197,7 @@ struct GoalSelectionPage: View {
             }
             .padding(.horizontal, 24)
 
-            Spacer(minLength: 12)
+            Spacer(minLength: 8)
 
             // 未選択ヒント
             if selectedGoals.isEmpty {
