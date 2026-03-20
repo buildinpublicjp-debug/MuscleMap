@@ -98,7 +98,7 @@ struct FrequencySelectionPage: View {
             Spacer().frame(height: 20)
 
             // ヘッダー
-            VStack(spacing: 6) {
+            VStack(spacing: 4) {
                 Text(isJapanese ? "週にどれくらいやれる？" : "How often can you train?")
                     .font(.system(size: 28, weight: .heavy))
                     .foregroundStyle(Color.mmOnboardingTextMain)
@@ -122,7 +122,7 @@ struct FrequencySelectionPage: View {
                     tappedMuscle = muscle
                 }
             )
-            .frame(height: 260)
+            .frame(height: 320)
             .padding(.horizontal, 16)
             .opacity(appeared ? 1 : 0)
             .animation(.easeOut(duration: 0.5).delay(0.2), value: appeared)
@@ -133,7 +133,7 @@ struct FrequencySelectionPage: View {
                 legendItem(color: Color.yellow.opacity(0.8), text: isJapanese ? "回復中" : "Recovering")
                 legendItem(color: Color.mmOnboardingTextSub.opacity(0.3), text: isJapanese ? "未刺激" : "Inactive")
             }
-            .font(.system(size: 9))
+            .font(.system(size: 10))
             .padding(.top, 2)
             .opacity(appeared ? 1 : 0)
 
