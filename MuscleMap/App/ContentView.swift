@@ -41,9 +41,7 @@ private struct MainTabView: View {
                 }
                 .tag(1)
 
-            NavigationStack {
-                ExerciseLibraryView()
-            }
+            ExerciseDictionaryView()
                 .tabItem {
                     Label(
                         LocalizationManager.shared.currentLanguage == .japanese ? "種目辞典" : "Exercises",

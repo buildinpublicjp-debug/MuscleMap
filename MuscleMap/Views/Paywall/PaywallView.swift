@@ -90,7 +90,7 @@ struct PaywallView: View {
     }
 
     /// 自動スクロール用の幅計算
-    private let cardWidth: CGFloat = 150 // card(140) + spacing(10)
+    private let cardWidth: CGFloat = 160 // card(150) + spacing(10)
 
     private var totalScrollWidth: CGFloat {
         CGFloat(previewExercises.count) * cardWidth
@@ -103,20 +103,28 @@ struct PaywallView: View {
             Color.mmBgSecondary.ignoresSafeArea()
 
             ScrollView {
-                VStack(spacing: 16) {
+                VStack(spacing: 0) {
                     Spacer().frame(height: isHardPaywall ? 24 : 40)
 
                     // 1. ヘッドライン（実データ駆動）
                     headlineSection
 
+                    Spacer().frame(height: 8)
+
                     // 2. GIF横スクロール（自動アニメーション）
                     menuPreviewScroll
+
+                    Spacer().frame(height: 12)
 
                     // 3. 価格セクション（ファーストビューに入るよう上に配置）
                     pricingSection
 
+                    Spacer().frame(height: 12)
+
                     // 4. 機能リスト（3行に絞る）
                     featureListSection
+
+                    Spacer().frame(height: 12)
 
                     // 5. 復元 + 無料オプション + 法的テキスト
                     footerSection
@@ -212,7 +220,7 @@ struct PaywallView: View {
     // MARK: - GIF横スクロール（自動アニメーション）
 
     private var menuPreviewScroll: some View {
-        VStack(spacing: 6) {
+        VStack(spacing: 4) {
             // 自動スクロールエリア
             GeometryReader { _ in
                 HStack(spacing: 10) {
@@ -224,14 +232,14 @@ struct PaywallView: View {
                                 name: exercise.name,
                                 detail: exercise.detail
                             )
-                            .frame(width: 140, height: 180)
+                            .frame(width: 150, height: 130)
                             .id("\(batch)-\(index)")
                         }
                     }
                 }
                 .offset(x: scrollOffset)
             }
-            .frame(height: 180)
+            .frame(height: 130)
             .clipped()
 
             // 「+他N種目」テキスト
@@ -472,12 +480,11 @@ private struct PaywallExerciseCard: View {
             // GIF or プレースホルダー
             if ExerciseGifView.hasGif(exerciseId: exerciseId) {
                 ExerciseGifView(exerciseId: exerciseId, size: .card)
-                    .scaledToFill()
-                    .frame(width: 140, height: 180)
+                    .frame(width: 150, height: 130)
                     .clipped()
             } else {
                 Color.mmBgCard
-                    .frame(width: 140, height: 180)
+                    .frame(width: 150, height: 130)
                 Image(systemName: "dumbbell.fill")
                     .font(.system(size: 24))
                     .foregroundStyle(Color.mmTextSecondary.opacity(0.3))
@@ -491,13 +498,13 @@ private struct PaywallExerciseCard: View {
                     .lineLimit(1)
 
                 Text(detail)
-                    .font(.system(size: 10, weight: .medium).monospacedDigit())
+                    .font(.system(size: 10, weight: .heavy).monospacedDigit())
                     .foregroundStyle(Color.mmAccentPrimary)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, 8)
-            .padding(.bottom, 8)
-            .padding(.top, 24)
+            .padding(.bottom, 6)
+            .padding(.top, 20)
             .background(
                 LinearGradient(
                     colors: [Color.clear, Color.black.opacity(0.75)],
