@@ -82,6 +82,7 @@ struct FrequencySelectionPage: View {
     @State private var selected: WeeklyFrequency?
     @State private var appeared = false
     @State private var isProceeding = false
+    @State private var tappedMuscle: Muscle?
 
     // 超回復アニメーション
     @State private var animationDay: Int = 0
@@ -117,7 +118,9 @@ struct FrequencySelectionPage: View {
             // 筋肉マップ（超回復アニメーション）
             MuscleMapView(
                 muscleStates: muscleStates,
-                onMuscleTapped: nil
+                onMuscleTapped: { muscle in
+                    tappedMuscle = muscle
+                }
             )
             .frame(height: 260)
             .padding(.horizontal, 16)
@@ -188,13 +191,11 @@ struct FrequencySelectionPage: View {
                 if let freq = selected {
                     evidenceSection(for: freq)
                         .padding(.horizontal, 24)
-                        .padding(.top, 8)
+                        .padding(.top, 4)
                         .transition(.opacity.combined(with: .move(edge: .bottom)))
                 }
             }
             .scrollIndicators(.hidden)
-
-            Spacer(minLength: 4)
 
             // 次へボタン
             Button {
@@ -227,8 +228,13 @@ struct FrequencySelectionPage: View {
             .buttonStyle(.plain)
             .disabled(selected == nil)
             .padding(.horizontal, 24)
-            .padding(.bottom, 32)
+            .padding(.bottom, 24)
             .animation(.easeInOut(duration: 0.2), value: selected)
+        }
+        .sheet(item: $tappedMuscle) { muscle in
+            FrequencyMuscleExerciseSheet(muscle: muscle)
+                .presentationDetents([.medium, .large])
+                .presentationDragIndicator(.visible)
         }
         .onAppear {
             isProceeding = false  // スワイプ戻り時にボタンを有効化
@@ -486,6 +492,97 @@ private struct FrequencyCompactCard: View {
             )
         }
         .buttonStyle(.plain)
+    }
+}
+
+// MARK: - 筋肉タップ → 2カラムGIFグリッド種目シート
+
+private struct FrequencyMuscleExerciseSheet: View {
+    let muscle: Muscle
+    @State private var selectedExercise: ExerciseDefinition?
+
+    private var isJapanese: Bool {
+        LocalizationManager.shared.currentLanguage == .japanese
+    }
+
+    private var exercises: [ExerciseDefinition] {
+        ExerciseStore.shared.exercises(targeting: muscle)
+    }
+
+    private let gridColumns = [
+        GridItem(.flexible(), spacing: 8),
+        GridItem(.flexible(), spacing: 8),
+    ]
+
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                LazyVGrid(columns: gridColumns, spacing: 8) {
+                    ForEach(exercises) { exercise in
+                        Button {
+                            HapticManager.lightTap()
+                            selectedExercise = exercise
+                        } label: {
+                            ZStack {
+                                Color.mmOnboardingBg
+
+                                if ExerciseGifView.hasGif(exerciseId: exercise.id) {
+                                    ExerciseGifView(exerciseId: exercise.id, size: .card)
+                                        .scaledToFill()
+                                } else {
+                                    Image(systemName: "dumbbell.fill")
+                                        .font(.system(size: 28))
+                                        .foregroundStyle(Color.mmOnboardingTextSub.opacity(0.4))
+                                }
+
+                                // オーバーレイ: 種目名（左上）+ 器具名（右下）
+                                VStack {
+                                    HStack {
+                                        Text(exercise.localizedName)
+                                            .font(.system(size: 11, weight: .bold))
+                                            .foregroundStyle(.white)
+                                            .lineLimit(1)
+                                            .padding(.horizontal, 6)
+                                            .padding(.vertical, 3)
+                                            .background(Color.black.opacity(0.55))
+                                            .clipShape(RoundedRectangle(cornerRadius: 4))
+                                        Spacer()
+                                    }
+                                    .padding(6)
+
+                                    Spacer()
+
+                                    HStack {
+                                        Spacer()
+                                        Text(exercise.localizedEquipment)
+                                            .font(.system(size: 10))
+                                            .foregroundStyle(.white)
+                                            .padding(.horizontal, 6)
+                                            .padding(.vertical, 3)
+                                            .background(Color.black.opacity(0.55))
+                                            .clipShape(RoundedRectangle(cornerRadius: 4))
+                                    }
+                                    .padding(6)
+                                }
+                            }
+                            .aspectRatio(1, contentMode: .fit)
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 16)
+            }
+            .background(Color.mmOnboardingBg)
+            .navigationTitle(isJapanese
+                ? "\(muscle.japaneseName) — \(exercises.count)種目"
+                : "\(muscle.englishName) — \(exercises.count) exercises")
+            .navigationBarTitleDisplayMode(.inline)
+            .sheet(item: $selectedExercise) { exercise in
+                ExerciseDetailView(exercise: exercise)
+            }
+        }
     }
 }
 
