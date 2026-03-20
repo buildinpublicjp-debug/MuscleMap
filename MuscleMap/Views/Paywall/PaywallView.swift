@@ -8,6 +8,7 @@ struct PaywallView: View {
     @State private var errorMessage: String?
     @State private var showingError = false
     @State private var showFreeOption = false
+    @State private var scrollOffset: CGFloat = 0
 
     private var localization: LocalizationManager { LocalizationManager.shared }
 
@@ -35,7 +36,7 @@ struct PaywallView: View {
             : "Optimized for \"\(goal.localizedName)\""
     }
 
-    /// GIF付きプレビュー用の種目データ（最大4種目、exerciseId付き）
+    /// GIF付きプレビュー用の種目データ（最大8種目、exerciseId付き）
     private var previewExercises: [(id: String, name: String, detail: String)] {
         // ルーティンから種目を取得（重複除去）
         var exercises: [RoutineExercise] = []
@@ -45,9 +46,9 @@ struct PaywallView: View {
                 if seenIds.insert(ex.exerciseId).inserted {
                     exercises.append(ex)
                 }
-                if exercises.count >= 4 { break }
+                if exercises.count >= 8 { break }
             }
-            if exercises.count >= 4 { break }
+            if exercises.count >= 8 { break }
         }
 
         // フォールバック: ルーティンが空なら重点筋肉から取得
@@ -61,21 +62,21 @@ struct PaywallView: View {
                         if addedIds.insert(ex.id).inserted {
                             defs.append(ex)
                         }
-                        if defs.count >= 4 { break }
+                        if defs.count >= 8 { break }
                     }
                 }
-                if defs.count >= 4 { break }
+                if defs.count >= 8 { break }
             }
             if defs.isEmpty {
-                defs = Array(ExerciseStore.shared.exercises.prefix(4))
+                defs = Array(ExerciseStore.shared.exercises.prefix(8))
             }
-            return defs.prefix(4).map { ex in
+            return defs.prefix(8).map { ex in
                 let name = isJapanese ? ex.nameJA : ex.nameEN
                 return (id: ex.id, name: name, detail: sampleDetail(for: ex))
             }
         }
 
-        return exercises.prefix(4).map { re in
+        return exercises.prefix(8).map { re in
             let def = ExerciseStore.shared.exercise(for: re.exerciseId)
             let name = def.map { isJapanese ? $0.nameJA : $0.nameEN } ?? re.exerciseId
             let detail = def.map { sampleDetail(for: $0) } ?? ""
@@ -83,9 +84,16 @@ struct PaywallView: View {
         }
     }
 
-    /// ルーティン内の残りの種目数（プレビュー4つ以降）
+    /// プレビュー以降の残り種目数
     private var remainingExerciseCount: Int {
-        max(0, totalExercises - 4)
+        max(0, totalExercises - previewExercises.count)
+    }
+
+    /// 自動スクロール用の幅計算
+    private let cardWidth: CGFloat = 150 // card(140) + spacing(10)
+
+    private var totalScrollWidth: CGFloat {
+        CGFloat(previewExercises.count) * cardWidth
     }
 
     // MARK: - Body
@@ -101,8 +109,8 @@ struct PaywallView: View {
                     // 1. ヘッドライン（実データ駆動）
                     headlineSection
 
-                    // 2. GIF付き2カラムグリッド
-                    menuPreviewGrid
+                    // 2. GIF横スクロール（自動アニメーション）
+                    menuPreviewScroll
 
                     // 3. 価格セクション（ファーストビューに入るよう上に配置）
                     pricingSection
@@ -166,6 +174,7 @@ struct PaywallView: View {
                     }
                 }
             }
+            startAutoScroll()
         }
     }
 
@@ -200,57 +209,30 @@ struct PaywallView: View {
         .padding(.horizontal, 24)
     }
 
-    // MARK: - GIF付き2カラムグリッド
+    // MARK: - GIF横スクロール（自動アニメーション）
 
-    private let gridColumns = [
-        GridItem(.flexible(), spacing: 8),
-        GridItem(.flexible(), spacing: 8),
-    ]
-
-    private var menuPreviewGrid: some View {
-        VStack(spacing: 8) {
-            LazyVGrid(columns: gridColumns, spacing: 8) {
-                ForEach(Array(previewExercises.prefix(4).enumerated()), id: \.offset) { _, exercise in
-                    ZStack(alignment: .bottom) {
-                        // GIF or プレースホルダー
-                        if ExerciseGifView.hasGif(exerciseId: exercise.id) {
-                            ExerciseGifView(exerciseId: exercise.id, size: .card)
-                                .frame(maxWidth: .infinity)
-                                .aspectRatio(1, contentMode: .fill)
-                        } else {
-                            Rectangle()
-                                .fill(Color.mmBgCard)
-                                .aspectRatio(1, contentMode: .fill)
-                                .overlay(
-                                    Image(systemName: "dumbbell.fill")
-                                        .font(.system(size: 28))
-                                        .foregroundStyle(Color.mmTextSecondary.opacity(0.3))
-                                )
-                        }
-
-                        // 種目名オーバーレイ
-                        VStack(spacing: 2) {
-                            Text(exercise.name)
-                                .font(.system(size: 12, weight: .bold))
-                                .foregroundStyle(.white)
-                                .lineLimit(1)
-                            Text(exercise.detail)
-                                .font(.system(size: 10).monospacedDigit())
-                                .foregroundStyle(.white.opacity(0.7))
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 6)
-                        .background(
-                            LinearGradient(
-                                colors: [.clear, .black.opacity(0.7)],
-                                startPoint: .top,
-                                endPoint: .bottom
+    private var menuPreviewScroll: some View {
+        VStack(spacing: 6) {
+            // 自動スクロールエリア
+            GeometryReader { _ in
+                HStack(spacing: 10) {
+                    // 2回繰り返して無限ループ感を出す
+                    ForEach(0..<2, id: \.self) { batch in
+                        ForEach(Array(previewExercises.enumerated()), id: \.offset) { index, exercise in
+                            PaywallExerciseCard(
+                                exerciseId: exercise.id,
+                                name: exercise.name,
+                                detail: exercise.detail
                             )
-                        )
+                            .frame(width: 140, height: 180)
+                            .id("\(batch)-\(index)")
+                        }
                     }
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
                 }
+                .offset(x: scrollOffset)
             }
+            .frame(height: 180)
+            .clipped()
 
             // 「+他N種目」テキスト
             if remainingExerciseCount > 0 {
@@ -261,7 +243,22 @@ struct PaywallView: View {
                     .foregroundStyle(Color.mmTextSecondary)
             }
         }
-        .padding(.horizontal, 24)
+    }
+
+    // MARK: - 自動スクロール
+
+    private func startAutoScroll() {
+        let width = totalScrollWidth
+        guard width > 0 else { return }
+
+        // 初期位置（左端から少し余白）
+        scrollOffset = 24
+
+        // ゆっくり左にスクロール（duration = 種目数に応じて調整）
+        let duration = Double(previewExercises.count) * 3.0
+        withAnimation(.linear(duration: duration).repeatForever(autoreverses: false)) {
+            scrollOffset = 24 - width
+        }
     }
 
     // MARK: - 価格セクション（コンパクト）
@@ -336,7 +333,7 @@ struct PaywallView: View {
             )
             featureRow(
                 icon: "infinity",
-                text: isJapanese ? "ワークアウト記録が無制限" : "Unlimited workout tracking"
+                text: isJapanese ? "週7回、いつでもワークアウトを記録" : "Track workouts 7 days a week"
             )
             featureRow(
                 icon: "bell.badge.fill",
@@ -460,6 +457,56 @@ struct PaywallView: View {
         } else {
             return "20kg × 12 × 3"
         }
+    }
+}
+
+// MARK: - GIFカード（Paywall横スクロール用）
+
+private struct PaywallExerciseCard: View {
+    let exerciseId: String
+    let name: String
+    let detail: String
+
+    var body: some View {
+        ZStack(alignment: .bottom) {
+            // GIF or プレースホルダー
+            if ExerciseGifView.hasGif(exerciseId: exerciseId) {
+                ExerciseGifView(exerciseId: exerciseId, size: .card)
+                    .scaledToFill()
+                    .frame(width: 140, height: 180)
+                    .clipped()
+            } else {
+                Color.mmBgCard
+                    .frame(width: 140, height: 180)
+                Image(systemName: "dumbbell.fill")
+                    .font(.system(size: 24))
+                    .foregroundStyle(Color.mmTextSecondary.opacity(0.3))
+            }
+
+            // 下部グラデーション + テキスト
+            VStack(alignment: .leading, spacing: 2) {
+                Text(name)
+                    .font(.system(size: 11, weight: .bold))
+                    .foregroundStyle(.white)
+                    .lineLimit(1)
+
+                Text(detail)
+                    .font(.system(size: 10, weight: .medium).monospacedDigit())
+                    .foregroundStyle(Color.mmAccentPrimary)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 8)
+            .padding(.bottom, 8)
+            .padding(.top, 24)
+            .background(
+                LinearGradient(
+                    colors: [Color.clear, Color.black.opacity(0.75)],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+            )
+        }
+        .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 }
 
