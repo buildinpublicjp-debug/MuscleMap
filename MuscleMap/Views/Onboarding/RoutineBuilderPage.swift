@@ -17,6 +17,10 @@ struct RoutineBuilderPage: View {
     /// 1日あたりの最大種目数
     private let maxExercisesPerDay = 8
 
+    private var isJapanese: Bool {
+        LocalizationManager.shared.currentLanguage == .japanese
+    }
+
     /// 分割法パーツ
     private var splitParts: [SplitPart] {
         let frequency = AppState.shared.userProfile.weeklyFrequency
@@ -48,7 +52,22 @@ struct RoutineBuilderPage: View {
             // Day タブバー
             dayTabBar
 
-            Spacer().frame(height: 12)
+            Spacer().frame(height: 8)
+
+            // 自動提案ヒント
+            HStack(spacing: 4) {
+                Image(systemName: "sparkles")
+                    .font(.system(size: 11))
+                    .foregroundStyle(Color.mmOnboardingAccent)
+                Text(isJapanese
+                    ? "あなたの目標に合わせて自動提案しました"
+                    : "Auto-suggested based on your goals")
+                    .font(.system(size: 11))
+                    .foregroundStyle(Color.mmOnboardingAccent)
+            }
+            .padding(.horizontal, 24)
+
+            Spacer().frame(height: 8)
 
             // 種目リスト
             if days.indices.contains(selectedDayIndex) {
@@ -63,7 +82,7 @@ struct RoutineBuilderPage: View {
                 Button {
                     saveAndProceed()
                 } label: {
-                    Text(isLastDay ? L10n.routineBuilderComplete : L10n.routineBuilderNextDay)
+                    Text(nextButtonLabel)
                         .font(.system(size: 18, weight: .bold))
                         .foregroundStyle(canProceed ? Color.mmOnboardingBg : Color.mmOnboardingTextSub)
                         .frame(maxWidth: .infinity)
@@ -235,21 +254,31 @@ struct RoutineBuilderPage: View {
     // MARK: - Location ピッカー
 
     private var locationPicker: some View {
-        Picker("", selection: Binding(
-            get: { days.indices.contains(selectedDayIndex) ? days[selectedDayIndex].location : "gym" },
-            set: { newLocation in
-                guard days.indices.contains(selectedDayIndex) else { return }
-                days[selectedDayIndex].location = newLocation
-                rebuildExercisesForCurrentDay(location: newLocation)
-                HapticManager.lightTap()
+        VStack(spacing: 0) {
+            Picker("", selection: Binding(
+                get: { days.indices.contains(selectedDayIndex) ? days[selectedDayIndex].location : "gym" },
+                set: { newLocation in
+                    guard days.indices.contains(selectedDayIndex) else { return }
+                    days[selectedDayIndex].location = newLocation
+                    rebuildExercisesForCurrentDay(location: newLocation)
+                    HapticManager.lightTap()
+                }
+            )) {
+                Text(L10n.routineLocationGym).tag("gym")
+                Text(L10n.routineLocationHome).tag("home")
             }
-        )) {
-            Text(L10n.routineLocationGym).tag("gym")
-            Text(L10n.routineLocationHome).tag("home")
+            .pickerStyle(.segmented)
+            .padding(.horizontal, 24)
+            .padding(.bottom, 2)
+
+            Text(isJapanese
+                ? "このDayのトレーニング場所を選ぶと種目が変わります"
+                : "Change location to see different exercises for this day")
+                .font(.system(size: 10))
+                .foregroundStyle(Color.mmOnboardingTextSub)
+                .padding(.horizontal, 24)
+                .padding(.bottom, 4)
         }
-        .pickerStyle(.segmented)
-        .padding(.horizontal, 24)
-        .padding(.bottom, 4)
     }
 
     // MARK: - 筋肉マップ状態
@@ -272,6 +301,18 @@ struct RoutineBuilderPage: View {
 
     private var isLastDay: Bool {
         selectedDayIndex == days.count - 1
+    }
+
+    private var nextButtonLabel: String {
+        if isLastDay {
+            return isJapanese ? "ルーティン完成！" : "Complete Routine!"
+        } else {
+            let current = selectedDayIndex + 1
+            let next = selectedDayIndex + 2
+            return isJapanese
+                ? "Day \(current) を確定 → Day \(next) へ"
+                : "Confirm Day \(current) → Day \(next)"
+        }
     }
 
     private var canProceed: Bool {
@@ -598,7 +639,7 @@ private struct RoutineExerciseRow: View {
                 .padding(.vertical, 8)
 
             HStack(spacing: 12) {
-                // GIFサムネイル（64x64に拡大）
+                // GIFサムネイル（72x72）
                 exerciseThumbnail
 
                 // 種目名 + 器具 + セット×レップ
@@ -652,13 +693,13 @@ private struct RoutineExerciseRow: View {
     private var exerciseThumbnail: some View {
         if ExerciseGifView.hasGif(exerciseId: exercise.id) {
             ExerciseGifView(exerciseId: exercise.id, size: .thumbnail)
-                .frame(width: 64, height: 64)
+                .frame(width: 72, height: 72)
                 .clipShape(RoundedRectangle(cornerRadius: 12))
         } else {
             ZStack {
                 RoundedRectangle(cornerRadius: 12)
                     .fill(Color.mmOnboardingBg)
-                    .frame(width: 64, height: 64)
+                    .frame(width: 72, height: 72)
                 Image(systemName: "dumbbell.fill")
                     .font(.system(size: 22))
                     .foregroundStyle(Color.mmOnboardingTextSub.opacity(0.4))
