@@ -62,6 +62,8 @@ struct LocationSelectionPage: View {
     @State private var scrollOffset: CGFloat = 0
     @State private var autoScrollTimer: Timer?
     @State private var selectedExercise: ExerciseDefinition?
+    @State private var isUserScrolling = false
+    @State private var dragStartOffset: CGFloat = 0
 
     /// 選択した場所で使える種目（最大20件、2行グリッド用）
     private var filteredExercises: [ExerciseDefinition] {
@@ -187,6 +189,24 @@ struct LocationSelectionPage: View {
                     }
                 }
             }
+            .contentShape(Rectangle())
+            .simultaneousGesture(
+                DragGesture(minimumDistance: 10, coordinateSpace: .local)
+                    .onChanged { value in
+                        if !isUserScrolling {
+                            isUserScrolling = true
+                            dragStartOffset = scrollOffset
+                            stopAutoScroll()
+                        }
+                        scrollOffset = dragStartOffset + value.translation.width
+                    }
+                    .onEnded { _ in
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                            isUserScrolling = false
+                            startAutoScroll()
+                        }
+                    }
+            )
             .clipped()
             .opacity(appeared ? 1 : 0)
 
@@ -275,6 +295,7 @@ struct LocationSelectionPage: View {
         stopAutoScroll()
         autoScrollTimer = Timer.scheduledTimer(withTimeInterval: 0.03, repeats: true) { _ in
             Task { @MainActor in
+                guard !isUserScrolling else { return }
                 scrollOffset -= 0.5
             }
         }
