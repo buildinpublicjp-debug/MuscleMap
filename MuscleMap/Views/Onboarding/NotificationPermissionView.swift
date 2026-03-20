@@ -1,7 +1,7 @@
 import SwiftUI
 import UserNotifications
 
-// MARK: - 通知許可画面（「成長を逃さない」体験）
+// MARK: - 通知許可画面（「回復したら、教える。」体験）
 
 struct NotificationPermissionView: View {
     let onComplete: () -> Void
@@ -44,7 +44,7 @@ struct NotificationPermissionView: View {
                 Spacer().frame(height: 24)
 
                 // ヘッドライン
-                Text(isJapanese ? "成長を、逃さない。" : "Never Miss Your Growth.")
+                Text(isJapanese ? "回復したら、教える。" : "We'll Tell You When You're Ready.")
                     .font(.system(size: 28, weight: .heavy))
                     .foregroundStyle(Color.mmOnboardingAccent)
                     .multilineTextAlignment(.center)
@@ -55,8 +55,8 @@ struct NotificationPermissionView: View {
 
                 // サブテキスト（刺激→回復→成長）
                 Text(isJapanese
-                    ? "筋肉は刺激→回復→成長のサイクルで強くなります。\nMuscleMapが回復完了をお知らせ。\nベストなタイミングで次のトレーニングへ。"
-                    : "Muscles grow through stimulate → recover → grow.\nMuscleMap notifies you when recovery is complete.\nTrain at the perfect time for maximum gains.")
+                    ? "筋肉が回復したタイミングで通知を受け取れます\nベストなタイミングで次のトレーニングへ。"
+                    : "Get notified when your muscles have recovered.\nTrain at the perfect time for maximum gains.")
                     .font(.system(size: 14))
                     .foregroundStyle(Color.mmOnboardingTextSub)
                     .multilineTextAlignment(.center)
@@ -86,7 +86,8 @@ struct NotificationPermissionView: View {
                     notificationCard(
                         subtitle: isJapanese ? "🔥 大胸筋・三角筋 回復完了！" : "🔥 Chest & Delts Recovered!",
                         body: isJapanese ? "プッシュの日です。トレーニングしよう！" : "Push day. Time to train!",
-                        time: isJapanese ? "たった今" : "Just now"
+                        time: isJapanese ? "たった今" : "Just now",
+                        isMain: true
                     )
 
                     notificationCard(
@@ -118,7 +119,7 @@ struct NotificationPermissionView: View {
                             )
                             .clipShape(RoundedRectangle(cornerRadius: 16))
                     } else {
-                        Text(isJapanese ? "成長を見逃さない" : "Don't Miss Your Growth")
+                        Text(isJapanese ? "回復通知をオンにする" : "Turn On Recovery Alerts")
                             .font(.system(size: 18, weight: .bold))
                             .foregroundStyle(Color.mmOnboardingBg)
                             .frame(maxWidth: .infinity)
@@ -180,7 +181,7 @@ struct NotificationPermissionView: View {
                 .font(.system(size: 10))
                 .foregroundStyle(Color.mmOnboardingTextSub)
 
-            stepBadge(icon: "clock.arrow.circlepath", text: isJapanese ? "回復" : "Recover", color: .mmMuscleAmber)
+            stepBadge(icon: "clock.arrow.circlepath", text: isJapanese ? "回復" : "Recover", color: .mmOnboardingAccent, isHighlighted: true)
 
             Image(systemName: "arrow.right")
                 .font(.system(size: 10))
@@ -190,53 +191,58 @@ struct NotificationPermissionView: View {
         }
     }
 
-    private func stepBadge(icon: String, text: String, color: Color) -> some View {
+    private func stepBadge(icon: String, text: String, color: Color, isHighlighted: Bool = false) -> some View {
         HStack(spacing: 4) {
             Image(systemName: icon)
-                .font(.system(size: 12))
+                .font(.system(size: isHighlighted ? 14 : 12))
                 .foregroundStyle(color)
             Text(text)
-                .font(.system(size: 12, weight: .bold))
+                .font(.system(size: isHighlighted ? 14 : 12, weight: .heavy))
                 .foregroundStyle(color)
         }
-        .padding(.horizontal, 10)
-        .padding(.vertical, 5)
-        .background(color.opacity(0.12))
+        .padding(.horizontal, isHighlighted ? 14 : 10)
+        .padding(.vertical, isHighlighted ? 7 : 5)
+        .background(color.opacity(isHighlighted ? 0.2 : 0.12))
         .clipShape(Capsule())
+        .overlay(
+            isHighlighted
+                ? Capsule().stroke(color.opacity(0.4), lineWidth: 1)
+                : nil
+        )
     }
 
     // MARK: - 通知プレビューカード
 
-    private func notificationCard(subtitle: String, body: String, time: String) -> some View {
+    private func notificationCard(subtitle: String, body: String, time: String, isMain: Bool = false) -> some View {
         VStack(alignment: .leading, spacing: 3) {
             HStack(spacing: 6) {
                 Image(systemName: "bell.fill")
-                    .font(.system(size: 11))
+                    .font(.system(size: isMain ? 13 : 11))
                     .foregroundStyle(Color.mmOnboardingAccent)
                 Text("MuscleMap")
-                    .font(.system(size: 11, weight: .bold))
+                    .font(.system(size: isMain ? 13 : 11, weight: .bold))
                     .foregroundStyle(Color.mmOnboardingTextMain)
                 Spacer()
                 Text(time)
-                    .font(.system(size: 10))
+                    .font(.system(size: isMain ? 11 : 10))
                     .foregroundStyle(Color.mmOnboardingTextSub)
             }
 
             Text(subtitle)
-                .font(.system(size: 13, weight: .bold))
+                .font(.system(size: isMain ? 15 : 13, weight: .bold))
                 .foregroundStyle(Color.mmOnboardingTextMain)
 
             Text(body)
-                .font(.system(size: 12))
+                .font(.system(size: isMain ? 13 : 12))
                 .foregroundStyle(Color.mmOnboardingTextSub)
                 .lineLimit(1)
         }
-        .padding(10)
+        .padding(isMain ? 14 : 10)
         .background(Color.mmOnboardingCard)
         .clipShape(RoundedRectangle(cornerRadius: 14))
         .overlay(
             RoundedRectangle(cornerRadius: 14)
-                .stroke(Color.mmOnboardingAccent.opacity(0.15), lineWidth: 1)
+                .stroke(Color.mmOnboardingAccent.opacity(isMain ? 0.3 : 0.15), lineWidth: isMain ? 1.5 : 1)
         )
         .padding(.horizontal, 24)
     }

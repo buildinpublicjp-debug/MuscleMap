@@ -13,6 +13,7 @@ struct RoutineBuilderPage: View {
     @State private var showingExercisePicker = false
     @State private var editingExerciseIndex: Int?
     @State private var showSetRepEditor = false
+    @State private var selectedExerciseDefinition: ExerciseDefinition?
 
     /// 1日あたりの最大種目数
     private let maxExercisesPerDay = 8
@@ -77,68 +78,50 @@ struct RoutineBuilderPage: View {
             Spacer(minLength: 0)
 
             // ボタンエリア
-            VStack(spacing: 8) {
-                // 初心者/半年ユーザー: 「提案メニューでそのまま始める」一括確定ボタン
-                if AppState.shared.userProfile.trainingExperience == .beginner
-                    || AppState.shared.userProfile.trainingExperience == .halfYear {
-                    Button {
-                        HapticManager.lightTap()
-                        let routine = UserRoutine(days: days, createdAt: Date())
-                        RoutineManager.shared.saveRoutine(routine)
-                        for day in days {
-                            for exercise in day.exercises {
-                                FavoritesManager.shared.add(exercise.exerciseId)
-                            }
+            VStack(spacing: 10) {
+                // プライマリCTA: 「このメニューで始める」（sparkles付き）
+                Button {
+                    HapticManager.lightTap()
+                    let routine = UserRoutine(days: days, createdAt: Date())
+                    RoutineManager.shared.saveRoutine(routine)
+                    for day in days {
+                        for exercise in day.exercises {
+                            FavoritesManager.shared.add(exercise.exerciseId)
                         }
-                        onNext()
-                    } label: {
-                        HStack(spacing: 6) {
-                            Image(systemName: "sparkles")
-                                .font(.system(size: 14))
-                            Text(isJapanese
-                                ? "提案メニューでそのまま始める"
-                                : "Start with suggested menu")
-                                .font(.system(size: 15, weight: .bold))
-                        }
-                        .foregroundStyle(Color.mmOnboardingBg)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 50)
-                        .background(Color.mmOnboardingAccent)
-                        .clipShape(RoundedRectangle(cornerRadius: 14))
                     }
-                    .buttonStyle(.plain)
-
-                    Text(isJapanese
-                        ? "後からいつでも変更できます"
-                        : "You can always change this later")
-                        .font(.system(size: 10))
-                        .foregroundStyle(Color.mmOnboardingTextSub)
-                        .padding(.bottom, 4)
+                    onNext()
+                } label: {
+                    HStack(spacing: 6) {
+                        Image(systemName: "sparkles")
+                            .font(.system(size: 16))
+                        Text(isJapanese ? "このメニューで始める" : "Start with This Menu")
+                            .font(.system(size: 18, weight: .bold))
+                    }
+                    .foregroundStyle(Color.mmOnboardingBg)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 56)
+                    .background(
+                        LinearGradient(
+                            colors: [Color.mmOnboardingAccent, Color.mmOnboardingAccentDark],
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
+                    )
+                    .clipShape(RoundedRectangle(cornerRadius: 16))
                 }
+                .buttonStyle(.plain)
 
-                // Day別確認ボタン
-                let showsQuickStart = AppState.shared.userProfile.trainingExperience == .beginner
-                    || AppState.shared.userProfile.trainingExperience == .halfYear
+                // セカンダリ: 「自分でDay別にカスタマイズ」（下線付き）
                 Button {
                     saveAndProceed()
                 } label: {
-                    Text(showsQuickStart
-                        ? (isJapanese ? "自分でDay別に確認する" : "Review each Day manually")
-                        : nextButtonLabel)
-                        .font(.system(size: showsQuickStart ? 14 : 18, weight: .bold))
-                        .foregroundStyle(
-                            showsQuickStart
-                                ? (canProceed ? Color.mmOnboardingTextMain : Color.mmOnboardingTextSub)
-                                : (canProceed ? Color.mmOnboardingBg : Color.mmOnboardingTextSub)
-                        )
-                        .frame(maxWidth: .infinity)
-                        .frame(height: showsQuickStart ? 44 : 56)
-                        .background(showsQuickStart ? Color.mmOnboardingCard : (canProceed ? Color.mmOnboardingAccent : Color.mmOnboardingCard))
-                        .clipShape(RoundedRectangle(cornerRadius: showsQuickStart ? 12 : 16))
+                    Text(isJapanese ? "自分でDay別にカスタマイズ" : "Customize Each Day")
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundStyle(Color.mmOnboardingTextSub)
+                        .underline()
                 }
                 .buttonStyle(.plain)
                 .disabled(!canProceed)
-                .animation(.easeInOut(duration: 0.2), value: canProceed)
             }
             .padding(.horizontal, 24)
             .padding(.bottom, 32)
@@ -175,6 +158,9 @@ struct RoutineBuilderPage: View {
                 .presentationDragIndicator(.visible)
                 .presentationBackground(Color.mmOnboardingBg)
             }
+        }
+        .sheet(item: $selectedExerciseDefinition) { exercise in
+            ExerciseDetailView(exercise: exercise, hideStartWorkoutButton: true)
         }
     }
 
@@ -275,25 +261,84 @@ struct RoutineBuilderPage: View {
                         MuscleMapView(
                             muscleStates: muscleStatesForDay(days[selectedDayIndex])
                         )
-                        .frame(height: 140)
+                        .frame(height: 100)
                         .padding(.horizontal, 24)
                         .animation(.easeInOut(duration: 0.3), value: days[selectedDayIndex].exercises.count)
 
-                        // 種目行
-                        LazyVStack(spacing: 8) {
+                        // 種目グリッド（2カラム）
+                        let gridColumns = [
+                            GridItem(.flexible(), spacing: 8),
+                            GridItem(.flexible(), spacing: 8),
+                        ]
+                        LazyVGrid(columns: gridColumns, spacing: 8) {
                             ForEach(Array(days[selectedDayIndex].exercises.enumerated()), id: \.element.id) { index, routineExercise in
                                 if let def = ExerciseStore.shared.exercise(for: routineExercise.exerciseId) {
-                                    RoutineExerciseRow(
-                                        exercise: def,
-                                        routineExercise: routineExercise,
-                                        onRemove: {
-                                            removeExercise(routineExercise.id)
-                                        },
-                                        onEditSetRep: {
-                                            editingExerciseIndex = index
-                                            showSetRepEditor = true
+                                    Button {
+                                        HapticManager.lightTap()
+                                        selectedExerciseDefinition = def
+                                    } label: {
+                                        ZStack {
+                                            Color.mmOnboardingBg
+
+                                            if ExerciseGifView.hasGif(exerciseId: def.id) {
+                                                ExerciseGifView(exerciseId: def.id, size: .card)
+                                                    .scaledToFill()
+                                            } else {
+                                                Image(systemName: "dumbbell.fill")
+                                                    .font(.system(size: 28))
+                                                    .foregroundStyle(Color.mmOnboardingTextSub.opacity(0.4))
+                                            }
+
+                                            // オーバーレイ: 名前+削除（上）、セット×レップ（下）
+                                            VStack {
+                                                HStack {
+                                                    Text(def.localizedName)
+                                                        .font(.system(size: 11, weight: .bold))
+                                                        .foregroundStyle(.white)
+                                                        .lineLimit(1)
+                                                        .padding(.horizontal, 6)
+                                                        .padding(.vertical, 3)
+                                                        .background(Color.black.opacity(0.55))
+                                                        .clipShape(RoundedRectangle(cornerRadius: 4))
+                                                    Spacer()
+                                                    Button {
+                                                        removeExercise(routineExercise.id)
+                                                    } label: {
+                                                        Image(systemName: "minus.circle.fill")
+                                                            .font(.system(size: 18))
+                                                            .foregroundStyle(.white.opacity(0.8))
+                                                            .background(Color.black.opacity(0.4))
+                                                            .clipShape(Circle())
+                                                    }
+                                                    .buttonStyle(.plain)
+                                                }
+                                                .padding(6)
+
+                                                Spacer()
+
+                                                HStack {
+                                                    Spacer()
+                                                    Button {
+                                                        editingExerciseIndex = index
+                                                        showSetRepEditor = true
+                                                    } label: {
+                                                        Text("\(routineExercise.suggestedSets)×\(routineExercise.suggestedReps)")
+                                                            .font(.system(size: 11, weight: .bold).monospacedDigit())
+                                                            .foregroundStyle(.white)
+                                                            .padding(.horizontal, 8)
+                                                            .padding(.vertical, 3)
+                                                            .background(Color.mmOnboardingAccent.opacity(0.8))
+                                                            .clipShape(RoundedRectangle(cornerRadius: 4))
+                                                    }
+                                                    .buttonStyle(.plain)
+                                                }
+                                                .padding(6)
+                                            }
                                         }
-                                    )
+                                        .aspectRatio(1, contentMode: .fit)
+                                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                                    }
+                                    .buttonStyle(.plain)
                                 }
                             }
                         }
@@ -355,18 +400,6 @@ struct RoutineBuilderPage: View {
 
     private var isLastDay: Bool {
         selectedDayIndex == days.count - 1
-    }
-
-    private var nextButtonLabel: String {
-        if isLastDay {
-            return isJapanese ? "ルーティン完成！" : "Complete Routine!"
-        } else {
-            let current = selectedDayIndex + 1
-            let next = selectedDayIndex + 2
-            return isJapanese
-                ? "Day \(current) を確定 → Day \(next) へ"
-                : "Confirm Day \(current) → Day \(next)"
-        }
     }
 
     private var canProceed: Bool {
@@ -672,92 +705,6 @@ private struct SetRepEditorSheet: View {
             .buttonStyle(.plain)
             .padding(.horizontal, 24)
             .padding(.bottom, 16)
-        }
-    }
-}
-
-// MARK: - ルーティン種目行
-
-private struct RoutineExerciseRow: View {
-    let exercise: ExerciseDefinition
-    let routineExercise: RoutineExercise
-    let onRemove: () -> Void
-    let onEditSetRep: () -> Void
-
-    var body: some View {
-        HStack(spacing: 0) {
-            // 左アクセントバー
-            RoundedRectangle(cornerRadius: 2)
-                .fill(Color.mmOnboardingAccent)
-                .frame(width: 3)
-                .padding(.vertical, 8)
-
-            HStack(spacing: 12) {
-                // GIFサムネイル（72x72）
-                exerciseThumbnail
-
-                // 種目名 + 器具 + セット×レップ
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(exercise.localizedName)
-                        .font(.system(size: 16, weight: .medium))
-                        .foregroundStyle(Color.mmOnboardingTextMain)
-                        .lineLimit(1)
-
-                    HStack(spacing: 8) {
-                        Text(exercise.localizedEquipment)
-                            .font(.caption)
-                            .foregroundStyle(Color.mmOnboardingTextSub)
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 2)
-                            .background(Color.mmOnboardingCard)
-                            .clipShape(RoundedRectangle(cornerRadius: 4))
-
-                        // セット×レップ（タップで編集）
-                        Button(action: onEditSetRep) {
-                            Text("\(routineExercise.suggestedSets)×\(routineExercise.suggestedReps)")
-                                .font(.caption.bold().monospacedDigit())
-                                .foregroundStyle(Color.mmOnboardingAccent)
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 4)
-                                .background(Color.mmOnboardingAccent.opacity(0.15))
-                                .clipShape(Capsule())
-                        }
-                        .buttonStyle(.plain)
-                    }
-                }
-
-                Spacer()
-
-                // 削除ボタン
-                Button(action: onRemove) {
-                    Image(systemName: "minus.circle.fill")
-                        .font(.system(size: 20))
-                        .foregroundStyle(Color.mmOnboardingTextSub.opacity(0.5))
-                }
-                .buttonStyle(.plain)
-            }
-            .padding(.horizontal, 12)
-        }
-        .frame(minHeight: 72)
-        .background(Color.mmOnboardingAccent.opacity(0.06))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-    }
-
-    @ViewBuilder
-    private var exerciseThumbnail: some View {
-        if ExerciseGifView.hasGif(exerciseId: exercise.id) {
-            ExerciseGifView(exerciseId: exercise.id, size: .thumbnail)
-                .frame(width: 72, height: 72)
-                .clipShape(RoundedRectangle(cornerRadius: 12))
-        } else {
-            ZStack {
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(Color.mmOnboardingBg)
-                    .frame(width: 72, height: 72)
-                Image(systemName: "dumbbell.fill")
-                    .font(.system(size: 22))
-                    .foregroundStyle(Color.mmOnboardingTextSub.opacity(0.4))
-            }
         }
     }
 }
