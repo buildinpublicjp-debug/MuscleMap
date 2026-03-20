@@ -94,6 +94,9 @@ final class PurchaseManager {
 
     // MARK: - 週間ワークアウト制限（無料ユーザー向け）
 
+    /// 無料ユーザーの週間ワークアウト上限（週2回で超回復サイクルを1回体験可能）
+    static let weeklyFreeLimit = 2
+
     private static let weeklyWorkoutCountKey = "weeklyWorkoutCount"
     private static let weeklyResetDateKey = "weeklyResetDate"
 
@@ -103,9 +106,9 @@ final class PurchaseManager {
         return UserDefaults.standard.integer(forKey: Self.weeklyWorkoutCountKey)
     }
 
-    /// ワークアウト記録が可能か（Pro or 週1未満）
+    /// ワークアウト記録が可能か（Pro or 週間上限未満）
     var canRecordWorkout: Bool {
-        isPremium || weeklyWorkoutCount < 1
+        isPremium || weeklyWorkoutCount < Self.weeklyFreeLimit
     }
 
     /// ワークアウト記録カウントをインクリメント

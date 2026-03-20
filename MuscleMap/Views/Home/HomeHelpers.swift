@@ -310,7 +310,7 @@ struct TodayRecommendationInline: View {
                     .buttonStyle(.plain)
 
                     // 無料枠残回数（ボタン直下にインライン表示）
-                    let remaining = max(0, 1 - PurchaseManager.shared.weeklyWorkoutCount)
+                    let remaining = max(0, PurchaseManager.weeklyFreeLimit - PurchaseManager.shared.weeklyWorkoutCount)
                     HStack(spacing: 4) {
                         Image(systemName: remaining > 0 ? "checkmark.circle" : "lock.circle")
                             .font(.system(size: 10))

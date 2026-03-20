@@ -87,8 +87,8 @@ private struct MainTabView: View {
                    ? "閉じる" : "Close", role: .cancel) {}
         } message: {
             Text(LocalizationManager.shared.currentLanguage == .japanese
-                ? "無料プランでは週1回までワークアウトを記録できます。Proにアップグレードすると無制限に記録できます。"
-                : "Free plan allows 1 workout per week. Upgrade to Pro for unlimited workouts.")
+                ? "今週\(PurchaseManager.weeklyFreeLimit)回のワークアウトを記録しました。Proにアップグレードすると無制限に記録でき、残りの部位も今週中にカバーできます。"
+                : "You've logged \(PurchaseManager.weeklyFreeLimit) workouts this week. Upgrade to Pro for unlimited tracking and cover all muscle groups.")
         }
         .sheet(isPresented: $showingPaywall) {
             PaywallView(isHardPaywall: false)
