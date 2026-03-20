@@ -40,14 +40,15 @@ enum OnboardingGoal: String, CaseIterable, Identifiable {
     }
 
     var localizedDescription: String {
+        let isJa = LocalizationManager.shared.currentLanguage == .japanese
         switch self {
-        case .getBig: return "Tシャツが似合う体に"
-        case .dontGetDisrespected: return "存在感のある体で生きる"
-        case .martialArts: return "パンチ力・タックル・組み力"
-        case .sports: return "ゴルフ飛距離、スイング速度"
-        case .getAttractive: return "自信のある体が全てを変える"
-        case .moveWell: return "階段で息切れしない"
-        case .health: return "家族のために"
+        case .getBig: return isJa ? "Tシャツが似合う体に" : "A body that fills out a T-shirt"
+        case .dontGetDisrespected: return isJa ? "存在感のある体で生きる" : "Command presence with your physique"
+        case .martialArts: return isJa ? "パンチ力・タックル・組み力" : "Punch power, tackles & grappling"
+        case .sports: return isJa ? "ゴルフ飛距離、スイング速度" : "Drive distance & swing speed"
+        case .getAttractive: return isJa ? "自信のある体が全てを変える" : "A confident body changes everything"
+        case .moveWell: return isJa ? "階段で息切れしない" : "No more breathlessness on stairs"
+        case .health: return isJa ? "家族のために" : "For your family"
         }
     }
 }
