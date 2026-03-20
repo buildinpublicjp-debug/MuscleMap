@@ -10,6 +10,7 @@ struct GoalMusclePreviewPage: View {
     @State private var menuAppeared = false
     @State private var isProceeding = false
     @State private var selectedDayPreview: DayPreviewData?
+    @State private var selectedExerciseDefinition: ExerciseDefinition?
 
     private var isJapanese: Bool {
         LocalizationManager.shared.currentLanguage == .japanese
@@ -157,7 +158,7 @@ struct GoalMusclePreviewPage: View {
                                 )
                                 HapticManager.lightTap()
                             } label: {
-                                DaySectionView(day: day)
+                                DaySectionView(day: day, selectedExerciseDefinition: $selectedExerciseDefinition)
                             }
                             .buttonStyle(.plain)
                             .opacity(menuAppeared ? 1 : 0)
@@ -225,7 +226,14 @@ struct GoalMusclePreviewPage: View {
             }
         }
         .sheet(item: $selectedDayPreview) { dayData in
-            DayExerciseSheet(dayData: dayData)
+            DayExerciseSheet(dayData: dayData, selectedExerciseDefinition: $selectedExerciseDefinition)
+        }
+        .sheet(item: $selectedExerciseDefinition) { exercise in
+            NavigationStack {
+                ExerciseDetailView(exercise: exercise)
+            }
+            .presentationDetents([.large])
+            .presentationDragIndicator(.visible)
         }
     }
 
@@ -295,14 +303,20 @@ struct DayPreviewData: Identifiable {
     let exercises: [(exerciseId: String, name: String, equipment: String, setsReps: String)]
 }
 
-// MARK: - Day セクション
+// MARK: - Day セクション（2カラムグリッド + GIFオーバーレイ）
 
 private struct DaySectionView: View {
     let day: DayPreview
+    @Binding var selectedExerciseDefinition: ExerciseDefinition?
 
     private var isJapanese: Bool {
         LocalizationManager.shared.currentLanguage == .japanese
     }
+
+    private let gridColumns = [
+        GridItem(.flexible(), spacing: 8),
+        GridItem(.flexible(), spacing: 8),
+    ]
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -317,7 +331,7 @@ private struct DaySectionView: View {
                 HStack(spacing: 4) {
                     Image(systemName: "hand.tap")
                         .font(.system(size: 9))
-                    Text(isJapanese ? "タップで種目を見る" : "Tap to see exercises")
+                    Text(isJapanese ? "タップで詳細を見る" : "Tap for details")
                         .font(.system(size: 9))
                 }
                 .foregroundStyle(Color.mmOnboardingTextSub)
@@ -336,29 +350,22 @@ private struct DaySectionView: View {
                 }
             }
 
-            // 種目リスト
-            ForEach(Array(day.exercises.enumerated()), id: \.offset) { _, exercise in
-                HStack(spacing: 8) {
-                    Text(exercise.name)
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundStyle(Color.mmOnboardingTextMain)
-                        .lineLimit(1)
-
-                    Spacer()
-
-                    // 器具バッジ
-                    Text(exercise.equipment)
-                        .font(.system(size: 10))
-                        .foregroundStyle(Color.mmOnboardingTextSub)
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 2)
-                        .background(Color.mmOnboardingBg.opacity(0.6))
-                        .clipShape(Capsule())
-
-                    // セット×レップ
-                    Text("\(exercise.sets)×\(exercise.reps)")
-                        .font(.system(size: 12, weight: .medium).monospacedDigit())
-                        .foregroundStyle(Color.mmOnboardingTextSub)
+            // 種目グリッド（2カラム）
+            LazyVGrid(columns: gridColumns, spacing: 8) {
+                ForEach(Array(day.exercises.enumerated()), id: \.offset) { _, exercise in
+                    Button {
+                        if let def = ExerciseStore.shared.exercise(for: exercise.exerciseId) {
+                            selectedExerciseDefinition = def
+                            HapticManager.lightTap()
+                        }
+                    } label: {
+                        ExerciseGridCell(
+                            exerciseId: exercise.exerciseId,
+                            name: exercise.name,
+                            setsReps: "\(exercise.sets)×\(exercise.reps)"
+                        )
+                    }
+                    .buttonStyle(.plain)
                 }
             }
         }
@@ -367,11 +374,80 @@ private struct DaySectionView: View {
     }
 }
 
-// MARK: - GIF種目シート
+// MARK: - 種目グリッドセル（GIF + 種目名オーバーレイ + セット数）
+
+private struct ExerciseGridCell: View {
+    let exerciseId: String
+    let name: String
+    let setsReps: String
+
+    var body: some View {
+        ZStack(alignment: .topLeading) {
+            // GIF or フォールバック
+            if ExerciseGifView.hasGif(exerciseId: exerciseId) {
+                ExerciseGifView(exerciseId: exerciseId, size: .previewCard)
+                    .aspectRatio(1, contentMode: .fill)
+                    .clipped()
+            } else {
+                Color.mmOnboardingCard
+                    .aspectRatio(1, contentMode: .fit)
+                    .overlay(
+                        Image(systemName: "dumbbell.fill")
+                            .font(.system(size: 28))
+                            .foregroundStyle(Color.mmOnboardingTextSub.opacity(0.3))
+                    )
+            }
+
+            // 下部グラデーション
+            VStack {
+                Spacer()
+                LinearGradient(
+                    colors: [Color.clear, Color.black.opacity(0.7)],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .frame(height: 48)
+            }
+
+            // 種目名（左上）
+            Text(name)
+                .font(.system(size: 11, weight: .bold))
+                .foregroundStyle(.white)
+                .lineLimit(2)
+                .padding(6)
+
+            // セット数（右下）
+            VStack {
+                Spacer()
+                HStack {
+                    Spacer()
+                    Text(setsReps)
+                        .font(.system(size: 11, weight: .heavy).monospacedDigit())
+                        .foregroundStyle(Color.mmOnboardingAccent)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 3)
+                        .background(Color.black.opacity(0.5))
+                        .clipShape(Capsule())
+                        .padding(6)
+                }
+            }
+        }
+        .aspectRatio(1, contentMode: .fit)
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+    }
+}
+
+// MARK: - GIF種目シート（2カラムグリッド）
 
 private struct DayExerciseSheet: View {
     let dayData: DayPreviewData
+    @Binding var selectedExerciseDefinition: ExerciseDefinition?
     @Environment(\.dismiss) private var dismiss
+
+    private let gridColumns = [
+        GridItem(.flexible(), spacing: 8),
+        GridItem(.flexible(), spacing: 8),
+    ]
 
     var body: some View {
         NavigationStack {
@@ -391,47 +467,28 @@ private struct DayExerciseSheet: View {
                     }
                     .padding(.horizontal, 16)
 
-                    // 種目リスト（GIF付き）
-                    ForEach(dayData.exercises.indices, id: \.self) { i in
-                        let item = dayData.exercises[i]
-                        HStack(spacing: 12) {
-                            // GIF
-                            if ExerciseGifView.hasGif(exerciseId: item.exerciseId) {
-                                ExerciseGifView(exerciseId: item.exerciseId, size: .previewCard)
-                                    .frame(width: 100, height: 100)
-                                    .clipShape(RoundedRectangle(cornerRadius: 14))
-                            } else {
-                                RoundedRectangle(cornerRadius: 14)
-                                    .fill(Color.mmOnboardingCard)
-                                    .frame(width: 100, height: 100)
-                                    .overlay(
-                                        Image(systemName: "dumbbell.fill")
-                                            .font(.system(size: 24))
-                                            .foregroundStyle(Color.mmOnboardingTextSub.opacity(0.4))
-                                    )
+                    // 種目グリッド（2カラム）
+                    LazyVGrid(columns: gridColumns, spacing: 8) {
+                        ForEach(Array(dayData.exercises.enumerated()), id: \.offset) { _, item in
+                            Button {
+                                if let def = ExerciseStore.shared.exercise(for: item.exerciseId) {
+                                    dismiss()
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                        selectedExerciseDefinition = def
+                                    }
+                                    HapticManager.lightTap()
+                                }
+                            } label: {
+                                ExerciseGridCell(
+                                    exerciseId: item.exerciseId,
+                                    name: item.name,
+                                    setsReps: item.setsReps
+                                )
                             }
-
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text(item.name)
-                                    .font(.subheadline.bold())
-                                    .foregroundStyle(Color.mmOnboardingTextMain)
-
-                                Text(item.equipment)
-                                    .font(.caption)
-                                    .foregroundStyle(Color.mmOnboardingTextSub)
-
-                                Text(item.setsReps)
-                                    .font(.caption.bold())
-                                    .foregroundStyle(Color.mmOnboardingAccent)
-                            }
-
-                            Spacer()
+                            .buttonStyle(.plain)
                         }
-                        .padding(12)
-                        .background(Color.mmOnboardingCard)
-                        .clipShape(RoundedRectangle(cornerRadius: 16))
-                        .padding(.horizontal, 16)
                     }
+                    .padding(.horizontal, 16)
                 }
                 .padding(.vertical, 12)
             }
