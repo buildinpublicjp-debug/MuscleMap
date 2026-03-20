@@ -345,7 +345,7 @@ struct FrequencySelectionPage: View {
 
         updateMuscleStatesForDay(0, parts: parts, trainingDays: trainingDays)
 
-        let timer = Timer.scheduledTimer(withTimeInterval: 0.8, repeats: true) { [trainingDays] _ in
+        let timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [trainingDays] _ in
             Task { @MainActor in
                 animationDay = (animationDay + 1) % 7
                 updateMuscleStatesForDay(animationDay, parts: parts, trainingDays: trainingDays)
@@ -360,8 +360,6 @@ struct FrequencySelectionPage: View {
     }
 
     private func updateMuscleStatesForDay(_ day: Int, parts: [SplitPart], trainingDays: [Int: Int]) {
-        let priorityMuscles = Set(AppState.shared.userProfile.goalPriorityMuscles.compactMap { Muscle(rawValue: $0) })
-
         var states: [Muscle: MuscleVisualState] = [:]
         for muscle in Muscle.allCases {
             states[muscle] = .inactive
@@ -373,29 +371,21 @@ struct FrequencySelectionPage: View {
             )
 
             if daysSince == 0 {
-                // 今日刺激 → 赤（疲労開始）
+                // 今日刺激 → はっきり赤（疲労開始）
                 states[muscle] = .recovering(progress: 0.05)
             } else if daysSince > 0 {
-                // 回復中 → 経過時間に応じて赤→黄
+                // 回復中 → 経過時間に応じて赤→黄→グレー
                 let recoveryHours = Double(muscle.baseRecoveryHours)
                 let elapsedHours = Double(daysSince) * 24.0
                 let progress = elapsedHours / recoveryHours
                 if progress >= 1.0 {
-                    // 回復完了 → 目標筋肉ならうっすら残す、そうでなければinactive
-                    if priorityMuscles.contains(muscle) {
-                        states[muscle] = .recovering(progress: 0.15)
-                    } else {
-                        states[muscle] = .inactive
-                    }
+                    // 回復完了 → グレーに戻す（全筋肉平等）
+                    states[muscle] = .inactive
                 } else {
                     states[muscle] = .recovering(progress: progress)
                 }
-            } else {
-                // まだ刺激されてない → 目標筋肉ならうっすらハイライト
-                if priorityMuscles.contains(muscle) {
-                    states[muscle] = .recovering(progress: 0.15)
-                }
             }
+            // daysSince < 0 → まだ刺激されてない → .inactive のまま
         }
 
         withAnimation(.easeInOut(duration: 0.4)) {
