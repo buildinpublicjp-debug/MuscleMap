@@ -59,11 +59,20 @@ struct LocationSelectionPage: View {
     @State private var selected: TrainingLocation?
     @State private var appeared = false
     @State private var isProceeding = false
-    @State private var scrollOffset: CGFloat = 0
     @State private var autoScrollTimer: Timer?
     @State private var selectedExercise: ExerciseDefinition?
     @State private var isUserScrolling = false
-    @State private var dragStartOffset: CGFloat = 0
+    @State private var autoScrollIndex: Int = 0
+
+    /// 器具が必要な「自重」種目を除外するID判定
+    private static let bodyweightExcludeIds: Set<String> = [
+        "dips", "chin_up", "pull_up", "muscle_up", "tricep_dip"
+    ]
+
+    private func isTrueBodyweight(_ exercise: ExerciseDefinition) -> Bool {
+        let id = exercise.id.lowercased()
+        return !Self.bodyweightExcludeIds.contains(where: { id.contains($0) })
+    }
 
     /// 選択した場所で使える種目（最大20件、2行グリッド用）
     private var filteredExercises: [ExerciseDefinition] {
@@ -74,7 +83,7 @@ struct LocationSelectionPage: View {
         switch selected {
         case .bodyweight:
             let bwEquipment: Set<String> = ["自重", "Bodyweight"]
-            exercises = store.exercises.filter { bwEquipment.contains($0.equipment) }
+            exercises = store.exercises.filter { bwEquipment.contains($0.equipment) && isTrueBodyweight($0) }
         case .home:
             let homeEquipment: Set<String> = ["自重", "ダンベル", "ケトルベル", "Bodyweight", "Dumbbell", "Kettlebell"]
             exercises = store.exercises.filter { homeEquipment.contains($0.equipment) }
@@ -108,7 +117,7 @@ struct LocationSelectionPage: View {
         switch selected {
         case .bodyweight:
             let bwEquipment: Set<String> = ["自重", "Bodyweight"]
-            return store.exercises.filter { bwEquipment.contains($0.equipment) }.count
+            return store.exercises.filter { bwEquipment.contains($0.equipment) && isTrueBodyweight($0) }.count
         case .home:
             let homeEquipment: Set<String> = ["自重", "ダンベル", "ケトルベル", "Bodyweight", "Dumbbell", "Kettlebell"]
             return store.exercises.filter { homeEquipment.contains($0.equipment) }.count
@@ -159,55 +168,37 @@ struct LocationSelectionPage: View {
 
             Spacer().frame(height: 12)
 
-            // GIFギャラリー（2行グリッド、マーキー自動スクロール）
-            GeometryReader { geo in
-                let columnWidth: CGFloat = 148 // カード幅140 + spacing8
-                let contentWidth = CGFloat(gridColumns.count) * columnWidth + 48 // padding分
-                HStack(alignment: .top, spacing: 8) {
-                    ForEach(gridColumns, id: \.0) { _, pair in
-                        VStack(spacing: 8) {
-                            ExerciseGifCard(exercise: pair.0) {
-                                selectedExercise = pair.0
-                                HapticManager.lightTap()
-                            }
-                            if let second = pair.1 {
-                                ExerciseGifCard(exercise: second) {
-                                    selectedExercise = second
+            // GIFギャラリー（2行グリッド、ネイティブScrollView + 自動スクロール）
+            ScrollViewReader { proxy in
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(alignment: .top, spacing: 8) {
+                        ForEach(gridColumns, id: \.0) { colIndex, pair in
+                            VStack(spacing: 8) {
+                                ExerciseGifCard(exercise: pair.0) {
+                                    selectedExercise = pair.0
                                     HapticManager.lightTap()
                                 }
+                                if let second = pair.1 {
+                                    ExerciseGifCard(exercise: second) {
+                                        selectedExercise = second
+                                        HapticManager.lightTap()
+                                    }
+                                }
                             }
+                            .id(colIndex)
                         }
                     }
+                    .padding(.horizontal, 24)
+                    .onTapGesture { }  // ScrollViewのスワイプをTabViewから保護
                 }
-                .padding(.horizontal, 24)
-                .offset(x: scrollOffset)
-                .onChange(of: scrollOffset) {
-                    // ループ: コンテンツが画面外に出たらリセット
-                    let resetPoint = -(contentWidth - geo.size.width)
-                    if scrollOffset < resetPoint {
-                        scrollOffset = 0
-                    }
+                .onAppear {
+                    startAutoScroll(proxy: proxy)
+                }
+                .onChange(of: selected) {
+                    autoScrollIndex = 0
+                    restartAutoScroll(proxy: proxy)
                 }
             }
-            .contentShape(Rectangle())
-            .simultaneousGesture(
-                DragGesture(minimumDistance: 10, coordinateSpace: .local)
-                    .onChanged { value in
-                        if !isUserScrolling {
-                            isUserScrolling = true
-                            dragStartOffset = scrollOffset
-                            stopAutoScroll()
-                        }
-                        scrollOffset = dragStartOffset + value.translation.width
-                    }
-                    .onEnded { _ in
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                            isUserScrolling = false
-                            startAutoScroll()
-                        }
-                    }
-            )
-            .clipped()
             .opacity(appeared ? 1 : 0)
 
             Spacer(minLength: 8)
@@ -223,8 +214,6 @@ struct LocationSelectionPage: View {
                             withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
                                 selected = location
                             }
-                            // マーキーをリセット＆再開
-                            restartAutoScroll()
                             HapticManager.lightTap()
                         }
                     )
@@ -275,7 +264,6 @@ struct LocationSelectionPage: View {
             withAnimation(.easeOut(duration: 0.5)) {
                 appeared = true
             }
-            startAutoScroll()
         }
         .onDisappear {
             stopAutoScroll()
@@ -289,14 +277,20 @@ struct LocationSelectionPage: View {
         }
     }
 
-    // MARK: - マーキー自動スクロール
+    // MARK: - 自動スクロール（ScrollViewReader経由）
 
-    private func startAutoScroll() {
+    private func startAutoScroll(proxy: ScrollViewProxy) {
         stopAutoScroll()
-        autoScrollTimer = Timer.scheduledTimer(withTimeInterval: 0.03, repeats: true) { _ in
+        let colCount = gridColumns.count
+        guard colCount > 1 else { return }
+
+        autoScrollTimer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { _ in
             Task { @MainActor in
                 guard !isUserScrolling else { return }
-                scrollOffset -= 0.5
+                autoScrollIndex = (autoScrollIndex + 1) % colCount
+                withAnimation(.easeInOut(duration: 0.6)) {
+                    proxy.scrollTo(autoScrollIndex, anchor: .leading)
+                }
             }
         }
     }
@@ -306,9 +300,12 @@ struct LocationSelectionPage: View {
         autoScrollTimer = nil
     }
 
-    private func restartAutoScroll() {
-        scrollOffset = 0
-        startAutoScroll()
+    private func restartAutoScroll(proxy: ScrollViewProxy) {
+        autoScrollIndex = 0
+        withAnimation(.easeInOut(duration: 0.3)) {
+            proxy.scrollTo(0, anchor: .leading)
+        }
+        startAutoScroll(proxy: proxy)
     }
 }
 

@@ -239,10 +239,17 @@ struct FrequencySelectionPage: View {
         .onAppear {
             isProceeding = false  // スワイプ戻り時にボタンを有効化
 
-            // 初期状態: 全筋肉inactive
+            // 目標の重点筋肉を初期ハイライト
             var initial: [Muscle: MuscleVisualState] = [:]
+            let priorityMuscles = Set(AppState.shared.userProfile.goalPriorityMuscles.compactMap { Muscle(rawValue: $0) })
+
             for muscle in Muscle.allCases {
-                initial[muscle] = .inactive
+                if priorityMuscles.contains(muscle) {
+                    // 目標の筋肉 → うっすらグリーンで光る
+                    initial[muscle] = .recovering(progress: 0.15)
+                } else {
+                    initial[muscle] = .inactive
+                }
             }
             muscleStates = initial
 
@@ -338,7 +345,7 @@ struct FrequencySelectionPage: View {
 
         updateMuscleStatesForDay(0, parts: parts, trainingDays: trainingDays)
 
-        let timer = Timer.scheduledTimer(withTimeInterval: 0.6, repeats: true) { [trainingDays] _ in
+        let timer = Timer.scheduledTimer(withTimeInterval: 0.8, repeats: true) { [trainingDays] _ in
             Task { @MainActor in
                 animationDay = (animationDay + 1) % 7
                 updateMuscleStatesForDay(animationDay, parts: parts, trainingDays: trainingDays)
@@ -353,13 +360,13 @@ struct FrequencySelectionPage: View {
     }
 
     private func updateMuscleStatesForDay(_ day: Int, parts: [SplitPart], trainingDays: [Int: Int]) {
-        // まず全筋肉をinactiveに（刺激なし = 暗いまま）
+        let priorityMuscles = Set(AppState.shared.userProfile.goalPriorityMuscles.compactMap { Muscle(rawValue: $0) })
+
         var states: [Muscle: MuscleVisualState] = [:]
         for muscle in Muscle.allCases {
             states[muscle] = .inactive
         }
 
-        // 刺激があった筋肉だけ色を設定
         for muscle in Muscle.allCases {
             let daysSince = calculateDaysSinceStimulation(
                 muscle: muscle, currentDay: day, trainingDays: trainingDays, parts: parts
@@ -374,14 +381,21 @@ struct FrequencySelectionPage: View {
                 let elapsedHours = Double(daysSince) * 24.0
                 let progress = elapsedHours / recoveryHours
                 if progress >= 1.0 {
-                    // 回復完了 → 暗い色に戻す（inactiveのまま）
-                    states[muscle] = .inactive
+                    // 回復完了 → 目標筋肉ならうっすら残す、そうでなければinactive
+                    if priorityMuscles.contains(muscle) {
+                        states[muscle] = .recovering(progress: 0.15)
+                    } else {
+                        states[muscle] = .inactive
+                    }
                 } else {
-                    // まだ回復中 → 赤→黄のグラデーション
                     states[muscle] = .recovering(progress: progress)
                 }
+            } else {
+                // まだ刺激されてない → 目標筋肉ならうっすらハイライト
+                if priorityMuscles.contains(muscle) {
+                    states[muscle] = .recovering(progress: 0.15)
+                }
             }
-            // daysSince < 0 → .inactive のまま（暗い色）
         }
 
         withAnimation(.easeInOut(duration: 0.4)) {

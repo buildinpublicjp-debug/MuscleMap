@@ -1,6 +1,6 @@
 import SwiftUI
 
-// MARK: - オンボーディング画面（スプラッシュ → V2フロー → 通知許可）
+// MARK: - オンボーディング画面（スプラッシュ → V2フロー）
 
 struct OnboardingView: View {
     var onComplete: () -> Void
@@ -10,7 +10,6 @@ struct OnboardingView: View {
     private enum OnboardingPhase {
         case splash
         case mainFlow
-        case notification
     }
 
     var body: some View {
@@ -26,17 +25,8 @@ struct OnboardingView: View {
                 .transition(.opacity)
 
             case .mainFlow:
-                // V2オンボーディングフロー（目標 → 頻度 → 場所 → トレ歴 → 筋肉ビジュアル → 体重 → CTA）
+                // V2オンボーディングフロー（通知許可もV2内に含む）
                 OnboardingV2View {
-                    withAnimation(.easeInOut(duration: 0.5)) {
-                        currentPhase = .notification
-                    }
-                }
-                .transition(.opacity)
-
-            case .notification:
-                // 通知許可画面
-                NotificationPermissionView {
                     onComplete()
                 }
                 .transition(.opacity)

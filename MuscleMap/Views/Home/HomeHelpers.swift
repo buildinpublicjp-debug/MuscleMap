@@ -201,62 +201,51 @@ struct TodayRecommendationInline: View {
                             selectedExerciseDefinition = d
                         }
                     } label: {
-                        ZStack {
-                            // GIF or プレースホルダー
-                            Color.mmBgPrimary
-
-                            if ExerciseGifView.hasGif(exerciseId: exercise.exerciseId) {
-                                ExerciseGifView(exerciseId: exercise.exerciseId, size: .card)
-                                    .scaledToFill()
-                            } else {
-                                Image(systemName: "dumbbell.fill")
-                                    .font(.system(size: 24))
-                                    .foregroundStyle(Color.mmTextSecondary.opacity(0.4))
-                            }
-
-                            // 下部グラデーション（コントラスト補助）
-                            VStack {
-                                Spacer()
-                                LinearGradient(
-                                    colors: [.clear, Color.black.opacity(0.65)],
-                                    startPoint: .top,
-                                    endPoint: .bottom
-                                )
-                                .frame(height: 40)
-                            }
-
-                            // オーバーレイ: 種目名（左上）+ セット情報（右下）
-                            VStack {
-                                // 種目名（左上）
-                                HStack {
-                                    Text(name)
-                                        .font(.system(size: 11, weight: .bold))
-                                        .foregroundStyle(.white)
-                                        .lineLimit(1)
-                                        .truncationMode(.tail)
-                                        .padding(.horizontal, 6)
-                                        .padding(.vertical, 3)
-                                        .background(Color.black.opacity(0.7))
-                                        .clipShape(RoundedRectangle(cornerRadius: 4))
-                                    Spacer()
+                        ZStack(alignment: .bottom) {
+                            // 背景 + GIF（黒バー対策: GeometryReader + scaledToFill + frame + clipped）
+                            GeometryReader { geo in
+                                Color.mmBgPrimary
+                                if ExerciseGifView.hasGif(exerciseId: exercise.exerciseId) {
+                                    ExerciseGifView(exerciseId: exercise.exerciseId, size: .card)
+                                        .scaledToFill()
+                                        .frame(width: geo.size.width, height: geo.size.height)
+                                        .clipped()
+                                } else {
+                                    Image(systemName: "dumbbell.fill")
+                                        .font(.system(size: 24))
+                                        .foregroundStyle(Color.mmTextSecondary.opacity(0.4))
+                                        .frame(width: geo.size.width, height: geo.size.height)
                                 }
-                                .padding(6)
-
-                                Spacer()
-
-                                // セット × レップ（右下）
-                                HStack {
-                                    Spacer()
-                                    Text("\(exercise.suggestedSets) × \(exercise.suggestedReps)")
-                                        .font(.system(size: 11, weight: .heavy).monospacedDigit())
-                                        .foregroundStyle(.white)
-                                        .padding(.horizontal, 6)
-                                        .padding(.vertical, 3)
-                                        .background(Color.black.opacity(0.7))
-                                        .clipShape(RoundedRectangle(cornerRadius: 4))
-                                }
-                                .padding(6)
                             }
+
+                            // 下部グラデーション（56pt、テキスト可読性確保）
+                            LinearGradient(
+                                colors: [.clear, Color.black.opacity(0.75)],
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
+                            .frame(height: 56)
+
+                            // 下部テキスト: 種目名（左）+ セット×レップ（右）
+                            HStack(alignment: .bottom) {
+                                Text(name)
+                                    .font(.system(size: 11, weight: .bold))
+                                    .foregroundStyle(.white)
+                                    .lineLimit(1)
+                                    .truncationMode(.tail)
+
+                                Spacer(minLength: 4)
+
+                                Text("\(exercise.suggestedSets) × \(exercise.suggestedReps)")
+                                    .font(.system(size: 11, weight: .heavy).monospacedDigit())
+                                    .foregroundStyle(.white)
+                                    .padding(.horizontal, 6)
+                                    .padding(.vertical, 2)
+                                    .background(Color.white.opacity(0.15))
+                                    .clipShape(RoundedRectangle(cornerRadius: 4))
+                            }
+                            .padding(.horizontal, 8)
+                            .padding(.bottom, 6)
                         }
                         .aspectRatio(1, contentMode: .fit)
                         .clipShape(RoundedRectangle(cornerRadius: 8))

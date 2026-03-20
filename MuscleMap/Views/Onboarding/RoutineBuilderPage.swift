@@ -277,62 +277,74 @@ struct RoutineBuilderPage: View {
                                         HapticManager.lightTap()
                                         selectedExerciseDefinition = def
                                     } label: {
-                                        ZStack {
-                                            Color.mmOnboardingBg
-
-                                            if ExerciseGifView.hasGif(exerciseId: def.id) {
-                                                ExerciseGifView(exerciseId: def.id, size: .card)
-                                                    .scaledToFill()
-                                            } else {
-                                                Image(systemName: "dumbbell.fill")
-                                                    .font(.system(size: 28))
-                                                    .foregroundStyle(Color.mmOnboardingTextSub.opacity(0.4))
+                                        ZStack(alignment: .bottom) {
+                                            // 背景 + GIF（黒バー対策: GeometryReader + scaledToFill + frame + clipped）
+                                            GeometryReader { geo in
+                                                Color.mmOnboardingBg
+                                                if ExerciseGifView.hasGif(exerciseId: def.id) {
+                                                    ExerciseGifView(exerciseId: def.id, size: .card)
+                                                        .scaledToFill()
+                                                        .frame(width: geo.size.width, height: geo.size.height)
+                                                        .clipped()
+                                                } else {
+                                                    Image(systemName: "dumbbell.fill")
+                                                        .font(.system(size: 28))
+                                                        .foregroundStyle(Color.mmOnboardingTextSub.opacity(0.4))
+                                                        .frame(width: geo.size.width, height: geo.size.height)
+                                                }
                                             }
 
-                                            // オーバーレイ: 名前+削除（上）、セット×レップ（下）
+                                            // 下部グラデーション（56pt、テキスト可読性確保）
+                                            LinearGradient(
+                                                colors: [.clear, Color.black.opacity(0.75)],
+                                                startPoint: .top,
+                                                endPoint: .bottom
+                                            )
+                                            .frame(height: 56)
+
+                                            // 下部テキスト: 種目名（左）+ セット×レップ（右）
+                                            HStack(alignment: .bottom) {
+                                                Text(def.localizedName)
+                                                    .font(.system(size: 11, weight: .bold))
+                                                    .foregroundStyle(.white)
+                                                    .lineLimit(1)
+                                                    .truncationMode(.tail)
+
+                                                Spacer(minLength: 4)
+
+                                                Button {
+                                                    editingExerciseIndex = index
+                                                    showSetRepEditor = true
+                                                } label: {
+                                                    Text("\(routineExercise.suggestedSets)×\(routineExercise.suggestedReps)")
+                                                        .font(.system(size: 11, weight: .bold).monospacedDigit())
+                                                        .foregroundStyle(.white)
+                                                        .padding(.horizontal, 6)
+                                                        .padding(.vertical, 2)
+                                                        .background(Color.mmOnboardingAccent.opacity(0.8))
+                                                        .clipShape(RoundedRectangle(cornerRadius: 4))
+                                                }
+                                                .buttonStyle(.plain)
+                                            }
+                                            .padding(.horizontal, 8)
+                                            .padding(.bottom, 6)
+
+                                            // 削除ボタン（右上、グラデーション外）
                                             VStack {
                                                 HStack {
-                                                    Text(def.localizedName)
-                                                        .font(.system(size: 11, weight: .bold))
-                                                        .foregroundStyle(.white)
-                                                        .lineLimit(1)
-                                                        .padding(.horizontal, 6)
-                                                        .padding(.vertical, 3)
-                                                        .background(Color.black.opacity(0.55))
-                                                        .clipShape(RoundedRectangle(cornerRadius: 4))
                                                     Spacer()
                                                     Button {
                                                         removeExercise(routineExercise.id)
                                                     } label: {
                                                         Image(systemName: "minus.circle.fill")
                                                             .font(.system(size: 18))
-                                                            .foregroundStyle(.white.opacity(0.8))
-                                                            .background(Color.black.opacity(0.4))
-                                                            .clipShape(Circle())
+                                                            .foregroundStyle(.white.opacity(0.9))
+                                                            .shadow(color: .black.opacity(0.5), radius: 2, x: 0, y: 1)
                                                     }
                                                     .buttonStyle(.plain)
                                                 }
                                                 .padding(6)
-
                                                 Spacer()
-
-                                                HStack {
-                                                    Spacer()
-                                                    Button {
-                                                        editingExerciseIndex = index
-                                                        showSetRepEditor = true
-                                                    } label: {
-                                                        Text("\(routineExercise.suggestedSets)×\(routineExercise.suggestedReps)")
-                                                            .font(.system(size: 11, weight: .bold).monospacedDigit())
-                                                            .foregroundStyle(.white)
-                                                            .padding(.horizontal, 8)
-                                                            .padding(.vertical, 3)
-                                                            .background(Color.mmOnboardingAccent.opacity(0.8))
-                                                            .clipShape(RoundedRectangle(cornerRadius: 4))
-                                                    }
-                                                    .buttonStyle(.plain)
-                                                }
-                                                .padding(6)
                                             }
                                         }
                                         .aspectRatio(1, contentMode: .fit)

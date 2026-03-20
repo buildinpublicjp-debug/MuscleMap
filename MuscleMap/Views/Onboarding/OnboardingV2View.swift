@@ -1,6 +1,6 @@
 import SwiftUI
 
-// MARK: - オンボーディングV2（最大8ページ横スワイプ: 目標 → 頻度 → 場所 → プロフィール → [PR入力] → 目標×筋肉 → ルーティンビルダー → ルーティン完了）
+// MARK: - オンボーディングV2（最大9ページ: 目標 → 頻度 → 場所 → プロフィール → [PR] → 回復サイクル → メニュー → 通知 → 完了）
 
 struct OnboardingV2View: View {
     let onComplete: () -> Void
@@ -58,22 +58,27 @@ struct OnboardingV2View: View {
                 }
                 .tag(4)
 
-                // ページ5: 目標×筋肉ビジュアル（★ クライマックス）
-                // goalPriorityMuscles は GoalSelectionPage で全目標の合算を保存済み
+                // ページ5: 回復サイクルプレビュー
                 GoalMusclePreviewPage {
                     currentPage = 6
                 }
                 .tag(5)
 
-                // ページ6: ルーティンビルダー（サンクコスト最大化後）
+                // ページ6: ルーティンビルダー
                 RoutineBuilderPage {
                     currentPage = 7
                 }
                 .tag(6)
 
-                // ページ7: ルーティン完了 + ハードペイウォール
+                // ページ7: 回復通知（Paywall前の独立ページ）
+                NotificationPermissionView {
+                    currentPage = 8
+                }
+                .tag(7)
+
+                // ページ8: ルーティン完了 + ハードペイウォール
                 RoutineCompletionPage(onComplete: onComplete)
-                    .tag(7)
+                    .tag(8)
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
             .animation(.easeInOut(duration: 0.4), value: currentPage)
@@ -97,9 +102,9 @@ struct OnboardingV2View: View {
     /// インジケーターに表示するページ番号（PR入力スキップ時はページ4を除外）
     private var indicatorPages: [Int] {
         if showPRInput {
-            return Array(0..<8)
+            return Array(0..<9)
         } else {
-            return [0, 1, 2, 3, 5, 6, 7]
+            return [0, 1, 2, 3, 5, 6, 7, 8]
         }
     }
 }
