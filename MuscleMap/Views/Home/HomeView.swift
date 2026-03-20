@@ -83,10 +83,6 @@ struct HomeView: View {
                             }
                             .padding(.horizontal)
 
-                            // 2.5. 無料ユーザー向け残回数バッジ
-                            FreeWorkoutLimitBadge()
-                                .padding(.horizontal)
-
                             // 3. 今日のおすすめインライン（マップ直下）
                             TodayRecommendationInline(
                                 suggestedMenu: vm.getSuggestedMenu(),
@@ -217,7 +213,7 @@ struct HomeView: View {
             .onAppear {
                 #if DEBUG
                 let profile = AppState.shared.userProfile
-                print("[DataFlow] primaryGoal: \(AppState.shared.primaryOnboardingGoal ?? "nil")")
+                print("[DataFlow] primaryGoal: \(AppState.shared.primaryOnboardingGoal ?? \"nil\")")
                 print("[DataFlow] frequency: \(profile.weeklyFrequency)")
                 print("[DataFlow] location: \(profile.trainingLocation)")
                 print("[DataFlow] priorityMuscles: \(profile.goalPriorityMuscles)")
