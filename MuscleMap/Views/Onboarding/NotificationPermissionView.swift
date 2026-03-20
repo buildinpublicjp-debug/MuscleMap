@@ -7,48 +7,50 @@ struct NotificationPermissionView: View {
     let onComplete: () -> Void
 
     @State private var appeared = false
-    @State private var bellBounce = false
     @State private var isRequesting = false
+    @State private var animationPhase: Int = 0
+    @State private var animationTimer: Timer?
+
+    private var isJapanese: Bool {
+        LocalizationManager.shared.currentLanguage == .japanese
+    }
+
+    /// 回復デモに使う筋肉（胸・三角筋前部・三頭筋）
+    private let demoMuscles: [Muscle] = [.chestUpper, .chestLower, .deltoidAnterior, .triceps]
+
+    /// フェーズに応じた筋肉マップ状態
+    private var muscleStates: [Muscle: MuscleVisualState] {
+        var states: [Muscle: MuscleVisualState] = [:]
+        for muscle in Muscle.allCases {
+            if demoMuscles.contains(muscle) {
+                switch animationPhase {
+                case 0: states[muscle] = .recovering(progress: 0.05)  // 赤
+                case 1: states[muscle] = .recovering(progress: 0.5)   // 黄
+                case 2: states[muscle] = .recovering(progress: 0.95)  // 緑
+                default: states[muscle] = .inactive                   // 暗い
+                }
+            } else {
+                states[muscle] = .inactive
+            }
+        }
+        return states
+    }
 
     var body: some View {
         ZStack {
             Color.mmOnboardingBg.ignoresSafeArea()
 
             VStack(spacing: 0) {
-                Spacer()
-
-                // アイコン
-                ZStack {
-                    // 外側のグロー
-                    Circle()
-                        .fill(
-                            RadialGradient(
-                                colors: [
-                                    Color.mmOnboardingAccent.opacity(0.3),
-                                    Color.mmOnboardingAccent.opacity(0.0)
-                                ],
-                                center: .center,
-                                startRadius: 40,
-                                endRadius: 100
-                            )
-                        )
-                        .frame(width: 180, height: 180)
-
-                    // 内側の円
-                    Circle()
-                        .fill(Color.mmOnboardingAccent.opacity(0.15))
-                        .frame(width: 100, height: 100)
-
-                    // ベルアイコン
-                    Image(systemName: "bell.badge.fill")
-                        .font(.system(size: 48))
-                        .foregroundStyle(Color.mmOnboardingAccent)
-                        .offset(y: bellBounce ? -5 : 0)
-                }
-                .opacity(appeared ? 1 : 0)
-                .scaleEffect(appeared ? 1 : 0.8)
-
                 Spacer().frame(height: 40)
+
+                // 筋肉マップ（回復アニメーション）
+                MuscleMapView(muscleStates: muscleStates)
+                    .frame(height: 180)
+                    .padding(.horizontal, 24)
+                    .opacity(appeared ? 1 : 0)
+                    .scaleEffect(appeared ? 1 : 0.9)
+
+                Spacer().frame(height: 24)
 
                 // タイトル
                 Text(L10n.notificationTitle)
@@ -58,7 +60,7 @@ struct NotificationPermissionView: View {
                     .opacity(appeared ? 1 : 0)
                     .offset(y: appeared ? 0 : 10)
 
-                Spacer().frame(height: 12)
+                Spacer().frame(height: 8)
 
                 // 説明
                 Text(L10n.notificationDescription)
@@ -66,6 +68,13 @@ struct NotificationPermissionView: View {
                     .foregroundStyle(Color.mmOnboardingTextSub)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 40)
+                    .opacity(appeared ? 1 : 0)
+                    .offset(y: appeared ? 0 : 10)
+
+                Spacer().frame(height: 20)
+
+                // 通知プレビューカード
+                notificationPreviewCard
                     .opacity(appeared ? 1 : 0)
                     .offset(y: appeared ? 0 : 10)
 
@@ -126,12 +135,61 @@ struct NotificationPermissionView: View {
             withAnimation(.easeOut(duration: 0.6)) {
                 appeared = true
             }
-            // Bell bounce animation
-            withAnimation(.easeInOut(duration: 0.8).repeatForever(autoreverses: true).delay(0.5)) {
-                bellBounce = true
+            // 1.2秒ごとにフェーズ切替（赤→黄→緑→暗い→赤→...）
+            animationTimer = Timer.scheduledTimer(withTimeInterval: 1.2, repeats: true) { _ in
+                Task { @MainActor in
+                    withAnimation(.easeInOut(duration: 0.8)) {
+                        animationPhase = (animationPhase + 1) % 4
+                    }
+                }
             }
         }
+        .onDisappear {
+            animationTimer?.invalidate()
+            animationTimer = nil
+        }
     }
+
+    // MARK: - 通知プレビューカード
+
+    private var notificationPreviewCard: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            HStack(spacing: 6) {
+                Image(systemName: "bell.fill")
+                    .font(.system(size: 12))
+                    .foregroundStyle(Color.mmOnboardingAccent)
+                Text("MuscleMap")
+                    .font(.system(size: 12, weight: .bold))
+                    .foregroundStyle(Color.mmOnboardingTextMain)
+                Spacer()
+                Text(isJapanese ? "たった今" : "Just now")
+                    .font(.system(size: 10))
+                    .foregroundStyle(Color.mmOnboardingTextSub)
+            }
+
+            Text(isJapanese
+                ? "💪 大胸筋・三角筋 回復完了！"
+                : "💪 Chest & Shoulders Recovered!")
+                .font(.system(size: 14, weight: .bold))
+                .foregroundStyle(Color.mmOnboardingTextMain)
+
+            Text(isJapanese
+                ? "プッシュの日です。トレーニングしよう！"
+                : "Time for Push day. Let's train!")
+                .font(.system(size: 13))
+                .foregroundStyle(Color.mmOnboardingTextSub)
+        }
+        .padding(12)
+        .background(Color.mmOnboardingCard)
+        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .overlay(
+            RoundedRectangle(cornerRadius: 16)
+                .stroke(Color.mmOnboardingAccent.opacity(0.2), lineWidth: 1)
+        )
+        .padding(.horizontal, 24)
+    }
+
+    // MARK: - 通知リクエスト
 
     private func requestNotificationPermission() {
         isRequesting = true
