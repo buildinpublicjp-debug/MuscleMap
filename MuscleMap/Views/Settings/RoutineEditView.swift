@@ -230,29 +230,27 @@ private struct RoutineEditExerciseRow: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            // GIFサムネイル
+            // GIF 100x100
             exerciseThumbnail
 
             // 種目名 + 器具 + セット×レップ
-            VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .leading, spacing: 6) {
                 Text(exercise.localizedName)
-                    .font(.system(size: 16, weight: .medium))
+                    .font(.subheadline.bold())
                     .foregroundStyle(Color.mmTextPrimary)
-                    .lineLimit(1)
+                    .lineLimit(2)
 
-                HStack(spacing: 8) {
-                    Text(exercise.equipment)
-                        .font(.caption)
-                        .foregroundStyle(Color.mmTextSecondary)
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 2)
-                        .background(Color.mmBgSecondary)
-                        .clipShape(RoundedRectangle(cornerRadius: 4))
+                Text(exercise.localizedEquipment)
+                    .font(.caption)
+                    .foregroundStyle(Color.mmTextSecondary)
 
-                    Text("\(routineExercise.suggestedSets)x\(routineExercise.suggestedReps)")
-                        .font(.caption.bold())
-                        .foregroundStyle(Color.mmAccentPrimary)
-                }
+                Text("\(routineExercise.suggestedSets)×\(routineExercise.suggestedReps)")
+                    .font(.caption.bold())
+                    .foregroundStyle(Color.mmAccentPrimary)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 3)
+                    .background(Color.mmAccentPrimary.opacity(0.15))
+                    .clipShape(Capsule())
             }
 
             Spacer()
@@ -267,16 +265,16 @@ private struct RoutineEditExerciseRow: View {
     @ViewBuilder
     private var exerciseThumbnail: some View {
         if ExerciseGifView.hasGif(exerciseId: exercise.id) {
-            ExerciseGifView(exerciseId: exercise.id, size: .thumbnail)
-                .frame(width: 40, height: 40)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+            ExerciseGifView(exerciseId: exercise.id, size: .previewCard)
+                .frame(width: 100, height: 100)
+                .clipShape(RoundedRectangle(cornerRadius: 14))
         } else {
             ZStack {
-                RoundedRectangle(cornerRadius: 8)
+                RoundedRectangle(cornerRadius: 14)
                     .fill(Color.mmBgSecondary)
-                    .frame(width: 40, height: 40)
+                    .frame(width: 100, height: 100)
                 Image(systemName: "dumbbell.fill")
-                    .font(.system(size: 16))
+                    .font(.title2)
                     .foregroundStyle(Color.mmTextSecondary.opacity(0.4))
             }
         }
