@@ -74,13 +74,21 @@ private struct MainTabView: View {
                 previousTab = newValue
             }
         }
-        .alert("今週の無料ワークアウト", isPresented: $showWorkoutLimitAlert) {
-            Button("Proにアップグレード") {
+        .alert(
+            LocalizationManager.shared.currentLanguage == .japanese
+                ? "今週の無料ワークアウト" : "Free Workout Limit",
+            isPresented: $showWorkoutLimitAlert
+        ) {
+            Button(LocalizationManager.shared.currentLanguage == .japanese
+                   ? "Proにアップグレード" : "Upgrade to Pro") {
                 showingPaywall = true
             }
-            Button("閉じる", role: .cancel) {}
+            Button(LocalizationManager.shared.currentLanguage == .japanese
+                   ? "閉じる" : "Close", role: .cancel) {}
         } message: {
-            Text("無料プランでは週1回までワークアウトを記録できます。Proにアップグレードすると無制限に記録できます。")
+            Text(LocalizationManager.shared.currentLanguage == .japanese
+                ? "無料プランでは週1回までワークアウトを記録できます。Proにアップグレードすると無制限に記録できます。"
+                : "Free plan allows 1 workout per week. Upgrade to Pro for unlimited workouts.")
         }
         .sheet(isPresented: $showingPaywall) {
             PaywallView(isHardPaywall: false)
