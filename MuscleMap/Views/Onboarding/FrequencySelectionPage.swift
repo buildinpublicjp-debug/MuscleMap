@@ -22,10 +22,10 @@ enum WeeklyFrequency: Int, CaseIterable, Codable {
     var subtitle: String {
         let isJapanese = LocalizationManager.shared.currentLanguage == .japanese
         switch self {
-        case .twice: return isJapanese ? "上半身/下半身で効率よく" : "Upper / Lower split"
-        case .thrice: return isJapanese ? "プッシュ/プル/脚の王道分割" : "Push / Pull / Legs"
-        case .four: return isJapanese ? "部位別でしっかり追い込む" : "Dedicated focus per group"
-        case .fivePlus: return isJapanese ? "各部位を個別にフルで" : "Full volume per muscle"
+        case .twice: return isJapanese ? "上半身と下半身を分けて鍛える" : "Upper body & lower body split"
+        case .thrice: return isJapanese ? "胸・背中・脚の3分割" : "Chest, back & legs — 3 day split"
+        case .four: return isJapanese ? "部位ごとにしっかり追い込む" : "Dedicated day for each muscle group"
+        case .fivePlus: return isJapanese ? "毎日違う部位をフルで鍛える" : "Full volume per muscle group daily"
         }
     }
 
@@ -34,9 +34,9 @@ enum WeeklyFrequency: Int, CaseIterable, Codable {
         let isJapanese = LocalizationManager.shared.currentLanguage == .japanese
         switch self {
         case .twice: return isJapanese ? "各部位に十分な回復時間。初心者に最適" : "Full recovery time. Best for beginners"
-        case .thrice: return isJapanese ? "Push/Pull/Legsの王道分割" : "Classic Push/Pull/Legs split"
-        case .four: return isJapanese ? "部位別でしっかり追い込む" : "Dedicated focus per muscle group"
-        case .fivePlus: return isJapanese ? "各部位を個別にフルで" : "Maximum volume per muscle"
+        case .thrice: return isJapanese ? "胸・背中・脚の王道3分割" : "Classic 3-day split for balanced growth"
+        case .four: return isJapanese ? "部位ごとにしっかり追い込む" : "Dedicated focus per muscle group"
+        case .fivePlus: return isJapanese ? "各部位を個別にフルで鍛える" : "Maximum volume per muscle group"
         }
     }
 
@@ -50,8 +50,8 @@ enum WeeklyFrequency: Int, CaseIterable, Codable {
                 : ["Upper", "OFF", "Lower", "OFF", "OFF", "OFF", "OFF"]
         case .thrice:
             return isJapanese
-                ? ["プッシュ", "OFF", "プル", "OFF", "脚", "OFF", "OFF"]
-                : ["Push", "OFF", "Pull", "OFF", "Legs", "OFF", "OFF"]
+                ? ["胸・肩", "OFF", "背中", "OFF", "脚", "OFF", "OFF"]
+                : ["Chest", "OFF", "Back", "OFF", "Legs", "OFF", "OFF"]
         case .four:
             return isJapanese
                 ? ["胸", "背中", "OFF", "肩・腕", "脚", "OFF", "OFF"]
@@ -142,9 +142,20 @@ struct FrequencySelectionPage: View {
                     .padding(.top, 8)
                     .opacity(appeared ? 1 : 0)
             } else {
+                // 超回復の1行説明
+                Text(isJapanese
+                    ? "赤＝刺激 → 黄＝回復中 → 暗い＝回復完了。このサイクルで鍛える"
+                    : "Red = stimulated → Yellow = recovering → Dark = recovered")
+                    .font(.system(size: 10))
+                    .foregroundStyle(Color.mmOnboardingTextSub)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 24)
+                    .padding(.top, 4)
+                    .transition(.opacity)
+
                 timelineBar
                     .padding(.horizontal, 24)
-                    .padding(.top, 8)
+                    .padding(.top, 4)
                     .transition(.opacity)
             }
 
@@ -402,6 +413,10 @@ private struct FrequencyCompactCard: View {
     let isSelected: Bool
     let onTap: () -> Void
 
+    private var isJapanese: Bool {
+        LocalizationManager.shared.currentLanguage == .japanese
+    }
+
     var body: some View {
         Button(action: onTap) {
             HStack(spacing: 0) {
@@ -420,9 +435,21 @@ private struct FrequencyCompactCard: View {
 
                     // テキスト
                     VStack(alignment: .leading, spacing: 2) {
-                        Text(frequency.title)
-                            .font(.system(size: 16, weight: .bold))
-                            .foregroundStyle(Color.mmOnboardingTextMain)
+                        HStack(spacing: 6) {
+                            Text(frequency.title)
+                                .font(.system(size: 16, weight: .bold))
+                                .foregroundStyle(Color.mmOnboardingTextMain)
+
+                            if frequency == .twice {
+                                Text(isJapanese ? "初心者におすすめ" : "Recommended")
+                                    .font(.system(size: 9, weight: .bold))
+                                    .foregroundStyle(Color.mmOnboardingAccent)
+                                    .padding(.horizontal, 6)
+                                    .padding(.vertical, 2)
+                                    .background(Color.mmOnboardingAccent.opacity(0.15))
+                                    .clipShape(Capsule())
+                            }
+                        }
 
                         Text(frequency.subtitle)
                             .font(.system(size: 12))
