@@ -11,7 +11,6 @@ struct RoutineCompletionPage: View {
     @State private var headerAppeared = false
     @State private var cardsAppeared = false
     @State private var mapAppeared = false
-    @State private var graphAppeared = false
     @State private var buttonGlow = false
 
     /// 保存済みルーティン
@@ -86,23 +85,23 @@ struct RoutineCompletionPage: View {
     private var goalBasedHeadline: String {
         guard let raw = AppState.shared.primaryOnboardingGoal,
               let goal = OnboardingGoal(rawValue: raw) else {
-            return L10n.routineCompletionDefaultHeadline
+            return isJapanese ? "あなた専用プログラム完成" : "Your Program is Ready"
         }
         switch goal {
         case .getBig:
-            return isJapanese ? "90日後、鏡の前で笑える。" : "In 90 days, you'll smile in the mirror."
-        case .martialArts:
-            return isJapanese ? "パンチ力も、全部フィジカルが土台。" : "Power starts with your physique."
-        case .getAttractive:
-            return isJapanese ? "変わる旅を始めよう。" : "Start your transformation."
+            return isJapanese ? "デカくなる準備完了。" : "Ready to Get Big."
         case .dontGetDisrespected:
-            return isJapanese ? "存在感は、体が作る。" : "Presence is built by your body."
+            return isJapanese ? "強くなる準備完了。" : "Ready to Get Strong."
+        case .martialArts:
+            return isJapanese ? "闘う体の準備完了。" : "Fight-Ready Program."
+        case .getAttractive:
+            return isJapanese ? "変わる準備完了。" : "Ready to Transform."
         case .sports:
-            return isJapanese ? "パフォーマンスの土台を作ろう。" : "Build the foundation for performance."
+            return isJapanese ? "アスリートの準備完了。" : "Athletic Program Ready."
         case .moveWell:
-            return isJapanese ? "動ける体は、日々の積み重ね。" : "A body that moves well, built daily."
+            return isJapanese ? "動ける体の準備完了。" : "Mobility Program Ready."
         case .health:
-            return isJapanese ? "健康な体が、全ての基盤。" : "A healthy body is the foundation of everything."
+            return isJapanese ? "健康への第一歩。" : "Your Health Journey Starts."
         }
     }
 
@@ -114,7 +113,7 @@ struct RoutineCompletionPage: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            Spacer().frame(height: 40)
+            Spacer().frame(height: 32)
 
             // 目標別キャッチコピー
             Text(goalBasedHeadline)
@@ -125,42 +124,48 @@ struct RoutineCompletionPage: View {
                 .opacity(headerAppeared ? 1 : 0)
                 .offset(y: headerAppeared ? 0 : 20)
 
-            Spacer().frame(height: 6)
+            Spacer().frame(height: 4)
 
-            Text(L10n.routineCompletionSub)
-                .font(.subheadline)
+            // サブタイトル（根拠を伝える）
+            Text(isJapanese
+                ? "あなたの目標・経験・環境から最適なメニューを作成しました"
+                : "Optimized for your goals, experience, and equipment")
+                .font(.caption)
                 .foregroundStyle(Color.mmOnboardingTextSub)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 24)
                 .opacity(headerAppeared ? 1 : 0)
 
-            Spacer().frame(height: 16)
+            Spacer().frame(height: 12)
 
-            // インタラクティブ筋肉マップ（前面+背面横並び）
+            // 筋肉マップ（コンパクト）
             muscleMapSection
                 .opacity(mapAppeared ? 1 : 0)
                 .scaleEffect(mapAppeared ? 1 : 0.92)
 
-            Spacer().frame(height: 16)
+            Spacer().frame(height: 12)
 
-            // Dayサマリーカード + 成長グラフ
-            ScrollView(.vertical, showsIndicators: false) {
-                VStack(spacing: 12) {
-                    ForEach(routine.days) { day in
-                        daySummaryCard(day)
-                    }
-
-                    // 合計
-                    totalSummaryRow
-
-                    // 成長グラフ
-                    growthGraphSection
+            // Dayサマリー（コンパクトカード）
+            VStack(spacing: 6) {
+                ForEach(Array(routine.days.enumerated()), id: \.element.id) { index, day in
+                    compactDayCard(index: index, day: day)
+                        .opacity(cardsAppeared ? 1 : 0)
+                        .offset(y: cardsAppeared ? 0 : 10)
+                        .animation(
+                            .easeOut(duration: 0.3).delay(Double(index) * 0.08),
+                            value: cardsAppeared
+                        )
                 }
-                .padding(.horizontal, 24)
-                .padding(.bottom, 8)
+
+                // 合計行
+                totalSummaryRow
+                    .opacity(cardsAppeared ? 1 : 0)
+
+                // 根拠テキスト
+                rationaleRow
+                    .opacity(cardsAppeared ? 1 : 0)
             }
-            .opacity(cardsAppeared ? 1 : 0)
-            .offset(y: cardsAppeared ? 0 : 20)
+            .padding(.horizontal, 24)
 
             Spacer()
 
@@ -177,9 +182,6 @@ struct RoutineCompletionPage: View {
             withAnimation(.easeOut(duration: 0.5).delay(0.4)) {
                 cardsAppeared = true
             }
-            withAnimation(.easeOut(duration: 0.6).delay(0.7)) {
-                graphAppeared = true
-            }
             withAnimation(.easeInOut(duration: 1.5).repeatForever(autoreverses: true)) {
                 buttonGlow = true
             }
@@ -189,17 +191,13 @@ struct RoutineCompletionPage: View {
         }
     }
 
-    // MARK: - インタラクティブ筋肉マップ（前面+背面）
+    // MARK: - 筋肉マップ（コンパクト）
 
     private var muscleMapSection: some View {
-        VStack(spacing: 8) {
-            Text(isJapanese ? "あなたのプログラムで鍛えられる筋肉" : "Muscles trained by your program")
-                .font(.system(size: 13, weight: .semibold))
-                .foregroundStyle(Color.mmOnboardingTextSub)
-
-            // インタラクティブ筋肉マップ（前面+背面）
+        VStack(spacing: 6) {
+            // 筋肉マップ（前面+背面）
             MuscleMapView(muscleStates: programMuscleStates)
-                .frame(height: 180)
+                .frame(height: 160)
                 .padding(.horizontal, 24)
 
             // カバー率バッジ
@@ -207,55 +205,52 @@ struct RoutineCompletionPage: View {
                 .font(.system(size: 12, weight: .bold))
                 .foregroundStyle(Color.mmOnboardingAccent)
                 .padding(.horizontal, 12)
-                .padding(.vertical, 4)
+                .padding(.vertical, 3)
                 .background(Color.mmOnboardingAccent.opacity(0.1))
                 .clipShape(Capsule())
         }
     }
 
-    // MARK: - Dayサマリーカード（筋肉チップ付き）
+    // MARK: - コンパクトDayカード
 
     @ViewBuilder
-    private func daySummaryCard(_ day: RoutineDay) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                Text(day.name)
-                    .font(.system(size: 15, weight: .bold))
-                    .foregroundStyle(Color.mmOnboardingTextMain)
-                Spacer()
-                Text(L10n.routineExerciseCountShort(day.exercises.count))
-                    .font(.caption.bold())
-                    .foregroundStyle(Color.mmOnboardingAccent)
-            }
+    private func compactDayCard(index: Int, day: RoutineDay) -> some View {
+        let groups = muscleGroupsForDay(day)
 
-            // 筋肉グループチップ（横スクロール）
-            let groups = muscleGroupsForDay(day)
-            if !groups.isEmpty {
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 6) {
-                        ForEach(groups, id: \.self) { group in
-                            Text(group.localizedName)
-                                .font(.system(size: 11, weight: .semibold))
-                                .foregroundStyle(Color.mmOnboardingAccent)
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 3)
-                                .background(Color.mmOnboardingAccent.opacity(0.12))
-                                .clipShape(Capsule())
-                        }
-                    }
+        HStack(spacing: 8) {
+            // Day番号
+            Text("Day \(index + 1)")
+                .font(.system(size: 13, weight: .heavy))
+                .foregroundStyle(Color.mmOnboardingAccent)
+                .frame(width: 50, alignment: .leading)
+
+            // 筋肉グループチップ（最大3つ）
+            HStack(spacing: 4) {
+                ForEach(groups.prefix(3), id: \.self) { group in
+                    Text(group.localizedName)
+                        .font(.system(size: 9, weight: .bold))
+                        .foregroundStyle(Color.mmOnboardingAccent)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(Color.mmOnboardingAccent.opacity(0.15))
+                        .clipShape(Capsule())
                 }
             }
 
-            // 種目名をコンパクトに表示
-            let exerciseNames = day.exercises.compactMap {
-                ExerciseStore.shared.exercise(for: $0.exerciseId)?.localizedName
+            Spacer()
+
+            // 種目数
+            HStack(spacing: 2) {
+                Text("\(day.exercises.count)")
+                    .font(.system(size: 15, weight: .heavy))
+                    .foregroundStyle(Color.mmOnboardingTextMain)
+                Text(isJapanese ? "種目" : "ex")
+                    .font(.system(size: 10))
+                    .foregroundStyle(Color.mmOnboardingTextSub)
             }
-            Text(exerciseNames.joined(separator: " / "))
-                .font(.system(size: 13))
-                .foregroundStyle(Color.mmOnboardingTextSub)
-                .lineLimit(2)
         }
-        .padding(12)
+        .padding(.horizontal, 12)
+        .padding(.vertical, 10)
         .background(Color.mmOnboardingCard)
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
@@ -265,82 +260,33 @@ struct RoutineCompletionPage: View {
     private var totalSummaryRow: some View {
         HStack {
             Image(systemName: "flame.fill")
+                .font(.system(size: 12))
                 .foregroundStyle(Color.mmOnboardingAccent)
             Text(L10n.routineTotalExercises(totalExercises, routine.days.count))
-                .font(.system(size: 14, weight: .bold))
+                .font(.system(size: 13, weight: .bold))
                 .foregroundStyle(Color.mmOnboardingAccent)
             Spacer()
         }
-        .padding(12)
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
         .background(Color.mmOnboardingAccent.opacity(0.08))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 
-    // MARK: - 成長グラフ
+    // MARK: - 根拠テキスト
 
-    private var growthGraphSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(isJapanese ? "4週間後の予測" : "4-Week Projection")
-                .font(.system(size: 14, weight: .bold))
-                .foregroundStyle(Color.mmOnboardingTextMain)
-
-            ZStack(alignment: .bottomLeading) {
-                // グラフ背景グリッド
-                VStack(spacing: 0) {
-                    ForEach(0..<3, id: \.self) { _ in
-                        Divider()
-                            .background(Color.mmOnboardingTextSub.opacity(0.15))
-                        Spacer()
-                    }
-                    Divider()
-                        .background(Color.mmOnboardingTextSub.opacity(0.15))
-                }
-                .frame(height: 48)
-
-                // 成長カーブ
-                GrowthCurvePath()
-                    .trim(from: 0, to: graphAppeared ? 1 : 0)
-                    .stroke(
-                        LinearGradient(
-                            colors: [Color.mmOnboardingAccent.opacity(0.5), Color.mmOnboardingAccent],
-                            startPoint: .leading,
-                            endPoint: .trailing
-                        ),
-                        style: StrokeStyle(lineWidth: 2.5, lineCap: .round)
-                    )
-                    .frame(height: 48)
-                    .animation(.easeOut(duration: 1.0), value: graphAppeared)
-
-                // グロー効果
-                GrowthCurvePath()
-                    .trim(from: 0, to: graphAppeared ? 1 : 0)
-                    .stroke(
-                        Color.mmOnboardingAccent.opacity(0.2),
-                        style: StrokeStyle(lineWidth: 6, lineCap: .round)
-                    )
-                    .frame(height: 48)
-                    .blur(radius: 3)
-                    .animation(.easeOut(duration: 1.0), value: graphAppeared)
-            }
-
-            // 週ラベル
-            HStack {
-                Text(isJapanese ? "Week 1" : "Week 1")
-                    .font(.system(size: 10))
-                    .foregroundStyle(Color.mmOnboardingTextSub)
-                Spacer()
-                Text(isJapanese ? "Week 4" : "Week 4")
-                    .font(.system(size: 10))
-                    .foregroundStyle(Color.mmOnboardingAccent)
-            }
-
-            Text(isJapanese ? "着実にレベルアップ" : "Steady progress ahead")
-                .font(.system(size: 12, weight: .medium))
+    private var rationaleRow: some View {
+        HStack(spacing: 6) {
+            Image(systemName: "brain.head.profile")
+                .font(.system(size: 12))
+                .foregroundStyle(Color.mmOnboardingAccent.opacity(0.7))
+            Text(isJapanese
+                ? "MuscleMapがこの筋肉を優先的に提案します"
+                : "MuscleMap prioritizes these muscles for you")
+                .font(.system(size: 11))
                 .foregroundStyle(Color.mmOnboardingTextSub)
         }
-        .padding(12)
-        .background(Color.mmOnboardingCard)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .padding(.top, 4)
     }
 
     // MARK: - CTAボタン
@@ -408,22 +354,6 @@ struct RoutineCompletionPage: View {
         }
         .padding(.horizontal, 24)
         .padding(.bottom, 32)
-    }
-}
-
-// MARK: - 成長カーブ Shape
-
-/// 右肩上がりの成長カーブ（trim可能なShape）
-private struct GrowthCurvePath: Shape {
-    func path(in rect: CGRect) -> Path {
-        Path { path in
-            path.move(to: CGPoint(x: 0, y: rect.height))
-            path.addCurve(
-                to: CGPoint(x: rect.width, y: rect.height * 0.1),
-                control1: CGPoint(x: rect.width * 0.3, y: rect.height * 0.85),
-                control2: CGPoint(x: rect.width * 0.65, y: rect.height * 0.2)
-            )
-        }
     }
 }
 
