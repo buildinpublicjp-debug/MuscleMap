@@ -624,8 +624,8 @@ enum L10n {
     static var trainingExpVeteranSub: String { loc("PRにこだわりがある", "Obsessed with PRs") }
 
     // MARK: - PR入力画面（PRInputPage）
-    static var prInputTitle: String { loc("今のベストを教えて", "Tell Us Your Best") }
-    static var prInputSubtitle: String { loc("レベルを判定します（スキップOK）", "We'll assess your level (skip OK)") }
+    static var prInputTitle: String { loc("いつも何キロで鍛えてる？", "What weight do you usually lift?") }
+    static var prInputSubtitle: String { loc("あなたの強さレベルを判定します", "We'll assess your strength level") }
     static var prBenchPress: String { loc("ベンチプレス", "Bench Press") }
     static var prSquat: String { loc("スクワット", "Squat") }
     static var prDeadlift: String { loc("デッドリフト", "Deadlift") }

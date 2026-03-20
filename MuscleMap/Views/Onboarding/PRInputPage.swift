@@ -89,33 +89,31 @@ struct PRInputPage: View {
 
             Spacer().frame(height: 12)
 
-            // 筋肉マップ（タップ可能）
-            MuscleMapView(
-                muscleStates: muscleStates,
-                onMuscleTapped: { muscle in
-                    tappedMuscle = muscle
-                    HapticManager.lightTap()
+            // 筋肉マップ（タップ可能 + 未入力時ガイド）
+            ZStack {
+                MuscleMapView(
+                    muscleStates: muscleStates,
+                    onMuscleTapped: { muscle in
+                        tappedMuscle = muscle
+                        HapticManager.lightTap()
+                    }
+                )
+                .frame(height: 220)
+
+                // PR未入力時のみガイドテキスト
+                if recordedPRs.isEmpty {
+                    Text(isJapanese ? "PRを入力すると筋肉が光ります" : "Enter PRs to light up muscles")
+                        .font(.system(size: 13))
+                        .foregroundStyle(Color.mmOnboardingTextSub.opacity(0.6))
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 8)
+                        .background(Color.mmOnboardingBg.opacity(0.7))
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
                 }
-            )
-            .frame(height: 220)
+            }
             .padding(.horizontal, 24)
             .animation(.spring(response: 0.4, dampingFraction: 0.8), value: recordedPRs.count)
             .opacity(appeared ? 1 : 0)
-
-            // 総合レベルバッジ
-            if let level = overallLevel {
-                HStack(spacing: 6) {
-                    Image(systemName: "dumbbell.fill")
-                        .font(.system(size: 14))
-                        .foregroundStyle(level.color)
-                    Text(level.localizedName)
-                        .font(.system(size: 18, weight: .heavy))
-                        .foregroundStyle(level.color)
-                }
-                .transition(.opacity.combined(with: .scale(scale: 0.9)))
-                .animation(.spring(response: 0.4, dampingFraction: 0.7), value: overallLevel?.rawValue)
-                .padding(.top, 4)
-            }
 
             Spacer().frame(height: 8)
 
@@ -225,26 +223,69 @@ struct PRInputPage: View {
             .padding(.top, 4)
             .opacity(appeared ? 1 : 0)
 
-            Spacer()
-
-            // スキップ + 次へ
-            VStack(spacing: 12) {
-                Button {
-                    guard !isProceeding else { return }
-                    isProceeding = true
-                    HapticManager.lightTap()
-                    onNext()
-                } label: {
-                    HStack(spacing: 4) {
-                        Text(isJapanese ? "わからない場合はスキップ" : "Skip if unsure")
-                            .font(.system(size: 15, weight: .medium))
-                        Image(systemName: "arrow.right")
-                            .font(.system(size: 13, weight: .medium))
-                    }
-                    .foregroundStyle(Color.mmOnboardingTextSub)
+            // 強さレベルプレビュー or 動機付けテキスト
+            if recordedPRs.isEmpty {
+                VStack(spacing: 8) {
+                    Image(systemName: "chart.line.uptrend.xyaxis")
+                        .font(.system(size: 28))
+                        .foregroundStyle(Color.mmOnboardingAccent.opacity(0.4))
+                    Text(isJapanese
+                        ? "重量を入力すると、あなたの強さレベルが判定されます"
+                        : "Enter your weights to see your strength level")
+                        .font(.system(size: 13))
+                        .foregroundStyle(Color.mmOnboardingTextSub)
+                        .multilineTextAlignment(.center)
                 }
-                .buttonStyle(.plain)
+                .padding(.horizontal, 32)
+                .padding(.vertical, 16)
+                .opacity(appeared ? 1 : 0)
+            } else if let level = overallLevel {
+                VStack(spacing: 8) {
+                    Text(isJapanese ? "現在のレベル" : "Your Level")
+                        .font(.system(size: 12))
+                        .foregroundStyle(Color.mmOnboardingTextSub)
 
+                    HStack(spacing: 8) {
+                        ForEach(StrengthLevel.allCases, id: \.self) { l in
+                            VStack(spacing: 4) {
+                                Circle()
+                                    .fill(l == level ? l.color : Color.mmOnboardingCard)
+                                    .frame(width: l == level ? 28 : 16, height: l == level ? 28 : 16)
+                                    .overlay(
+                                        Group {
+                                            if l == level {
+                                                Text(l.emoji).font(.system(size: 12))
+                                            }
+                                        }
+                                    )
+                                if l == level {
+                                    Text(l.localizedName)
+                                        .font(.system(size: 10, weight: .bold))
+                                        .foregroundStyle(l.color)
+                                }
+                            }
+                        }
+                    }
+
+                    Text(isJapanese
+                        ? "もっと入力すると精度が上がります"
+                        : "More entries = more accurate")
+                        .font(.system(size: 11))
+                        .foregroundStyle(Color.mmOnboardingTextSub)
+                }
+                .padding(16)
+                .background(Color.mmOnboardingCard)
+                .clipShape(RoundedRectangle(cornerRadius: 16))
+                .padding(.horizontal, 24)
+                .transition(.opacity.combined(with: .scale(scale: 0.95)))
+                .animation(.spring(response: 0.4, dampingFraction: 0.7), value: overallLevel?.rawValue)
+                .opacity(appeared ? 1 : 0)
+            }
+
+            Spacer(minLength: 8)
+
+            // 次へ + スキップ
+            VStack(spacing: 8) {
                 Button {
                     guard !isProceeding else { return }
                     isProceeding = true
@@ -267,9 +308,21 @@ struct PRInputPage: View {
                         .clipShape(RoundedRectangle(cornerRadius: 16))
                 }
                 .buttonStyle(.plain)
+
+                Button {
+                    guard !isProceeding else { return }
+                    isProceeding = true
+                    HapticManager.lightTap()
+                    onNext()
+                } label: {
+                    Text(isJapanese ? "わからない場合はスキップ →" : "Skip if unsure →")
+                        .font(.system(size: 13))
+                        .foregroundStyle(Color.mmOnboardingTextSub.opacity(0.6))
+                }
+                .buttonStyle(.plain)
             }
             .padding(.horizontal, 24)
-            .padding(.bottom, 16)
+            .padding(.bottom, 24)
             .opacity(appeared ? 1 : 0)
         }
         .onAppear {
