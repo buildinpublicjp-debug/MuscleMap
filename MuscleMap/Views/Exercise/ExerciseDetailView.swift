@@ -5,6 +5,7 @@ import SwiftData
 
 struct ExerciseDetailView: View {
     let exercise: ExerciseDefinition
+    var hideStartWorkoutButton: Bool = false
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
     @ObservedObject private var favorites = FavoritesManager.shared
@@ -108,25 +109,27 @@ struct ExerciseDetailView: View {
                             .clipShape(RoundedRectangle(cornerRadius: 12))
                         }
 
-                        // この種目でワークアウト開始ボタン
-                        Button {
-                            AppState.shared.pendingExerciseId = exercise.id
-                            AppState.shared.selectedTab = 1
-                            HapticManager.lightTap()
-                            dismiss()
-                        } label: {
-                            HStack {
-                                Image(systemName: "figure.strengthtraining.traditional")
-                                Text(L10n.startWorkoutWithExercise)
+                        // この種目でワークアウト開始ボタン（オンボーディング中は非表示）
+                        if !hideStartWorkoutButton {
+                            Button {
+                                AppState.shared.pendingExerciseId = exercise.id
+                                AppState.shared.selectedTab = 1
+                                HapticManager.lightTap()
+                                dismiss()
+                            } label: {
+                                HStack {
+                                    Image(systemName: "figure.strengthtraining.traditional")
+                                    Text(L10n.startWorkoutWithExercise)
+                                }
+                                .font(.headline)
+                                .foregroundStyle(Color.mmBgPrimary)
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 56)
+                                .background(Color.mmAccentPrimary)
+                                .clipShape(RoundedRectangle(cornerRadius: 16))
                             }
-                            .font(.headline)
-                            .foregroundStyle(Color.mmBgPrimary)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 56)
-                            .background(Color.mmAccentPrimary)
-                            .clipShape(RoundedRectangle(cornerRadius: 16))
+                            .buttonStyle(.plain)
                         }
-                        .buttonStyle(.plain)
                     }
                     .padding()
                 }
@@ -164,6 +167,7 @@ struct ExerciseDetailView: View {
             }
         }
         .presentationDetents([.large])
+        .presentationDragIndicator(.visible)
     }
 }
 
