@@ -61,6 +61,7 @@ struct LocationSelectionPage: View {
     @State private var isProceeding = false
     @State private var scrollOffset: CGFloat = 0
     @State private var autoScrollTimer: Timer?
+    @State private var selectedExercise: ExerciseDefinition?
 
     /// 選択した場所で使える種目（最大20件、2行グリッド用）
     private var filteredExercises: [ExerciseDefinition] {
@@ -158,14 +159,20 @@ struct LocationSelectionPage: View {
 
             // GIFギャラリー（2行グリッド、マーキー自動スクロール）
             GeometryReader { geo in
-                let columnWidth: CGFloat = 130 // カード幅120 + spacing8
+                let columnWidth: CGFloat = 148 // カード幅140 + spacing8
                 let contentWidth = CGFloat(gridColumns.count) * columnWidth + 48 // padding分
                 HStack(alignment: .top, spacing: 8) {
                     ForEach(gridColumns, id: \.0) { _, pair in
                         VStack(spacing: 8) {
-                            ExerciseGifCard(exercise: pair.0)
+                            ExerciseGifCard(exercise: pair.0) {
+                                selectedExercise = pair.0
+                                HapticManager.lightTap()
+                            }
                             if let second = pair.1 {
-                                ExerciseGifCard(exercise: second)
+                                ExerciseGifCard(exercise: second) {
+                                    selectedExercise = second
+                                    HapticManager.lightTap()
+                                }
                             }
                         }
                     }
@@ -183,7 +190,7 @@ struct LocationSelectionPage: View {
             .clipped()
             .opacity(appeared ? 1 : 0)
 
-            Spacer().frame(height: 12)
+            Spacer(minLength: 8)
 
             // 選択カード（次へボタン直上、コンパクト）
             VStack(spacing: 5) {
@@ -253,6 +260,13 @@ struct LocationSelectionPage: View {
         .onDisappear {
             stopAutoScroll()
         }
+        .sheet(item: $selectedExercise) { exercise in
+            NavigationStack {
+                ExerciseDetailView(exercise: exercise)
+            }
+            .presentationDetents([.large])
+            .presentationDragIndicator(.visible)
+        }
     }
 
     // MARK: - マーキー自動スクロール
@@ -281,35 +295,39 @@ struct LocationSelectionPage: View {
 
 private struct ExerciseGifCard: View {
     let exercise: ExerciseDefinition
+    let onTap: () -> Void
 
     var body: some View {
-        VStack(spacing: 4) {
-            if ExerciseGifView.hasGif(exerciseId: exercise.id) {
-                ExerciseGifView(exerciseId: exercise.id, size: .thumbnail)
-                    .frame(width: 110, height: 110)
-                    .clipShape(RoundedRectangle(cornerRadius: 14))
-            } else {
-                ZStack {
-                    RoundedRectangle(cornerRadius: 14)
-                        .fill(Color.mmOnboardingBg)
-                        .frame(width: 110, height: 110)
-                    Image(systemName: "dumbbell.fill")
-                        .font(.system(size: 28))
-                        .foregroundStyle(Color.mmOnboardingTextSub.opacity(0.4))
+        Button(action: onTap) {
+            VStack(spacing: 4) {
+                if ExerciseGifView.hasGif(exerciseId: exercise.id) {
+                    ExerciseGifView(exerciseId: exercise.id, size: .card)
+                        .frame(width: 130, height: 130)
+                        .clipShape(RoundedRectangle(cornerRadius: 16))
+                } else {
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 16)
+                            .fill(Color.mmOnboardingBg)
+                            .frame(width: 130, height: 130)
+                        Image(systemName: "dumbbell.fill")
+                            .font(.system(size: 32))
+                            .foregroundStyle(Color.mmOnboardingTextSub.opacity(0.4))
+                    }
                 }
+
+                Text(exercise.localizedName)
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundStyle(Color.mmOnboardingTextMain)
+                    .lineLimit(1)
+                    .truncationMode(.tail)
+
+                Text(exercise.localizedEquipment)
+                    .font(.system(size: 10))
+                    .foregroundStyle(Color.mmOnboardingTextSub)
             }
-
-            Text(exercise.localizedName)
-                .font(.system(size: 10, weight: .medium))
-                .foregroundStyle(Color.mmOnboardingTextMain)
-                .lineLimit(1)
-                .truncationMode(.tail)
-
-            Text(exercise.localizedEquipment)
-                .font(.system(size: 9))
-                .foregroundStyle(Color.mmOnboardingTextSub)
+            .frame(width: 140, height: 180)
         }
-        .frame(width: 120, height: 150)
+        .buttonStyle(.plain)
     }
 }
 
