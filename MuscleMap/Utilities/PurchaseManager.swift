@@ -9,11 +9,14 @@ final class PurchaseManager {
     /// DEBUGビルドでPro状態を強制切替するフラグ（nil=RevenueCat判定を使用）
     #if DEBUG
     var debugOverridePremium: Bool? = nil
+    /// true にするとDEBUGビルドで常にPro扱いになる（テスト用）
+    private let forceProForTesting = true
     #endif
 
     /// Pro課金状態（DEBUG時はオーバーライド優先）
     var isPremium: Bool {
         #if DEBUG
+        if forceProForTesting { return true }
         if let override = debugOverridePremium {
             return override
         }
