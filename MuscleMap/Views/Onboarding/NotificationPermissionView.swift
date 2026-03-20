@@ -1,7 +1,7 @@
 import SwiftUI
 import UserNotifications
 
-// MARK: - 通知許可画面
+// MARK: - 通知許可画面（「成長を逃さない」体験）
 
 struct NotificationPermissionView: View {
     let onComplete: () -> Void
@@ -41,46 +41,66 @@ struct NotificationPermissionView: View {
             Color.mmOnboardingBg.ignoresSafeArea()
 
             VStack(spacing: 0) {
-                Spacer().frame(height: 40)
+                Spacer().frame(height: 24)
+
+                // ヘッドライン
+                Text(isJapanese ? "成長を、逃さない。" : "Never Miss Your Growth.")
+                    .font(.system(size: 28, weight: .heavy))
+                    .foregroundStyle(Color.mmOnboardingAccent)
+                    .multilineTextAlignment(.center)
+                    .opacity(appeared ? 1 : 0)
+                    .offset(y: appeared ? 0 : 10)
+
+                Spacer().frame(height: 6)
+
+                // サブテキスト（刺激→回復→成長）
+                Text(isJapanese
+                    ? "筋肉は刺激→回復→成長のサイクルで強くなります。\nMuscleMapが回復完了をお知らせ。\nベストなタイミングで次のトレーニングへ。"
+                    : "Muscles grow through stimulate → recover → grow.\nMuscleMap notifies you when recovery is complete.\nTrain at the perfect time for maximum gains.")
+                    .font(.system(size: 14))
+                    .foregroundStyle(Color.mmOnboardingTextSub)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 24)
+                    .opacity(appeared ? 1 : 0)
+                    .offset(y: appeared ? 0 : 10)
+
+                Spacer().frame(height: 16)
 
                 // 筋肉マップ（回復アニメーション）
                 MuscleMapView(muscleStates: muscleStates)
-                    .frame(height: 180)
+                    .frame(height: 200)
                     .padding(.horizontal, 24)
                     .opacity(appeared ? 1 : 0)
                     .scaleEffect(appeared ? 1 : 0.9)
 
-                Spacer().frame(height: 24)
-
-                // タイトル
-                Text(L10n.notificationTitle)
-                    .font(.system(size: 28, weight: .heavy))
-                    .foregroundStyle(Color.mmOnboardingTextMain)
-                    .multilineTextAlignment(.center)
-                    .opacity(appeared ? 1 : 0)
-                    .offset(y: appeared ? 0 : 10)
-
                 Spacer().frame(height: 8)
 
-                // 説明
-                Text(L10n.notificationDescription)
-                    .font(.subheadline)
-                    .foregroundStyle(Color.mmOnboardingTextSub)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 40)
+                // 成長サイクル 3ステップバッジ
+                growthCycleSteps
                     .opacity(appeared ? 1 : 0)
-                    .offset(y: appeared ? 0 : 10)
 
-                Spacer().frame(height: 20)
+                Spacer().frame(height: 16)
 
-                // 通知プレビューカード
-                notificationPreviewCard
-                    .opacity(appeared ? 1 : 0)
-                    .offset(y: appeared ? 0 : 10)
+                // 通知プレビューカード（2枚）
+                VStack(spacing: 8) {
+                    notificationCard(
+                        subtitle: isJapanese ? "🔥 大胸筋・三角筋 回復完了！" : "🔥 Chest & Delts Recovered!",
+                        body: isJapanese ? "プッシュの日です。トレーニングしよう！" : "Push day. Time to train!",
+                        time: isJapanese ? "たった今" : "Just now"
+                    )
 
-                Spacer()
+                    notificationCard(
+                        subtitle: isJapanese ? "🏆 ベンチプレス PR更新チャンス！" : "🏆 Bench Press PR Opportunity!",
+                        body: isJapanese ? "前回62.5kg×8。今日65kgに挑戦できるかも" : "Last time 62.5kg×8. Try 65kg today?",
+                        time: isJapanese ? "2時間前" : "2h ago"
+                    )
+                }
+                .opacity(appeared ? 1 : 0)
+                .offset(y: appeared ? 0 : 10)
 
-                // 通知を許可ボタン
+                Spacer(minLength: 12)
+
+                // 「成長を見逃さない」ボタン
                 Button {
                     requestNotificationPermission()
                 } label: {
@@ -98,7 +118,7 @@ struct NotificationPermissionView: View {
                             )
                             .clipShape(RoundedRectangle(cornerRadius: 16))
                     } else {
-                        Text(L10n.allowNotifications)
+                        Text(isJapanese ? "成長を見逃さない" : "Don't Miss Your Growth")
                             .font(.system(size: 18, weight: .bold))
                             .foregroundStyle(Color.mmOnboardingBg)
                             .frame(maxWidth: .infinity)
@@ -127,7 +147,7 @@ struct NotificationPermissionView: View {
                         .foregroundStyle(Color.mmOnboardingTextSub)
                 }
                 .disabled(isRequesting)
-                .padding(.top, 16)
+                .padding(.top, 12)
                 .padding(.bottom, 32)
             }
         }
@@ -150,41 +170,73 @@ struct NotificationPermissionView: View {
         }
     }
 
+    // MARK: - 成長サイクル 3ステップ
+
+    private var growthCycleSteps: some View {
+        HStack(spacing: 0) {
+            stepBadge(icon: "flame.fill", text: isJapanese ? "刺激" : "Stimulate", color: .mmMuscleCoral)
+
+            Image(systemName: "arrow.right")
+                .font(.system(size: 10))
+                .foregroundStyle(Color.mmOnboardingTextSub)
+
+            stepBadge(icon: "clock.arrow.circlepath", text: isJapanese ? "回復" : "Recover", color: .mmMuscleAmber)
+
+            Image(systemName: "arrow.right")
+                .font(.system(size: 10))
+                .foregroundStyle(Color.mmOnboardingTextSub)
+
+            stepBadge(icon: "arrow.up.circle.fill", text: isJapanese ? "成長" : "Grow", color: .mmAccentPrimary)
+        }
+    }
+
+    private func stepBadge(icon: String, text: String, color: Color) -> some View {
+        HStack(spacing: 4) {
+            Image(systemName: icon)
+                .font(.system(size: 12))
+                .foregroundStyle(color)
+            Text(text)
+                .font(.system(size: 12, weight: .bold))
+                .foregroundStyle(color)
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 5)
+        .background(color.opacity(0.12))
+        .clipShape(Capsule())
+    }
+
     // MARK: - 通知プレビューカード
 
-    private var notificationPreviewCard: some View {
-        VStack(alignment: .leading, spacing: 4) {
+    private func notificationCard(subtitle: String, body: String, time: String) -> some View {
+        VStack(alignment: .leading, spacing: 3) {
             HStack(spacing: 6) {
                 Image(systemName: "bell.fill")
-                    .font(.system(size: 12))
+                    .font(.system(size: 11))
                     .foregroundStyle(Color.mmOnboardingAccent)
                 Text("MuscleMap")
-                    .font(.system(size: 12, weight: .bold))
+                    .font(.system(size: 11, weight: .bold))
                     .foregroundStyle(Color.mmOnboardingTextMain)
                 Spacer()
-                Text(isJapanese ? "たった今" : "Just now")
+                Text(time)
                     .font(.system(size: 10))
                     .foregroundStyle(Color.mmOnboardingTextSub)
             }
 
-            Text(isJapanese
-                ? "💪 大胸筋・三角筋 回復完了！"
-                : "💪 Chest & Shoulders Recovered!")
-                .font(.system(size: 14, weight: .bold))
+            Text(subtitle)
+                .font(.system(size: 13, weight: .bold))
                 .foregroundStyle(Color.mmOnboardingTextMain)
 
-            Text(isJapanese
-                ? "プッシュの日です。トレーニングしよう！"
-                : "Time for Push day. Let's train!")
-                .font(.system(size: 13))
+            Text(body)
+                .font(.system(size: 12))
                 .foregroundStyle(Color.mmOnboardingTextSub)
+                .lineLimit(1)
         }
-        .padding(12)
+        .padding(10)
         .background(Color.mmOnboardingCard)
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .clipShape(RoundedRectangle(cornerRadius: 14))
         .overlay(
-            RoundedRectangle(cornerRadius: 16)
-                .stroke(Color.mmOnboardingAccent.opacity(0.2), lineWidth: 1)
+            RoundedRectangle(cornerRadius: 14)
+                .stroke(Color.mmOnboardingAccent.opacity(0.15), lineWidth: 1)
         )
         .padding(.horizontal, 24)
     }
@@ -197,7 +249,6 @@ struct NotificationPermissionView: View {
 
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { granted, _ in
             DispatchQueue.main.async {
-                // 結果に関わらずAppStateに保存
                 AppState.shared.isNotificationEnabled = granted
                 isRequesting = false
                 onComplete()
