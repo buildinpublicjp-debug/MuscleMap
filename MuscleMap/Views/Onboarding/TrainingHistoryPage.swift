@@ -36,6 +36,29 @@ struct ProfileInputPage: View {
         ]
     }
 
+    /// 経験レベルに応じた筋肉マップ状態
+    private var experienceMapStates: [Muscle: MuscleVisualState] {
+        var states: [Muscle: MuscleVisualState] = [:]
+        for muscle in Muscle.allCases {
+            switch selectedExperience {
+            case .beginner, .none:
+                states[muscle] = .inactive
+            case .halfYear:
+                // 初心者が最初に鍛えがちな部位だけうっすら
+                let earlyMuscles: Set<Muscle> = [.chestUpper, .chestLower, .biceps, .deltoidAnterior]
+                states[muscle] = earlyMuscles.contains(muscle) ? .recovering(progress: 0.6) : .inactive
+            case .oneYearPlus:
+                // 主要部位がしっかり色付く
+                let mainMuscles: Set<Muscle> = [.chestUpper, .chestLower, .lats, .quadriceps, .biceps, .triceps, .deltoidAnterior, .deltoidLateral]
+                states[muscle] = mainMuscles.contains(muscle) ? .recovering(progress: 0.3) : .inactive
+            case .veteran:
+                // 全身がバランス良く色付く
+                states[muscle] = .recovering(progress: 0.2)
+            }
+        }
+        return states
+    }
+
     /// 体重の表示値（単位に応じて変換）
     private var displayWeight: Int {
         switch selectedUnit {
@@ -64,7 +87,16 @@ struct ProfileInputPage: View {
             .opacity(appeared ? 1 : 0)
             .offset(y: appeared ? 0 : 20)
 
-            Spacer().frame(height: 16)
+            Spacer().frame(height: 12)
+
+            // 筋肉マップミニビュー（経験レベルで色が変わる）
+            MuscleMapView(muscleStates: experienceMapStates)
+                .frame(height: 120)
+                .padding(.horizontal, 24)
+                .animation(.spring(response: 0.4, dampingFraction: 0.8), value: selectedExperience)
+                .opacity(appeared ? 1 : 0)
+
+            Spacer().frame(height: 12)
 
             ScrollView(.vertical, showsIndicators: false) {
                 VStack(spacing: 16) {
