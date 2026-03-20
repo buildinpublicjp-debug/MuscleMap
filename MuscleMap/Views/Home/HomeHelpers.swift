@@ -214,7 +214,18 @@ struct TodayRecommendationInline: View {
                                     .foregroundStyle(Color.mmTextSecondary.opacity(0.4))
                             }
 
-                            // オーバーレイ: 種目名（上）+ セット情報（下）
+                            // 下部グラデーション（コントラスト補助）
+                            VStack {
+                                Spacer()
+                                LinearGradient(
+                                    colors: [.clear, Color.black.opacity(0.65)],
+                                    startPoint: .top,
+                                    endPoint: .bottom
+                                )
+                                .frame(height: 40)
+                            }
+
+                            // オーバーレイ: 種目名（左上）+ セット情報（右下）
                             VStack {
                                 // 種目名（左上）
                                 HStack {
@@ -222,9 +233,10 @@ struct TodayRecommendationInline: View {
                                         .font(.system(size: 11, weight: .bold))
                                         .foregroundStyle(.white)
                                         .lineLimit(1)
+                                        .truncationMode(.tail)
                                         .padding(.horizontal, 6)
                                         .padding(.vertical, 3)
-                                        .background(Color.black.opacity(0.55))
+                                        .background(Color.black.opacity(0.7))
                                         .clipShape(RoundedRectangle(cornerRadius: 4))
                                     Spacer()
                                 }
@@ -236,11 +248,11 @@ struct TodayRecommendationInline: View {
                                 HStack {
                                     Spacer()
                                     Text("\(exercise.suggestedSets) × \(exercise.suggestedReps)")
-                                        .font(.system(size: 11, weight: .semibold).monospacedDigit())
+                                        .font(.system(size: 11, weight: .heavy).monospacedDigit())
                                         .foregroundStyle(.white)
                                         .padding(.horizontal, 6)
                                         .padding(.vertical, 3)
-                                        .background(Color.black.opacity(0.55))
+                                        .background(Color.black.opacity(0.7))
                                         .clipShape(RoundedRectangle(cornerRadius: 4))
                                 }
                                 .padding(6)
