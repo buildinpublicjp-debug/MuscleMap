@@ -133,6 +133,13 @@ struct RoutineCompletionPage: View {
             .opacity(headerAppeared ? 1 : 0)
             .offset(y: headerAppeared ? 0 : 20)
 
+            Spacer().frame(height: 10)
+
+            // ビフォーアフター（自己流 vs MuscleMap最適化）
+            optimizationBadge
+                .opacity(headerAppeared ? 1 : 0)
+                .offset(y: headerAppeared ? 0 : 10)
+
             Spacer().frame(height: 6)
 
             // 筋肉マップ（カバー率オーバーレイ付き）
@@ -184,6 +191,40 @@ struct RoutineCompletionPage: View {
         .fullScreenCover(isPresented: $showingPaywall) {
             PaywallView(isHardPaywall: true)
         }
+    }
+
+    // MARK: - ビフォーアフターバッジ（自己流 vs 最適化）
+
+    private var optimizationBadge: some View {
+        HStack(spacing: 6) {
+            // Before: 自己流
+            HStack(spacing: 4) {
+                Image(systemName: "xmark.circle")
+                    .font(.system(size: 11))
+                    .foregroundStyle(Color.mmOnboardingTextSub)
+                Text(isJapanese ? "自己流" : "Guessing")
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundStyle(Color.mmOnboardingTextSub)
+            }
+
+            Image(systemName: "arrow.right")
+                .font(.system(size: 9, weight: .bold))
+                .foregroundStyle(Color.mmOnboardingAccent)
+
+            // After: 最適化
+            HStack(spacing: 4) {
+                Image(systemName: "checkmark.circle.fill")
+                    .font(.system(size: 11))
+                    .foregroundStyle(Color.mmOnboardingAccent)
+                Text(isJapanese ? "科学的に最適化" : "Science-Based")
+                    .font(.system(size: 11, weight: .bold))
+                    .foregroundStyle(Color.mmOnboardingAccent)
+            }
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 6)
+        .background(Color.mmOnboardingCard)
+        .clipShape(Capsule())
     }
 
     // MARK: - 筋肉マップ（大きく + カバー率オーバーレイ）

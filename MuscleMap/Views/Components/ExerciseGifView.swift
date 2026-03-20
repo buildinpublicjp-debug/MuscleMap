@@ -25,8 +25,8 @@ struct ExerciseGifView: View {
         if let gifData = Self.loadGifData(exerciseId: exerciseId) {
             switch size {
             case .fullWidth:
-                // アニメーションGIF（ExerciseDetailView用）
-                GifImageView(gifData: gifData)
+                // アニメーションGIF（ExerciseDetailView用 — AspectFitで全体表示）
+                GifImageView(gifData: gifData, useFill: false)
                     .aspectRatio(contentMode: .fit)
                     .frame(maxWidth: .infinity)
                     .frame(maxHeight: 300)
@@ -38,12 +38,11 @@ struct ExerciseGifView: View {
                     )
 
             case .previewCard:
-                // アニメーションGIF（ExercisePreviewSheet用、コンパクト）
-                GifImageView(gifData: gifData)
-                    .aspectRatio(contentMode: .fit)
+                // アニメーションGIF（ExercisePreviewSheet用 — Fillで黒帯なし）
+                GifImageView(gifData: gifData, useFill: true)
                     .frame(maxWidth: .infinity)
                     .frame(height: 120)
-                    .background(Color.mmGifBackground)
+                    .clipped()
                     .clipShape(RoundedRectangle(cornerRadius: 10))
                     .overlay(
                         RoundedRectangle(cornerRadius: 10)
@@ -51,19 +50,12 @@ struct ExerciseGifView: View {
                     )
 
             case .card:
-                // カード型サムネイル（MuscleDetailView用）
+                // カード型サムネイル（グリッド用 — Fillで黒帯なし、frameは呼び出し元で指定）
                 if let firstFrame = UIImage.gifFirstFrame(data: gifData) {
                     Image(uiImage: firstFrame)
                         .resizable()
-                        .scaledToFit()
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 160)
-                        .background(Color.mmGifBackground)
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 10)
-                                .stroke(Color.mmBorder.opacity(0.3), lineWidth: 1)
-                        )
+                        .scaledToFill()
+                        .clipped()
                 }
 
             case .thumbnail:
@@ -71,10 +63,10 @@ struct ExerciseGifView: View {
                 if let firstFrame = UIImage.gifFirstFrame(data: gifData) {
                     Image(uiImage: firstFrame)
                         .resizable()
-                        .scaledToFit()
+                        .scaledToFill()
                         .padding(4)
                         .frame(width: 100, height: 75)
-                        .background(Color.mmGifBackground)
+                        .clipped()
                         .clipShape(RoundedRectangle(cornerRadius: 8))
                         .overlay(
                             RoundedRectangle(cornerRadius: 8)
@@ -112,10 +104,11 @@ struct ExerciseGifView: View {
 
 private struct GifImageView: UIViewRepresentable {
     let gifData: Data
+    var useFill: Bool = false
 
     func makeUIView(context: Context) -> UIImageView {
         let imageView = UIImageView()
-        imageView.contentMode = .scaleAspectFit
+        imageView.contentMode = useFill ? .scaleAspectFill : .scaleAspectFit
         imageView.clipsToBounds = true
         imageView.backgroundColor = .clear
         // Auto Layout対応: 親のサイズにフィット
@@ -123,13 +116,25 @@ private struct GifImageView: UIViewRepresentable {
         imageView.setContentHuggingPriority(.defaultLow, for: .vertical)
         imageView.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         imageView.setContentCompressionResistancePriority(.defaultLow, for: .vertical)
+
+        if let animatedImage = UIImage.gif(data: gifData) {
+            imageView.image = animatedImage
+        }
         return imageView
     }
 
     func updateUIView(_ imageView: UIImageView, context: Context) {
-        if let animatedImage = UIImage.gif(data: gifData) {
-            imageView.image = animatedImage
+        // contentModeが変わった場合にも対応
+        let expectedMode: UIView.ContentMode = useFill ? .scaleAspectFill : .scaleAspectFit
+        if imageView.contentMode != expectedMode {
+            imageView.contentMode = expectedMode
         }
+    }
+
+    /// 画面外でアニメーションを停止しメモリ解放
+    static func dismantleUIView(_ imageView: UIImageView, coordinator: ()) {
+        imageView.stopAnimating()
+        imageView.image = nil
     }
 }
 

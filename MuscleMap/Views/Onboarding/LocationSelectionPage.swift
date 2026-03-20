@@ -59,15 +59,22 @@ struct LocationSelectionPage: View {
     @State private var selected: TrainingLocation?
     @State private var appeared = false
     @State private var isProceeding = false
-    @State private var autoScrollTimer: Timer?
     @State private var selectedExercise: ExerciseDefinition?
-    @State private var isUserScrolling = false
-    @State private var autoScrollIndex: Int = 0
+    @State private var scrollOffset: CGFloat = 0
+    @State private var isAnimating = false
 
     /// 器具が必要な「自重」種目を除外するID判定
     private static let bodyweightExcludeIds: Set<String> = [
         "dips", "chin_up", "pull_up", "muscle_up", "tricep_dip"
     ]
+
+    /// ジムの種目リストから除外するID
+    private static let gymExcludeIds: Set<String> = [
+        "burpee"
+    ]
+
+    /// GIFカード1列の幅（カード140 + spacing8）
+    private let columnWidth: CGFloat = 148
 
     private func isTrueBodyweight(_ exercise: ExerciseDefinition) -> Bool {
         let id = exercise.id.lowercased()
@@ -88,7 +95,7 @@ struct LocationSelectionPage: View {
             let homeEquipment: Set<String> = ["自重", "ダンベル", "ケトルベル", "Bodyweight", "Dumbbell", "Kettlebell"]
             exercises = store.exercises.filter { homeEquipment.contains($0.equipment) }
         case .gym, .both, .none:
-            exercises = store.exercises
+            exercises = store.exercises.filter { !Self.gymExcludeIds.contains($0.id) }
         }
         return Array(exercises.prefix(20))
     }
@@ -122,7 +129,7 @@ struct LocationSelectionPage: View {
             let homeEquipment: Set<String> = ["自重", "ダンベル", "ケトルベル", "Bodyweight", "Dumbbell", "Kettlebell"]
             return store.exercises.filter { homeEquipment.contains($0.equipment) }.count
         case .gym, .both, .none:
-            return store.exercises.count
+            return store.exercises.filter { !Self.gymExcludeIds.contains($0.id) }.count
         }
     }
 
@@ -168,38 +175,9 @@ struct LocationSelectionPage: View {
 
             Spacer().frame(height: 12)
 
-            // GIFギャラリー（2行グリッド、ネイティブScrollView + 自動スクロール）
-            ScrollViewReader { proxy in
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(alignment: .top, spacing: 8) {
-                        ForEach(gridColumns, id: \.0) { colIndex, pair in
-                            VStack(spacing: 8) {
-                                ExerciseGifCard(exercise: pair.0) {
-                                    selectedExercise = pair.0
-                                    HapticManager.lightTap()
-                                }
-                                if let second = pair.1 {
-                                    ExerciseGifCard(exercise: second) {
-                                        selectedExercise = second
-                                        HapticManager.lightTap()
-                                    }
-                                }
-                            }
-                            .id(colIndex)
-                        }
-                    }
-                    .padding(.horizontal, 24)
-                    .onTapGesture { }  // ScrollViewのスワイプをTabViewから保護
-                }
-                .onAppear {
-                    startAutoScroll(proxy: proxy)
-                }
-                .onChange(of: selected) {
-                    autoScrollIndex = 0
-                    restartAutoScroll(proxy: proxy)
-                }
-            }
-            .opacity(appeared ? 1 : 0)
+            // GIFギャラリー（2行グリッド、滑らか自動スクロール）
+            gifGallery
+                .opacity(appeared ? 1 : 0)
 
             Spacer(minLength: 8)
 
@@ -229,7 +207,7 @@ struct LocationSelectionPage: View {
             Button {
                 guard !isProceeding, let loc = selected else { return }
                 isProceeding = true
-                stopAutoScroll()
+                isAnimating = false
                 HapticManager.lightTap()
                 onNext(loc)
             } label: {
@@ -266,7 +244,7 @@ struct LocationSelectionPage: View {
             }
         }
         .onDisappear {
-            stopAutoScroll()
+            isAnimating = false
         }
         .sheet(item: $selectedExercise) { exercise in
             NavigationStack {
@@ -277,35 +255,91 @@ struct LocationSelectionPage: View {
         }
     }
 
-    // MARK: - 自動スクロール（ScrollViewReader経由）
+    // MARK: - GIFギャラリー（滑らか自動スクロール）
 
-    private func startAutoScroll(proxy: ScrollViewProxy) {
-        stopAutoScroll()
+    private var gifGallery: some View {
         let colCount = gridColumns.count
-        guard colCount > 1 else { return }
+        let oneSetWidth = CGFloat(colCount) * columnWidth + 48
 
-        autoScrollTimer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { _ in
-            Task { @MainActor in
-                guard !isUserScrolling else { return }
-                autoScrollIndex = (autoScrollIndex + 1) % colCount
-                withAnimation(.easeInOut(duration: 0.6)) {
-                    proxy.scrollTo(autoScrollIndex, anchor: .leading)
+        return GeometryReader { _ in
+            HStack(alignment: .top, spacing: 8) {
+                // 1セット目
+                ForEach(gridColumns, id: \.0) { _, pair in
+                    VStack(spacing: 8) {
+                        ExerciseGifCard(exercise: pair.0) {
+                            selectedExercise = pair.0
+                            HapticManager.lightTap()
+                        }
+                        if let second = pair.1 {
+                            ExerciseGifCard(exercise: second) {
+                                selectedExercise = second
+                                HapticManager.lightTap()
+                            }
+                        }
+                    }
                 }
+                // 2セット目（ループ用複製）
+                ForEach(gridColumns, id: \.0) { _, pair in
+                    VStack(spacing: 8) {
+                        ExerciseGifCard(exercise: pair.0) {
+                            selectedExercise = pair.0
+                            HapticManager.lightTap()
+                        }
+                        if let second = pair.1 {
+                            ExerciseGifCard(exercise: second) {
+                                selectedExercise = second
+                                HapticManager.lightTap()
+                            }
+                        }
+                    }
+                }
+            }
+            .padding(.horizontal, 24)
+            .offset(x: scrollOffset)
+            .onChange(of: scrollOffset) {
+                if scrollOffset <= -oneSetWidth {
+                    // 1セット分スクロールしたらリセットして再開
+                    scrollOffset = 0
+                    isAnimating = false
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                        startSmoothScroll(oneSetWidth: oneSetWidth)
+                    }
+                }
+            }
+        }
+        .contentShape(Rectangle())
+        .clipped()
+        .simultaneousGesture(
+            DragGesture(minimumDistance: 10, coordinateSpace: .local)
+                .onChanged { value in
+                    isAnimating = false
+                    scrollOffset = value.translation.width
+                }
+                .onEnded { _ in
+                    startSmoothScroll(oneSetWidth: oneSetWidth)
+                }
+        )
+        .onAppear {
+            startSmoothScroll(oneSetWidth: oneSetWidth)
+        }
+        .onChange(of: selected) {
+            scrollOffset = 0
+            isAnimating = false
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                startSmoothScroll(oneSetWidth: oneSetWidth)
             }
         }
     }
 
-    private func stopAutoScroll() {
-        autoScrollTimer?.invalidate()
-        autoScrollTimer = nil
-    }
+    // MARK: - 滑らか自動スクロール
 
-    private func restartAutoScroll(proxy: ScrollViewProxy) {
-        autoScrollIndex = 0
-        withAnimation(.easeInOut(duration: 0.3)) {
-            proxy.scrollTo(0, anchor: .leading)
+    private func startSmoothScroll(oneSetWidth: CGFloat) {
+        guard !isAnimating else { return }
+        isAnimating = true
+        let duration = Double(gridColumns.count) * 2.0
+        withAnimation(.linear(duration: duration)) {
+            scrollOffset = -oneSetWidth
         }
-        startAutoScroll(proxy: proxy)
     }
 }
 
