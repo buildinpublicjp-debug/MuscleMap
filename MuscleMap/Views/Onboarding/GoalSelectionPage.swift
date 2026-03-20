@@ -320,6 +320,7 @@ private struct CompactGoalCard: View {
 
 private struct MuscleExerciseSheet: View {
     let muscle: Muscle
+    @State private var selectedExercise: ExerciseDefinition?
 
     private var isJapanese: Bool {
         LocalizationManager.shared.currentLanguage == .japanese
@@ -329,41 +330,69 @@ private struct MuscleExerciseSheet: View {
         ExerciseStore.shared.exercises(targeting: muscle)
     }
 
+    private let gridColumns = [
+        GridItem(.flexible(), spacing: 8),
+        GridItem(.flexible(), spacing: 8),
+    ]
+
     var body: some View {
         NavigationStack {
             ScrollView {
-                LazyVStack(spacing: 12) {
+                LazyVGrid(columns: gridColumns, spacing: 8) {
                     ForEach(exercises) { exercise in
-                        HStack(spacing: 12) {
-                            if ExerciseGifView.hasGif(exerciseId: exercise.id) {
-                                ExerciseGifView(exerciseId: exercise.id, size: .thumbnail)
-                                    .frame(width: 100, height: 100)
-                                    .clipShape(RoundedRectangle(cornerRadius: 14))
-                            } else {
-                                RoundedRectangle(cornerRadius: 14)
-                                    .fill(Color.mmOnboardingCard)
-                                    .frame(width: 100, height: 100)
-                                    .overlay(
-                                        Image(systemName: "dumbbell")
-                                            .font(.system(size: 24))
-                                            .foregroundStyle(Color.mmOnboardingTextSub.opacity(0.4))
-                                    )
-                            }
+                        Button {
+                            HapticManager.lightTap()
+                            selectedExercise = exercise
+                        } label: {
+                            ZStack {
+                                Color.mmOnboardingBg
 
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text(exercise.localizedName)
-                                    .font(.subheadline.bold())
-                                    .foregroundStyle(Color.mmOnboardingTextMain)
-                                Text(exercise.localizedEquipment)
-                                    .font(.caption)
-                                    .foregroundStyle(Color.mmOnboardingTextSub)
-                            }
+                                if ExerciseGifView.hasGif(exerciseId: exercise.id) {
+                                    ExerciseGifView(exerciseId: exercise.id, size: .card)
+                                        .scaledToFill()
+                                } else {
+                                    Image(systemName: "dumbbell.fill")
+                                        .font(.system(size: 28))
+                                        .foregroundStyle(Color.mmOnboardingTextSub.opacity(0.4))
+                                }
 
-                            Spacer()
+                                // オーバーレイ: 種目名（左上）+ 器具名（右下）
+                                VStack {
+                                    HStack {
+                                        Text(exercise.localizedName)
+                                            .font(.system(size: 11, weight: .bold))
+                                            .foregroundStyle(.white)
+                                            .lineLimit(1)
+                                            .padding(.horizontal, 6)
+                                            .padding(.vertical, 3)
+                                            .background(Color.black.opacity(0.55))
+                                            .clipShape(RoundedRectangle(cornerRadius: 4))
+                                        Spacer()
+                                    }
+                                    .padding(6)
+
+                                    Spacer()
+
+                                    HStack {
+                                        Spacer()
+                                        Text(exercise.localizedEquipment)
+                                            .font(.system(size: 10))
+                                            .foregroundStyle(.white)
+                                            .padding(.horizontal, 6)
+                                            .padding(.vertical, 3)
+                                            .background(Color.black.opacity(0.55))
+                                            .clipShape(RoundedRectangle(cornerRadius: 4))
+                                    }
+                                    .padding(6)
+                                }
+                            }
+                            .aspectRatio(1, contentMode: .fit)
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
                         }
-                        .padding(.horizontal, 16)
+                        .buttonStyle(.plain)
                     }
                 }
+                .padding(.horizontal, 16)
                 .padding(.vertical, 16)
             }
             .background(Color.mmOnboardingBg)
@@ -371,6 +400,9 @@ private struct MuscleExerciseSheet: View {
                 ? "\(muscle.japaneseName) — \(exercises.count)種目"
                 : "\(muscle.englishName) — \(exercises.count) exercises")
             .navigationBarTitleDisplayMode(.inline)
+            .sheet(item: $selectedExercise) { exercise in
+                ExerciseDetailView(exercise: exercise)
+            }
         }
     }
 }
