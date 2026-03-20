@@ -128,7 +128,7 @@ struct GoalSelectionPage: View {
                     tappedMuscle = muscle
                 }
             )
-            .frame(height: 200)
+            .frame(height: 240)
             .padding(.horizontal, 24)
             .animation(.spring(response: 0.4, dampingFraction: 0.8), value: selectedGoals)
 
@@ -162,8 +162,6 @@ struct GoalSelectionPage: View {
                 .animation(.easeOut(duration: 0.3), value: selectedGoals)
             }
 
-            Spacer(minLength: 8)
-
             // 目標カード（コンパクト、スクロール不要）
             VStack(spacing: 6) {
                 ForEach(Array(OnboardingGoal.allCases.enumerated()), id: \.element.id) { index, goal in
@@ -195,6 +193,8 @@ struct GoalSelectionPage: View {
                 }
             }
             .padding(.horizontal, 24)
+
+            Spacer(minLength: 12)
 
             // 次へボタン
             Button {
