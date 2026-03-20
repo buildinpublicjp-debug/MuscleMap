@@ -9,6 +9,7 @@ struct GoalMusclePreviewPage: View {
     @State private var mapAppeared = false
     @State private var menuAppeared = false
     @State private var isProceeding = false
+    @State private var selectedDayPreview: DayPreviewData?
 
     private var isJapanese: Bool {
         LocalizationManager.shared.currentLanguage == .japanese
@@ -75,7 +76,7 @@ struct GoalMusclePreviewPage: View {
                     let equip = exercise.localizedEquipment
                     let (sets, reps) = defaultSetsReps(for: profile.trainingExperience)
                     exercises.append(ExercisePreviewItem(
-                        name: name, equipment: equip, sets: sets, reps: reps
+                        exerciseId: exercise.id, name: name, equipment: equip, sets: sets, reps: reps
                     ))
                     usedExerciseIds.insert(exercise.id)
                 }
@@ -134,7 +135,7 @@ struct GoalMusclePreviewPage: View {
                         .foregroundStyle(Color.mmOnboardingTextSub)
                         .padding(.horizontal, 24)
 
-                    // Day別カード
+                    // Day別カード（タップでGIFシート表示）
                     VStack(spacing: 0) {
                         ForEach(Array(splitPreview.enumerated()), id: \.element.dayName) { index, day in
                             if index > 0 {
@@ -143,13 +144,28 @@ struct GoalMusclePreviewPage: View {
                                     .padding(.horizontal, 12)
                             }
 
-                            DaySectionView(day: day)
-                                .opacity(menuAppeared ? 1 : 0)
-                                .offset(y: menuAppeared ? 0 : 10)
-                                .animation(
-                                    .easeOut(duration: 0.3).delay(Double(index) * 0.08),
-                                    value: menuAppeared
+                            Button {
+                                selectedDayPreview = DayPreviewData(
+                                    dayName: day.dayName,
+                                    muscles: day.muscles,
+                                    exercises: day.exercises.map { ex in
+                                        (exerciseId: ex.exerciseId,
+                                         name: ex.name,
+                                         equipment: ex.equipment,
+                                         setsReps: "\(ex.sets)×\(ex.reps)")
+                                    }
                                 )
+                                HapticManager.lightTap()
+                            } label: {
+                                DaySectionView(day: day)
+                            }
+                            .buttonStyle(.plain)
+                            .opacity(menuAppeared ? 1 : 0)
+                            .offset(y: menuAppeared ? 0 : 10)
+                            .animation(
+                                .easeOut(duration: 0.3).delay(Double(index) * 0.08),
+                                value: menuAppeared
+                            )
                         }
                     }
                     .background(Color.mmOnboardingCard)
@@ -208,6 +224,9 @@ struct GoalMusclePreviewPage: View {
                 menuAppeared = true
             }
         }
+        .sheet(item: $selectedDayPreview) { dayData in
+            DayExerciseSheet(dayData: dayData)
+        }
     }
 
     // MARK: - ヘルパー
@@ -260,10 +279,20 @@ private struct DayPreview {
 }
 
 private struct ExercisePreviewItem {
+    let exerciseId: String
     let name: String
     let equipment: String
     let sets: Int
     let reps: Int
+}
+
+// MARK: - GIFシート用データ
+
+struct DayPreviewData: Identifiable {
+    let id = UUID()
+    let dayName: String
+    let muscles: [Muscle]
+    let exercises: [(exerciseId: String, name: String, equipment: String, setsReps: String)]
 }
 
 // MARK: - Day セクション
@@ -271,12 +300,28 @@ private struct ExercisePreviewItem {
 private struct DaySectionView: View {
     let day: DayPreview
 
+    private var isJapanese: Bool {
+        LocalizationManager.shared.currentLanguage == .japanese
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            // Day名
-            Text(day.dayName)
-                .font(.system(size: 13, weight: .bold))
-                .foregroundStyle(Color.mmOnboardingAccent)
+            // Day名 + タップヒント
+            HStack {
+                Text(day.dayName)
+                    .font(.system(size: 13, weight: .bold))
+                    .foregroundStyle(Color.mmOnboardingAccent)
+
+                Spacer()
+
+                HStack(spacing: 4) {
+                    Image(systemName: "hand.tap")
+                        .font(.system(size: 9))
+                    Text(isJapanese ? "タップで種目を見る" : "Tap to see exercises")
+                        .font(.system(size: 9))
+                }
+                .foregroundStyle(Color.mmOnboardingTextSub)
+            }
 
             // 筋肉チップ
             HStack(spacing: 6) {
@@ -319,6 +364,83 @@ private struct DaySectionView: View {
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 10)
+    }
+}
+
+// MARK: - GIF種目シート
+
+private struct DayExerciseSheet: View {
+    let dayData: DayPreviewData
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                VStack(spacing: 12) {
+                    // 筋肉チップ
+                    HStack(spacing: 6) {
+                        ForEach(dayData.muscles, id: \.self) { muscle in
+                            Text(muscle.localizedName)
+                                .font(.caption.bold())
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4)
+                                .background(Color.mmOnboardingAccent.opacity(0.15))
+                                .clipShape(Capsule())
+                                .foregroundStyle(Color.mmOnboardingAccent)
+                        }
+                    }
+                    .padding(.horizontal, 16)
+
+                    // 種目リスト（GIF付き）
+                    ForEach(dayData.exercises.indices, id: \.self) { i in
+                        let item = dayData.exercises[i]
+                        HStack(spacing: 12) {
+                            // GIF
+                            if ExerciseGifView.hasGif(exerciseId: item.exerciseId) {
+                                ExerciseGifView(exerciseId: item.exerciseId, size: .previewCard)
+                                    .frame(width: 100, height: 100)
+                                    .clipShape(RoundedRectangle(cornerRadius: 14))
+                            } else {
+                                RoundedRectangle(cornerRadius: 14)
+                                    .fill(Color.mmOnboardingCard)
+                                    .frame(width: 100, height: 100)
+                                    .overlay(
+                                        Image(systemName: "dumbbell.fill")
+                                            .font(.system(size: 24))
+                                            .foregroundStyle(Color.mmOnboardingTextSub.opacity(0.4))
+                                    )
+                            }
+
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(item.name)
+                                    .font(.subheadline.bold())
+                                    .foregroundStyle(Color.mmOnboardingTextMain)
+
+                                Text(item.equipment)
+                                    .font(.caption)
+                                    .foregroundStyle(Color.mmOnboardingTextSub)
+
+                                Text(item.setsReps)
+                                    .font(.caption.bold())
+                                    .foregroundStyle(Color.mmOnboardingAccent)
+                            }
+
+                            Spacer()
+                        }
+                        .padding(12)
+                        .background(Color.mmOnboardingCard)
+                        .clipShape(RoundedRectangle(cornerRadius: 16))
+                        .padding(.horizontal, 16)
+                    }
+                }
+                .padding(.vertical, 12)
+            }
+            .background(Color.mmOnboardingBg)
+            .navigationTitle(dayData.dayName)
+            .navigationBarTitleDisplayMode(.inline)
+        }
+        .presentationDetents([.medium, .large])
+        .presentationDragIndicator(.visible)
     }
 }
 
