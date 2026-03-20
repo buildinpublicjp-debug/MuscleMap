@@ -115,47 +115,54 @@ struct RoutineCompletionPage: View {
         VStack(spacing: 0) {
             Spacer().frame(height: 16)
 
-            // 目標別キャッチコピー
-            Text(goalBasedHeadline)
-                .font(.system(size: 30, weight: .heavy))
-                .foregroundStyle(Color.mmOnboardingAccent)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, 24)
-                .opacity(headerAppeared ? 1 : 0)
-                .offset(y: headerAppeared ? 0 : 20)
+            // 目標別キャッチコピー + サブタイトル
+            VStack(spacing: 6) {
+                Text(goalBasedHeadline)
+                    .font(.system(size: 30, weight: .heavy))
+                    .foregroundStyle(Color.mmOnboardingAccent)
+                    .multilineTextAlignment(.center)
 
-            Spacer().frame(height: 8)
+                Text(isJapanese
+                    ? "あなたの目標・経験・環境から最適な分割法を作成しました"
+                    : "Optimized for your goals, experience & equipment")
+                    .font(.system(size: 13))
+                    .foregroundStyle(Color.mmOnboardingTextSub)
+                    .multilineTextAlignment(.center)
+            }
+            .padding(.horizontal, 24)
+            .opacity(headerAppeared ? 1 : 0)
+            .offset(y: headerAppeared ? 0 : 20)
 
-            // 筋肉マップ（大きく + カバー率オーバーレイ）
+            Spacer().frame(height: 6)
+
+            // 筋肉マップ（カバー率オーバーレイ付き）
             muscleMapSection
                 .opacity(mapAppeared ? 1 : 0)
                 .scaleEffect(mapAppeared ? 1 : 0.92)
 
-            Spacer().frame(height: 8)
+            Spacer().frame(height: 6)
 
-            // Dayサマリー（横スクロールカード）
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 10) {
-                    ForEach(Array(routine.days.enumerated()), id: \.element.id) { index, day in
-                        horizontalDayCard(index: index, day: day)
-                            .opacity(cardsAppeared ? 1 : 0)
-                            .offset(y: cardsAppeared ? 0 : 10)
-                            .animation(
-                                .easeOut(duration: 0.3).delay(Double(index) * 0.08),
-                                value: cardsAppeared
-                            )
-                    }
+            // Dayサマリー（縦リスト）
+            VStack(spacing: 8) {
+                ForEach(Array(routine.days.enumerated()), id: \.element.id) { index, day in
+                    dayInfoRow(index: index, day: day)
+                        .opacity(cardsAppeared ? 1 : 0)
+                        .offset(y: cardsAppeared ? 0 : 10)
+                        .animation(
+                            .easeOut(duration: 0.3).delay(Double(index) * 0.08),
+                            value: cardsAppeared
+                        )
                 }
-                .padding(.horizontal, 24)
             }
+            .padding(.horizontal, 24)
 
             // 合計行（1行）
             totalSummaryRow
                 .opacity(cardsAppeared ? 1 : 0)
                 .padding(.horizontal, 24)
-                .padding(.top, 8)
+                .padding(.top, 6)
 
-            Spacer(minLength: 8)
+            Spacer(minLength: 4)
 
             // CTAボタンエリア
             ctaButtons
@@ -185,7 +192,7 @@ struct RoutineCompletionPage: View {
         ZStack(alignment: .bottom) {
             // 筋肉マップ（前面+背面）
             MuscleMapView(muscleStates: programMuscleStates)
-                .frame(height: 240)
+                .frame(height: 200)
                 .padding(.horizontal, 16)
 
             // カバー率オーバーレイ（マップ中央下部）
@@ -200,35 +207,46 @@ struct RoutineCompletionPage: View {
         }
     }
 
-    // MARK: - 横スクロールDayカード
+    // MARK: - Day情報行（横幅フル、情報リッチ）
 
     @ViewBuilder
-    private func horizontalDayCard(index: Int, day: RoutineDay) -> some View {
+    private func dayInfoRow(index: Int, day: RoutineDay) -> some View {
         let groups = muscleGroupsForDay(day)
 
-        VStack(spacing: 6) {
+        HStack(spacing: 8) {
+            // Day番号
             Text("Day \(index + 1)")
-                .font(.system(size: 12, weight: .heavy))
+                .font(.system(size: 14, weight: .heavy))
                 .foregroundStyle(Color.mmOnboardingAccent)
+                .frame(width: 50, alignment: .leading)
 
-            // 筋肉グループチップ（横並び）
-            HStack(spacing: 3) {
+            // 部位チップ
+            HStack(spacing: 4) {
                 ForEach(groups.prefix(3), id: \.self) { group in
                     Text(group.localizedName)
-                        .font(.system(size: 9, weight: .bold))
+                        .font(.system(size: 10, weight: .bold))
                         .foregroundStyle(Color.mmOnboardingAccent)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 3)
+                        .background(Color.mmOnboardingAccent.opacity(0.15))
+                        .clipShape(Capsule())
                 }
             }
-            .lineLimit(1)
 
-            Text(isJapanese ? "\(day.exercises.count)種目" : "\(day.exercises.count) ex")
+            Spacer()
+
+            // 種目数（大きく）
+            Text("\(day.exercises.count)")
+                .font(.system(size: 18, weight: .heavy))
+                .foregroundStyle(Color.mmOnboardingTextMain)
+            Text(isJapanese ? "種目" : "ex")
                 .font(.system(size: 11))
                 .foregroundStyle(Color.mmOnboardingTextSub)
         }
         .padding(.horizontal, 14)
-        .padding(.vertical, 10)
+        .padding(.vertical, 12)
         .background(Color.mmOnboardingCard)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .clipShape(RoundedRectangle(cornerRadius: 14))
     }
 
     // MARK: - 合計行
@@ -313,7 +331,7 @@ struct RoutineCompletionPage: View {
             .foregroundStyle(Color.mmOnboardingTextSub)
         }
         .padding(.horizontal, 24)
-        .padding(.bottom, 32)
+        .padding(.bottom, 24)
     }
 }
 

@@ -139,6 +139,7 @@ struct TodayRecommendationInline: View {
 
     @State private var selectedExerciseDefinition: ExerciseDefinition?
     @State private var showRoutineEdit = false
+    @State private var selectedDayIndex: Int?
 
     private var localization: LocalizationManager { LocalizationManager.shared }
 
@@ -171,19 +172,75 @@ struct TodayRecommendationInline: View {
 
     // MARK: - ルーティンカード
 
+    /// 今日のDayインデックスを計算（todayRoutineのidで一致検索）
+    private var todayDayIndex: Int {
+        let days = RoutineManager.shared.routine.days
+        guard let today = todayRoutine else { return 0 }
+        return days.firstIndex(where: { $0.id == today.id }) ?? 0
+    }
+
+    /// 現在選択中のDayインデックス（初期値はtodayDayIndex）
+    private var currentDayIndex: Int {
+        selectedDayIndex ?? todayDayIndex
+    }
+
     private func routineCard(routine: RoutineDay) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
+        let allDays = RoutineManager.shared.routine.days
+        let displayDay = allDays.indices.contains(currentDayIndex) ? allDays[currentDayIndex] : routine
+        let isToday = currentDayIndex == todayDayIndex
+
+        return VStack(alignment: .leading, spacing: 12) {
             // ヘッダー
             HStack(spacing: 8) {
-                Text(L10n.todayRoutine)
+                Text(isToday ? L10n.todayRoutine : (localization.currentLanguage == .japanese ? "ルーティン" : "Routine"))
                     .font(.system(size: 16, weight: .bold))
                     .foregroundStyle(Color.mmTextPrimary)
 
-                Text(routine.name)
+                Text(displayDay.name)
                     .font(.system(size: 14))
                     .foregroundStyle(Color.mmAccentPrimary)
 
                 Spacer()
+            }
+
+            // Dayタブバー（2日以上ある場合のみ表示）
+            if allDays.count > 1 {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 8) {
+                        ForEach(Array(allDays.enumerated()), id: \.element.id) { index, day in
+                            Button {
+                                withAnimation(.easeInOut(duration: 0.2)) {
+                                    selectedDayIndex = index
+                                }
+                                HapticManager.lightTap()
+                            } label: {
+                                HStack(spacing: 4) {
+                                    if index == todayDayIndex {
+                                        Circle()
+                                            .fill(currentDayIndex == index ? Color.mmBgPrimary : Color.mmAccentPrimary)
+                                            .frame(width: 5, height: 5)
+                                    }
+                                    Text("Day \(index + 1)")
+                                        .font(.system(size: 12, weight: .bold))
+                                }
+                                .foregroundStyle(
+                                    currentDayIndex == index
+                                        ? Color.mmBgPrimary
+                                        : Color.mmTextPrimary
+                                )
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 8)
+                                .background(
+                                    currentDayIndex == index
+                                        ? Color.mmAccentPrimary
+                                        : Color.mmBgPrimary
+                                )
+                                .clipShape(RoundedRectangle(cornerRadius: 10))
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                }
             }
 
             // 種目グリッド（2列）
@@ -192,7 +249,7 @@ struct TodayRecommendationInline: View {
                 GridItem(.flexible(), spacing: 8),
             ]
             LazyVGrid(columns: gridColumns, spacing: 8) {
-                ForEach(routine.exercises) { exercise in
+                ForEach(displayDay.exercises) { exercise in
                     let def = ExerciseStore.shared.exercise(for: exercise.exerciseId)
                     let name = exerciseName(for: exercise)
                     Button {
@@ -258,7 +315,7 @@ struct TodayRecommendationInline: View {
             if isPremium {
                 Button {
                     HapticManager.lightTap()
-                    let exercises = routine.exercises.compactMap { re -> RecommendedExercise? in
+                    let exercises = displayDay.exercises.compactMap { re -> RecommendedExercise? in
                         guard let def = ExerciseStore.shared.exercise(for: re.exerciseId) else { return nil }
                         let name = localization.currentLanguage == .japanese ? def.nameJA : def.nameEN
                         let prevW = previousWeightProvider?(re.exerciseId)

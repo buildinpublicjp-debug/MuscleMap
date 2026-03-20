@@ -76,7 +76,7 @@ struct GoalMusclePreviewPage: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            Spacer().frame(height: 24)
+            Spacer().frame(height: 20)
 
             // ヘッダー: 目標連動キャッチコピー
             Text(goalBasedHeadline)
@@ -99,28 +99,28 @@ struct GoalMusclePreviewPage: View {
                 .padding(.horizontal, 24)
                 .opacity(appeared ? 1 : 0)
 
-            Spacer().frame(height: 12)
+            Spacer().frame(height: 8)
 
             // 筋肉マップ（大きく、回復サイクルアニメーション）
             MuscleMapView(muscleStates: muscleStates)
-                .frame(height: 300)
-                .padding(.horizontal, 16)
+                .frame(height: 350)
+                .padding(.horizontal, 12)
                 .opacity(mapAppeared ? 1 : 0)
                 .scaleEffect(mapAppeared ? 1 : 0.92)
 
-            Spacer().frame(height: 8)
+            Spacer().frame(height: 6)
 
             // カバー率バッジ
             Text(isJapanese ? "\(coveragePercent)%の筋肉をカバー" : "\(coveragePercent)% muscle coverage")
-                .font(.system(size: 12, weight: .bold))
+                .font(.system(size: 14, weight: .heavy))
                 .foregroundStyle(Color.mmOnboardingAccent)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 5)
-                .background(Color.mmOnboardingAccent.opacity(0.1))
+                .padding(.horizontal, 14)
+                .padding(.vertical, 6)
+                .background(Color.mmOnboardingAccent.opacity(0.12))
                 .clipShape(Capsule())
                 .opacity(mapAppeared ? 1 : 0)
 
-            Spacer().frame(height: 12)
+            Spacer().frame(height: 10)
 
             // Day構成カード（横スクロール）
             ScrollView(.horizontal, showsIndicators: false) {
@@ -138,18 +138,18 @@ struct GoalMusclePreviewPage: View {
                 .padding(.horizontal, 24)
             }
 
-            Spacer(minLength: 12)
+            Spacer(minLength: 8)
 
             // ティーザーテキスト
             HStack(spacing: 4) {
                 Image(systemName: "arrow.right.circle")
-                    .font(.system(size: 12))
+                    .font(.system(size: 11))
                 Text(isJapanese ? "次のページで種目を確認できます" : "You'll see exercises on the next page")
-                    .font(.system(size: 13))
+                    .font(.system(size: 12))
             }
             .foregroundStyle(Color.mmOnboardingTextSub)
             .opacity(appeared ? 1 : 0)
-            .padding(.bottom, 8)
+            .padding(.bottom, 6)
 
             // 次へボタン
             Button {
@@ -175,7 +175,7 @@ struct GoalMusclePreviewPage: View {
             }
             .buttonStyle(.plain)
             .padding(.horizontal, 24)
-            .padding(.bottom, 32)
+            .padding(.bottom, 24)
             .opacity(appeared ? 1 : 0)
         }
         .onAppear {
@@ -201,35 +201,40 @@ struct GoalMusclePreviewPage: View {
     private func dayCard(index: Int, part: SplitPart) -> some View {
         let groups = part.muscleGroups
         let partName = isJapanese ? part.name : splitPartEnglishName(part.name)
+        let exerciseCount = groups.count >= 2 ? 4 : 3
 
         return VStack(spacing: 6) {
             Text("Day \(index + 1)")
-                .font(.system(size: 13, weight: .heavy))
+                .font(.system(size: 14, weight: .heavy))
                 .foregroundStyle(Color.mmOnboardingAccent)
 
             Text(partName)
-                .font(.system(size: 12, weight: .bold))
+                .font(.system(size: 13, weight: .bold))
                 .foregroundStyle(Color.mmOnboardingTextMain)
                 .lineLimit(1)
 
-            // 筋肉グループ色付き丸
+            // 筋肉グループチップ
             HStack(spacing: 4) {
                 ForEach(groups.prefix(3), id: \.self) { group in
-                    HStack(spacing: 3) {
-                        Circle()
-                            .fill(Color.mmOnboardingAccent)
-                            .frame(width: 6, height: 6)
-                        Text(group.localizedName)
-                            .font(.system(size: 9, weight: .medium))
-                            .foregroundStyle(Color.mmOnboardingTextSub)
-                    }
+                    Text(group.localizedName)
+                        .font(.system(size: 9, weight: .bold))
+                        .foregroundStyle(Color.mmOnboardingAccent)
+                        .padding(.horizontal, 5)
+                        .padding(.vertical, 2)
+                        .background(Color.mmOnboardingAccent.opacity(0.15))
+                        .clipShape(Capsule())
                 }
             }
+
+            // 種目数
+            Text(isJapanese ? "\(exerciseCount)種目" : "\(exerciseCount) exercises")
+                .font(.system(size: 10))
+                .foregroundStyle(Color.mmOnboardingTextSub)
         }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 10)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
         .background(Color.mmOnboardingCard)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .clipShape(RoundedRectangle(cornerRadius: 14))
     }
 
     // MARK: - 超回復アニメーション（FrequencySelectionPageと同じロジック）
