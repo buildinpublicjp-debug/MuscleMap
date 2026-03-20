@@ -119,10 +119,20 @@ struct FrequencySelectionPage: View {
                 muscleStates: muscleStates,
                 onMuscleTapped: nil
             )
-            .frame(height: 180)
+            .frame(height: 220)
             .padding(.horizontal, 24)
             .opacity(appeared ? 1 : 0)
             .animation(.easeOut(duration: 0.5).delay(0.2), value: appeared)
+
+            // 色のレジェンド（マップとタイムラインの間）
+            HStack(spacing: 16) {
+                legendItem(color: Color.red.opacity(0.8), text: isJapanese ? "刺激" : "Stimulus")
+                legendItem(color: Color.yellow.opacity(0.8), text: isJapanese ? "回復中" : "Recovering")
+                legendItem(color: Color.mmOnboardingTextSub.opacity(0.3), text: isJapanese ? "未刺激" : "Inactive")
+            }
+            .font(.system(size: 9))
+            .padding(.top, 4)
+            .opacity(appeared ? 1 : 0)
 
             // ヒントテキスト or タイムラインバー
             if selected == nil {
@@ -242,31 +252,31 @@ struct FrequencySelectionPage: View {
                 let isTrainingDay = content != "OFF"
                 let isCurrentAnimDay = day == animationDay && selected != nil
 
-                VStack(spacing: 3) {
+                VStack(spacing: 4) {
                     // 曜日
                     Text(dayLabels[day])
-                        .font(.system(size: 9, weight: .medium))
+                        .font(.system(size: 11, weight: .bold))
                         .foregroundStyle(isCurrentAnimDay ? Color.mmOnboardingAccent : Color.mmOnboardingTextSub)
 
                     // トレーニング内容（「胸」「背中」等）or 「−」
                     if isTrainingDay {
                         Text(content)
-                            .font(.system(size: 8, weight: .bold))
+                            .font(.system(size: 10, weight: .heavy))
                             .foregroundStyle(isCurrentAnimDay ? Color.mmOnboardingAccent : Color.mmOnboardingTextMain)
                             .lineLimit(1)
                             .minimumScaleFactor(0.7)
                     } else {
                         Text("−")
-                            .font(.system(size: 8))
+                            .font(.system(size: 10))
                             .foregroundStyle(Color.mmOnboardingTextSub.opacity(0.3))
                     }
 
                     // バー（トレーニング日は太く、OFFは細く）
-                    RoundedRectangle(cornerRadius: 2)
+                    RoundedRectangle(cornerRadius: 3)
                         .fill(isCurrentAnimDay ? Color.mmOnboardingAccent
                               : isTrainingDay ? Color.mmOnboardingCard
                               : Color.mmOnboardingCard.opacity(0.3))
-                        .frame(height: isTrainingDay ? 6 : 3)
+                        .frame(height: isTrainingDay ? 8 : 3)
                 }
                 .frame(maxWidth: .infinity)
             }
@@ -289,6 +299,15 @@ struct FrequencySelectionPage: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color.mmOnboardingCard)
         .clipShape(RoundedRectangle(cornerRadius: 8))
+    }
+
+    // MARK: - レジェンドアイテム
+
+    private func legendItem(color: Color, text: String) -> some View {
+        HStack(spacing: 3) {
+            Circle().fill(color).frame(width: 6, height: 6)
+            Text(text).foregroundStyle(Color.mmOnboardingTextSub)
+        }
     }
 
     // MARK: - 超回復アニメーション
@@ -428,7 +447,7 @@ private struct FrequencyCompactCard: View {
                 }
                 .padding(.horizontal, 12)
             }
-            .frame(height: 56)
+            .frame(height: 50)
             .background(isSelected ? Color.mmOnboardingAccent.opacity(0.08) : Color.mmOnboardingCard)
             .clipShape(RoundedRectangle(cornerRadius: 16))
             .overlay(
