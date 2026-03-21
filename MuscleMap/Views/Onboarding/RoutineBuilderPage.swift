@@ -126,7 +126,8 @@ struct RoutineBuilderPage: View {
                     maxExercises: maxExercisesPerDay,
                     onAdd: { exercise in
                         addExercise(exercise)
-                    }
+                    },
+                    currentExerciseIds: Set(days[selectedDayIndex].exercises.map(\.exerciseId))
                 )
                 .presentationDetents([.large])
                 .presentationDragIndicator(.visible)
@@ -206,27 +207,6 @@ struct RoutineBuilderPage: View {
                     Text(L10n.routineExerciseCount(days[selectedDayIndex].exercises.count, maxExercisesPerDay))
                         .font(.system(size: 12, weight: .bold))
                         .foregroundStyle(Color.mmOnboardingTextSub)
-
-                    // 追加ボタン
-                    if days[selectedDayIndex].exercises.count < maxExercisesPerDay {
-                        Button {
-                            showingExercisePicker = true
-                            HapticManager.lightTap()
-                        } label: {
-                            HStack(spacing: 4) {
-                                Image(systemName: "plus")
-                                    .font(.system(size: 10, weight: .bold))
-                                Text(isJapanese ? "追加" : "Add")
-                                    .font(.system(size: 11, weight: .bold))
-                            }
-                            .foregroundStyle(Color.mmOnboardingAccent)
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 5)
-                            .background(Color.mmOnboardingAccent.opacity(0.1))
-                            .clipShape(Capsule())
-                        }
-                        .buttonStyle(.plain)
-                    }
                 }
                 .padding(.horizontal, 24)
                 .padding(.vertical, 6)
@@ -313,14 +293,14 @@ struct RoutineBuilderPage: View {
                                                     Button {
                                                         removeExercise(routineExercise.id)
                                                     } label: {
-                                                        Image(systemName: "minus.circle.fill")
-                                                            .font(.system(size: 18))
-                                                            .foregroundStyle(.white.opacity(0.9))
-                                                            .shadow(color: .black.opacity(0.5), radius: 2, x: 0, y: 1)
+                                                        Image(systemName: "xmark.circle.fill")
+                                                            .font(.system(size: 20))
+                                                            .foregroundStyle(.white.opacity(0.8))
+                                                            .background(Circle().fill(Color.black.opacity(0.4)))
                                                     }
                                                     .buttonStyle(.plain)
                                                 }
-                                                .padding(6)
+                                                .padding(4)
                                                 Spacer()
                                             }
                                         }
@@ -329,6 +309,32 @@ struct RoutineBuilderPage: View {
                                     }
                                     .buttonStyle(.plain)
                                 }
+                            }
+
+                            // 種目追加カード（グリッド末尾）
+                            if days[selectedDayIndex].exercises.count < maxExercisesPerDay {
+                                Button {
+                                    showingExercisePicker = true
+                                    HapticManager.lightTap()
+                                } label: {
+                                    VStack(spacing: 8) {
+                                        Image(systemName: "plus.circle")
+                                            .font(.system(size: 28))
+                                        Text(isJapanese ? "種目追加" : "Add")
+                                            .font(.system(size: 12, weight: .bold))
+                                    }
+                                    .foregroundStyle(Color.mmOnboardingTextSub)
+                                    .frame(maxWidth: .infinity)
+                                    .aspectRatio(1, contentMode: .fit)
+                                    .background(Color.mmOnboardingCard.opacity(0.5))
+                                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 10)
+                                            .strokeBorder(style: StrokeStyle(lineWidth: 1, dash: [5]))
+                                            .foregroundStyle(Color.mmOnboardingTextSub.opacity(0.3))
+                                    )
+                                }
+                                .buttonStyle(.plain)
                             }
                         }
                         .padding(.horizontal, 24)
@@ -713,9 +719,15 @@ private struct RoutineExercisePickerSheet: View {
     let day: RoutineDay
     let maxExercises: Int
     let onAdd: (ExerciseDefinition) -> Void
+    /// 親のdaysから追加済みIDをリアルタイム追跡
+    let currentExerciseIds: Set<String>
 
     @Environment(\.dismiss) private var dismiss
     @State private var searchText = ""
+
+    private var isJapanese: Bool {
+        LocalizationManager.shared.currentLanguage == .japanese
+    }
 
     /// 対象グループの種目（Day の location でフィルタ）
     private var targetExercises: [ExerciseDefinition] {
@@ -759,11 +771,6 @@ private struct RoutineExercisePickerSheet: View {
         }
     }
 
-    /// 既に追加済みの種目ID
-    private var addedIds: Set<String> {
-        Set(day.exercises.map { $0.exerciseId })
-    }
-
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
@@ -793,11 +800,11 @@ private struct RoutineExercisePickerSheet: View {
                 ScrollView(.vertical, showsIndicators: false) {
                     LazyVStack(spacing: 8) {
                         ForEach(filteredExercises) { exercise in
-                            let isAdded = addedIds.contains(exercise.id)
+                            let isAdded = currentExerciseIds.contains(exercise.id)
                             Button {
                                 guard !isAdded else { return }
                                 onAdd(exercise)
-                                dismiss()
+                                // dismissしない → 続けて複数追加可能
                             } label: {
                                 HStack(spacing: 12) {
                                     // GIFサムネイル
@@ -819,7 +826,7 @@ private struct RoutineExercisePickerSheet: View {
                                     VStack(alignment: .leading, spacing: 2) {
                                         Text(exercise.localizedName)
                                             .font(.system(size: 16, weight: .medium))
-                                            .foregroundStyle(Color.mmOnboardingTextMain)
+                                            .foregroundStyle(isAdded ? Color.mmOnboardingTextSub : Color.mmOnboardingTextMain)
                                             .lineLimit(1)
 
                                         Text(exercise.localizedEquipment)
@@ -830,9 +837,13 @@ private struct RoutineExercisePickerSheet: View {
                                     Spacer()
 
                                     if isAdded {
-                                        Text(L10n.routineAlreadyAdded)
-                                            .font(.caption)
-                                            .foregroundStyle(Color.mmOnboardingTextSub)
+                                        HStack(spacing: 4) {
+                                            Image(systemName: "checkmark.circle.fill")
+                                                .font(.system(size: 14))
+                                            Text(isJapanese ? "追加済み" : "Added")
+                                                .font(.caption.bold())
+                                        }
+                                        .foregroundStyle(Color.mmOnboardingAccent.opacity(0.6))
                                     } else {
                                         Image(systemName: "plus.circle.fill")
                                             .font(.system(size: 22))
@@ -845,6 +856,7 @@ private struct RoutineExercisePickerSheet: View {
                             }
                             .buttonStyle(.plain)
                             .disabled(isAdded)
+                            .animation(.easeInOut(duration: 0.2), value: isAdded)
                         }
                     }
                     .padding(.horizontal, 16)
