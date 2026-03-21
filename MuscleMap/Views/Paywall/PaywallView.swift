@@ -203,7 +203,7 @@ struct PaywallView: View {
         .padding(.horizontal, 24)
     }
 
-    // MARK: - マーキーセクション（2行、120x120）
+    // MARK: - マーキーセクション（2行、140x140）
 
     private var marqueeSection: some View {
         VStack(spacing: 6) {
@@ -394,7 +394,7 @@ private struct PaywallMarqueeRow: View {
     let exercises: [ExerciseDefinition]
     let speed: CGFloat       // px/sec
     let reversed: Bool       // trueなら左→右に流れる
-    private let cardSize: CGFloat = 120
+    private let cardSize: CGFloat = 140
 
     @State private var offset: CGFloat = 0
 
@@ -456,16 +456,17 @@ private struct PaywallMarqueeRow: View {
 
             // 種目名（グラデーション付き）
             Text(isJapanese ? exercise.nameJA : exercise.nameEN)
-                .font(.system(size: 10, weight: .bold))
+                .font(.system(size: 12, weight: .bold))
                 .foregroundStyle(.white)
+                .shadow(color: .black.opacity(0.5), radius: 2, y: 1)
                 .lineLimit(1)
                 .padding(.horizontal, 6)
-                .padding(.bottom, 4)
-                .padding(.top, 20)
+                .padding(.bottom, 6)
+                .padding(.top, 24)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .background(
                     LinearGradient(
-                        colors: [.clear, Color.black.opacity(0.7)],
+                        colors: [.clear, Color.black.opacity(0.85)],
                         startPoint: .top,
                         endPoint: .bottom
                     )
