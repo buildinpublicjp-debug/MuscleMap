@@ -139,7 +139,7 @@ struct GoalSelectionPage: View {
                     tappedMuscle = muscle
                 }
             )
-            .frame(height: 260)
+            .frame(height: 200)
             .padding(.horizontal, 16)
             .animation(.easeInOut(duration: 0.3), value: goalValues.map { "\($0.key):\($0.value)" })
 
@@ -197,7 +197,7 @@ struct GoalSelectionPage: View {
 
             // 未選択ヒント
             if !hasAnyGoal {
-                Text(isJapanese ? "スライダーを右にドラッグ" : "Drag sliders to set priorities")
+                Text(isJapanese ? "タップして目標を選択" : "Tap to select your goals")
                     .font(.system(size: 13))
                     .foregroundStyle(Color.mmOnboardingTextSub)
                     .padding(.bottom, 4)
@@ -279,42 +279,70 @@ private struct GoalSliderCard: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            HStack(spacing: 10) {
-                // 左アクセントバー
-                RoundedRectangle(cornerRadius: 2)
-                    .fill(isActive ? Color.mmOnboardingAccent.opacity(0.3 + value * 0.7) : Color.clear)
-                    .frame(width: 3, height: 24)
-
-                // SFシンボル
-                Image(systemName: goal.sfSymbol)
-                    .font(.system(size: 16, weight: .medium))
-                    .foregroundStyle(isActive ? Color.mmOnboardingAccent : Color.mmOnboardingTextSub)
-                    .frame(width: 24)
-
-                // テキスト
-                Text(goal.localizedName)
-                    .font(.system(size: 15, weight: .bold))
-                    .foregroundStyle(Color.mmOnboardingTextMain)
-
-                Spacer()
-
-                // 値インジケータ
-                if isActive {
-                    Text("\(Int(value * 100))%")
-                        .font(.system(size: 12, weight: .heavy))
-                        .foregroundStyle(Color.mmOnboardingAccent)
-                        .monospacedDigit()
+            // カードヘッダー（タップで選択/解除）
+            Button {
+                withAnimation(.easeInOut(duration: 0.25)) {
+                    if isActive {
+                        value = 0
+                    } else {
+                        value = 0.5
+                    }
                 }
-            }
-            .padding(.horizontal, 12)
-            .padding(.top, 10)
+                HapticManager.lightTap()
+            } label: {
+                HStack(spacing: 10) {
+                    // 左アクセントバー
+                    RoundedRectangle(cornerRadius: 2)
+                        .fill(isActive ? Color.mmOnboardingAccent.opacity(0.3 + value * 0.7) : Color.clear)
+                        .frame(width: 3, height: 24)
 
-            // スライダー（カード内部、フル幅）
-            Slider(value: $value, in: 0...1, step: 0.05)
-                .tint(Color.mmOnboardingAccent.opacity(0.3 + value * 0.7))
+                    // SFシンボル
+                    Image(systemName: goal.sfSymbol)
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundStyle(isActive ? Color.mmOnboardingAccent : Color.mmOnboardingTextSub)
+                        .frame(width: 24)
+
+                    // テキスト
+                    Text(goal.localizedName)
+                        .font(.system(size: 15, weight: .bold))
+                        .foregroundStyle(Color.mmOnboardingTextMain)
+
+                    Spacer()
+
+                    // 値インジケータ or チェックマーク
+                    if isActive {
+                        HStack(spacing: 6) {
+                            Text("\(Int(value * 100))%")
+                                .font(.system(size: 12, weight: .heavy))
+                                .foregroundStyle(Color.mmOnboardingAccent)
+                                .monospacedDigit()
+
+                            ZStack {
+                                Circle()
+                                    .fill(Color.mmOnboardingAccent)
+                                    .frame(width: 20, height: 20)
+                                Image(systemName: "checkmark")
+                                    .font(.system(size: 10, weight: .bold))
+                                    .foregroundStyle(Color.mmOnboardingBg)
+                            }
+                        }
+                        .transition(.scale.combined(with: .opacity))
+                    }
+                }
                 .padding(.horizontal, 12)
-                .padding(.bottom, 8)
-                .padding(.top, 2)
+                .padding(.vertical, 10)
+            }
+            .buttonStyle(.plain)
+
+            // スライダー（選択時のみ展開）
+            if isActive {
+                Slider(value: $value, in: 0.1...1.0, step: 0.05)
+                    .tint(Color.mmOnboardingAccent.opacity(0.3 + value * 0.7))
+                    .padding(.horizontal, 12)
+                    .padding(.bottom, 8)
+                    .padding(.top, 2)
+                    .transition(.opacity.combined(with: .scale(scale: 0.95, anchor: .top)))
+            }
         }
         .background(isActive ? Color.mmOnboardingAccent.opacity(0.05 + value * 0.05) : Color.mmOnboardingCard)
         .clipShape(RoundedRectangle(cornerRadius: 12))
@@ -325,6 +353,7 @@ private struct GoalSliderCard: View {
                     lineWidth: 1
                 )
         )
+        .animation(.easeInOut(duration: 0.25), value: isActive)
         .animation(.easeOut(duration: 0.15), value: value)
     }
 }
