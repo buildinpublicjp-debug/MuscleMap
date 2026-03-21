@@ -3,62 +3,112 @@
 <head>
 <meta charset="utf-8">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@500;900&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@500;900&family=Inter:wght@500;700&display=swap');
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   body {
     width: 1284px;
     height: 2778px;
-    background: linear-gradient(180deg, #121212 0%, #1A1A2E 100%);
-    font-family: 'Noto Sans JP', sans-serif;
+    background: linear-gradient(170deg, #0D1117 0%, #121212 30%, #1A1A2E 100%);
+    font-family: 'Noto Sans JP', 'Inter', sans-serif;
     display: flex;
     flex-direction: column;
     align-items: center;
     overflow: hidden;
+    position: relative;
+  }
+
+  /* 背景グロー装飾 */
+  body::before {
+    content: '';
+    position: absolute;
+    top: -200px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 800px;
+    height: 800px;
+    background: radial-gradient(circle, rgba(0, 255, 179, 0.06) 0%, transparent 70%);
+    pointer-events: none;
   }
 
   .copy-area {
-    padding: 120px 80px 40px;
+    padding: 140px 80px 48px;
     text-align: center;
     width: 100%;
+    position: relative;
+    z-index: 1;
   }
 
   .main-copy {
-    font-size: 72px;
+    font-size: 76px;
     font-weight: 900;
     color: #FFFFFF;
-    line-height: 1.3;
+    line-height: 1.25;
     letter-spacing: 2px;
   }
 
   .sub-copy {
-    font-size: 32px;
+    font-size: 34px;
     font-weight: 500;
-    color: rgba(255, 255, 255, 0.6);
-    margin-top: 24px;
+    color: rgba(255, 255, 255, 0.55);
+    margin-top: 20px;
     letter-spacing: 1px;
   }
 
+  .en-copy {
+    font-family: 'Inter', sans-serif;
+    font-size: 26px;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.3);
+    margin-top: 12px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+  }
+
   .accent { color: #00FFB3; }
+
+  .stat-row {
+    display: flex;
+    gap: 32px;
+    justify-content: center;
+    margin-top: 36px;
+  }
+
+  .stat-chip {
+    padding: 10px 28px;
+    background: rgba(0, 255, 179, 0.06);
+    border: 1px solid rgba(0, 255, 179, 0.2);
+    border-radius: 40px;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 24px;
+    font-weight: 500;
+    letter-spacing: 1px;
+  }
+
+  .stat-chip strong {
+    color: #00FFB3;
+    font-weight: 900;
+  }
 
   .screen-area {
     flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0 60px 60px;
+    padding: 0 60px 80px;
     width: 100%;
   }
 
   .device-frame {
-    width: 580px;
+    width: 600px;
     border-radius: 52px;
     overflow: hidden;
-    border: 4px solid rgba(255, 255, 255, 0.1);
+    border: 4px solid rgba(255, 255, 255, 0.08);
     box-shadow:
-      0 40px 100px rgba(0, 255, 179, 0.08),
-      0 0 0 1px rgba(255, 255, 255, 0.05);
+      0 60px 120px rgba(0, 255, 179, 0.1),
+      0 0 0 1px rgba(255, 255, 255, 0.04),
+      0 0 200px rgba(0, 255, 179, 0.04);
     background: #000;
   }
 
@@ -67,7 +117,6 @@
     display: block;
   }
 
-  /* プレースホルダー（スクショ未配置時） */
   .placeholder {
     width: 100%;
     aspect-ratio: 1284 / 2778;
@@ -87,6 +136,12 @@
       鍛えた筋肉が、<span class="accent">光る</span>。
     </div>
     <div class="sub-copy">21部位のリアルタイム回復マップ</div>
+    <div class="en-copy">Real-time muscle recovery map</div>
+    <div class="stat-row">
+      <span class="stat-chip"><strong>21</strong> 筋肉</span>
+      <span class="stat-chip"><strong>92</strong> 種目</span>
+      <span class="stat-chip"><strong>EMG</strong> ベース</span>
+    </div>
   </div>
   <div class="screen-area">
     <div class="device-frame">

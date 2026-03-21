@@ -9,6 +9,13 @@
  *   - Node.js 18+
  *   - npm install puppeteer
  *   - Place simulator screenshots in screenshots/screens/
+ *     - shot1_screen.png       (Recovery Map)
+ *     - shot2_screen.png       (Neglect Warning)
+ *     - shot3_screen.png       (PR Detection)
+ *     - shot4_screen.png       (Routine Builder)
+ *     - shot5_screen.png       (Strength Map)
+ *     - shot6_share_screen.png (Share Card)
+ *     - shot6_watch_screen.png (Apple Watch)
  *
  * Output: screenshots/output/*.png (1284x2778px)
  */
@@ -34,7 +41,7 @@ const shots = [
   }
 
   const browser = await puppeteer.launch({
-    headless: 'new',
+    headless: true,
     args: ['--no-sandbox', '--disable-setuid-sandbox'],
   });
 
@@ -55,9 +62,9 @@ const shots = [
 
     await page.goto(`file://${htmlPath}`, { waitUntil: 'networkidle0' });
 
-    // Google Fonts 読み込み待機
+    // Google Fonts + Inter 読み込み待機
     await page.evaluateHandle('document.fonts.ready');
-    await new Promise((r) => setTimeout(r, 1500));
+    await new Promise((r) => setTimeout(r, 2000));
 
     const outputPath = path.resolve(outputDir, `${shot}.png`);
     await page.screenshot({
@@ -71,5 +78,5 @@ const shots = [
   }
 
   await browser.close();
-  console.log('\n🎉 All screenshots captured!');
+  console.log('\n🎉 All 6 screenshots captured!');
 })();

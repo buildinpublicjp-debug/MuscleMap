@@ -3,56 +3,83 @@
 <head>
 <meta charset="utf-8">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@500;900&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@500;900&family=Inter:wght@500;700;900&display=swap');
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   body {
     width: 1284px;
     height: 2778px;
-    background: linear-gradient(180deg, #121212 0%, #1A1A2E 100%);
-    font-family: 'Noto Sans JP', sans-serif;
+    background: linear-gradient(170deg, #0D1117 0%, #121212 30%, #1A1A2E 100%);
+    font-family: 'Noto Sans JP', 'Inter', sans-serif;
     display: flex;
     flex-direction: column;
     align-items: center;
     overflow: hidden;
+    position: relative;
+  }
+
+  /* 背景グロー — ゴールド寄り */
+  body::before {
+    content: '';
+    position: absolute;
+    top: -200px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 800px;
+    height: 800px;
+    background: radial-gradient(circle, rgba(255, 215, 0, 0.05) 0%, transparent 70%);
+    pointer-events: none;
   }
 
   .copy-area {
-    padding: 120px 80px 40px;
+    padding: 140px 80px 48px;
     text-align: center;
     width: 100%;
+    position: relative;
+    z-index: 1;
   }
 
   .main-copy {
-    font-size: 72px;
+    font-size: 76px;
     font-weight: 900;
     color: #FFFFFF;
-    line-height: 1.3;
+    line-height: 1.25;
     letter-spacing: 2px;
   }
 
   .sub-copy {
-    font-size: 32px;
+    font-size: 34px;
     font-weight: 500;
-    color: rgba(255, 255, 255, 0.6);
-    margin-top: 24px;
+    color: rgba(255, 255, 255, 0.55);
+    margin-top: 20px;
     letter-spacing: 1px;
   }
 
-  .accent { color: #00FFB3; }
+  .en-copy {
+    font-family: 'Inter', sans-serif;
+    font-size: 26px;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.3);
+    margin-top: 12px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+  }
+
+  .accent { color: #FFD700; }
 
   .pr-badge {
     display: inline-block;
     margin-top: 32px;
-    padding: 12px 32px;
-    background: rgba(255, 215, 0, 0.12);
-    border: 1px solid rgba(255, 215, 0, 0.4);
+    padding: 14px 48px;
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.15) 0%, rgba(255, 215, 0, 0.08) 100%);
+    border: 1.5px solid rgba(255, 215, 0, 0.45);
     border-radius: 40px;
     color: #FFD700;
-    font-size: 28px;
+    font-family: 'Inter', sans-serif;
+    font-size: 32px;
     font-weight: 900;
-    letter-spacing: 2px;
+    letter-spacing: 4px;
   }
 
   .screen-area {
@@ -60,18 +87,19 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0 60px 60px;
+    padding: 0 60px 80px;
     width: 100%;
   }
 
   .device-frame {
-    width: 580px;
+    width: 600px;
     border-radius: 52px;
     overflow: hidden;
-    border: 4px solid rgba(255, 255, 255, 0.1);
+    border: 4px solid rgba(255, 255, 255, 0.08);
     box-shadow:
-      0 40px 100px rgba(255, 215, 0, 0.06),
-      0 0 0 1px rgba(255, 255, 255, 0.05);
+      0 60px 120px rgba(255, 215, 0, 0.08),
+      0 0 0 1px rgba(255, 255, 255, 0.04),
+      0 0 200px rgba(255, 215, 0, 0.03);
     background: #000;
   }
 
@@ -99,6 +127,7 @@
       自己ベスト、<span class="accent">自動で</span>検出。
     </div>
     <div class="sub-copy">PR更新をリアルタイムで祝福</div>
+    <div class="en-copy">Auto PR detection &amp; celebration</div>
     <div class="pr-badge">NEW PR!</div>
   </div>
   <div class="screen-area">
