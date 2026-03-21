@@ -98,7 +98,7 @@ struct PRInputPage: View {
                         HapticManager.lightTap()
                     }
                 )
-                .frame(height: 300)
+                .frame(height: 340)
 
                 // 未入力時のタップガイド（マップ中央下部）
                 if recordedPRs.isEmpty {
@@ -125,58 +125,58 @@ struct PRInputPage: View {
 
             Spacer().frame(height: 4)
 
-            // BIG3 GIFグリッド（2カラム）
-            let gridColumns = [
-                GridItem(.flexible(), spacing: 8),
-                GridItem(.flexible(), spacing: 8),
-            ]
-            LazyVGrid(columns: gridColumns, spacing: 8) {
-                ForEach(defaultExercises, id: \.id) { exercise in
-                    PRExerciseGridCard(
-                        exercise: exercise,
-                        recordedWeight: recordedPRs[exercise.id]
-                    ) {
-                        selectedExercise = exercise
-                        HapticManager.lightTap()
-                    }
-                }
-            }
-            .padding(.horizontal, 24)
-            .opacity(appeared ? 1 : 0)
-
-            Spacer().frame(height: 4)
-
-            // 入力済みPRチップ（横スクロール）
-            if !recordedPRs.isEmpty {
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 6) {
-                        Text(isJapanese ? "登録済み" : "Recorded")
-                            .font(.caption2)
-                            .foregroundStyle(Color.mmOnboardingTextSub)
-
-                        ForEach(recordedPRs.sorted(by: { $0.key < $1.key }), id: \.key) { exerciseId, weight in
-                            let name = ExerciseStore.shared.exerciseName(for: exerciseId) ?? exerciseId
-                            HStack(spacing: 4) {
-                                Circle()
-                                    .fill(Color.mmOnboardingAccent)
-                                    .frame(width: 6, height: 6)
-                                Text("\(name) \(Int(weight))kg")
-                                    .font(.caption2.bold())
-                                    .foregroundStyle(Color.mmOnboardingTextMain)
-                                    .lineLimit(1)
+            // 種目GIFカード（横スクロール）
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    if recordedPRs.isEmpty {
+                        // 未入力時: BIG3をGIFカードで表示
+                        ForEach(defaultExercises, id: \.id) { exercise in
+                            PRCompactGifCard(
+                                exercise: exercise,
+                                recordedWeight: nil
+                            ) {
+                                selectedExercise = exercise
+                                HapticManager.lightTap()
                             }
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 4)
-                            .background(Color.mmOnboardingCard)
-                            .clipShape(Capsule())
                         }
+                    } else {
+                        // 入力済み全種目をGIFカードで表示
+                        ForEach(recordedPRs.sorted(by: { $0.key < $1.key }), id: \.key) { exerciseId, weight in
+                            if let def = ExerciseStore.shared.exercise(for: exerciseId) {
+                                PRCompactGifCard(
+                                    exercise: def,
+                                    recordedWeight: weight
+                                ) {
+                                    selectedExercise = def
+                                    HapticManager.lightTap()
+                                }
+                            }
+                        }
+
+                        // 「+追加」ボタン
+                        Button {
+                            // 胸をデフォルトで開く（最も一般的な追加先）
+                            tappedMuscle = .chestUpper
+                            HapticManager.lightTap()
+                        } label: {
+                            VStack(spacing: 4) {
+                                Image(systemName: "plus.circle")
+                                    .font(.system(size: 24))
+                                Text(isJapanese ? "追加" : "Add")
+                                    .font(.system(size: 11, weight: .bold))
+                            }
+                            .foregroundStyle(Color.mmOnboardingTextSub)
+                            .frame(width: 100, height: 100)
+                            .background(Color.mmOnboardingCard)
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                        }
+                        .buttonStyle(.plain)
                     }
-                    .padding(.horizontal, 24)
                 }
-                .frame(height: 28)
-                .transition(.opacity)
-                .animation(.easeOut(duration: 0.3), value: recordedPRs.count)
+                .padding(.horizontal, 24)
             }
+            .opacity(appeared ? 1 : 0)
+            .animation(.easeOut(duration: 0.3), value: recordedPRs.count)
 
             // 強さレベルプレビュー or 動機付けテキスト
             if recordedPRs.isEmpty {
@@ -192,7 +192,7 @@ struct PRInputPage: View {
                         .multilineTextAlignment(.center)
                 }
                 .padding(.horizontal, 32)
-                .padding(.vertical, 16)
+                .padding(.vertical, 8)
                 .opacity(appeared ? 1 : 0)
             } else if let level = overallLevel {
                 VStack(spacing: 8) {
@@ -228,7 +228,7 @@ struct PRInputPage: View {
                         .font(.system(size: 11))
                         .foregroundStyle(Color.mmOnboardingTextSub)
                 }
-                .padding(16)
+                .padding(10)
                 .background(Color.mmOnboardingCard)
                 .clipShape(RoundedRectangle(cornerRadius: 16))
                 .padding(.horizontal, 24)
@@ -237,7 +237,7 @@ struct PRInputPage: View {
                 .opacity(appeared ? 1 : 0)
             }
 
-            Spacer(minLength: 8)
+            Spacer(minLength: 2)
 
             // 次へ + スキップ
             VStack(spacing: 8) {
@@ -612,6 +612,61 @@ private struct WeightInputSheet: View {
     private func stopHoldTimer() {
         holdTimer?.invalidate()
         holdTimer = nil
+    }
+}
+
+// MARK: - 種目GIFコンパクトカード（100x100横スクロール用）
+
+private struct PRCompactGifCard: View {
+    let exercise: ExerciseDefinition
+    let recordedWeight: Double?
+    let onTap: () -> Void
+
+    var body: some View {
+        Button(action: onTap) {
+            ZStack(alignment: .bottom) {
+                if ExerciseGifView.hasGif(exerciseId: exercise.id) {
+                    ExerciseGifView(exerciseId: exercise.id, size: .card)
+                        .scaledToFill()
+                } else {
+                    Color.mmOnboardingCard
+                        .overlay(
+                            Image(systemName: "dumbbell")
+                                .font(.title3)
+                                .foregroundStyle(Color.mmOnboardingTextSub)
+                        )
+                }
+
+                // グラデーション + 種目名 + kg
+                VStack(alignment: .leading, spacing: 1) {
+                    Text(exercise.localizedName)
+                        .font(.system(size: 10, weight: .bold))
+                        .foregroundStyle(.white)
+                        .lineLimit(1)
+                    if let weight = recordedWeight {
+                        Text("\(Int(weight))kg")
+                            .font(.system(size: 12, weight: .heavy))
+                            .foregroundStyle(Color.mmOnboardingAccent)
+                    } else {
+                        Text(exercise.localizedEquipment)
+                            .font(.system(size: 9))
+                            .foregroundStyle(.white.opacity(0.7))
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(6)
+                .background(
+                    LinearGradient(
+                        colors: [Color.clear, Color.black.opacity(0.75)],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
+            }
+            .frame(width: 100, height: 100)
+            .clipShape(RoundedRectangle(cornerRadius: 10))
+        }
+        .buttonStyle(.plain)
     }
 }
 
