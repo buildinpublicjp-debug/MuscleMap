@@ -20,6 +20,8 @@ struct UserProfile: Codable {
     var goalPriorityMuscles: [String]
     /// 目標ごとのスライダー重み（goalId: 0.0〜1.0）
     var goalWeights: [String: Double]
+    /// 体脂肪率（%）。nil = 未入力
+    var bodyFatPercentage: Double?
 
     static let `default` = UserProfile(
         nickname: "",
@@ -47,6 +49,7 @@ struct UserProfile: Codable {
         trainingLocation = try container.decodeIfPresent(String.self, forKey: .trainingLocation) ?? "gym"
         goalPriorityMuscles = try container.decodeIfPresent([String].self, forKey: .goalPriorityMuscles) ?? []
         goalWeights = try container.decodeIfPresent([String: Double].self, forKey: .goalWeights) ?? [:]
+        bodyFatPercentage = try container.decodeIfPresent(Double.self, forKey: .bodyFatPercentage)
     }
 
     init(
@@ -58,7 +61,8 @@ struct UserProfile: Codable {
         weeklyFrequency: Int = 3,
         trainingLocation: String = "gym",
         goalPriorityMuscles: [String] = [],
-        goalWeights: [String: Double] = [:]
+        goalWeights: [String: Double] = [:],
+        bodyFatPercentage: Double? = nil
     ) {
         self.nickname = nickname
         self.heightCm = heightCm
@@ -69,6 +73,7 @@ struct UserProfile: Codable {
         self.trainingLocation = trainingLocation
         self.goalPriorityMuscles = goalPriorityMuscles
         self.goalWeights = goalWeights
+        self.bodyFatPercentage = bodyFatPercentage
     }
 }
 

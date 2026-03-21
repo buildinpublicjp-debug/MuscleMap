@@ -12,6 +12,8 @@ struct ProfileInputPage: View {
     @State private var weightKg: Int = Int(AppState.shared.userProfile.weightKg)
     @State private var nickname: String = AppState.shared.userProfile.nickname
     @State private var selectedUnit: WeightUnit = AppState.shared.weightUnit
+    @State private var bodyFatEnabled = AppState.shared.userProfile.bodyFatPercentage != nil
+    @State private var bodyFatPct: Int = Int(AppState.shared.userProfile.bodyFatPercentage ?? 18)
     @State private var isProceeding = false
     @State private var appeared = false
 
@@ -110,8 +112,11 @@ struct ProfileInputPage: View {
                     // セクション3: 体重ステッパー
                     weightStepperSection
 
-                    // BMI表示
-                    bmiSection
+                    // セクション3.5: 体脂肪率（任意）
+                    bodyFatSection
+
+                    // 体組成表示
+                    bodyCompositionSection
 
                     // セクション4: ニックネーム
                     nicknameSection
@@ -137,6 +142,8 @@ struct ProfileInputPage: View {
             }
             heightCm = max(140, min(220, Int(profile.heightCm)))
             weightKg = max(30, Int(profile.weightKg))
+            bodyFatEnabled = profile.bodyFatPercentage != nil
+            bodyFatPct = Int(profile.bodyFatPercentage ?? 18)
             nickname = profile.nickname
 
             withAnimation(.easeOut(duration: 0.5).delay(0.2)) {
@@ -394,45 +401,145 @@ struct ProfileInputPage: View {
         }
     }
 
-    // MARK: - BMI表示セクション
+    // MARK: - 体脂肪率セクション（任意）
 
-    /// BMI値を計算
+    private var bodyFatSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 6) {
+                Text(isJapanese ? "体脂肪率" : "Body Fat")
+                    .font(.system(size: 15, weight: .bold))
+                    .foregroundStyle(Color.mmOnboardingTextMain)
+
+                Text(L10n.profileOptional)
+                    .font(.system(size: 12))
+                    .foregroundStyle(Color.mmOnboardingTextSub)
+
+                Spacer()
+
+                // ON/OFFトグル
+                Toggle("", isOn: $bodyFatEnabled)
+                    .labelsHidden()
+                    .tint(Color.mmOnboardingAccent)
+                    .onChange(of: bodyFatEnabled) { _, enabled in
+                        if enabled {
+                            AppState.shared.userProfile.bodyFatPercentage = Double(bodyFatPct)
+                        } else {
+                            AppState.shared.userProfile.bodyFatPercentage = nil
+                        }
+                    }
+            }
+
+            if bodyFatEnabled {
+                // ステッパー本体
+                HStack {
+                    Button {
+                        guard bodyFatPct > 5 else { return }
+                        bodyFatPct -= 1
+                        AppState.shared.userProfile.bodyFatPercentage = Double(bodyFatPct)
+                        HapticManager.lightTap()
+                    } label: {
+                        Image(systemName: "minus")
+                            .font(.system(size: 18, weight: .bold))
+                            .foregroundStyle(Color.mmOnboardingAccent)
+                            .frame(width: 48, height: 48)
+                            .background(Color.mmOnboardingAccent.opacity(0.1))
+                            .clipShape(Circle())
+                    }
+                    .buttonStyle(.plain)
+
+                    Spacer()
+
+                    HStack(alignment: .firstTextBaseline, spacing: 4) {
+                        Text("\(bodyFatPct)")
+                            .font(.system(size: 42, weight: .heavy))
+                            .foregroundStyle(Color.mmOnboardingTextMain)
+                            .contentTransition(.numericText())
+                            .animation(.snappy(duration: 0.2), value: bodyFatPct)
+
+                        Text("%")
+                            .font(.system(size: 18, weight: .bold))
+                            .foregroundStyle(Color.mmOnboardingTextSub)
+                    }
+
+                    Spacer()
+
+                    Button {
+                        guard bodyFatPct < 50 else { return }
+                        bodyFatPct += 1
+                        AppState.shared.userProfile.bodyFatPercentage = Double(bodyFatPct)
+                        HapticManager.lightTap()
+                    } label: {
+                        Image(systemName: "plus")
+                            .font(.system(size: 18, weight: .bold))
+                            .foregroundStyle(Color.mmOnboardingAccent)
+                            .frame(width: 48, height: 48)
+                            .background(Color.mmOnboardingAccent.opacity(0.1))
+                            .clipShape(Circle())
+                    }
+                    .buttonStyle(.plain)
+                }
+                .padding(.vertical, 8)
+                .padding(.horizontal, 16)
+                .background(Color.mmOnboardingCard)
+                .clipShape(RoundedRectangle(cornerRadius: 16))
+            }
+        }
+    }
+
+    // MARK: - 体組成表示セクション
+
+    /// BMI値
     private var bmiValue: Double {
         let h = Double(heightCm) / 100.0
         guard h > 0 else { return 0 }
         return Double(weightKg) / (h * h)
     }
 
-    /// BMIカテゴリ（30以上は非表示）
-    private var bmiCategory: String? {
-        let bmi = bmiValue
-        if bmi < 18.5 {
-            return isJapanese ? "やせ型" : "Underweight"
-        } else if bmi < 25.0 {
-            return isJapanese ? "標準" : "Normal"
-        } else if bmi < 30.0 {
-            return isJapanese ? "やや肥満" : "Overweight"
+    /// 体脂肪率ベースの評価ラベル
+    private var bodyFatCategory: String {
+        let pct = Double(bodyFatPct)
+        // 男性基準（一般的なトレーニーの場合）
+        if pct < 10 {
+            return isJapanese ? "アスリート" : "Athlete"
+        } else if pct < 15 {
+            return isJapanese ? "フィットネス" : "Fitness"
+        } else if pct < 20 {
+            return isJapanese ? "標準" : "Average"
+        } else if pct < 25 {
+            return isJapanese ? "やや高め" : "Above Average"
+        } else {
+            return isJapanese ? "高め" : "High"
         }
-        return nil // 30以上は非表示
     }
 
-    private var bmiSection: some View {
-        Group {
-            if let category = bmiCategory {
-                HStack(spacing: 6) {
-                    Text("BMI")
+    private var bodyCompositionSection: some View {
+        HStack(spacing: 12) {
+            // BMI数値のみ（ラベルなし）
+            HStack(spacing: 4) {
+                Text("BMI")
+                    .font(.caption)
+                    .foregroundStyle(Color.mmOnboardingTextSub)
+                Text(String(format: "%.1f", bmiValue))
+                    .font(.caption.bold())
+                    .foregroundStyle(Color.mmOnboardingTextMain)
+            }
+
+            // 体脂肪率入力時はカテゴリ表示
+            if bodyFatEnabled {
+                HStack(spacing: 4) {
+                    Text(isJapanese ? "体脂肪率" : "BF%")
                         .font(.caption)
                         .foregroundStyle(Color.mmOnboardingTextSub)
-                    Text(String(format: "%.1f", bmiValue))
+                    Text("\(bodyFatPct)%")
                         .font(.caption.bold())
-                        .foregroundStyle(Color.mmOnboardingTextMain)
-                    Text("(\(category))")
+                        .foregroundStyle(Color.mmOnboardingAccent)
+                    Text("(\(bodyFatCategory))")
                         .font(.caption)
                         .foregroundStyle(Color.mmOnboardingTextSub)
                 }
-                .frame(maxWidth: .infinity, alignment: .center)
             }
         }
+        .frame(maxWidth: .infinity, alignment: .center)
     }
 
     // MARK: - ニックネームセクション
@@ -469,6 +576,7 @@ struct ProfileInputPage: View {
             isProceeding = true
             AppState.shared.userProfile.heightCm = Double(heightCm)
             AppState.shared.userProfile.weightKg = Double(weightKg)
+            AppState.shared.userProfile.bodyFatPercentage = bodyFatEnabled ? Double(bodyFatPct) : nil
             AppState.shared.userProfile.nickname = nickname
             HapticManager.lightTap()
             onNext()
