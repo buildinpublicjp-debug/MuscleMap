@@ -86,7 +86,7 @@ struct LocationSelectionPage: View {
         case .gym, .both, .none:
             exercises = store.exercises.filter { !Self.gymExcludeIds.contains($0.id) }
         }
-        return Array(exercises.prefix(12))
+        return Array(exercises.prefix(15))
     }
 
     private var totalFilteredCount: Int {
@@ -144,23 +144,55 @@ struct LocationSelectionPage: View {
             }
             .opacity(appeared ? 1 : 0)
 
-            Spacer().frame(height: 4)
+            Spacer().frame(height: 6)
 
-            // GIFギャラリー（1行マーキー — GeometryReaderで幅制約）
-            GeometryReader { geo in
-                SingleRowMarqueeContent(
-                    exercises: filteredExercises,
-                    cardSize: cardSize,
-                    speed: 30,
-                    containerWidth: geo.size.width,
-                    onTap: { exercise in
-                        selectedExercise = exercise
-                        HapticManager.lightTap()
+            // GIFギャラリー（横スクロール — レイアウト幅制約を確実にするためScrollViewを使用）
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    ForEach(filteredExercises, id: \.id) { exercise in
+                        Button {
+                            selectedExercise = exercise
+                            HapticManager.lightTap()
+                        } label: {
+                            ZStack(alignment: .bottom) {
+                                if ExerciseGifView.hasGif(exerciseId: exercise.id) {
+                                    ExerciseGifView(exerciseId: exercise.id, size: .card)
+                                        .frame(width: cardSize, height: cardSize)
+                                } else {
+                                    ZStack {
+                                        Color.mmOnboardingBg
+                                        Image(systemName: "dumbbell.fill")
+                                            .font(.system(size: 24))
+                                            .foregroundStyle(Color.mmOnboardingTextSub.opacity(0.4))
+                                    }
+                                    .frame(width: cardSize, height: cardSize)
+                                }
+
+                                LinearGradient(
+                                    colors: [.clear, .black.opacity(0.85)],
+                                    startPoint: .top,
+                                    endPoint: .bottom
+                                )
+                                .frame(height: cardSize * 0.4)
+
+                                Text(exercise.localizedName)
+                                    .font(.system(size: 12, weight: .bold))
+                                    .foregroundStyle(.white)
+                                    .lineLimit(1)
+                                    .truncationMode(.tail)
+                                    .padding(.horizontal, 6)
+                                    .padding(.bottom, 6)
+                                    .shadow(color: .black.opacity(0.5), radius: 2, y: 1)
+                            }
+                            .frame(width: cardSize, height: cardSize)
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                        }
+                        .buttonStyle(.plain)
                     }
-                )
+                }
+                .padding(.horizontal, 16)
             }
-            .frame(height: cardSize)
-            .clipped()
+            .frame(height: cardSize + 4)
             .opacity(appeared ? 1 : 0)
 
             Spacer().frame(height: 12)
@@ -234,91 +266,6 @@ struct LocationSelectionPage: View {
             .presentationDetents([.large])
             .presentationDragIndicator(.visible)
         }
-    }
-}
-
-// MARK: - マーキーコンテンツ（GeometryReader内で使用、幅制約済み）
-
-private struct SingleRowMarqueeContent: View {
-    let exercises: [ExerciseDefinition]
-    let cardSize: CGFloat
-    let speed: Double
-    let containerWidth: CGFloat
-    let onTap: (ExerciseDefinition) -> Void
-
-    private let spacing: CGFloat = 8
-
-    private var setWidth: CGFloat {
-        let count = max(exercises.count, 1)
-        return CGFloat(count) * (cardSize + spacing)
-    }
-
-    var body: some View {
-        TimelineView(.animation) { timeline in
-            let elapsed = timeline.date.timeIntervalSinceReferenceDate
-            let totalWidth = setWidth
-            let offset: CGFloat = totalWidth > 0
-                ? -CGFloat(elapsed.truncatingRemainder(dividingBy: Double(totalWidth) / speed) * speed)
-                : 0
-
-            HStack(spacing: spacing) {
-                ForEach(0..<3, id: \.self) { _ in
-                    ForEach(exercises, id: \.id) { exercise in
-                        ExerciseGifCard(exercise: exercise, cardSize: cardSize) {
-                            onTap(exercise)
-                        }
-                    }
-                }
-            }
-            .offset(x: offset)
-        }
-        .frame(width: containerWidth, alignment: .leading)
-    }
-}
-
-// MARK: - GIFカード
-
-private struct ExerciseGifCard: View {
-    let exercise: ExerciseDefinition
-    let cardSize: CGFloat
-    let onTap: () -> Void
-
-    var body: some View {
-        Button(action: onTap) {
-            ZStack(alignment: .bottom) {
-                if ExerciseGifView.hasGif(exerciseId: exercise.id) {
-                    ExerciseGifView(exerciseId: exercise.id, size: .card)
-                        .frame(width: cardSize, height: cardSize)
-                } else {
-                    ZStack {
-                        Color.mmOnboardingBg
-                        Image(systemName: "dumbbell.fill")
-                            .font(.system(size: 24))
-                            .foregroundStyle(Color.mmOnboardingTextSub.opacity(0.4))
-                    }
-                    .frame(width: cardSize, height: cardSize)
-                }
-
-                LinearGradient(
-                    colors: [.clear, .black.opacity(0.85)],
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-                .frame(height: cardSize * 0.4)
-
-                Text(exercise.localizedName)
-                    .font(.system(size: 12, weight: .bold))
-                    .foregroundStyle(.white)
-                    .lineLimit(1)
-                    .truncationMode(.tail)
-                    .padding(.horizontal, 6)
-                    .padding(.bottom, 6)
-                    .shadow(color: .black.opacity(0.5), radius: 2, y: 1)
-            }
-            .frame(width: cardSize, height: cardSize)
-            .clipShape(RoundedRectangle(cornerRadius: 12))
-        }
-        .buttonStyle(.plain)
     }
 }
 
