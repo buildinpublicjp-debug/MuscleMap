@@ -40,7 +40,6 @@ enum TrainingLocation: String, CaseIterable, Codable {
         }
     }
 
-    /// 場所に応じた代表的な器具フィルタ
     var equipmentFilter: [String] {
         switch self {
         case .gym: return isJapanese ? ["バーベル", "マシン", "ダンベル", "ケーブル"] : ["Barbell", "Machine", "Dumbbell", "Cable"]
@@ -51,7 +50,7 @@ enum TrainingLocation: String, CaseIterable, Codable {
     }
 }
 
-// MARK: - 場所選択画面（GIFギャラリー + 種目数バッジ付き）
+// MARK: - 場所選択画面
 
 struct LocationSelectionPage: View {
     let onNext: (TrainingLocation) -> Void
@@ -61,17 +60,11 @@ struct LocationSelectionPage: View {
     @State private var isProceeding = false
     @State private var selectedExercise: ExerciseDefinition?
 
-    /// 器具が必要な「自重」種目を除外するID判定
     private static let bodyweightExcludeIds: Set<String> = [
         "dips", "chin_up", "pull_up", "muscle_up", "tricep_dip"
     ]
+    private static let gymExcludeIds: Set<String> = ["burpee"]
 
-    /// ジムの種目リストから除外するID
-    private static let gymExcludeIds: Set<String> = [
-        "burpee"
-    ]
-
-    /// GIFカードサイズ
     private let cardSize: CGFloat = 140
 
     private func isTrueBodyweight(_ exercise: ExerciseDefinition) -> Bool {
@@ -79,11 +72,9 @@ struct LocationSelectionPage: View {
         return !Self.bodyweightExcludeIds.contains(where: { id.contains($0) })
     }
 
-    /// 選択した場所で使える種目（最大12件 — 1行マーキー用）
     private var filteredExercises: [ExerciseDefinition] {
         let store = ExerciseStore.shared
         store.loadIfNeeded()
-
         let exercises: [ExerciseDefinition]
         switch selected {
         case .bodyweight:
@@ -98,11 +89,9 @@ struct LocationSelectionPage: View {
         return Array(exercises.prefix(12))
     }
 
-    /// フィルタ後の全種目数（バッジ表示用）
     private var totalFilteredCount: Int {
         let store = ExerciseStore.shared
         store.loadIfNeeded()
-
         switch selected {
         case .bodyweight:
             let bwEquipment: Set<String> = ["自重", "Bodyweight"]
@@ -157,19 +146,21 @@ struct LocationSelectionPage: View {
 
             Spacer().frame(height: 4)
 
-            // GIFギャラリー（1行マーキー）
-            SingleRowMarqueeGallery(
-                exercises: filteredExercises,
-                cardSize: cardSize,
-                speed: 30,
-                onTap: { exercise in
-                    selectedExercise = exercise
-                    HapticManager.lightTap()
-                }
-            )
+            // GIFギャラリー（1行マーキー — GeometryReaderで幅制約）
+            GeometryReader { geo in
+                SingleRowMarqueeContent(
+                    exercises: filteredExercises,
+                    cardSize: cardSize,
+                    speed: 30,
+                    containerWidth: geo.size.width,
+                    onTap: { exercise in
+                        selectedExercise = exercise
+                        HapticManager.lightTap()
+                    }
+                )
+            }
             .frame(height: cardSize)
             .clipped()
-            .contentShape(Rectangle())
             .opacity(appeared ? 1 : 0)
 
             Spacer().frame(height: 12)
@@ -244,15 +235,15 @@ struct LocationSelectionPage: View {
             .presentationDragIndicator(.visible)
         }
     }
-
 }
 
-// MARK: - 1行マーキーギャラリー
+// MARK: - マーキーコンテンツ（GeometryReader内で使用、幅制約済み）
 
-private struct SingleRowMarqueeGallery: View {
+private struct SingleRowMarqueeContent: View {
     let exercises: [ExerciseDefinition]
     let cardSize: CGFloat
     let speed: Double
+    let containerWidth: CGFloat
     let onTap: (ExerciseDefinition) -> Void
 
     private let spacing: CGFloat = 8
@@ -281,10 +272,11 @@ private struct SingleRowMarqueeGallery: View {
             }
             .offset(x: offset)
         }
+        .frame(width: containerWidth, alignment: .leading)
     }
 }
 
-// MARK: - GIFカード（ギャラリー用、名前オーバーレイ付き）
+// MARK: - GIFカード
 
 private struct ExerciseGifCard: View {
     let exercise: ExerciseDefinition
@@ -307,7 +299,6 @@ private struct ExerciseGifCard: View {
                     .frame(width: cardSize, height: cardSize)
                 }
 
-                // 名前オーバーレイ（下部グラデーション上）
                 LinearGradient(
                     colors: [.clear, .black.opacity(0.85)],
                     startPoint: .top,
@@ -331,7 +322,7 @@ private struct ExerciseGifCard: View {
     }
 }
 
-// MARK: - 場所カード（左バー方式）
+// MARK: - 場所カード
 
 private struct LocationCard: View {
     let location: TrainingLocation
@@ -341,33 +332,28 @@ private struct LocationCard: View {
     var body: some View {
         Button(action: onTap) {
             HStack(spacing: 0) {
-                // 左アクセントバー
                 RoundedRectangle(cornerRadius: 2)
                     .fill(isSelected ? Color.mmOnboardingAccent : Color.clear)
                     .frame(width: 3)
                     .padding(.vertical, 6)
 
                 HStack(spacing: 10) {
-                    // SFシンボルアイコン
                     Image(systemName: location.sfSymbol)
                         .font(.system(size: 16, weight: .medium))
                         .foregroundStyle(isSelected ? Color.mmOnboardingAccent : Color.mmOnboardingTextSub)
                         .frame(width: 24, height: 24)
 
-                    // テキスト（1行）
                     Text(location.title)
                         .font(.system(size: 15, weight: .bold))
                         .foregroundStyle(Color.mmOnboardingTextMain)
 
                     Spacer()
 
-                    // チェックマーク
                     if isSelected {
                         ZStack {
                             Circle()
                                 .fill(Color.mmOnboardingAccent)
                                 .frame(width: 20, height: 20)
-
                             Image(systemName: "checkmark")
                                 .font(.system(size: 10, weight: .bold))
                                 .foregroundStyle(Color.mmOnboardingBg)
