@@ -28,7 +28,6 @@ struct PRInputPage: View {
     /// 入力済みPRに対応する筋肉のハイライト
     private var muscleStates: [Muscle: MuscleVisualState] {
         var states: [Muscle: MuscleVisualState] = [:]
-        // 入力済み種目がターゲットにする筋肉をグリーンに
         var highlightedMuscles: Set<Muscle> = []
         let store = ExerciseStore.shared
         for exerciseId in recordedPRs.keys {
@@ -71,7 +70,7 @@ struct PRInputPage: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            Spacer().frame(height: 16)
+            Spacer().frame(height: 12)
 
             // ヘッダー
             VStack(spacing: 4) {
@@ -87,7 +86,7 @@ struct PRInputPage: View {
             .opacity(appeared ? 1 : 0)
             .offset(y: appeared ? 0 : 12)
 
-            Spacer().frame(height: 8)
+            Spacer().frame(height: 6)
 
             // 筋肉マップ（タップ可能 + 未入力時タップガイド）
             ZStack {
@@ -98,7 +97,7 @@ struct PRInputPage: View {
                         HapticManager.lightTap()
                     }
                 )
-                .frame(height: 120)
+                .frame(height: 200)
 
                 // 未入力時のタップガイド（マップ中央下部）
                 if recordedPRs.isEmpty {
@@ -123,13 +122,12 @@ struct PRInputPage: View {
             .animation(.spring(response: 0.4, dampingFraction: 0.8), value: recordedPRs.count)
             .opacity(appeared ? 1 : 0)
 
-            Spacer().frame(height: 8)
+            Spacer().frame(height: 6)
 
             // 種目GIFカード（横スクロール）
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 8) {
                     if recordedPRs.isEmpty {
-                        // 未入力時: BIG3をGIFカードで表示
                         ForEach(defaultExercises, id: \.id) { exercise in
                             PRCompactGifCard(
                                 exercise: exercise,
@@ -140,7 +138,6 @@ struct PRInputPage: View {
                             }
                         }
                     } else {
-                        // 入力済み全種目をGIFカードで表示
                         ForEach(recordedPRs.sorted(by: { $0.key < $1.key }), id: \.key) { exerciseId, weight in
                             if let def = ExerciseStore.shared.exercise(for: exerciseId) {
                                 PRCompactGifCard(
@@ -153,9 +150,7 @@ struct PRInputPage: View {
                             }
                         }
 
-                        // 「+追加」ボタン
                         Button {
-                            // 胸をデフォルトで開く（最も一般的な追加先）
                             tappedMuscle = .chestUpper
                             HapticManager.lightTap()
                         } label: {
@@ -236,7 +231,7 @@ struct PRInputPage: View {
                 .opacity(appeared ? 1 : 0)
             }
 
-            Spacer().frame(height: 12)
+            Spacer(minLength: 8)
 
             // 次へ + スキップ
             VStack(spacing: 8) {
@@ -280,20 +275,18 @@ struct PRInputPage: View {
             .opacity(appeared ? 1 : 0)
         }
         .onAppear {
-            isProceeding = false  // スワイプ戻り時にボタンを有効化
+            isProceeding = false
             ExerciseStore.shared.loadIfNeeded()
             withAnimation(.easeOut(duration: 0.5).delay(0.2)) {
                 appeared = true
             }
         }
-        // 筋肉タップ → 種目選択シート
         .sheet(item: $tappedMuscle) { muscle in
             MuscleExerciseSheet(
                 muscle: muscle,
                 recordedPRs: recordedPRs,
                 onSelectExercise: { exercise in
                     tappedMuscle = nil
-                    // 少し遅延して次のシートを表示
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                         selectedExercise = exercise
                     }
@@ -302,7 +295,6 @@ struct PRInputPage: View {
             .presentationDetents([.large])
             .presentationDragIndicator(.visible)
         }
-        // 種目選択 → 重量入力シート
         .sheet(item: $selectedExercise) { exercise in
             WeightInputSheet(
                 exercise: exercise,
@@ -320,7 +312,6 @@ struct PRInputPage: View {
         }
     }
 
-    /// PR入力値をUserProfileに保存
     private func savePRs() {
         AppState.shared.userProfile.initialPRs = recordedPRs
     }
@@ -345,12 +336,9 @@ private struct MuscleExerciseSheet: View {
         ("ケーブル", "ケーブル", "Cable"),
     ]
 
-    /// 重量不適種目を除外 + 器具フィルター適用
     private var exercises: [ExerciseDefinition] {
         var result = ExerciseStore.shared.exercises(targeting: muscle)
-        // 重量記録に不適切な種目を除外（plank, burpee, ab_roller等）
         result = result.filter { !$0.isStrengthScoreExcluded }
-        // 器具フィルター
         if let equip = selectedEquipment {
             result = result.filter { $0.equipment == equip }
         }
@@ -363,7 +351,6 @@ private struct MuscleExerciseSheet: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            // ヘッダー
             HStack {
                 Text(isJapanese ? muscle.japaneseName : muscle.englishName)
                     .font(.headline.bold())
@@ -377,7 +364,6 @@ private struct MuscleExerciseSheet: View {
             .padding(.top, 20)
             .padding(.bottom, 8)
 
-            // 器具フィルターチップ
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 6) {
                     equipmentChip(
@@ -399,7 +385,6 @@ private struct MuscleExerciseSheet: View {
             }
             .padding(.bottom, 12)
 
-            // 種目GIFグリッド（2カラム）
             ScrollView(.vertical, showsIndicators: false) {
                 LazyVGrid(columns: gridColumns, spacing: 8) {
                     ForEach(exercises) { exercise in
@@ -418,7 +403,6 @@ private struct MuscleExerciseSheet: View {
         .background(Color.mmOnboardingBg)
     }
 
-    /// 器具フィルターチップ
     private func equipmentChip(text: String, isSelected: Bool, action: @escaping () -> Void) -> some View {
         Button(action: {
             HapticManager.lightTap()
@@ -451,7 +435,6 @@ private struct WeightInputSheet: View {
     private var localization: LocalizationManager { LocalizationManager.shared }
     private var isJapanese: Bool { localization.currentLanguage == .japanese }
 
-    /// 現在の重量でのレベル判定
     private var currentLevel: StrengthLevel? {
         guard weight > 0 else { return nil }
         return StrengthScoreCalculator.exerciseStrengthLevel(
@@ -492,7 +475,6 @@ private struct WeightInputSheet: View {
 
                 Spacer()
 
-                // レベルバッジ
                 if let level = currentLevel {
                     Text(level.localizedName)
                         .font(.system(size: 15, weight: .heavy))
@@ -513,19 +495,19 @@ private struct WeightInputSheet: View {
                     .foregroundStyle(Color.mmOnboardingTextSub.opacity(0.7))
 
                 HStack(spacing: 16) {
-                    // マイナスボタン（タップ + 長押し連続減少）
+                    // マイナスボタン（タップ: 0.25kg刻み、長押し: 2.5kg刻みで高速）
                     Image(systemName: "minus.circle.fill")
                         .font(.system(size: 32))
                         .foregroundStyle(Color.mmOnboardingTextSub)
                         .onTapGesture {
                             withAnimation(.snappy(duration: 0.15)) {
-                                weight = max(0, min(300, weight - 2.5))
+                                weight = max(0, weight - 0.25)
                             }
                             HapticManager.stepperChanged()
                         }
                         .onLongPressGesture(minimumDuration: 0.3, perform: {}) { pressing in
                             if pressing {
-                                startHoldTimer(increment: -0.25)
+                                startHoldTimer(increment: -2.5)
                             } else {
                                 stopHoldTimer()
                             }
@@ -544,19 +526,19 @@ private struct WeightInputSheet: View {
                             .foregroundStyle(Color.mmOnboardingTextSub)
                     }
 
-                    // プラスボタン（タップ + 長押し連続増加）
+                    // プラスボタン（タップ: 0.25kg刻み、長押し: 2.5kg刻みで高速）
                     Image(systemName: "plus.circle.fill")
                         .font(.system(size: 32))
                         .foregroundStyle(Color.mmOnboardingAccent)
                         .onTapGesture {
                             withAnimation(.snappy(duration: 0.15)) {
-                                weight = min(300, weight + 2.5)
+                                weight = min(300, weight + 0.25)
                             }
                             HapticManager.stepperChanged()
                         }
                         .onLongPressGesture(minimumDuration: 0.3, perform: {}) { pressing in
                             if pressing {
-                                startHoldTimer(increment: 0.25)
+                                startHoldTimer(increment: 2.5)
                             } else {
                                 stopHoldTimer()
                             }
@@ -592,11 +574,11 @@ private struct WeightInputSheet: View {
         }
     }
 
-    // MARK: - 長押し連続増減
+    // MARK: - 長押し連続増減（2.5kg刻みで高速）
 
     private func startHoldTimer(increment: Double) {
         stopHoldTimer()
-        holdTimer = Timer.scheduledTimer(withTimeInterval: 0.12, repeats: true) { _ in
+        holdTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { _ in
             Task { @MainActor in
                 withAnimation(.snappy(duration: 0.1)) {
                     weight = max(0, min(300, weight + increment))
@@ -617,7 +599,6 @@ private struct WeightInputSheet: View {
             return "\(Int(value))"
         }
         let formatted = String(format: "%.2f", value)
-        // 末尾の "0" を除去（例: "80.50" → "80.5"）
         if formatted.hasSuffix("0") {
             return String(formatted.dropLast())
         }
@@ -647,7 +628,6 @@ private struct PRCompactGifCard: View {
                         )
                 }
 
-                // グラデーション + 種目名 + kg
                 VStack(alignment: .leading, spacing: 1) {
                     Text(exercise.localizedName)
                         .font(.system(size: 12, weight: .bold))
@@ -690,7 +670,6 @@ private struct PRExerciseGridCard: View {
     var body: some View {
         Button(action: onTap) {
             ZStack(alignment: .bottom) {
-                // GIF（card size, scaledToFill）
                 if ExerciseGifView.hasGif(exerciseId: exercise.id) {
                     ExerciseGifView(exerciseId: exercise.id, size: .card)
                         .scaledToFill()
@@ -703,7 +682,6 @@ private struct PRExerciseGridCard: View {
                         )
                 }
 
-                // グラデーション + 種目名 + 器具
                 VStack(alignment: .leading, spacing: 2) {
                     Text(exercise.localizedName)
                         .font(.system(size: 12, weight: .bold))
@@ -723,7 +701,6 @@ private struct PRExerciseGridCard: View {
                     )
                 )
 
-                // 入力済み重量バッジ（右上）
                 if let weight = recordedWeight {
                     VStack {
                         HStack {
@@ -740,7 +717,6 @@ private struct PRExerciseGridCard: View {
                         Spacer()
                     }
                 } else {
-                    // 未入力ガイド（中央）
                     VStack {
                         Spacer()
                         Image(systemName: "plus.circle.fill")
