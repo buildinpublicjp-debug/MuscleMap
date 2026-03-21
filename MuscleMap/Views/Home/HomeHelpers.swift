@@ -913,6 +913,135 @@ struct StrengthMapPreviewBanner: View {
     }
 }
 
+// MARK: - ルーティン種目差替えピッカー
+
+/// 長押し「種目を変更」から表示されるシンプルな種目選択シート
+private struct RoutineExerciseReplacePicker: View {
+    let dayIndex: Int
+    let exerciseIndex: Int
+
+    @Environment(\.dismiss) private var dismiss
+    @State private var viewModel = ExerciseListViewModel()
+    @State private var searchText = ""
+
+    private var localization: LocalizationManager { LocalizationManager.shared }
+
+    var body: some View {
+        NavigationStack {
+            ZStack {
+                Color.mmBgPrimary.ignoresSafeArea()
+
+                VStack(spacing: 0) {
+                    // フィルターチップ（カテゴリのみ）
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 8) {
+                            replaceFilterChip(
+                                title: localization.currentLanguage == .japanese ? "すべて" : "All",
+                                isSelected: viewModel.selectedCategory == nil
+                            ) {
+                                viewModel.clearAllFilters()
+                            }
+
+                            ForEach(viewModel.categories, id: \.self) { category in
+                                replaceFilterChip(
+                                    title: L10n.localizedCategory(category),
+                                    isSelected: viewModel.selectedCategory == category
+                                ) {
+                                    viewModel.selectedCategory = category
+                                }
+                            }
+                        }
+                        .padding(.horizontal)
+                        .padding(.vertical, 8)
+                    }
+
+                    // 種目リスト
+                    List(viewModel.filteredExercises) { exercise in
+                        Button {
+                            HapticManager.lightTap()
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                RoutineManager.shared.replaceExercise(
+                                    dayIndex: dayIndex,
+                                    exerciseIndex: exerciseIndex,
+                                    newExerciseId: exercise.id
+                                )
+                            }
+                            dismiss()
+                        } label: {
+                            HStack(spacing: 12) {
+                                // GIFサムネイル
+                                if ExerciseGifView.hasGif(exerciseId: exercise.id) {
+                                    ExerciseGifView(exerciseId: exercise.id, size: .thumbnail)
+                                } else {
+                                    Image(systemName: "dumbbell.fill")
+                                        .font(.title3)
+                                        .foregroundStyle(Color.mmTextSecondary.opacity(0.4))
+                                        .frame(width: 56, height: 56)
+                                        .background(Color.mmBgCard)
+                                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                                }
+
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(localization.currentLanguage == .japanese ? exercise.nameJA : exercise.nameEN)
+                                        .font(.subheadline.bold())
+                                        .foregroundStyle(Color.mmTextPrimary)
+                                        .lineLimit(1)
+
+                                    HStack(spacing: 8) {
+                                        Label(exercise.localizedEquipment, systemImage: "dumbbell")
+                                        if let primary = exercise.primaryMuscle {
+                                            Label(
+                                                localization.currentLanguage == .japanese ? primary.japaneseName : primary.englishName,
+                                                systemImage: "figure.strengthtraining.traditional"
+                                            )
+                                        }
+                                    }
+                                    .font(.caption2)
+                                    .foregroundStyle(Color.mmTextSecondary)
+                                }
+
+                                Spacer()
+                            }
+                            .padding(.vertical, 4)
+                        }
+                        .listRowBackground(Color.mmBgSecondary)
+                    }
+                    .listStyle(.plain)
+                    .scrollContentBackground(.hidden)
+                }
+            }
+            .navigationTitle(localization.currentLanguage == .japanese ? "種目を変更" : "Replace Exercise")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbarColorScheme(.dark, for: .navigationBar)
+            .searchable(text: $searchText, prompt: L10n.searchExercises)
+            .onChange(of: searchText) { _, newValue in
+                viewModel.searchText = newValue
+            }
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(L10n.close) { dismiss() }
+                        .foregroundStyle(Color.mmAccentPrimary)
+                }
+            }
+            .onAppear {
+                viewModel.load()
+            }
+        }
+    }
+
+    private func replaceFilterChip(title: String, isSelected: Bool, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Text(title)
+                .font(.caption.bold())
+                .padding(.horizontal, 12)
+                .padding(.vertical, 6)
+                .background(isSelected ? Color.mmAccentPrimary : Color.mmBgCard)
+                .foregroundStyle(isSelected ? Color.mmBgPrimary : Color.mmTextSecondary)
+                .clipShape(Capsule())
+        }
+    }
+}
+
 // MARK: - FlowLayout（タグ表示用）
 
 struct FlowLayout: Layout {
