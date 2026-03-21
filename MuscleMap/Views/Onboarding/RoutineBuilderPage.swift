@@ -1,8 +1,8 @@
 import SwiftUI
 
-// MARK: - オンボーディング: ルーティンビルダーページ（読み取り専用プレビュー）
+// MARK: - オンボーディング: ルーティンビルダーページ（種目の追加・削除可能プレビュー）
 
-/// 自動生成されたルーティンをプレビュー表示し、「このメニューで始める」で確定
+/// 自動生成されたルーティンをプレビュー表示し、種目の追加・削除後「このメニューで始める」で確定
 struct RoutineBuilderPage: View {
     let onNext: () -> Void
 
@@ -10,6 +10,9 @@ struct RoutineBuilderPage: View {
     @State private var selectedDayIndex: Int = 0
     @State private var headerAppeared = false
     @State private var selectedExerciseDefinition: ExerciseDefinition?
+    @State private var showingExercisePicker = false
+
+    private let maxExercisesPerDay = 6
 
     private var isJapanese: Bool {
         LocalizationManager.shared.currentLanguage == .japanese
@@ -137,6 +140,21 @@ struct RoutineBuilderPage: View {
         .sheet(item: $selectedExerciseDefinition) { exercise in
             ExerciseDetailView(exercise: exercise, hideStartWorkoutButton: true)
         }
+        .sheet(isPresented: $showingExercisePicker) {
+            if days.indices.contains(selectedDayIndex) {
+                RoutineExercisePickerSheet(
+                    day: days[selectedDayIndex],
+                    maxExercises: maxExercisesPerDay,
+                    onAdd: { exercise in
+                        addExercise(exercise)
+                    },
+                    currentExerciseIds: Set(days[selectedDayIndex].exercises.map(\.exerciseId))
+                )
+                .presentationDetents([.large])
+                .presentationDragIndicator(.visible)
+                .presentationBackground(Color.mmOnboardingBg)
+            }
+        }
     }
 
     // MARK: - Day タブバー（閲覧のみ）
@@ -215,6 +233,31 @@ struct RoutineBuilderPage: View {
                             ForEach(day.exercises, id: \.id) { routineExercise in
                                 exerciseCard(routineExercise: routineExercise)
                             }
+
+                            // 種目追加カード（グリッド末尾）
+                            if day.exercises.count < maxExercisesPerDay {
+                                Button {
+                                    showingExercisePicker = true
+                                    HapticManager.lightTap()
+                                } label: {
+                                    VStack(spacing: 4) {
+                                        Image(systemName: "plus.circle")
+                                            .font(.system(size: 20))
+                                        Text(isJapanese ? "追加" : "Add")
+                                            .font(.system(size: 10, weight: .bold))
+                                    }
+                                    .foregroundStyle(Color.mmOnboardingTextSub)
+                                    .frame(width: 70, height: 70)
+                                    .background(Color.mmOnboardingCard.opacity(0.5))
+                                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 8)
+                                            .strokeBorder(style: StrokeStyle(lineWidth: 1, dash: [5]))
+                                            .foregroundStyle(Color.mmOnboardingTextSub.opacity(0.3))
+                                    )
+                                }
+                                .buttonStyle(.plain)
+                            }
                         }
                         .padding(.horizontal, 24)
                         .padding(.bottom, 16)
@@ -224,56 +267,81 @@ struct RoutineBuilderPage: View {
         }
     }
 
-    // MARK: - 種目カード（4列グリッド用、読み取り専用）
+    // MARK: - 種目カード（4列グリッド用、削除可能）
 
     private func exerciseCard(routineExercise: RoutineExercise) -> some View {
         let def = ExerciseStore.shared.exercise(for: routineExercise.exerciseId)
         let name = def?.localizedName ?? routineExercise.exerciseId
+        let canDelete = days.indices.contains(selectedDayIndex) && days[selectedDayIndex].exercises.count > 1
 
-        return Button {
-            if let def {
-                HapticManager.lightTap()
-                selectedExerciseDefinition = def
-            }
-        } label: {
-            VStack(spacing: 2) {
-                ZStack(alignment: .bottomTrailing) {
-                    if ExerciseGifView.hasGif(exerciseId: routineExercise.exerciseId) {
-                        ExerciseGifView(exerciseId: routineExercise.exerciseId, size: .card)
-                            .scaledToFill()
-                            .frame(width: 70, height: 70)
-                            .clipped()
-                    } else {
-                        ZStack {
-                            Color.mmOnboardingBg
-                            Image(systemName: "dumbbell.fill")
-                                .font(.system(size: 20))
-                                .foregroundStyle(Color.mmOnboardingTextSub.opacity(0.4))
-                        }
-                        .frame(width: 70, height: 70)
+        return VStack(spacing: 2) {
+            ZStack {
+                // GIFカード（タップで詳細表示）
+                Button {
+                    if let def {
+                        HapticManager.lightTap()
+                        selectedExerciseDefinition = def
                     }
+                } label: {
+                    ZStack(alignment: .bottomTrailing) {
+                        if ExerciseGifView.hasGif(exerciseId: routineExercise.exerciseId) {
+                            ExerciseGifView(exerciseId: routineExercise.exerciseId, size: .card)
+                                .scaledToFill()
+                                .frame(width: 70, height: 70)
+                                .clipped()
+                        } else {
+                            ZStack {
+                                Color.mmOnboardingBg
+                                Image(systemName: "dumbbell.fill")
+                                    .font(.system(size: 20))
+                                    .foregroundStyle(Color.mmOnboardingTextSub.opacity(0.4))
+                            }
+                            .frame(width: 70, height: 70)
+                        }
 
-                    // セット×レップバッジ（表示のみ）
-                    Text("\(routineExercise.suggestedSets)×\(routineExercise.suggestedReps)")
-                        .font(.system(size: 8, weight: .bold).monospacedDigit())
-                        .foregroundStyle(.white)
-                        .padding(.horizontal, 3)
-                        .padding(.vertical, 1)
-                        .background(Color.mmOnboardingAccent.opacity(0.8))
-                        .clipShape(RoundedRectangle(cornerRadius: 3))
-                        .padding(2)
+                        // セット×レップバッジ（表示のみ）
+                        Text("\(routineExercise.suggestedSets)×\(routineExercise.suggestedReps)")
+                            .font(.system(size: 8, weight: .bold).monospacedDigit())
+                            .foregroundStyle(.white)
+                            .padding(.horizontal, 3)
+                            .padding(.vertical, 1)
+                            .background(Color.mmOnboardingAccent.opacity(0.8))
+                            .clipShape(RoundedRectangle(cornerRadius: 3))
+                            .padding(2)
+                    }
                 }
-                .frame(width: 70, height: 70)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .buttonStyle(.plain)
 
-                Text(name)
-                    .font(.system(size: 9, weight: .medium))
-                    .foregroundStyle(Color.mmOnboardingTextMain)
-                    .lineLimit(1)
-                    .frame(width: 70)
+                // 削除ボタン（右上）
+                if canDelete {
+                    VStack {
+                        HStack {
+                            Spacer()
+                            Button {
+                                removeExercise(routineExercise.id)
+                                HapticManager.lightTap()
+                            } label: {
+                                Image(systemName: "xmark.circle.fill")
+                                    .font(.system(size: 16))
+                                    .foregroundStyle(.white.opacity(0.8))
+                                    .background(Circle().fill(Color.black.opacity(0.4)))
+                            }
+                            .buttonStyle(.plain)
+                        }
+                        .padding(3)
+                        Spacer()
+                    }
+                }
             }
+            .frame(width: 70, height: 70)
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+
+            Text(name)
+                .font(.system(size: 9, weight: .medium))
+                .foregroundStyle(Color.mmOnboardingTextMain)
+                .lineLimit(1)
+                .frame(width: 70)
         }
-        .buttonStyle(.plain)
     }
 
     // MARK: - 筋肉マップ状態
@@ -290,6 +358,31 @@ struct RoutineBuilderPage: View {
             }
         }
         return states
+    }
+
+    // MARK: - 種目の追加・削除
+
+    private func addExercise(_ exercise: ExerciseDefinition) {
+        guard days.indices.contains(selectedDayIndex) else { return }
+        let profile = AppState.shared.userProfile
+        let (defaultSets, defaultReps) = defaultSetsAndReps(for: profile.trainingExperience)
+        let newExercise = RoutineExercise(
+            exerciseId: exercise.id,
+            suggestedSets: defaultSets,
+            suggestedReps: defaultReps
+        )
+        withAnimation(.easeInOut(duration: 0.2)) {
+            days[selectedDayIndex].exercises.append(newExercise)
+        }
+        HapticManager.lightTap()
+    }
+
+    private func removeExercise(_ exerciseId: UUID) {
+        guard days.indices.contains(selectedDayIndex),
+              days[selectedDayIndex].exercises.count > 1 else { return }
+        withAnimation(.easeInOut(duration: 0.2)) {
+            days[selectedDayIndex].exercises.removeAll { $0.id == exerciseId }
+        }
     }
 
     // MARK: - ロジック
