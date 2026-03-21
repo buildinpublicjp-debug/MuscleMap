@@ -334,11 +334,28 @@ private struct MuscleExerciseSheet: View {
     let recordedPRs: [String: Double]
     let onSelectExercise: (ExerciseDefinition) -> Void
 
+    @State private var selectedEquipment: String? = nil
+
     private var localization: LocalizationManager { LocalizationManager.shared }
     private var isJapanese: Bool { localization.currentLanguage == .japanese }
 
+    private let equipmentFilters: [(key: String, label: String, labelEn: String)] = [
+        ("バーベル", "バーベル", "Barbell"),
+        ("ダンベル", "ダンベル", "Dumbbell"),
+        ("マシン", "マシン", "Machine"),
+        ("ケーブル", "ケーブル", "Cable"),
+    ]
+
+    /// 重量不適種目を除外 + 器具フィルター適用
     private var exercises: [ExerciseDefinition] {
-        ExerciseStore.shared.exercises(targeting: muscle)
+        var result = ExerciseStore.shared.exercises(targeting: muscle)
+        // 重量記録に不適切な種目を除外（plank, burpee, ab_roller等）
+        result = result.filter { !$0.isStrengthScoreExcluded }
+        // 器具フィルター
+        if let equip = selectedEquipment {
+            result = result.filter { $0.equipment == equip }
+        }
+        return result
     }
 
     private var gridColumns: [GridItem] {
@@ -359,6 +376,28 @@ private struct MuscleExerciseSheet: View {
             }
             .padding(.horizontal, 20)
             .padding(.top, 20)
+            .padding(.bottom, 8)
+
+            // 器具フィルターチップ
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 6) {
+                    equipmentChip(
+                        text: isJapanese ? "すべて" : "All",
+                        isSelected: selectedEquipment == nil
+                    ) {
+                        selectedEquipment = nil
+                    }
+                    ForEach(equipmentFilters, id: \.key) { filter in
+                        equipmentChip(
+                            text: isJapanese ? filter.label : filter.labelEn,
+                            isSelected: selectedEquipment == filter.key
+                        ) {
+                            selectedEquipment = selectedEquipment == filter.key ? nil : filter.key
+                        }
+                    }
+                }
+                .padding(.horizontal, 20)
+            }
             .padding(.bottom, 12)
 
             // 種目GIFグリッド（2カラム）
@@ -378,6 +417,23 @@ private struct MuscleExerciseSheet: View {
             }
         }
         .background(Color.mmOnboardingBg)
+    }
+
+    /// 器具フィルターチップ
+    private func equipmentChip(text: String, isSelected: Bool, action: @escaping () -> Void) -> some View {
+        Button(action: {
+            HapticManager.lightTap()
+            action()
+        }) {
+            Text(text)
+                .font(.system(size: 12, weight: isSelected ? .bold : .medium))
+                .foregroundStyle(isSelected ? Color.mmOnboardingBg : Color.mmOnboardingTextSub)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 6)
+                .background(isSelected ? Color.mmOnboardingAccent : Color.mmOnboardingCard)
+                .clipShape(Capsule())
+        }
+        .buttonStyle(.plain)
     }
 }
 
