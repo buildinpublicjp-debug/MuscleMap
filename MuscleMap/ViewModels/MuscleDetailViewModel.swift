@@ -1,28 +1,25 @@
 import Foundation
 import SwiftData
 
-// MARK: - 場所フィルタ
+// MARK: - 器具フィルタ定義
 
 @MainActor
-enum LocationFilter: String, CaseIterable {
-    case all, gym, home
+struct EquipmentFilter: Identifiable, Equatable {
+    let id: String      // JSON key（バーベル, ダンベル etc.）
+    let labelJA: String
+    let labelEN: String
 
-    var label: String {
-        switch self {
-        case .all:  return L10n.all
-        case .gym:  return L10n.filterGym
-        case .home: return L10n.filterHome
-        }
+    var localizedLabel: String {
+        LocalizationManager.shared.currentLanguage == .japanese ? labelJA : labelEN
     }
 
-    /// UserProfile.trainingLocation からデフォルト値を決定
-    static func defaultFilter(from trainingLocation: String) -> LocationFilter {
-        switch trainingLocation {
-        case "home": return .home
-        case "gym":  return .gym
-        default:     return .all
-        }
-    }
+    static let allFilters: [EquipmentFilter] = [
+        EquipmentFilter(id: "バーベル", labelJA: "バーベル", labelEN: "Barbell"),
+        EquipmentFilter(id: "ダンベル", labelJA: "ダンベル", labelEN: "Dumbbell"),
+        EquipmentFilter(id: "マシン", labelJA: "マシン", labelEN: "Machine"),
+        EquipmentFilter(id: "ケーブル", labelJA: "ケーブル", labelEN: "Cable"),
+        EquipmentFilter(id: "自重", labelJA: "自重", labelEN: "Bodyweight"),
+    ]
 }
 
 // MARK: - 部位詳細ViewModel
@@ -43,20 +40,16 @@ class MuscleDetailViewModel {
     var lastStimulationDate: Date?
     var lastTotalSets: Int = 0
 
-    // 場所フィルタ（UIバインディング用）
-    var locationFilter: LocationFilter = .all
+    // 器具フィルタ（nil = すべて表示）
+    var selectedEquipment: String? = nil
 
     // 関連種目（フィルタ前の全種目、お気に入り優先ソート済み）
     var allRelatedExercises: [ExerciseDefinition] = []
 
-    // フィルタ済み種目（場所フィルタ適用後）
+    // フィルタ済み種目（器具フィルタ適用後）
     var filteredExercises: [ExerciseDefinition] {
-        let homeEquipment: Set<String> = ["自重", "ダンベル", "ケトルベル", "Bodyweight", "Dumbbell", "Kettlebell"]
-        switch locationFilter {
-        case .all:  return allRelatedExercises
-        case .gym:  return allRelatedExercises
-        case .home: return allRelatedExercises.filter { homeEquipment.contains($0.equipment) }
-        }
+        guard let equip = selectedEquipment else { return allRelatedExercises }
+        return allRelatedExercises.filter { $0.equipment == equip }
     }
 
     // 直近のワークアウト履歴（この筋肉に関連）
@@ -71,10 +64,6 @@ class MuscleDetailViewModel {
 
     /// データ読み込み
     func load() {
-        // デフォルトフィルタをUserProfileから設定
-        let profile = AppState.shared.userProfile
-        locationFilter = LocationFilter.defaultFilter(from: profile.trainingLocation)
-
         loadRecoveryState()
         loadRelatedExercises()
         loadRecentHistory()

@@ -1,6 +1,6 @@
 import SwiftUI
 
-// MARK: - Paywall View（Pro版購入モーダル — 実データ連動リデザイン）
+// MARK: - Paywall View（Pro版購入モーダル — 1画面完結 + マーキーGIF）
 
 struct PaywallView: View {
     var isHardPaywall: Bool = false
@@ -8,7 +8,6 @@ struct PaywallView: View {
     @State private var errorMessage: String?
     @State private var showingError = false
     @State private var showFreeOption = false
-
 
     private var localization: LocalizationManager { LocalizationManager.shared }
 
@@ -18,7 +17,6 @@ struct PaywallView: View {
 
     // MARK: - ルーティンデータ
 
-    /// ルーティンから実データを取得
     private var routine: UserRoutine {
         RoutineManager.shared.routine
     }
@@ -27,7 +25,6 @@ struct PaywallView: View {
         routine.days.reduce(0) { $0 + $1.exercises.count }
     }
 
-    /// 目標名を動的取得
     private var goalSubtitle: String? {
         guard let goalRaw = AppState.shared.primaryOnboardingGoal,
               let goal = OnboardingGoal(rawValue: goalRaw) else { return nil }
@@ -36,64 +33,56 @@ struct PaywallView: View {
             : "Optimized for \"\(goal.localizedName)\""
     }
 
-    /// GIF付きプレビュー用の種目データ（最大8種目、exerciseId付き）
-    private var previewExercises: [(id: String, name: String, detail: String)] {
-        // ルーティンから種目を取得（重複除去）
-        var exercises: [RoutineExercise] = []
+    /// マーキー用の種目リスト（全種目、重複除去）
+    private var marqueeExercises: [ExerciseDefinition] {
+        var result: [ExerciseDefinition] = []
         var seenIds: Set<String> = []
         for day in routine.days {
             for ex in day.exercises {
-                if seenIds.insert(ex.exerciseId).inserted {
-                    exercises.append(ex)
+                if seenIds.insert(ex.exerciseId).inserted,
+                   let def = ExerciseStore.shared.exercise(for: ex.exerciseId) {
+                    result.append(def)
                 }
-                if exercises.count >= 8 { break }
             }
-            if exercises.count >= 8 { break }
         }
 
-        // フォールバック: ルーティンが空なら重点筋肉から取得
-        if exercises.isEmpty {
+        // フォールバック: ルーティンが空なら重点筋肉 or 全種目から
+        if result.isEmpty {
             let priorityMuscles = AppState.shared.userProfile.goalPriorityMuscles
-            var defs: [ExerciseDefinition] = []
             var addedIds: Set<String> = []
             for muscleId in priorityMuscles {
                 if let muscle = Muscle(rawValue: muscleId) {
                     for ex in ExerciseStore.shared.exercises(targeting: muscle) {
                         if addedIds.insert(ex.id).inserted {
-                            defs.append(ex)
+                            result.append(ex)
                         }
-                        if defs.count >= 8 { break }
+                        if result.count >= 12 { break }
                     }
                 }
-                if defs.count >= 8 { break }
+                if result.count >= 12 { break }
             }
-            if defs.isEmpty {
-                defs = Array(ExerciseStore.shared.exercises.prefix(8))
-            }
-            return defs.prefix(8).map { ex in
-                let name = isJapanese ? ex.nameJA : ex.nameEN
-                return (id: ex.id, name: name, detail: sampleDetail(for: ex))
+            if result.isEmpty {
+                result = Array(ExerciseStore.shared.exercises.prefix(12))
             }
         }
 
-        return exercises.prefix(8).map { re in
-            let def = ExerciseStore.shared.exercise(for: re.exerciseId)
-            let name = def.map { isJapanese ? $0.nameJA : $0.nameEN } ?? re.exerciseId
-            let detail = def.map { sampleDetail(for: $0) } ?? ""
-            return (id: re.exerciseId, name: name, detail: detail)
-        }
+        return result
     }
 
-    /// プレビュー以降の残り種目数
-    private var remainingExerciseCount: Int {
-        max(0, totalExercises - previewExercises.count)
+    /// マーキー行1用（前半）
+    private var marqueeRow1Exercises: [ExerciseDefinition] {
+        let all = marqueeExercises
+        let mid = (all.count + 1) / 2
+        return Array(all.prefix(max(mid, 1)))
     }
 
-    /// 2カラムグリッド
-    private let gridColumns = [
-        GridItem(.flexible(), spacing: 8),
-        GridItem(.flexible(), spacing: 8),
-    ]
+    /// マーキー行2用（後半）
+    private var marqueeRow2Exercises: [ExerciseDefinition] {
+        let all = marqueeExercises
+        let mid = (all.count + 1) / 2
+        let second = Array(all.dropFirst(mid))
+        return second.isEmpty ? all : second
+    }
 
     // MARK: - Body
 
@@ -101,34 +90,31 @@ struct PaywallView: View {
         ZStack {
             Color.mmBgSecondary.ignoresSafeArea()
 
-            ScrollView {
-                VStack(spacing: 0) {
-                    Spacer().frame(height: isHardPaywall ? 24 : 40)
+            VStack(spacing: 0) {
+                Spacer().frame(height: isHardPaywall ? 20 : 36)
 
-                    // 1. ヘッドライン（実データ駆動）
-                    headlineSection
+                // 1. ヘッドライン（コンパクト）
+                headlineSection
 
-                    Spacer().frame(height: 8)
+                Spacer().frame(height: 10)
 
-                    // 2. 種目GIF 2カラムグリッド
-                    menuPreviewGrid
+                // 2. マーキーGIF（2行）
+                marqueeSection
 
-                    Spacer().frame(height: 12)
+                Spacer().frame(height: 12)
 
-                    // 3. 価格セクション（ファーストビューに入るよう上に配置）
-                    pricingSection
+                // 3. 価格セクション
+                pricingSection
 
-                    Spacer().frame(height: 12)
+                Spacer().frame(height: 10)
 
-                    // 4. 機能リスト（3行に絞る）
-                    featureListSection
+                // 4. 機能リスト（コンパクト）
+                featureListSection
 
-                    Spacer().frame(height: 12)
+                Spacer(minLength: 4)
 
-                    // 5. 復元 + 無料オプション + 法的テキスト
-                    footerSection
-                }
-                .padding(.bottom, 16)
+                // 5. フッター
+                footerSection
             }
 
             // 閉じるボタン（右上固定、ハードペイウォール時は非表示）
@@ -181,82 +167,62 @@ struct PaywallView: View {
                     }
                 }
             }
-            // 自動スクロールは2カラムグリッド化で不要
         }
     }
 
-    // MARK: - ヘッドライン（実データ駆動）
+    // MARK: - ヘッドライン（コンパクト）
 
     private var headlineSection: some View {
-        VStack(spacing: 8) {
-            // 実データ駆動ヘッドライン
+        VStack(spacing: 4) {
             if !routine.days.isEmpty && totalExercises > 0 {
                 Text(isJapanese
-                    ? "\(routine.days.count)日間 × \(totalExercises)種目の\nプログラムが待っています"
-                    : "Your \(routine.days.count)-day, \(totalExercises)-exercise\nprogram is ready")
-                    .font(.system(size: 26, weight: .heavy))
+                    ? "\(routine.days.count)日間 × \(totalExercises)種目のプログラムが待っています"
+                    : "Your \(routine.days.count)-day, \(totalExercises)-exercise program is ready")
+                    .font(.system(size: 16, weight: .heavy))
                     .foregroundStyle(Color.mmTextPrimary)
                     .multilineTextAlignment(.center)
             } else {
                 Text(isJapanese
                     ? "あなた専用のメニューを毎日届ける"
                     : "Your Personalized Menu, Every Day")
-                    .font(.system(size: 26, weight: .heavy))
+                    .font(.system(size: 16, weight: .heavy))
                     .foregroundStyle(Color.mmTextPrimary)
                     .multilineTextAlignment(.center)
             }
 
-            // 目標連動サブタイトル
             if let subtitle = goalSubtitle {
                 Text(subtitle)
-                    .font(.system(size: 14))
+                    .font(.system(size: 13))
                     .foregroundStyle(Color.mmAccentPrimary)
             }
         }
         .padding(.horizontal, 24)
     }
 
-    // MARK: - 種目GIF 2カラムグリッド
+    // MARK: - マーキーセクション（2行）
 
-    private var menuPreviewGrid: some View {
-        VStack(spacing: 4) {
-            LazyVGrid(columns: gridColumns, spacing: 8) {
-                ForEach(Array(previewExercises.enumerated()), id: \.offset) { _, exercise in
-                    PaywallExerciseCard(
-                        exerciseId: exercise.id,
-                        name: exercise.name,
-                        detail: exercise.detail
-                    )
-                }
-            }
-            .padding(.horizontal, 16)
-
-            // 「+他N種目」テキスト
-            if remainingExerciseCount > 0 {
-                Text(isJapanese
-                    ? "+他\(remainingExerciseCount)種目"
-                    : "+\(remainingExerciseCount) more exercises")
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundStyle(Color.mmTextSecondary)
-            }
+    private var marqueeSection: some View {
+        VStack(spacing: 6) {
+            PaywallMarqueeRow(exercises: marqueeRow1Exercises, speed: 30, reversed: false)
+            PaywallMarqueeRow(exercises: marqueeRow2Exercises, speed: 25, reversed: true)
         }
     }
 
-    // MARK: - 価格セクション（コンパクト）
+    // MARK: - 価格セクション
 
     private var pricingSection: some View {
-        VStack(spacing: 8) {
-            // 年額ボタン（推奨・大きく・31%OFFバッジ内蔵）
+        VStack(spacing: 6) {
+            // 年額ボタン（推奨）
             Button {
                 HapticManager.lightTap()
                 purchase(productId: "yearly")
             } label: {
-                VStack(spacing: 4) {
+                VStack(spacing: 3) {
                     HStack(spacing: 6) {
                         Text(isJapanese ? "7日間無料で始める" : "Start Free for 7 Days")
-                            .font(.system(size: 18, weight: .bold))
+                            .font(.system(size: 17, weight: .bold))
                         Text("31%OFF")
-                            .font(.system(size: 11, weight: .bold))
+                            .font(.system(size: 10, weight: .bold))
                             .padding(.horizontal, 6)
                             .padding(.vertical, 2)
                             .background(Color.mmBgPrimary.opacity(0.2))
@@ -265,27 +231,27 @@ struct PaywallView: View {
                     .foregroundStyle(Color.mmBgPrimary)
 
                     Text(isJapanese ? "¥4,900/年（月¥408）" : "$39.99/year ($3.33/mo)")
-                        .font(.system(size: 13))
+                        .font(.system(size: 12))
                         .foregroundStyle(Color.mmBgPrimary.opacity(0.7))
                 }
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, 16)
+                .padding(.vertical, 14)
                 .background(Color.mmAccentPrimary)
                 .clipShape(RoundedRectangle(cornerRadius: 16))
             }
             .buttonStyle(.plain)
             .disabled(PurchaseManager.shared.isLoading)
 
-            // 月額ボタン（小さく）
+            // 月額ボタン
             Button {
                 HapticManager.lightTap()
                 purchase(productId: "monthly")
             } label: {
                 Text(isJapanese ? "¥590/月" : "$4.99/month")
-                    .font(.system(size: 14))
+                    .font(.system(size: 13))
                     .foregroundStyle(Color.mmTextSecondary)
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, 10)
+                    .padding(.vertical, 8)
                     .background(Color.mmBgCard)
                     .clipShape(RoundedRectangle(cornerRadius: 12))
                     .overlay(
@@ -296,18 +262,17 @@ struct PaywallView: View {
             .buttonStyle(.plain)
             .disabled(PurchaseManager.shared.isLoading)
 
-            // いつでもキャンセル可能
             Text(isJapanese ? "いつでもキャンセル可能" : "Cancel anytime")
-                .font(.system(size: 11))
+                .font(.system(size: 10))
                 .foregroundStyle(Color.mmTextSecondary)
         }
         .padding(.horizontal, 24)
     }
 
-    // MARK: - Pro機能リスト（3行に絞る）
+    // MARK: - Pro機能リスト（コンパクト）
 
     private var featureListSection: some View {
-        VStack(spacing: 10) {
+        VStack(spacing: 6) {
             featureRow(
                 icon: "sparkles",
                 text: isJapanese ? "毎日のメニューを自動提案" : "Daily personalized workout suggestions"
@@ -321,78 +286,79 @@ struct PaywallView: View {
                 text: isJapanese ? "筋肉が回復したら通知" : "Recovery notifications when muscles are ready"
             )
         }
-        .padding(16)
+        .padding(12)
         .background(Color.mmBgCard.opacity(0.5))
         .clipShape(RoundedRectangle(cornerRadius: 12))
         .padding(.horizontal, 24)
     }
 
     private func featureRow(icon: String, text: String) -> some View {
-        HStack(spacing: 10) {
+        HStack(spacing: 8) {
             Image(systemName: icon)
-                .font(.system(size: 14, weight: .medium))
+                .font(.system(size: 12, weight: .medium))
                 .foregroundStyle(Color.mmAccentPrimary)
-                .frame(width: 24)
+                .frame(width: 20)
             Text(text)
-                .font(.system(size: 14))
+                .font(.system(size: 12))
                 .foregroundStyle(Color.mmTextPrimary)
             Spacer()
         }
     }
 
-    // MARK: - フッター（復元 + 無料 + 法的テキスト）
+    // MARK: - フッター
 
     private var footerSection: some View {
-        VStack(spacing: 8) {
-            // 購入復元
-            Button {
-                HapticManager.lightTap()
-                Task {
-                    do {
-                        let restored = try await PurchaseManager.shared.restore()
-                        if restored {
-                            dismiss()
-                        } else {
-                            errorMessage = isJapanese
-                                ? "復元できる購入履歴が見つかりませんでした。"
-                                : "No restorable purchases were found."
-                            showingError = true
-                        }
-                    } catch {
-                        errorMessage = error.localizedDescription
-                        showingError = true
-                    }
-                }
-            } label: {
-                Text(isJapanese ? "購入を復元" : "Restore Purchase")
-                    .font(.caption)
-                    .foregroundStyle(Color.mmTextSecondary)
-            }
-            .disabled(PurchaseManager.shared.isLoading)
-
-            // 無料で続けるボタン（ハードPaywall用、3秒遅延表示）
-            if isHardPaywall && showFreeOption {
+        VStack(spacing: 6) {
+            // 復元 + 無料オプション（横並び）
+            HStack(spacing: 16) {
                 Button {
                     HapticManager.lightTap()
-                    dismiss()
+                    Task {
+                        do {
+                            let restored = try await PurchaseManager.shared.restore()
+                            if restored {
+                                dismiss()
+                            } else {
+                                errorMessage = isJapanese
+                                    ? "復元できる購入履歴が見つかりませんでした。"
+                                    : "No restorable purchases were found."
+                                showingError = true
+                            }
+                        } catch {
+                            errorMessage = error.localizedDescription
+                            showingError = true
+                        }
+                    }
                 } label: {
-                    Text(isJapanese ? "無料で今すぐ始める" : "Start Free Now")
-                        .font(.caption)
-                        .foregroundStyle(Color.mmTextSecondary.opacity(0.6))
+                    Text(isJapanese ? "購入を復元" : "Restore Purchase")
+                        .font(.caption2)
+                        .foregroundStyle(Color.mmTextSecondary)
                 }
-                .transition(.opacity)
+                .disabled(PurchaseManager.shared.isLoading)
+
+                if isHardPaywall && showFreeOption {
+                    Button {
+                        HapticManager.lightTap()
+                        dismiss()
+                    } label: {
+                        Text(isJapanese ? "無料で今すぐ始める" : "Start Free Now")
+                            .font(.caption2)
+                            .foregroundStyle(Color.mmTextSecondary.opacity(0.6))
+                    }
+                    .transition(.opacity)
+                }
             }
 
             // 法的リンク
             HStack(spacing: 16) {
                 if let termsURL = URL(string: LegalURL.termsOfUse) {
                     Link(isJapanese ? "利用規約" : "Terms of Use", destination: termsURL)
-                        .font(.caption2)
+                        .font(.system(size: 9))
                         .foregroundStyle(Color.mmTextSecondary.opacity(0.5))
                 }
                 if let privacyURL = URL(string: LegalURL.privacyPolicy) {
                     Link(isJapanese ? "プライバシーポリシー" : "Privacy Policy", destination: privacyURL)
-                        .font(.caption2)
+                        .font(.system(size: 9))
                         .foregroundStyle(Color.mmTextSecondary.opacity(0.5))
                 }
             }
@@ -401,11 +367,11 @@ struct PaywallView: View {
             Text(isJapanese
                 ? "購入によりApple IDに請求されます。定期購読は期限切れの24時間以内に自動更新されます。iTunesアカウント設定から自動更新をオフにすることができます。"
                 : "Payment will be charged to your Apple ID. Subscriptions automatically renew within 24 hours before expiration. You can turn off auto-renewal in your iTunes account settings.")
-                .font(.caption2)
+                .font(.system(size: 8))
                 .foregroundStyle(Color.mmTextSecondary.opacity(0.4))
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 24)
-                .padding(.bottom, 16)
+                .padding(.bottom, 12)
         }
     }
 
@@ -425,71 +391,92 @@ struct PaywallView: View {
             }
         }
     }
-
-    /// 種目ごとのサンプル重量・レップ・セット（プレビュー用）
-    private func sampleDetail(for exercise: ExerciseDefinition) -> String {
-        let equipment = exercise.equipment.lowercased()
-        if equipment.contains("自重") || equipment.contains("bodyweight") {
-            return isJapanese ? "自重 × 12 × 3" : "BW × 12 × 3"
-        } else if equipment.contains("barbell") || equipment.contains("バーベル") {
-            return "60kg × 8 × 3"
-        } else if equipment.contains("dumbbell") || equipment.contains("ダンベル") {
-            return "14kg × 10 × 3"
-        } else {
-            return "20kg × 12 × 3"
-        }
-    }
 }
 
-// MARK: - GIFカード（Paywall 2カラムグリッド用）
+// MARK: - マーキー行（種目GIF自動横スクロール）
 
-private struct PaywallExerciseCard: View {
-    let exerciseId: String
-    let name: String
-    let detail: String
+private struct PaywallMarqueeRow: View {
+    let exercises: [ExerciseDefinition]
+    let speed: CGFloat       // px/sec
+    let reversed: Bool       // trueなら左→右に流れる
+    private let cardSize: CGFloat = 100
+
+    @State private var offset: CGFloat = 0
+
+    private var isJapanese: Bool {
+        LocalizationManager.shared.currentLanguage == .japanese
+    }
+
+    /// 1セット分の幅
+    private var setWidth: CGFloat {
+        CGFloat(exercises.count) * (cardSize + 8)
+    }
 
     var body: some View {
-        ZStack(alignment: .bottom) {
-            // GIF or プレースホルダー
-            GeometryReader { geo in
-                Color.mmBgCard
-                if ExerciseGifView.hasGif(exerciseId: exerciseId) {
-                    ExerciseGifView(exerciseId: exerciseId, size: .card)
-                        .scaledToFill()
-                        .frame(width: geo.size.width, height: geo.size.height)
-                        .clipped()
-                } else {
-                    Image(systemName: "dumbbell.fill")
-                        .font(.system(size: 24))
-                        .foregroundStyle(Color.mmTextSecondary.opacity(0.3))
-                        .frame(width: geo.size.width, height: geo.size.height)
+        GeometryReader { _ in
+            HStack(spacing: 8) {
+                // 3セット分並べて無限ループ感を確保
+                ForEach(0..<3, id: \.self) { batch in
+                    ForEach(Array(exercises.enumerated()), id: \.offset) { index, exercise in
+                        marqueeCard(exercise: exercise)
+                            .id("\(batch)-\(index)")
+                    }
                 }
             }
-
-            // 下部グラデーション + テキスト
-            VStack(alignment: .leading, spacing: 2) {
-                Text(name)
-                    .font(.system(size: 11, weight: .bold))
-                    .foregroundStyle(.white)
-                    .lineLimit(1)
-
-                Text(detail)
-                    .font(.system(size: 10, weight: .heavy).monospacedDigit())
-                    .foregroundStyle(Color.mmAccentPrimary)
+            .offset(x: offset)
+            .onAppear {
+                guard setWidth > 0 else { return }
+                // 開始位置: reversed の場合は左端、通常は1セット分右
+                offset = reversed ? -setWidth : 0
+                let duration = setWidth / speed
+                withAnimation(
+                    .linear(duration: duration)
+                    .repeatForever(autoreverses: false)
+                ) {
+                    offset = reversed ? 0 : -setWidth
+                }
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal, 8)
-            .padding(.bottom, 6)
-            .padding(.top, 20)
-            .background(
-                LinearGradient(
-                    colors: [Color.clear, Color.black.opacity(0.75)],
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-            )
         }
-        .aspectRatio(1, contentMode: .fit)
+        .frame(height: cardSize)
+        .clipped()
+    }
+
+    private func marqueeCard(exercise: ExerciseDefinition) -> some View {
+        ZStack(alignment: .bottom) {
+            // GIF or プレースホルダー
+            if ExerciseGifView.hasGif(exerciseId: exercise.id) {
+                ExerciseGifView(exerciseId: exercise.id, size: .card)
+                    .scaledToFill()
+                    .frame(width: cardSize, height: cardSize)
+                    .clipped()
+            } else {
+                Color.mmBgCard
+                    .frame(width: cardSize, height: cardSize)
+                    .overlay(
+                        Image(systemName: "dumbbell.fill")
+                            .font(.system(size: 20))
+                            .foregroundStyle(Color.mmTextSecondary.opacity(0.3))
+                    )
+            }
+
+            // 種目名
+            Text(isJapanese ? exercise.nameJA : exercise.nameEN)
+                .font(.system(size: 9, weight: .bold))
+                .foregroundStyle(.white)
+                .lineLimit(1)
+                .padding(.horizontal, 6)
+                .padding(.bottom, 4)
+                .padding(.top, 16)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(
+                    LinearGradient(
+                        colors: [.clear, Color.black.opacity(0.7)],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
+        }
+        .frame(width: cardSize, height: cardSize)
         .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 }
