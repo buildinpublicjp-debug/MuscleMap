@@ -328,7 +328,11 @@ private struct MainTabView: View {
             }
         }
 
-        try? context.save()
+        do {
+            try context.save()
+        } catch {
+            print("[Screenshot] Failed to save demo data: \(error)")
+        }
         UserDefaults.standard.set(true, forKey: key)
 
         print("[Screenshot] Demo data injected successfully")

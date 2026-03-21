@@ -380,7 +380,13 @@ struct RootView: View {
             }
         }
 
-        try? context.save()
+        do {
+            try context.save()
+        } catch {
+            #if DEBUG
+            print("[MuscleMapApp] Failed to save demo data: \(error)")
+            #endif
+        }
         UserDefaults.standard.set(true, forKey: key)
 
         // オンボーディング完了・初回ワークアウト完了フラグ

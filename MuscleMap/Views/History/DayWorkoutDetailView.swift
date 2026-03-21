@@ -399,7 +399,13 @@ private struct SessionDetailCard: View {
             modelContext.delete(set)
         }
         modelContext.delete(session)
-        try? modelContext.save()
+        do {
+            try modelContext.save()
+        } catch {
+            #if DEBUG
+            print("[DayWorkoutDetail] Failed to save after session delete: \(error)")
+            #endif
+        }
 
         HapticManager.error()
         onSessionDeleted()
@@ -604,7 +610,13 @@ private struct HistorySetEditSheet: View {
     private func save() {
         workoutSet.weight = editWeight
         workoutSet.reps = editReps
-        try? modelContext.save()
+        do {
+            try modelContext.save()
+        } catch {
+            #if DEBUG
+            print("[DayWorkoutDetail] Failed to save set edit: \(error)")
+            #endif
+        }
         onSaved()
         HapticManager.lightTap()
         dismiss()
