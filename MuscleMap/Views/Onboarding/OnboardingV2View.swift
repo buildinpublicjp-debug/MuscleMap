@@ -21,94 +21,49 @@ struct OnboardingV2View: View {
         }
     }
 
+    /// 遷移方向を追跡（アニメーション方向制御用）
+    @State private var navigatingForward = true
+
     var body: some View {
         ZStack {
             Color.mmOnboardingBg.ignoresSafeArea()
 
-            TabView(selection: $currentPage) {
-                // ページ0: 目標選択（エモーショナル版）
-                GoalSelectionPage {
-                    currentPage = 1
-                }
-                .tag(0)
-                .background(Color.mmOnboardingBg)
-                .clipped()
-                .zIndex(currentPage == 0 ? 1 : 0)
-
-                // ページ1: 週間トレーニング頻度
-                FrequencySelectionPage { frequency in
-                    AppState.shared.userProfile.weeklyFrequency = frequency.rawValue
-                    currentPage = 2
-                }
-                .tag(1)
-                .background(Color.mmOnboardingBg)
-                .clipped()
-                .zIndex(currentPage == 1 ? 1 : 0)
-
-                // ページ2: トレーニング場所
-                LocationSelectionPage { location in
-                    AppState.shared.userProfile.trainingLocation = location.rawValue
-                    currentPage = 3
-                }
-                .tag(2)
-                .background(Color.mmOnboardingBg)
-                .clipped()
-                .zIndex(currentPage == 2 ? 1 : 0)
-
-                // ページ3: プロフィール入力（トレ歴 + 体重 + ニックネーム統合）
-                ProfileInputPage {
-                    afterProfileInput()
-                }
-                .tag(3)
-                .background(Color.mmOnboardingBg)
-                .clipped()
-                .zIndex(currentPage == 3 ? 1 : 0)
-
-                // ページ4: PR入力（経験者のみ: oneYearPlus / veteran）
-                PRInputPage {
-                    currentPage = 5
-                }
-                .tag(4)
-                .background(Color.mmOnboardingBg)
-                .clipped()
-                .zIndex(currentPage == 4 ? 1 : 0)
-
-                // ページ5: 回復サイクルプレビュー
-                GoalMusclePreviewPage {
-                    currentPage = 6
-                }
-                .tag(5)
-                .background(Color.mmOnboardingBg)
-                .clipped()
-                .zIndex(currentPage == 5 ? 1 : 0)
-
-                // ページ6: ルーティンビルダー
-                RoutineBuilderPage {
-                    currentPage = 7
-                }
-                .tag(6)
-                .background(Color.mmOnboardingBg)
-                .clipped()
-                .zIndex(currentPage == 6 ? 1 : 0)
-
-                // ページ7: 回復通知（Paywall前の独立ページ）
-                NotificationPermissionView {
-                    currentPage = 8
-                }
-                .tag(7)
-                .background(Color.mmOnboardingBg)
-                .clipped()
-                .zIndex(currentPage == 7 ? 1 : 0)
-
-                // ページ8: ルーティン完了 + ハードペイウォール
-                RoutineCompletionPage(onComplete: onComplete)
-                    .tag(8)
-                    .background(Color.mmOnboardingBg)
-                    .clipped()
-                    .zIndex(currentPage == 8 ? 1 : 0)
+            // スワイプ無効化: TabViewの代わりにZStack + カスタム遷移
+            ZStack {
+                pageView(for: currentPage)
+                    .id(currentPage)
+                    .transition(.asymmetric(
+                        insertion: .move(edge: navigatingForward ? .trailing : .leading),
+                        removal: .move(edge: navigatingForward ? .leading : .trailing)
+                    ))
             }
-            .tabViewStyle(.page(indexDisplayMode: .never))
-            .animation(.easeInOut(duration: 0.4), value: currentPage)
+            .animation(.easeInOut(duration: 0.3), value: currentPage)
+
+            // 戻るボタン（Page 1以降）
+            if currentPage > 0 {
+                VStack {
+                    HStack {
+                        Button {
+                            navigatingForward = false
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                goBack()
+                            }
+                        } label: {
+                            HStack(spacing: 4) {
+                                Image(systemName: "chevron.left")
+                                    .font(.system(size: 14, weight: .semibold))
+                                Text(isJapanese ? "戻る" : "Back")
+                                    .font(.system(size: 14, weight: .medium))
+                            }
+                            .foregroundStyle(Color.mmOnboardingTextSub)
+                        }
+                        .padding(.leading, 20)
+                        .padding(.top, 8)
+                        Spacer()
+                    }
+                    Spacer()
+                }
+            }
 
             // ページインジケーター（PR入力スキップ時はページ4を除外）
             VStack {
@@ -124,6 +79,75 @@ struct OnboardingV2View: View {
                 .padding(.bottom, 16)
             }
         }
+    }
+
+    // MARK: - ページ表示
+
+    @ViewBuilder
+    private func pageView(for page: Int) -> some View {
+        switch page {
+        case 0:
+            GoalSelectionPage {
+                navigatingForward = true
+                currentPage = 1
+            }
+        case 1:
+            FrequencySelectionPage { frequency in
+                AppState.shared.userProfile.weeklyFrequency = frequency.rawValue
+                navigatingForward = true
+                currentPage = 2
+            }
+        case 2:
+            LocationSelectionPage { location in
+                AppState.shared.userProfile.trainingLocation = location.rawValue
+                navigatingForward = true
+                currentPage = 3
+            }
+        case 3:
+            ProfileInputPage {
+                navigatingForward = true
+                afterProfileInput()
+            }
+        case 4:
+            PRInputPage {
+                navigatingForward = true
+                currentPage = 5
+            }
+        case 5:
+            GoalMusclePreviewPage {
+                navigatingForward = true
+                currentPage = 6
+            }
+        case 6:
+            RoutineBuilderPage {
+                navigatingForward = true
+                currentPage = 7
+            }
+        case 7:
+            NotificationPermissionView {
+                navigatingForward = true
+                currentPage = 8
+            }
+        case 8:
+            RoutineCompletionPage(onComplete: onComplete)
+        default:
+            EmptyView()
+        }
+    }
+
+    // MARK: - 戻るナビゲーション
+
+    /// 戻るボタンのページ遷移（PR入力スキップ時はページ4を飛ばす）
+    private func goBack() {
+        if currentPage == 5 && !showPRInput {
+            currentPage = 3 // PR入力スキップ時: 5→3
+        } else {
+            currentPage -= 1
+        }
+    }
+
+    private var isJapanese: Bool {
+        LocalizationManager.shared.currentLanguage == .japanese
     }
 
     /// インジケーターに表示するページ番号（PR入力スキップ時はページ4を除外）
