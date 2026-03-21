@@ -140,6 +140,8 @@ struct TodayRecommendationInline: View {
     @State private var selectedExerciseDefinition: ExerciseDefinition?
     @State private var showRoutineEdit = false
     @State private var selectedDayIndex: Int?
+    @State private var showingReplaceSheet = false
+    @State private var replacingExerciseIndex: Int?
 
     private var localization: LocalizationManager { LocalizationManager.shared }
 
@@ -249,7 +251,7 @@ struct TodayRecommendationInline: View {
                 GridItem(.flexible(), spacing: 8),
             ]
             LazyVGrid(columns: gridColumns, spacing: 8) {
-                ForEach(displayDay.exercises) { exercise in
+                ForEach(Array(displayDay.exercises.enumerated()), id: \.element.id) { exerciseIndex, exercise in
                     let def = ExerciseStore.shared.exercise(for: exercise.exerciseId)
                     let name = exerciseName(for: exercise)
                     Button {
@@ -308,6 +310,29 @@ struct TodayRecommendationInline: View {
                         .clipShape(RoundedRectangle(cornerRadius: 8))
                     }
                     .buttonStyle(.plain)
+                    .contextMenu {
+                        Button {
+                            replacingExerciseIndex = exerciseIndex
+                            showingReplaceSheet = true
+                        } label: {
+                            Label(
+                                localization.currentLanguage == .japanese ? "種目を変更" : "Replace Exercise",
+                                systemImage: "arrow.left.arrow.right"
+                            )
+                        }
+
+                        Button(role: .destructive) {
+                            let dayIdx = currentDayIndex
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                RoutineManager.shared.removeExercise(dayIndex: dayIdx, exerciseIndex: exerciseIndex)
+                            }
+                        } label: {
+                            Label(
+                                localization.currentLanguage == .japanese ? "削除" : "Remove",
+                                systemImage: "trash"
+                            )
+                        }
+                    }
                 }
             }
 
@@ -315,21 +340,9 @@ struct TodayRecommendationInline: View {
             if isPremium {
                 Button {
                     HapticManager.lightTap()
-                    let exercises = displayDay.exercises.compactMap { re -> RecommendedExercise? in
-                        guard let def = ExerciseStore.shared.exercise(for: re.exerciseId) else { return nil }
-                        let name = localization.currentLanguage == .japanese ? def.nameJA : def.nameEN
-                        let prevW = previousWeightProvider?(re.exerciseId)
-                        return RecommendedExercise(
-                            exerciseId: re.exerciseId,
-                            exerciseName: name,
-                            suggestedWeight: prevW ?? 0,
-                            suggestedReps: re.suggestedReps,
-                            suggestedSets: re.suggestedSets,
-                            previousWeight: prevW,
-                            weightIncrease: 0
-                        )
-                    }
-                    onStartWithMenu(exercises)
+                    // ルーティンモードで開始するためにpendingStartDayを設定
+                    RoutineManager.shared.pendingStartDay = displayDay
+                    AppState.shared.selectedTab = 1
                 } label: {
                     Text(L10n.startRoutine)
                         .font(.system(size: 15, weight: .bold))
@@ -390,6 +403,12 @@ struct TodayRecommendationInline: View {
         .clipShape(RoundedRectangle(cornerRadius: 16))
         .sheet(item: $selectedExerciseDefinition) { def in
             ExerciseDetailView(exercise: def)
+        }
+        .sheet(isPresented: $showingReplaceSheet) {
+            RoutineExerciseReplacePicker(
+                dayIndex: currentDayIndex,
+                exerciseIndex: replacingExerciseIndex ?? 0
+            )
         }
     }
 

@@ -59,8 +59,12 @@ struct WorkoutStartView: View {
                     viewModel = WorkoutViewModel(modelContext: modelContext)
                 }
                 loadMuscleStates()
+                handlePendingRoutineDay()
                 handlePendingExercise()
                 handlePendingRecommendation()
+            }
+            .onChange(of: RoutineManager.shared.pendingStartDay?.id) {
+                handlePendingRoutineDay()
             }
             .onChange(of: AppState.shared.pendingExerciseId) {
                 handlePendingExercise()
@@ -93,6 +97,14 @@ struct WorkoutStartView: View {
                 }
             }
         }
+    }
+
+    /// ルーティンモードでワークアウト開始（HomeViewから遷移）
+    private func handlePendingRoutineDay() {
+        guard let pendingDay = RoutineManager.shared.pendingStartDay,
+              let vm = viewModel else { return }
+        RoutineManager.shared.pendingStartDay = nil
+        vm.startWithRoutine(day: pendingDay)
     }
 
     /// 種目詳細画面から遷移してきた場合、セッション開始 + 種目選択

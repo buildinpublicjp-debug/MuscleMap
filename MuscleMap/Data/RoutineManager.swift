@@ -11,6 +11,9 @@ class RoutineManager {
 
     private(set) var routine: UserRoutine
 
+    /// HomeViewからワークアウト開始時に設定される。WorkoutStartViewが消費する。
+    var pendingStartDay: RoutineDay?
+
     private init() {
         self.routine = UserRoutine.load()
     }
