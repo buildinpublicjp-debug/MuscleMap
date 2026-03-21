@@ -41,115 +41,121 @@ struct NotificationPermissionView: View {
             Color.mmOnboardingBg.ignoresSafeArea()
 
             VStack(spacing: 0) {
-                Spacer().frame(height: 24)
+                ScrollView(showsIndicators: false) {
+                    VStack(spacing: 0) {
+                        Spacer().frame(height: 24)
 
-                // ヘッドライン
-                Text(isJapanese ? "回復したら、教える。" : "We'll Tell You When You're Ready.")
-                    .font(.system(size: 28, weight: .heavy))
-                    .foregroundStyle(Color.mmOnboardingAccent)
-                    .multilineTextAlignment(.center)
-                    .opacity(appeared ? 1 : 0)
-                    .offset(y: appeared ? 0 : 10)
+                        // ヘッドライン
+                        Text(isJapanese ? "回復したら、教える。" : "We'll Tell You When You're Ready.")
+                            .font(.system(size: 28, weight: .heavy))
+                            .foregroundStyle(Color.mmOnboardingAccent)
+                            .multilineTextAlignment(.center)
+                            .opacity(appeared ? 1 : 0)
+                            .offset(y: appeared ? 0 : 10)
 
-                Spacer().frame(height: 6)
+                        Spacer().frame(height: 6)
 
-                // サブテキスト（刺激→回復→成長）
-                Text(isJapanese
-                    ? "筋肉が回復したタイミングで通知を受け取れます\nベストなタイミングで次のトレーニングへ。"
-                    : "Get notified when your muscles have recovered.\nTrain at the perfect time for maximum gains.")
-                    .font(.system(size: 14))
-                    .foregroundStyle(Color.mmOnboardingTextSub)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 24)
-                    .opacity(appeared ? 1 : 0)
-                    .offset(y: appeared ? 0 : 10)
+                        // サブテキスト（刺激→回復→成長）
+                        Text(isJapanese
+                            ? "筋肉が回復したタイミングで通知を受け取れます\nベストなタイミングで次のトレーニングへ。"
+                            : "Get notified when your muscles have recovered.\nTrain at the perfect time for maximum gains.")
+                            .font(.system(size: 14))
+                            .foregroundStyle(Color.mmOnboardingTextSub)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 24)
+                            .opacity(appeared ? 1 : 0)
+                            .offset(y: appeared ? 0 : 10)
 
-                Spacer().frame(height: 16)
+                        Spacer().frame(height: 16)
 
-                // 筋肉マップ（回復アニメーション）
-                MuscleMapView(muscleStates: muscleStates)
-                    .frame(height: 200)
-                    .padding(.horizontal, 24)
-                    .opacity(appeared ? 1 : 0)
-                    .scaleEffect(appeared ? 1 : 0.9)
+                        // 筋肉マップ（回復アニメーション）
+                        MuscleMapView(muscleStates: muscleStates)
+                            .frame(height: 300)
+                            .padding(.horizontal, 24)
+                            .opacity(appeared ? 1 : 0)
+                            .scaleEffect(appeared ? 1 : 0.9)
 
-                Spacer().frame(height: 8)
+                        Spacer().frame(height: 8)
 
-                // 成長サイクル 3ステップバッジ
-                growthCycleSteps
-                    .opacity(appeared ? 1 : 0)
+                        // 成長サイクル 3ステップバッジ
+                        growthCycleSteps
+                            .opacity(appeared ? 1 : 0)
 
-                Spacer().frame(height: 16)
+                        Spacer().frame(height: 16)
 
-                // 通知プレビューカード（2枚）
-                VStack(spacing: 8) {
-                    notificationCard(
-                        subtitle: isJapanese ? "🔥 大胸筋・三角筋 回復完了！" : "🔥 Chest & Delts Recovered!",
-                        body: isJapanese ? "プッシュの日です。トレーニングしよう！" : "Push day. Time to train!",
-                        time: isJapanese ? "たった今" : "Just now",
-                        isMain: true
-                    )
-
-                    notificationCard(
-                        subtitle: isJapanese ? "🏆 ベンチプレス PR更新チャンス！" : "🏆 Bench Press PR Opportunity!",
-                        body: isJapanese ? "前回62.5kg×8。今日65kgに挑戦できるかも" : "Last time 62.5kg×8. Try 65kg today?",
-                        time: isJapanese ? "2時間前" : "2h ago"
-                    )
-                }
-                .opacity(appeared ? 1 : 0)
-                .offset(y: appeared ? 0 : 10)
-
-                Spacer(minLength: 12)
-
-                // 「成長を見逃さない」ボタン
-                Button {
-                    requestNotificationPermission()
-                } label: {
-                    if isRequesting {
-                        ProgressView()
-                            .tint(Color.mmOnboardingBg)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 56)
-                            .background(
-                                LinearGradient(
-                                    colors: [.mmOnboardingAccent, .mmOnboardingAccentDark],
-                                    startPoint: .leading,
-                                    endPoint: .trailing
-                                )
+                        // 通知プレビューカード（2枚）
+                        VStack(spacing: 8) {
+                            notificationCard(
+                                subtitle: isJapanese ? "🔥 大胸筋・三角筋 回復完了！" : "🔥 Chest & Delts Recovered!",
+                                body: isJapanese ? "プッシュの日です。トレーニングしよう！" : "Push day. Time to train!",
+                                time: isJapanese ? "たった今" : "Just now",
+                                isMain: true
                             )
-                            .clipShape(RoundedRectangle(cornerRadius: 16))
-                    } else {
-                        Text(isJapanese ? "回復通知をオンにする" : "Turn On Recovery Alerts")
-                            .font(.system(size: 18, weight: .bold))
-                            .foregroundStyle(Color.mmOnboardingBg)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 56)
-                            .background(
-                                LinearGradient(
-                                    colors: [.mmOnboardingAccent, .mmOnboardingAccentDark],
-                                    startPoint: .leading,
-                                    endPoint: .trailing
-                                )
+
+                            notificationCard(
+                                subtitle: isJapanese ? "🏆 ベンチプレス PR更新チャンス！" : "🏆 Bench Press PR Opportunity!",
+                                body: isJapanese ? "前回62.5kg×8。今日65kgに挑戦できるかも" : "Last time 62.5kg×8. Try 65kg today?",
+                                time: isJapanese ? "2時間前" : "2h ago"
                             )
-                            .clipShape(RoundedRectangle(cornerRadius: 16))
+                        }
+                        .opacity(appeared ? 1 : 0)
+                        .offset(y: appeared ? 0 : 10)
+
+                        Spacer().frame(height: 16)
                     }
                 }
-                .buttonStyle(.plain)
-                .disabled(isRequesting)
-                .padding(.horizontal, 24)
 
-                // あとでボタン
-                Button {
-                    HapticManager.lightTap()
-                    onComplete()
-                } label: {
-                    Text(L10n.maybeLater)
-                        .font(.subheadline)
-                        .foregroundStyle(Color.mmOnboardingTextSub)
+                // 「成長を見逃さない」ボタン（固定下部）
+                VStack(spacing: 0) {
+                    Button {
+                        requestNotificationPermission()
+                    } label: {
+                        if isRequesting {
+                            ProgressView()
+                                .tint(Color.mmOnboardingBg)
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 56)
+                                .background(
+                                    LinearGradient(
+                                        colors: [.mmOnboardingAccent, .mmOnboardingAccentDark],
+                                        startPoint: .leading,
+                                        endPoint: .trailing
+                                    )
+                                )
+                                .clipShape(RoundedRectangle(cornerRadius: 16))
+                        } else {
+                            Text(isJapanese ? "回復通知をオンにする" : "Turn On Recovery Alerts")
+                                .font(.system(size: 18, weight: .bold))
+                                .foregroundStyle(Color.mmOnboardingBg)
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 56)
+                                .background(
+                                    LinearGradient(
+                                        colors: [.mmOnboardingAccent, .mmOnboardingAccentDark],
+                                        startPoint: .leading,
+                                        endPoint: .trailing
+                                    )
+                                )
+                                .clipShape(RoundedRectangle(cornerRadius: 16))
+                        }
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(isRequesting)
+                    .padding(.horizontal, 24)
+
+                    // あとでボタン
+                    Button {
+                        HapticManager.lightTap()
+                        onComplete()
+                    } label: {
+                        Text(L10n.maybeLater)
+                            .font(.subheadline)
+                            .foregroundStyle(Color.mmOnboardingTextSub)
+                    }
+                    .disabled(isRequesting)
+                    .padding(.top, 12)
+                    .padding(.bottom, 32)
                 }
-                .disabled(isRequesting)
-                .padding(.top, 12)
-                .padding(.bottom, 32)
             }
         }
         .onAppear {

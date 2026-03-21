@@ -8,7 +8,7 @@ struct PaywallView: View {
     @State private var errorMessage: String?
     @State private var showingError = false
     @State private var showFreeOption = false
-    @State private var scrollOffset: CGFloat = 0
+
 
     private var localization: LocalizationManager { LocalizationManager.shared }
 
@@ -89,12 +89,11 @@ struct PaywallView: View {
         max(0, totalExercises - previewExercises.count)
     }
 
-    /// 自動スクロール用の幅計算
-    private let cardWidth: CGFloat = 160 // card(150) + spacing(10)
-
-    private var totalScrollWidth: CGFloat {
-        CGFloat(previewExercises.count) * cardWidth
-    }
+    /// 2カラムグリッド
+    private let gridColumns = [
+        GridItem(.flexible(), spacing: 8),
+        GridItem(.flexible(), spacing: 8),
+    ]
 
     // MARK: - Body
 
@@ -111,8 +110,8 @@ struct PaywallView: View {
 
                     Spacer().frame(height: 8)
 
-                    // 2. GIF横スクロール（自動アニメーション）
-                    menuPreviewScroll
+                    // 2. 種目GIF 2カラムグリッド
+                    menuPreviewGrid
 
                     Spacer().frame(height: 12)
 
@@ -182,7 +181,7 @@ struct PaywallView: View {
                     }
                 }
             }
-            startAutoScroll()
+            // 自動スクロールは2カラムグリッド化で不要
         }
     }
 
@@ -217,30 +216,20 @@ struct PaywallView: View {
         .padding(.horizontal, 24)
     }
 
-    // MARK: - GIF横スクロール（自動アニメーション）
+    // MARK: - 種目GIF 2カラムグリッド
 
-    private var menuPreviewScroll: some View {
+    private var menuPreviewGrid: some View {
         VStack(spacing: 4) {
-            // 自動スクロールエリア
-            GeometryReader { _ in
-                HStack(spacing: 10) {
-                    // 2回繰り返して無限ループ感を出す
-                    ForEach(0..<2, id: \.self) { batch in
-                        ForEach(Array(previewExercises.enumerated()), id: \.offset) { index, exercise in
-                            PaywallExerciseCard(
-                                exerciseId: exercise.id,
-                                name: exercise.name,
-                                detail: exercise.detail
-                            )
-                            .frame(width: 150, height: 130)
-                            .id("\(batch)-\(index)")
-                        }
-                    }
+            LazyVGrid(columns: gridColumns, spacing: 8) {
+                ForEach(Array(previewExercises.enumerated()), id: \.offset) { _, exercise in
+                    PaywallExerciseCard(
+                        exerciseId: exercise.id,
+                        name: exercise.name,
+                        detail: exercise.detail
+                    )
                 }
-                .offset(x: scrollOffset)
             }
-            .frame(height: 130)
-            .clipped()
+            .padding(.horizontal, 16)
 
             // 「+他N種目」テキスト
             if remainingExerciseCount > 0 {
@@ -250,22 +239,6 @@ struct PaywallView: View {
                     .font(.system(size: 12, weight: .medium))
                     .foregroundStyle(Color.mmTextSecondary)
             }
-        }
-    }
-
-    // MARK: - 自動スクロール
-
-    private func startAutoScroll() {
-        let width = totalScrollWidth
-        guard width > 0 else { return }
-
-        // 初期位置（左端から少し余白）
-        scrollOffset = 24
-
-        // ゆっくり左にスクロール（duration = 種目数に応じて調整）
-        let duration = Double(previewExercises.count) * 3.0
-        withAnimation(.linear(duration: duration).repeatForever(autoreverses: false)) {
-            scrollOffset = 24 - width
         }
     }
 
@@ -468,7 +441,7 @@ struct PaywallView: View {
     }
 }
 
-// MARK: - GIFカード（Paywall横スクロール用）
+// MARK: - GIFカード（Paywall 2カラムグリッド用）
 
 private struct PaywallExerciseCard: View {
     let exerciseId: String
@@ -478,16 +451,19 @@ private struct PaywallExerciseCard: View {
     var body: some View {
         ZStack(alignment: .bottom) {
             // GIF or プレースホルダー
-            if ExerciseGifView.hasGif(exerciseId: exerciseId) {
-                ExerciseGifView(exerciseId: exerciseId, size: .card)
-                    .frame(width: 150, height: 130)
-                    .clipped()
-            } else {
+            GeometryReader { geo in
                 Color.mmBgCard
-                    .frame(width: 150, height: 130)
-                Image(systemName: "dumbbell.fill")
-                    .font(.system(size: 24))
-                    .foregroundStyle(Color.mmTextSecondary.opacity(0.3))
+                if ExerciseGifView.hasGif(exerciseId: exerciseId) {
+                    ExerciseGifView(exerciseId: exerciseId, size: .card)
+                        .scaledToFill()
+                        .frame(width: geo.size.width, height: geo.size.height)
+                        .clipped()
+                } else {
+                    Image(systemName: "dumbbell.fill")
+                        .font(.system(size: 24))
+                        .foregroundStyle(Color.mmTextSecondary.opacity(0.3))
+                        .frame(width: geo.size.width, height: geo.size.height)
+                }
             }
 
             // 下部グラデーション + テキスト
@@ -513,7 +489,8 @@ private struct PaywallExerciseCard: View {
                 )
             )
         }
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .aspectRatio(1, contentMode: .fit)
+        .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 }
 
