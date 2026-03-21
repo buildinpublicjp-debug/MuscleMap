@@ -18,6 +18,8 @@ struct UserProfile: Codable {
     var trainingLocation: String
     /// 目標に基づく重点筋肉のrawValue配列（例: ["deltoid_lateral", "chest_upper"]）
     var goalPriorityMuscles: [String]
+    /// 目標ごとのスライダー重み（goalId: 0.0〜1.0）
+    var goalWeights: [String: Double]
 
     static let `default` = UserProfile(
         nickname: "",
@@ -27,7 +29,8 @@ struct UserProfile: Codable {
         initialPRs: [:],
         weeklyFrequency: 3,
         trainingLocation: "gym",
-        goalPriorityMuscles: []
+        goalPriorityMuscles: [],
+        goalWeights: [:]
     )
 
     /// 既存ユーザーのデータに新フィールドが存在しない場合に対応
@@ -43,6 +46,7 @@ struct UserProfile: Codable {
         weeklyFrequency = try container.decodeIfPresent(Int.self, forKey: .weeklyFrequency) ?? 3
         trainingLocation = try container.decodeIfPresent(String.self, forKey: .trainingLocation) ?? "gym"
         goalPriorityMuscles = try container.decodeIfPresent([String].self, forKey: .goalPriorityMuscles) ?? []
+        goalWeights = try container.decodeIfPresent([String: Double].self, forKey: .goalWeights) ?? [:]
     }
 
     init(
@@ -53,7 +57,8 @@ struct UserProfile: Codable {
         initialPRs: [String: Double] = [:],
         weeklyFrequency: Int = 3,
         trainingLocation: String = "gym",
-        goalPriorityMuscles: [String] = []
+        goalPriorityMuscles: [String] = [],
+        goalWeights: [String: Double] = [:]
     ) {
         self.nickname = nickname
         self.heightCm = heightCm
@@ -63,6 +68,7 @@ struct UserProfile: Codable {
         self.weeklyFrequency = weeklyFrequency
         self.trainingLocation = trainingLocation
         self.goalPriorityMuscles = goalPriorityMuscles
+        self.goalWeights = goalWeights
     }
 }
 

@@ -340,7 +340,7 @@ struct FrequencySelectionPage: View {
 
         updateMuscleStatesForDay(0, parts: parts, trainingDays: trainingDays)
 
-        let timer = Timer.scheduledTimer(withTimeInterval: 0.6, repeats: true) { [trainingDays] _ in
+        let timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [trainingDays] _ in
             Task { @MainActor in
                 animationDay = (animationDay + 1) % 7
                 updateMuscleStatesForDay(animationDay, parts: parts, trainingDays: trainingDays)
@@ -383,7 +383,7 @@ struct FrequencySelectionPage: View {
             // daysSince < 0 → まだ刺激されてない → .inactive のまま
         }
 
-        withAnimation(.easeInOut(duration: 0.3)) {
+        withAnimation(.easeInOut(duration: 0.6)) {
             muscleStates = states
         }
     }

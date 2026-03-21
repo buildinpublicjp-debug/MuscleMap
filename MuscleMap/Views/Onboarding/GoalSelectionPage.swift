@@ -53,13 +53,12 @@ enum OnboardingGoal: String, CaseIterable, Identifiable {
     }
 }
 
-// MARK: - 目標選択画面（複数選択 + 筋肉マップ + インタラクティブハイライト）
+// MARK: - 目標選択画面（スライダー + 筋肉マップグラデーション）
 
 struct GoalSelectionPage: View {
     let onNext: () -> Void
 
-    @State private var selectedGoals: Set<OnboardingGoal> = []
-    @State private var selectionOrder: [OnboardingGoal] = []
+    @State private var goalValues: [String: Double] = [:]
     @State private var cardAppearances: [Bool] = Array(repeating: false, count: OnboardingGoal.allCases.count)
     @State private var isProceeding = false
     @State private var headerAppeared = false
@@ -69,49 +68,60 @@ struct GoalSelectionPage: View {
         LocalizationManager.shared.currentLanguage == .japanese
     }
 
-    /// 全選択目標の重点筋肉を合算
-    private var priorityMuscles: [Muscle] {
-        guard !selectedGoals.isEmpty else { return [] }
-        var muscles: [Muscle] = []
-        var seen: Set<Muscle> = []
-        for goal in selectedGoals {
-            for muscle in GoalMusclePriority.data(for: goal).muscles {
-                if seen.insert(muscle).inserted {
-                    muscles.append(muscle)
-                }
-            }
-        }
-        return muscles
+    /// 少なくとも1つのスライダーが0より大きいか
+    private var hasAnyGoal: Bool {
+        goalValues.values.contains { $0 > 0 }
     }
 
-    /// 筋肉マップの状態（全選択目標の筋肉を合算ハイライト）
+    /// 全目標のスライダー値からグラデーション筋肉マップ状態を計算
     private var muscleStates: [Muscle: MuscleVisualState] {
-        guard !selectedGoals.isEmpty else {
-            var states: [Muscle: MuscleVisualState] = [:]
-            for muscle in Muscle.allCases {
-                states[muscle] = .inactive
+        // 筋肉ごとの強度を合算
+        var muscleIntensity: [Muscle: Double] = [:]
+        for goal in OnboardingGoal.allCases {
+            let sliderValue = goalValues[goal.rawValue] ?? 0
+            guard sliderValue > 0 else { continue }
+            let muscles = GoalMusclePriority.data(for: goal).muscles
+            for muscle in muscles {
+                let current = muscleIntensity[muscle] ?? 0
+                muscleIntensity[muscle] = min(1.0, current + sliderValue)
             }
-            return states
         }
-        var prioritySet: Set<Muscle> = []
-        for goal in selectedGoals {
-            let priority = GoalMusclePriority.data(for: goal)
-            prioritySet.formUnion(priority.muscles)
-        }
+
         var states: [Muscle: MuscleVisualState] = [:]
         for muscle in Muscle.allCases {
-            states[muscle] = prioritySet.contains(muscle)
-                ? .recovering(progress: 0.1)
-                : .inactive
+            if let intensity = muscleIntensity[muscle], intensity > 0 {
+                // intensity 0→1 を progress 0.6→1.0 にマッピング（緑系のグラデーション）
+                let progress = 0.6 + intensity * 0.4
+                states[muscle] = .recovering(progress: progress)
+            } else {
+                states[muscle] = .inactive
+            }
         }
         return states
+    }
+
+    /// 重点筋肉チップ用（強度順）
+    private var priorityMuscles: [Muscle] {
+        var muscleIntensity: [Muscle: Double] = [:]
+        for goal in OnboardingGoal.allCases {
+            let sliderValue = goalValues[goal.rawValue] ?? 0
+            guard sliderValue > 0 else { continue }
+            let muscles = GoalMusclePriority.data(for: goal).muscles
+            for muscle in muscles {
+                let current = muscleIntensity[muscle] ?? 0
+                muscleIntensity[muscle] = min(1.0, current + sliderValue)
+            }
+        }
+        return muscleIntensity
+            .sorted { $0.value > $1.value }
+            .map { $0.key }
     }
 
     var body: some View {
         VStack(spacing: 0) {
             Spacer().frame(height: 16)
 
-            // ヘッダー（コンパクト）
+            // ヘッダー
             Text(L10n.goalSelectionHeadline)
                 .font(.system(size: 22, weight: .heavy))
                 .foregroundStyle(Color.mmOnboardingTextMain)
@@ -122,16 +132,16 @@ struct GoalSelectionPage: View {
 
             Spacer().frame(height: 8)
 
-            // 筋肉マップ（前面+背面横並び、タップ可能）
+            // 筋肉マップ（グラデーションハイライト）
             MuscleMapView(
                 muscleStates: muscleStates,
                 onMuscleTapped: { muscle in
                     tappedMuscle = muscle
                 }
             )
-            .frame(height: 280)
+            .frame(height: 260)
             .padding(.horizontal, 16)
-            .animation(.spring(response: 0.4, dampingFraction: 0.8), value: selectedGoals)
+            .animation(.easeInOut(duration: 0.3), value: goalValues.map { "\($0.key):\($0.value)" })
 
             // 重点筋肉チップ（横スクロール）
             if !priorityMuscles.isEmpty {
@@ -141,7 +151,7 @@ struct GoalSelectionPage: View {
                             .font(.caption2)
                             .foregroundStyle(Color.mmOnboardingTextSub)
 
-                        ForEach(priorityMuscles, id: \.self) { muscle in
+                        ForEach(priorityMuscles.prefix(8), id: \.self) { muscle in
                             HStack(spacing: 4) {
                                 Circle()
                                     .fill(Color.mmOnboardingAccent)
@@ -160,48 +170,34 @@ struct GoalSelectionPage: View {
                 }
                 .frame(height: 28)
                 .transition(.opacity)
-                .animation(.easeOut(duration: 0.3), value: selectedGoals)
             }
 
             Spacer().frame(height: 4)
 
-            // 目標カード（コンパクト、スクロール不要）
-            VStack(spacing: 6) {
-                ForEach(Array(OnboardingGoal.allCases.enumerated()), id: \.element.id) { index, goal in
-                    CompactGoalCard(
-                        goal: goal,
-                        isSelected: selectedGoals.contains(goal),
-                        onTap: {
-                            guard !isProceeding else { return }
-                            withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
-                                if selectedGoals.contains(goal) {
-                                    selectedGoals.remove(goal)
-                                    selectionOrder.removeAll { $0 == goal }
-                                } else {
-                                    selectedGoals.insert(goal)
-                                    selectionOrder.append(goal)
-                                }
-                            }
-                            HapticManager.lightTap()
-                            // 最初に選択した目標を primaryOnboardingGoal に保存（選択順序で決定的）
-                            if let first = selectionOrder.first {
-                                AppState.shared.primaryOnboardingGoal = first.rawValue
-                            } else {
-                                AppState.shared.primaryOnboardingGoal = nil
-                            }
-                        }
-                    )
-                    .opacity(cardAppearances.indices.contains(index) && cardAppearances[index] ? 1 : 0)
-                    .offset(y: cardAppearances.indices.contains(index) && cardAppearances[index] ? 0 : 12)
+            // 目標カード（スライダー付き、スクロール可能）
+            ScrollView {
+                VStack(spacing: 6) {
+                    ForEach(Array(OnboardingGoal.allCases.enumerated()), id: \.element.id) { index, goal in
+                        GoalSliderCard(
+                            goal: goal,
+                            value: Binding(
+                                get: { goalValues[goal.rawValue] ?? 0 },
+                                set: { goalValues[goal.rawValue] = $0 }
+                            )
+                        )
+                        .opacity(cardAppearances.indices.contains(index) && cardAppearances[index] ? 1 : 0)
+                        .offset(y: cardAppearances.indices.contains(index) && cardAppearances[index] ? 0 : 12)
+                    }
                 }
+                .padding(.horizontal, 24)
             }
-            .padding(.horizontal, 24)
+            .scrollIndicators(.hidden)
 
-            Spacer(minLength: 8)
+            Spacer(minLength: 4)
 
             // 未選択ヒント
-            if selectedGoals.isEmpty {
-                Text(isJapanese ? "1つ以上選んでください" : "Select at least one")
+            if !hasAnyGoal {
+                Text(isJapanese ? "スライダーを右にドラッグ" : "Drag sliders to set priorities")
                     .font(.system(size: 13))
                     .foregroundStyle(Color.mmOnboardingTextSub)
                     .padding(.bottom, 4)
@@ -209,35 +205,25 @@ struct GoalSelectionPage: View {
 
             // 次へボタン
             Button {
-                guard !isProceeding, !selectedGoals.isEmpty else { return }
+                guard !isProceeding, hasAnyGoal else { return }
                 isProceeding = true
                 HapticManager.lightTap()
-                // 選択順序で合算（決定的な順序を保証）
-                var allMuscles: [String] = []
-                var seen: Set<String> = []
-                for goal in selectionOrder {
-                    for muscle in GoalMusclePriority.data(for: goal).muscles {
-                        if seen.insert(muscle.rawValue).inserted {
-                            allMuscles.append(muscle.rawValue)
-                        }
-                    }
-                }
-                AppState.shared.userProfile.goalPriorityMuscles = allMuscles
+                saveGoalData()
                 onNext()
             } label: {
                 Text(L10n.next)
                     .font(.system(size: 18, weight: .bold))
-                    .foregroundStyle(!selectedGoals.isEmpty ? Color.mmOnboardingBg : Color.mmOnboardingTextSub)
+                    .foregroundStyle(hasAnyGoal ? Color.mmOnboardingBg : Color.mmOnboardingTextSub)
                     .frame(maxWidth: .infinity)
                     .frame(height: 56)
-                    .background(!selectedGoals.isEmpty ? Color.mmOnboardingAccent : Color.mmOnboardingCard)
+                    .background(hasAnyGoal ? Color.mmOnboardingAccent : Color.mmOnboardingCard)
                     .clipShape(RoundedRectangle(cornerRadius: 16))
             }
             .buttonStyle(.plain)
-            .disabled(selectedGoals.isEmpty)
+            .disabled(!hasAnyGoal)
             .padding(.horizontal, 24)
             .padding(.bottom, 32)
-            .animation(.easeInOut(duration: 0.2), value: selectedGoals)
+            .animation(.easeInOut(duration: 0.2), value: hasAnyGoal)
         }
         .sheet(item: $tappedMuscle) { muscle in
             MuscleExerciseSheet(muscle: muscle)
@@ -245,11 +231,10 @@ struct GoalSelectionPage: View {
                 .presentationDragIndicator(.visible)
         }
         .onAppear {
-            isProceeding = false  // スワイプ戻り時にボタンを有効化
+            isProceeding = false
             withAnimation(.easeOut(duration: 0.5)) {
                 headerAppeared = true
             }
-            // カードの順次フェードイン
             for index in OnboardingGoal.allCases.indices {
                 withAnimation(.easeOut(duration: 0.4).delay(Double(index) * 0.06 + 0.2)) {
                     cardAppearances[index] = true
@@ -257,62 +242,90 @@ struct GoalSelectionPage: View {
             }
         }
     }
+
+    // MARK: - 保存
+
+    private func saveGoalData() {
+        // goalWeightsをUserProfileに保存
+        let weights = goalValues.filter { $0.value > 0 }
+        AppState.shared.userProfile.goalWeights = weights
+
+        // primaryOnboardingGoal: 最も高いスライダー値の目標
+        if let topGoal = weights.max(by: { $0.value < $1.value }) {
+            AppState.shared.primaryOnboardingGoal = topGoal.key
+        }
+
+        // goalPriorityMuscles: 重み付き合算（後方互換）
+        var muscleIntensity: [Muscle: Double] = [:]
+        for (goalId, sliderValue) in weights {
+            guard let goal = OnboardingGoal(rawValue: goalId) else { continue }
+            for muscle in GoalMusclePriority.data(for: goal).muscles {
+                let current = muscleIntensity[muscle] ?? 0
+                muscleIntensity[muscle] = min(1.0, current + sliderValue)
+            }
+        }
+        let sorted = muscleIntensity.sorted { $0.value > $1.value }
+        AppState.shared.userProfile.goalPriorityMuscles = sorted.map { $0.key.rawValue }
+    }
 }
 
-// MARK: - コンパクト目標カード（48pt、1行テキスト）
+// MARK: - スライダー付き目標カード
 
-private struct CompactGoalCard: View {
+private struct GoalSliderCard: View {
     let goal: OnboardingGoal
-    let isSelected: Bool
-    let onTap: () -> Void
+    @Binding var value: Double
+
+    private var isActive: Bool { value > 0 }
 
     var body: some View {
-        Button(action: onTap) {
+        VStack(spacing: 0) {
             HStack(spacing: 10) {
                 // 左アクセントバー
                 RoundedRectangle(cornerRadius: 2)
-                    .fill(isSelected ? Color.mmOnboardingAccent : Color.clear)
+                    .fill(isActive ? Color.mmOnboardingAccent.opacity(0.3 + value * 0.7) : Color.clear)
                     .frame(width: 3, height: 24)
 
                 // SFシンボル
                 Image(systemName: goal.sfSymbol)
                     .font(.system(size: 16, weight: .medium))
-                    .foregroundStyle(isSelected ? Color.mmOnboardingAccent : Color.mmOnboardingTextSub)
+                    .foregroundStyle(isActive ? Color.mmOnboardingAccent : Color.mmOnboardingTextSub)
                     .frame(width: 24)
 
-                // テキスト（1行）
+                // テキスト
                 Text(goal.localizedName)
                     .font(.system(size: 15, weight: .bold))
                     .foregroundStyle(Color.mmOnboardingTextMain)
 
                 Spacer()
 
-                // チェックマーク
-                if isSelected {
-                    ZStack {
-                        Circle()
-                            .fill(Color.mmOnboardingAccent)
-                            .frame(width: 20, height: 20)
-                        Image(systemName: "checkmark")
-                            .font(.system(size: 10, weight: .bold))
-                            .foregroundStyle(Color.mmOnboardingBg)
-                    }
-                    .transition(.scale.combined(with: .opacity))
+                // 値インジケータ
+                if isActive {
+                    Text("\(Int(value * 100))%")
+                        .font(.system(size: 12, weight: .heavy))
+                        .foregroundStyle(Color.mmOnboardingAccent)
+                        .monospacedDigit()
                 }
             }
             .padding(.horizontal, 12)
-            .frame(height: 48)
-            .background(isSelected ? Color.mmOnboardingAccent.opacity(0.08) : Color.mmOnboardingCard)
-            .clipShape(RoundedRectangle(cornerRadius: 12))
-            .overlay(
-                RoundedRectangle(cornerRadius: 12)
-                    .stroke(
-                        isSelected ? Color.mmOnboardingAccent.opacity(0.3) : Color.clear,
-                        lineWidth: 1
-                    )
-            )
+            .padding(.top, 10)
+
+            // スライダー（カード内部、フル幅）
+            Slider(value: $value, in: 0...1, step: 0.05)
+                .tint(Color.mmOnboardingAccent.opacity(0.3 + value * 0.7))
+                .padding(.horizontal, 12)
+                .padding(.bottom, 8)
+                .padding(.top, 2)
         }
-        .buttonStyle(.plain)
+        .background(isActive ? Color.mmOnboardingAccent.opacity(0.05 + value * 0.05) : Color.mmOnboardingCard)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(
+                    isActive ? Color.mmOnboardingAccent.opacity(0.2 + value * 0.2) : Color.clear,
+                    lineWidth: 1
+                )
+        )
+        .animation(.easeOut(duration: 0.15), value: value)
     }
 }
 
