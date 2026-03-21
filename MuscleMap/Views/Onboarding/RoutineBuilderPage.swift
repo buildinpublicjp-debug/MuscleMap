@@ -227,9 +227,9 @@ struct RoutineBuilderPage: View {
                         .frame(height: 120)
                         .padding(.horizontal, 24)
 
-                        // 4列GIFグリッド
-                        let gridColumns = Array(repeating: GridItem(.flexible(), spacing: 6), count: 4)
-                        LazyVGrid(columns: gridColumns, spacing: 6) {
+                        // 2列GIFグリッド（カード拡大）
+                        let gridColumns = Array(repeating: GridItem(.flexible(), spacing: 10), count: 2)
+                        LazyVGrid(columns: gridColumns, spacing: 10) {
                             ForEach(day.exercises, id: \.id) { routineExercise in
                                 exerciseCard(routineExercise: routineExercise)
                             }
@@ -240,18 +240,19 @@ struct RoutineBuilderPage: View {
                                     showingExercisePicker = true
                                     HapticManager.lightTap()
                                 } label: {
-                                    VStack(spacing: 4) {
+                                    VStack(spacing: 6) {
                                         Image(systemName: "plus.circle")
-                                            .font(.system(size: 20))
+                                            .font(.system(size: 28))
                                         Text(isJapanese ? "追加" : "Add")
-                                            .font(.system(size: 10, weight: .bold))
+                                            .font(.system(size: 12, weight: .bold))
                                     }
                                     .foregroundStyle(Color.mmOnboardingTextSub)
-                                    .frame(width: 70, height: 70)
+                                    .frame(maxWidth: .infinity)
+                                    .frame(height: 150)
                                     .background(Color.mmOnboardingCard.opacity(0.5))
-                                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                                    .clipShape(RoundedRectangle(cornerRadius: 12))
                                     .overlay(
-                                        RoundedRectangle(cornerRadius: 8)
+                                        RoundedRectangle(cornerRadius: 12)
                                             .strokeBorder(style: StrokeStyle(lineWidth: 1, dash: [5]))
                                             .foregroundStyle(Color.mmOnboardingTextSub.opacity(0.3))
                                     )
@@ -267,14 +268,14 @@ struct RoutineBuilderPage: View {
         }
     }
 
-    // MARK: - 種目カード（4列グリッド用、削除可能）
+    // MARK: - 種目カード（2列グリッド用、削除可能）
 
     private func exerciseCard(routineExercise: RoutineExercise) -> some View {
         let def = ExerciseStore.shared.exercise(for: routineExercise.exerciseId)
         let name = def?.localizedName ?? routineExercise.exerciseId
         let canDelete = days.indices.contains(selectedDayIndex) && days[selectedDayIndex].exercises.count > 1
 
-        return VStack(spacing: 2) {
+        return VStack(spacing: 4) {
             ZStack {
                 // GIFカード（タップで詳細表示）
                 Button {
@@ -283,31 +284,41 @@ struct RoutineBuilderPage: View {
                         selectedExerciseDefinition = def
                     }
                 } label: {
-                    ZStack(alignment: .bottomTrailing) {
+                    ZStack(alignment: .bottom) {
                         if ExerciseGifView.hasGif(exerciseId: routineExercise.exerciseId) {
                             ExerciseGifView(exerciseId: routineExercise.exerciseId, size: .card)
                                 .scaledToFill()
-                                .frame(width: 70, height: 70)
+                                .frame(height: 150)
                                 .clipped()
                         } else {
                             ZStack {
                                 Color.mmOnboardingBg
                                 Image(systemName: "dumbbell.fill")
-                                    .font(.system(size: 20))
+                                    .font(.system(size: 28))
                                     .foregroundStyle(Color.mmOnboardingTextSub.opacity(0.4))
                             }
-                            .frame(width: 70, height: 70)
+                            .frame(height: 150)
                         }
 
-                        // セット×レップバッジ（表示のみ）
-                        Text("\(routineExercise.suggestedSets)×\(routineExercise.suggestedReps)")
-                            .font(.system(size: 8, weight: .bold).monospacedDigit())
-                            .foregroundStyle(.white)
-                            .padding(.horizontal, 3)
-                            .padding(.vertical, 1)
-                            .background(Color.mmOnboardingAccent.opacity(0.8))
-                            .clipShape(RoundedRectangle(cornerRadius: 3))
-                            .padding(2)
+                        // 名前オーバーレイ（グラデーション上）
+                        LinearGradient(
+                            colors: [.clear, .black.opacity(0.75)],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                        .frame(height: 50)
+
+                        // 種目名 + セット×レップ
+                        VStack(spacing: 2) {
+                            Text(name)
+                                .font(.system(size: 12, weight: .bold))
+                                .foregroundStyle(.white)
+                                .lineLimit(1)
+                            Text("\(routineExercise.suggestedSets)×\(routineExercise.suggestedReps)")
+                                .font(.system(size: 10, weight: .bold).monospacedDigit())
+                                .foregroundStyle(Color.mmOnboardingAccent)
+                        }
+                        .padding(.bottom, 8)
                     }
                 }
                 .buttonStyle(.plain)
@@ -322,25 +333,19 @@ struct RoutineBuilderPage: View {
                                 HapticManager.lightTap()
                             } label: {
                                 Image(systemName: "xmark.circle.fill")
-                                    .font(.system(size: 16))
+                                    .font(.system(size: 20))
                                     .foregroundStyle(.white.opacity(0.8))
                                     .background(Circle().fill(Color.black.opacity(0.4)))
                             }
                             .buttonStyle(.plain)
                         }
-                        .padding(3)
+                        .padding(4)
                         Spacer()
                     }
                 }
             }
-            .frame(width: 70, height: 70)
-            .clipShape(RoundedRectangle(cornerRadius: 8))
-
-            Text(name)
-                .font(.system(size: 9, weight: .medium))
-                .foregroundStyle(Color.mmOnboardingTextMain)
-                .lineLimit(1)
-                .frame(width: 70)
+            .frame(height: 150)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
         }
     }
 
