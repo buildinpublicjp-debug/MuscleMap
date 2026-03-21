@@ -65,7 +65,7 @@ struct LocationSelectionPage: View {
     ]
     private static let gymExcludeIds: Set<String> = ["burpee"]
 
-    private let cardSize: CGFloat = 140
+    private let cardSize: CGFloat = 120
 
     private func isTrueBodyweight(_ exercise: ExerciseDefinition) -> Bool {
         let id = exercise.id.lowercased()
@@ -86,7 +86,19 @@ struct LocationSelectionPage: View {
         case .gym, .both, .none:
             exercises = store.exercises.filter { !Self.gymExcludeIds.contains($0.id) }
         }
-        return Array(exercises.prefix(15))
+        return Array(exercises.prefix(20))
+    }
+
+    private var topRowExercises: [ExerciseDefinition] {
+        let items = filteredExercises
+        let mid = (items.count + 1) / 2
+        return Array(items.prefix(mid))
+    }
+
+    private var bottomRowExercises: [ExerciseDefinition] {
+        let items = filteredExercises
+        let mid = (items.count + 1) / 2
+        return Array(items.dropFirst(mid))
     }
 
     private var totalFilteredCount: Int {
@@ -144,58 +156,24 @@ struct LocationSelectionPage: View {
             }
             .opacity(appeared ? 1 : 0)
 
-            Spacer().frame(height: 6)
+            Spacer().frame(height: 4)
 
-            // GIFギャラリー（横スクロール — レイアウト幅制約を確実にするためScrollViewを使用）
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 8) {
-                    ForEach(filteredExercises, id: \.id) { exercise in
-                        Button {
-                            selectedExercise = exercise
-                            HapticManager.lightTap()
-                        } label: {
-                            ZStack(alignment: .bottom) {
-                                if ExerciseGifView.hasGif(exerciseId: exercise.id) {
-                                    ExerciseGifView(exerciseId: exercise.id, size: .card)
-                                        .frame(width: cardSize, height: cardSize)
-                                } else {
-                                    ZStack {
-                                        Color.mmOnboardingBg
-                                        Image(systemName: "dumbbell.fill")
-                                            .font(.system(size: 24))
-                                            .foregroundStyle(Color.mmOnboardingTextSub.opacity(0.4))
-                                    }
-                                    .frame(width: cardSize, height: cardSize)
-                                }
-
-                                LinearGradient(
-                                    colors: [.clear, .black.opacity(0.85)],
-                                    startPoint: .top,
-                                    endPoint: .bottom
-                                )
-                                .frame(height: cardSize * 0.4)
-
-                                Text(exercise.localizedName)
-                                    .font(.system(size: 12, weight: .bold))
-                                    .foregroundStyle(.white)
-                                    .lineLimit(1)
-                                    .truncationMode(.tail)
-                                    .padding(.horizontal, 6)
-                                    .padding(.bottom, 6)
-                                    .shadow(color: .black.opacity(0.5), radius: 2, y: 1)
-                            }
-                            .frame(width: cardSize, height: cardSize)
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
-                        }
-                        .buttonStyle(.plain)
-                    }
+            // 2行マーキーGIF（PaywallViewと同じ方式 — GeometryReader + withAnimation）
+            VStack(spacing: 6) {
+                LocationMarqueeRow(exercises: topRowExercises, cardSize: cardSize, speed: 25, reversed: false) { exercise in
+                    selectedExercise = exercise
+                    HapticManager.lightTap()
                 }
-                .padding(.horizontal, 16)
+                LocationMarqueeRow(exercises: bottomRowExercises, cardSize: cardSize, speed: 20, reversed: true) { exercise in
+                    selectedExercise = exercise
+                    HapticManager.lightTap()
+                }
             }
-            .frame(height: cardSize + 4)
+            .frame(height: cardSize * 2 + 6)
+            .clipped()
             .opacity(appeared ? 1 : 0)
 
-            Spacer().frame(height: 12)
+            Spacer().frame(height: 10)
 
             // 選択カード
             VStack(spacing: 5) {
@@ -266,6 +244,87 @@ struct LocationSelectionPage: View {
             .presentationDetents([.large])
             .presentationDragIndicator(.visible)
         }
+    }
+}
+
+// MARK: - マーキー行（PaywallMarqueeRowと同じ方式）
+
+private struct LocationMarqueeRow: View {
+    let exercises: [ExerciseDefinition]
+    let cardSize: CGFloat
+    let speed: CGFloat
+    let reversed: Bool
+    let onTap: (ExerciseDefinition) -> Void
+
+    @State private var offset: CGFloat = 0
+
+    private var setWidth: CGFloat {
+        CGFloat(exercises.count) * (cardSize + 8)
+    }
+
+    var body: some View {
+        GeometryReader { _ in
+            HStack(spacing: 8) {
+                ForEach(0..<3, id: \.self) { batch in
+                    ForEach(Array(exercises.enumerated()), id: \.offset) { index, exercise in
+                        Button {
+                            onTap(exercise)
+                        } label: {
+                            ZStack(alignment: .bottom) {
+                                if ExerciseGifView.hasGif(exerciseId: exercise.id) {
+                                    ExerciseGifView(exerciseId: exercise.id, size: .card)
+                                        .scaledToFill()
+                                        .frame(width: cardSize, height: cardSize)
+                                        .clipped()
+                                } else {
+                                    ZStack {
+                                        Color.mmOnboardingBg
+                                        Image(systemName: "dumbbell.fill")
+                                            .font(.system(size: 24))
+                                            .foregroundStyle(Color.mmOnboardingTextSub.opacity(0.4))
+                                    }
+                                    .frame(width: cardSize, height: cardSize)
+                                }
+
+                                Text(exercise.localizedName)
+                                    .font(.system(size: 11, weight: .bold))
+                                    .foregroundStyle(.white)
+                                    .lineLimit(1)
+                                    .padding(.horizontal, 6)
+                                    .padding(.bottom, 4)
+                                    .padding(.top, 20)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .background(
+                                        LinearGradient(
+                                            colors: [.clear, Color.black.opacity(0.8)],
+                                            startPoint: .top,
+                                            endPoint: .bottom
+                                        )
+                                    )
+                            }
+                            .frame(width: cardSize, height: cardSize)
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                        }
+                        .buttonStyle(.plain)
+                        .id("\(batch)-\(index)")
+                    }
+                }
+            }
+            .offset(x: offset)
+            .onAppear {
+                guard setWidth > 0 else { return }
+                offset = reversed ? -setWidth : 0
+                let duration = setWidth / speed
+                withAnimation(
+                    .linear(duration: duration)
+                    .repeatForever(autoreverses: false)
+                ) {
+                    offset = reversed ? 0 : -setWidth
+                }
+            }
+        }
+        .frame(height: cardSize)
+        .clipped()
     }
 }
 
