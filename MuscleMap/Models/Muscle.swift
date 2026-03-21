@@ -87,13 +87,72 @@ enum Muscle: String, CaseIterable, Codable, Identifiable {
         }
     }
 
+    // 中国語名（簡体字）
+    var chineseName: String {
+        switch self {
+        case .chestUpper: return "胸大肌上束"
+        case .chestLower: return "胸大肌下束"
+        case .lats: return "背阔肌"
+        case .trapsUpper: return "斜方肌上束"
+        case .trapsMiddleLower: return "斜方肌中下束"
+        case .erectorSpinae: return "竖脊肌"
+        case .deltoidAnterior: return "三角肌前束"
+        case .deltoidLateral: return "三角肌中束"
+        case .deltoidPosterior: return "三角肌后束"
+        case .biceps: return "肱二头肌"
+        case .triceps: return "肱三头肌"
+        case .forearms: return "前臂肌群"
+        case .rectusAbdominis: return "腹直肌"
+        case .obliques: return "腹斜肌"
+        case .glutes: return "臀肌群"
+        case .quadriceps: return "股四头肌"
+        case .hamstrings: return "腘绳肌"
+        case .adductors: return "内收肌群"
+        case .hipFlexors: return "髂腰肌"
+        case .gastrocnemius: return "腓肠肌"
+        case .soleus: return "比目鱼肌"
+        }
+    }
+
+    // 韓国語名
+    var koreanName: String {
+        switch self {
+        case .chestUpper: return "대흉근 상부"
+        case .chestLower: return "대흉근 하부"
+        case .lats: return "광배근"
+        case .trapsUpper: return "승모근 상부"
+        case .trapsMiddleLower: return "승모근 중·하부"
+        case .erectorSpinae: return "척추기립근"
+        case .deltoidAnterior: return "삼각근 전면"
+        case .deltoidLateral: return "삼각근 측면"
+        case .deltoidPosterior: return "삼각근 후면"
+        case .biceps: return "이두근"
+        case .triceps: return "삼두근"
+        case .forearms: return "전완근"
+        case .rectusAbdominis: return "복직근"
+        case .obliques: return "복사근"
+        case .glutes: return "둔근"
+        case .quadriceps: return "대퇴사두근"
+        case .hamstrings: return "햄스트링"
+        case .adductors: return "내전근"
+        case .hipFlexors: return "장요근"
+        case .gastrocnemius: return "비복근"
+        case .soleus: return "가자미근"
+        }
+    }
+
     /// ローカライズ名（現在の言語設定に応じて返す）
     #if os(watchOS)
     var localizedName: String { japaneseName }
     #else
     @MainActor
     var localizedName: String {
-        LocalizationManager.shared.currentLanguage == .japanese ? japaneseName : englishName
+        switch LocalizationManager.shared.currentLanguage {
+        case .japanese: return japaneseName
+        case .chineseSimplified: return chineseName
+        case .korean: return koreanName
+        case .english, .spanish, .french, .german: return englishName
+        }
     }
     #endif
 
@@ -172,6 +231,30 @@ enum MuscleGroup: String, CaseIterable, Codable, Identifiable {
         }
     }
 
+    // 中国語名（簡体字）
+    var chineseName: String {
+        switch self {
+        case .chest: return "胸"
+        case .back: return "背"
+        case .shoulders: return "肩"
+        case .arms: return "臂"
+        case .core: return "核心"
+        case .lowerBody: return "下肢"
+        }
+    }
+
+    // 韓国語名
+    var koreanName: String {
+        switch self {
+        case .chest: return "가슴"
+        case .back: return "등"
+        case .shoulders: return "어깨"
+        case .arms: return "팔"
+        case .core: return "코어"
+        case .lowerBody: return "하체"
+        }
+    }
+
     /// 短縮英語名（タイムラインバー等の狭いスペース用）
     var shortEnglishName: String {
         switch self {
@@ -190,7 +273,12 @@ enum MuscleGroup: String, CaseIterable, Codable, Identifiable {
     #else
     @MainActor
     var localizedName: String {
-        LocalizationManager.shared.currentLanguage == .japanese ? japaneseName : englishName
+        switch LocalizationManager.shared.currentLanguage {
+        case .japanese: return japaneseName
+        case .chineseSimplified: return chineseName
+        case .korean: return koreanName
+        case .english, .spanish, .french, .german: return englishName
+        }
     }
     #endif
 
