@@ -14,6 +14,7 @@ struct RoutineBuilderPage: View {
     @State private var editingExerciseIndex: Int?
     @State private var showSetRepEditor = false
     @State private var selectedExerciseDefinition: ExerciseDefinition?
+    @State private var pulsingMuscles: Set<Muscle> = []
 
     /// 1日あたりの最大種目数
     private let maxExercisesPerDay = 8
@@ -66,6 +67,17 @@ struct RoutineBuilderPage: View {
 
             // ボタンエリア
             VStack(spacing: 10) {
+                // サマリー行
+                HStack {
+                    let totalExercises = days.flatMap(\.exercises).count
+                    let totalDays = days.count
+                    Text(isJapanese
+                        ? "合計 \(totalExercises)種目 / 週\(totalDays)回"
+                        : "\(totalExercises) exercises / \(totalDays) days per week")
+                        .font(.system(size: 13, weight: .medium))
+                        .foregroundStyle(Color.mmOnboardingTextSub)
+                }
+
                 // プライマリCTA: 「このメニューで始める」（sparkles付き）
                 Button {
                     HapticManager.lightTap()
@@ -186,6 +198,30 @@ struct RoutineBuilderPage: View {
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                     }
                     .buttonStyle(.plain)
+                    .contextMenu {
+                        if days.count > 1 {
+                            Button(role: .destructive) {
+                                deleteDay(at: index)
+                            } label: {
+                                Label(
+                                    isJapanese ? "このDayを削除" : "Delete This Day",
+                                    systemImage: "trash"
+                                )
+                            }
+                        }
+                    }
+                }
+
+                // Day追加ボタン（最大6Day）
+                if days.count < 6 {
+                    Button {
+                        addNewDay()
+                    } label: {
+                        Image(systemName: "plus.circle.fill")
+                            .font(.system(size: 20))
+                            .foregroundStyle(Color.mmOnboardingAccent.opacity(0.6))
+                    }
+                    .buttonStyle(.plain)
                 }
             }
             .padding(.horizontal, 24)
@@ -198,7 +234,7 @@ struct RoutineBuilderPage: View {
     private var exerciseListView: some View {
         if days.indices.contains(selectedDayIndex) {
             VStack(spacing: 0) {
-                // Day単位 location ピッカー + 種目数 + 追加ボタン（1行統合）
+                // Day単位 location ピッカー + 種目数（1行統合）
                 HStack(spacing: 8) {
                     locationPicker
 
@@ -211,6 +247,18 @@ struct RoutineBuilderPage: View {
                 .padding(.horizontal, 24)
                 .padding(.vertical, 6)
 
+                // 教育ヒント
+                Text(educationHint(for: days[selectedDayIndex]))
+                    .font(.system(size: 11))
+                    .foregroundStyle(Color.mmOnboardingAccent.opacity(0.8))
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 5)
+                    .background(Color.mmOnboardingAccent.opacity(0.08))
+                    .clipShape(RoundedRectangle(cornerRadius: 6))
+                    .padding(.horizontal, 24)
+                    .padding(.bottom, 2)
+
                 // 種目一覧 + 筋肉マップ
                 ScrollView(.vertical, showsIndicators: false) {
                     VStack(spacing: 12) {
@@ -221,6 +269,7 @@ struct RoutineBuilderPage: View {
                         .frame(height: 100)
                         .padding(.horizontal, 24)
                         .animation(.easeInOut(duration: 0.3), value: days[selectedDayIndex].exercises.count)
+                        .animation(.easeInOut(duration: 0.3), value: pulsingMuscles.map(\.rawValue).sorted())
 
                         // 種目グリッド（2カラム）
                         let gridColumns = [
@@ -286,10 +335,15 @@ struct RoutineBuilderPage: View {
                                             .padding(.horizontal, 8)
                                             .padding(.bottom, 6)
 
-                                            // 削除ボタン（右上、グラデーション外）
+                                            // 器具バッジ + 削除ボタン（右上）
                                             VStack {
                                                 HStack {
                                                     Spacer()
+                                                    Text(equipmentIcon(for: def.equipment))
+                                                        .font(.system(size: 14))
+                                                        .padding(4)
+                                                        .background(Color.black.opacity(0.5))
+                                                        .clipShape(Circle())
                                                     Button {
                                                         removeExercise(routineExercise.id)
                                                     } label: {
@@ -349,33 +403,38 @@ struct RoutineBuilderPage: View {
 
     private var locationPicker: some View {
         let currentLocation = days.indices.contains(selectedDayIndex) ? days[selectedDayIndex].location : "gym"
-        let options: [(String, String)] = [
-            ("gym", isJapanese ? "ジム" : "Gym"),
-            ("home", isJapanese ? "自宅" : "Home"),
+        let options: [(String, String, String)] = [
+            ("gym", "\u{1F3CB}\u{FE0F}", isJapanese ? "ジム" : "Gym"),
+            ("home", "\u{1F3E0}", isJapanese ? "自宅" : "Home"),
+            ("bodyweight", "\u{1F4AA}", isJapanese ? "自重" : "Bodyweight"),
         ]
 
         return HStack(spacing: 0) {
-            ForEach(options, id: \.0) { value, label in
+            ForEach(options, id: \.0) { value, icon, label in
                 Button {
                     guard days.indices.contains(selectedDayIndex), days[selectedDayIndex].location != value else { return }
                     days[selectedDayIndex].location = value
                     rebuildExercisesForCurrentDay(location: value)
                     HapticManager.lightTap()
                 } label: {
-                    Text(label)
-                        .font(.system(size: 11, weight: .bold))
-                        .foregroundStyle(
-                            currentLocation == value
-                                ? Color.mmOnboardingBg
-                                : Color.mmOnboardingTextSub
-                        )
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 6)
-                        .background(
-                            currentLocation == value
-                                ? Color.mmOnboardingAccent
-                                : Color.clear
-                        )
+                    HStack(spacing: 2) {
+                        Text(icon)
+                            .font(.system(size: 10))
+                        Text(label)
+                            .font(.system(size: 11, weight: .bold))
+                    }
+                    .foregroundStyle(
+                        currentLocation == value
+                            ? Color.mmOnboardingBg
+                            : Color.mmOnboardingTextSub
+                    )
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 6)
+                    .background(
+                        currentLocation == value
+                            ? Color.mmOnboardingAccent
+                            : Color.clear
+                    )
                 }
                 .buttonStyle(.plain)
             }
@@ -392,7 +451,9 @@ struct RoutineBuilderPage: View {
             if let def = ExerciseStore.shared.exercise(for: exercise.exerciseId) {
                 for (muscleId, _) in def.muscleMapping {
                     if let muscle = Muscle(rawValue: muscleId) {
-                        states[muscle] = .recovering(progress: 0.1)
+                        // パルス中の筋肉はより明るく表示
+                        let progress = pulsingMuscles.contains(muscle) ? 0.5 : 0.1
+                        states[muscle] = .recovering(progress: progress)
                     }
                 }
             }
@@ -531,7 +592,7 @@ struct RoutineBuilderPage: View {
         }
     }
 
-    /// 種目を追加
+    /// 種目を追加（アニメーション + 筋肉パルス付き）
     private func addExercise(_ exerciseDef: ExerciseDefinition) {
         guard days.indices.contains(selectedDayIndex),
               days[selectedDayIndex].exercises.count < maxExercisesPerDay else { return }
@@ -541,14 +602,25 @@ struct RoutineBuilderPage: View {
 
         let (defaultSets, defaultReps) = defaultSetsAndReps(for: AppState.shared.userProfile.trainingExperience)
 
-        days[selectedDayIndex].exercises.append(
-            RoutineExercise(
-                exerciseId: exerciseDef.id,
-                suggestedSets: defaultSets,
-                suggestedReps: defaultReps
+        withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
+            days[selectedDayIndex].exercises.append(
+                RoutineExercise(
+                    exerciseId: exerciseDef.id,
+                    suggestedSets: defaultSets,
+                    suggestedReps: defaultReps
+                )
             )
-        )
+        }
         HapticManager.lightTap()
+
+        // 追加種目の対象筋肉を一瞬パルス
+        let targetMuscles = Set(exerciseDef.targetMuscles)
+        pulsingMuscles = targetMuscles
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+            withAnimation(.easeOut(duration: 0.3)) {
+                pulsingMuscles = []
+            }
+        }
     }
 
     /// 種目を削除
@@ -601,10 +673,18 @@ struct RoutineBuilderPage: View {
         exercises: [ExerciseDefinition],
         location: String
     ) -> [ExerciseDefinition] {
-        guard location == "home" else { return exercises }
-        let homeEquipment: Set<String> = ["自重", "ダンベル", "ケトルベル", "Bodyweight", "Dumbbell", "Kettlebell"]
-        let filtered = exercises.filter { homeEquipment.contains($0.equipment) }
-        return filtered.isEmpty ? exercises : filtered
+        switch location {
+        case "home":
+            let homeEquipment: Set<String> = ["自重", "ダンベル", "ケトルベル", "Bodyweight", "Dumbbell", "Kettlebell"]
+            let filtered = exercises.filter { homeEquipment.contains($0.equipment) }
+            return filtered.isEmpty ? exercises : filtered
+        case "bodyweight":
+            let bwEquipment: Set<String> = ["自重", "Bodyweight"]
+            let filtered = exercises.filter { bwEquipment.contains($0.equipment) }
+            return filtered.isEmpty ? exercises : filtered
+        default:
+            return exercises
+        }
     }
 
     @MainActor
@@ -644,6 +724,111 @@ struct RoutineBuilderPage: View {
         exercise.muscleMapping
             .filter { prioritySet.contains($0.key) }
             .reduce(0) { $0 + $1.value }
+    }
+
+    // MARK: - Day追加/削除
+
+    /// 既存Dayでカバーしていない筋肉グループから新Dayを追加（最大6Day）
+    private func addNewDay() {
+        guard days.count < 6 else { return }
+
+        let allGroups: [MuscleGroup] = [.chest, .back, .shoulders, .arms, .lowerBody, .core]
+        let coveredGroups = Set(days.flatMap { $0.muscleGroups })
+
+        // 未カバーグループを探す
+        let uncovered = allGroups.filter { !coveredGroups.contains($0.rawValue) }
+        let newGroups: [MuscleGroup] = uncovered.isEmpty
+            ? [.shoulders, .arms]  // 全カバー済みなら肩・腕を追加
+            : Array(uncovered.prefix(2))
+
+        let groupName = newGroups.map { $0.localizedName }.joined(separator: "・")
+
+        let profile = AppState.shared.userProfile
+        var day = RoutineDay(
+            name: groupName,
+            muscleGroups: newGroups.map { $0.rawValue },
+            location: profile.trainingLocation
+        )
+
+        let exercises = autoPickExercises(
+            muscleGroups: newGroups,
+            location: profile.trainingLocation,
+            priorityMuscles: profile.goalPriorityMuscles,
+            experience: profile.trainingExperience
+        )
+        day.exercises = exercises
+
+        withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
+            days.append(day)
+            selectedDayIndex = days.count - 1
+        }
+        HapticManager.lightTap()
+    }
+
+    /// Day削除（最小1Day）
+    private func deleteDay(at index: Int) {
+        guard days.count > 1, days.indices.contains(index) else { return }
+        withAnimation(.easeInOut(duration: 0.2)) {
+            days.remove(at: index)
+            if selectedDayIndex >= days.count {
+                selectedDayIndex = max(0, days.count - 1)
+            }
+        }
+        HapticManager.lightTap()
+    }
+
+    // MARK: - 教育ヒント
+
+    /// Dayの筋肉グループに応じた分割法の教育ヒント
+    private func educationHint(for day: RoutineDay) -> String {
+        let groups = Set(day.muscleGroups)
+        // プッシュ系: 胸+肩
+        if groups.contains("chest") && groups.contains("shoulders") {
+            return isJapanese
+                ? "\u{1F4A1} 「押す」動作の筋肉をまとめて効率UP"
+                : "\u{1F4A1} Push muscles grouped for efficiency"
+        }
+        // プル系: 背中
+        if groups.contains("back") {
+            return isJapanese
+                ? "\u{1F4A1} 「引く」動作の筋肉で背中を厚く"
+                : "\u{1F4A1} Pull muscles for a thick back"
+        }
+        // 脚
+        if groups.contains("lowerBody") {
+            return isJapanese
+                ? "\u{1F4A1} 下半身は代謝UPの最重要パーツ"
+                : "\u{1F4A1} Legs are key for boosting metabolism"
+        }
+        // 肩
+        if groups.contains("shoulders") {
+            return isJapanese
+                ? "\u{1F4A1} 肩を鍛えると全体のシルエットが変わる"
+                : "\u{1F4A1} Shoulders transform your overall silhouette"
+        }
+        // 腕
+        if groups.contains("arms") {
+            return isJapanese
+                ? "\u{1F4A1} 腕はTシャツから見える「名刺」"
+                : "\u{1F4A1} Arms are your visible \"business card\""
+        }
+        // デフォルト
+        return isJapanese
+            ? "\u{1F4A1} 補助筋もまとめてカバー"
+            : "\u{1F4A1} Synergist muscles covered together"
+    }
+
+    // MARK: - 器具アイコン
+
+    private func equipmentIcon(for equipment: String) -> String {
+        switch equipment {
+        case "バーベル", "Barbell": return "\u{1F3CB}\u{FE0F}"
+        case "ダンベル", "Dumbbell": return "\u{1F529}"
+        case "ケーブル", "Cable": return "\u{26A1}"
+        case "マシン", "Machine": return "\u{2699}\u{FE0F}"
+        case "自重", "Bodyweight": return "\u{1F4AA}"
+        default: return "\u{1F527}"
+        }
     }
 }
 
@@ -755,6 +940,10 @@ private struct RoutineExercisePickerSheet: View {
         if day.location == "home" {
             let homeEquipment: Set<String> = ["自重", "ダンベル", "ケトルベル", "Bodyweight", "Dumbbell", "Kettlebell"]
             let filtered = result.filter { homeEquipment.contains($0.equipment) }
+            if !filtered.isEmpty { result = filtered }
+        } else if day.location == "bodyweight" {
+            let bwEquipment: Set<String> = ["自重", "Bodyweight"]
+            let filtered = result.filter { bwEquipment.contains($0.equipment) }
             if !filtered.isEmpty { result = filtered }
         }
 
