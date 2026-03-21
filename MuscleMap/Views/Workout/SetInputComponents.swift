@@ -298,51 +298,7 @@ struct SetInputCard: View {
             .scaleEffect(recordButtonScale)
             .buttonStyle(.plain)
 
-            // ルーティン残り種目一覧（横スクロールカード）
-            if let routineDay = viewModel.activeRoutineDay {
-                let remainingExercises = routineDay.exercises.filter {
-                    viewModel.routineExerciseCompletion[$0.exerciseId] != true
-                    && $0.exerciseId != viewModel.selectedExercise?.id
-                }
 
-                if !remainingExercises.isEmpty {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text(localization.currentLanguage == .japanese ? "残りの種目" : "Remaining")
-                            .font(.system(size: 12, weight: .bold))
-                            .foregroundStyle(Color.mmTextSecondary)
-
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 8) {
-                                ForEach(remainingExercises) { routineExercise in
-                                    if let def = ExerciseStore.shared.exercise(for: routineExercise.exerciseId) {
-                                        Button {
-                                            viewModel.selectExercise(def)
-                                            HapticManager.lightTap()
-                                        } label: {
-                                            HStack(spacing: 8) {
-                                                if ExerciseGifView.hasGif(exerciseId: def.id) {
-                                                    ExerciseGifView(exerciseId: def.id, size: .thumbnail)
-                                                        .frame(width: 36, height: 36)
-                                                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                                                }
-                                                Text(def.localizedName)
-                                                    .font(.system(size: 12, weight: .semibold))
-                                                    .foregroundStyle(Color.mmTextPrimary)
-                                                    .lineLimit(1)
-                                            }
-                                            .padding(.horizontal, 10)
-                                            .padding(.vertical, 8)
-                                            .background(Color.mmBgSecondary)
-                                            .clipShape(RoundedRectangle(cornerRadius: 10))
-                                        }
-                                        .buttonStyle(.plain)
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
         }
         .padding()
         }

@@ -400,15 +400,18 @@ struct RoutineProgressBar: View {
                             .padding(.horizontal, 8)
                             .padding(.vertical, 6)
                             .background(
-                                isCurrent ? Color.mmAccentPrimary.opacity(0.15) :
+                                isCurrent ? Color.mmAccentPrimary.opacity(0.2) :
                                 isDone ? Color.mmAccentPrimary.opacity(0.08) :
                                 Color.mmBgSecondary
                             )
                             .clipShape(Capsule())
                             .overlay(
                                 Capsule()
-                                    .stroke(isCurrent ? Color.mmAccentPrimary : Color.clear, lineWidth: 1.5)
+                                    .stroke(isCurrent ? Color.mmAccentPrimary : Color.clear, lineWidth: 2)
                             )
+                            .scaleEffect(isCurrent ? 1.05 : 1.0)
+                            .opacity(isDone ? 0.7 : isCurrent ? 1.0 : 0.5)
+                            .animation(.easeInOut(duration: 0.2), value: isCurrent)
                         }
                         .buttonStyle(.plain)
                     }
