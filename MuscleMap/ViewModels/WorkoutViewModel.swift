@@ -125,6 +125,13 @@ class WorkoutViewModel {
         stopRestTimer()
 
         guard let session = activeSession else { return }
+
+        // 0セットチェック: 1セットも記録していない場合は保存せず破棄
+        let totalSets = exerciseSets.reduce(0) { $0 + $1.sets.count }
+        if totalSets == 0 {
+            discardSession()
+            return
+        }
         workoutRepo.endSession(session)
         activeSession = nil
         exerciseSets = []
