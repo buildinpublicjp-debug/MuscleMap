@@ -72,35 +72,27 @@ struct LocationSelectionPage: View {
         return !Self.bodyweightExcludeIds.contains(where: { id.contains($0) })
     }
 
-    private var filteredExercises: [ExerciseDefinition] {
+    /// マーキー用: 常に全種目（選択に連動しない = アニメーションが壊れない）
+    private var allExercisesForMarquee: [ExerciseDefinition] {
         let store = ExerciseStore.shared
         store.loadIfNeeded()
-        let exercises: [ExerciseDefinition]
-        switch selected {
-        case .bodyweight:
-            let bwEquipment: Set<String> = ["自重", "Bodyweight"]
-            exercises = store.exercises.filter { bwEquipment.contains($0.equipment) && isTrueBodyweight($0) }
-        case .home:
-            let homeEquipment: Set<String> = ["自重", "ダンベル", "ケトルベル", "Bodyweight", "Dumbbell", "Kettlebell"]
-            exercises = store.exercises.filter { homeEquipment.contains($0.equipment) }
-        case .gym, .both, .none:
-            exercises = store.exercises.filter { !Self.gymExcludeIds.contains($0.id) }
-        }
+        let exercises = store.exercises.filter { !Self.gymExcludeIds.contains($0.id) }
         return Array(exercises.prefix(20))
     }
 
     private var topRowExercises: [ExerciseDefinition] {
-        let items = filteredExercises
+        let items = allExercisesForMarquee
         let mid = (items.count + 1) / 2
         return Array(items.prefix(mid))
     }
 
     private var bottomRowExercises: [ExerciseDefinition] {
-        let items = filteredExercises
+        let items = allExercisesForMarquee
         let mid = (items.count + 1) / 2
         return Array(items.dropFirst(mid))
     }
 
+    /// バッジ用: 選択に連動
     private var totalFilteredCount: Int {
         let store = ExerciseStore.shared
         store.loadIfNeeded()
@@ -120,7 +112,6 @@ struct LocationSelectionPage: View {
         VStack(spacing: 0) {
             Spacer().frame(height: 16)
 
-            // ヘッダー
             VStack(spacing: 4) {
                 Text(L10n.locationTitle)
                     .font(.system(size: 26, weight: .heavy))
@@ -138,11 +129,12 @@ struct LocationSelectionPage: View {
 
             Spacer().frame(height: 4)
 
-            // 種目数バッジ
             HStack(spacing: 6) {
                 Text(L10n.exerciseCountLabel(totalFilteredCount))
                     .font(.system(size: 13, weight: .bold))
                     .foregroundStyle(Color.mmOnboardingAccent)
+                    .contentTransition(.numericText())
+                    .animation(.easeInOut(duration: 0.3), value: totalFilteredCount)
 
                 if selected == .home || selected == .bodyweight {
                     Text(L10n.locationHomeExercises)
@@ -158,7 +150,7 @@ struct LocationSelectionPage: View {
 
             Spacer().frame(height: 4)
 
-            // 2行マーキーGIF（PaywallViewと同じ方式 — GeometryReader + withAnimation）
+            // 2行マーキー（常に全種目表示、選択変更でアニメーションが壊れない）
             VStack(spacing: 6) {
                 LocationMarqueeRow(exercises: topRowExercises, cardSize: cardSize, speed: 25, reversed: false) { exercise in
                     selectedExercise = exercise
@@ -175,7 +167,6 @@ struct LocationSelectionPage: View {
 
             Spacer().frame(height: 10)
 
-            // 選択カード
             VStack(spacing: 5) {
                 ForEach(Array(TrainingLocation.allCases.enumerated()), id: \.element) { index, location in
                     LocationCard(
@@ -198,7 +189,6 @@ struct LocationSelectionPage: View {
 
             Spacer(minLength: 8)
 
-            // 次へボタン
             Button {
                 guard !isProceeding, let loc = selected else { return }
                 isProceeding = true
@@ -247,7 +237,7 @@ struct LocationSelectionPage: View {
     }
 }
 
-// MARK: - マーキー行（PaywallMarqueeRowと同じ方式）
+// MARK: - マーキー行
 
 private struct LocationMarqueeRow: View {
     let exercises: [ExerciseDefinition]
