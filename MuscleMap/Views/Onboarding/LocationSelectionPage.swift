@@ -65,29 +65,39 @@ struct LocationSelectionPage: View {
     ]
     private static let gymExcludeIds: Set<String> = ["burpee"]
 
-    private let cardSize: CGFloat = 120
+    private let cardSize: CGFloat = 150
 
     private func isTrueBodyweight(_ exercise: ExerciseDefinition) -> Bool {
         let id = exercise.id.lowercased()
         return !Self.bodyweightExcludeIds.contains(where: { id.contains($0) })
     }
 
-    /// マーキー用: 常に全種目（選択に連動しない = アニメーションが壊れない）
-    private var allExercisesForMarquee: [ExerciseDefinition] {
+    /// マーキー用: 選択に連動（切り替え時のアニメーションリセットは許容）
+    private var filteredExercisesForMarquee: [ExerciseDefinition] {
         let store = ExerciseStore.shared
         store.loadIfNeeded()
-        let exercises = store.exercises.filter { !Self.gymExcludeIds.contains($0.id) }
+        let exercises: [ExerciseDefinition]
+        switch selected {
+        case .bodyweight:
+            let bwEquipment: Set<String> = ["自重", "Bodyweight"]
+            exercises = store.exercises.filter { bwEquipment.contains($0.equipment) && isTrueBodyweight($0) }
+        case .home:
+            let homeEquipment: Set<String> = ["自重", "ダンベル", "ケトルベル", "Bodyweight", "Dumbbell", "Kettlebell"]
+            exercises = store.exercises.filter { homeEquipment.contains($0.equipment) }
+        case .gym, .both, .none:
+            exercises = store.exercises.filter { !Self.gymExcludeIds.contains($0.id) }
+        }
         return Array(exercises.prefix(20))
     }
 
     private var topRowExercises: [ExerciseDefinition] {
-        let items = allExercisesForMarquee
+        let items = filteredExercisesForMarquee
         let mid = (items.count + 1) / 2
         return Array(items.prefix(mid))
     }
 
     private var bottomRowExercises: [ExerciseDefinition] {
-        let items = allExercisesForMarquee
+        let items = filteredExercisesForMarquee
         let mid = (items.count + 1) / 2
         return Array(items.dropFirst(mid))
     }
@@ -110,7 +120,7 @@ struct LocationSelectionPage: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            Spacer().frame(height: 16)
+            Spacer().frame(height: 8)
 
             VStack(spacing: 4) {
                 Text(L10n.locationTitle)
@@ -150,22 +160,24 @@ struct LocationSelectionPage: View {
 
             Spacer().frame(height: 4)
 
-            // 2行マーキー（常に全種目表示、選択変更でアニメーションが壊れない）
+            // 2行マーキー（選択連動: 種目が切り替わる、アニメーションリセットOK）
             VStack(spacing: 6) {
                 LocationMarqueeRow(exercises: topRowExercises, cardSize: cardSize, speed: 25, reversed: false) { exercise in
                     selectedExercise = exercise
                     HapticManager.lightTap()
                 }
-                LocationMarqueeRow(exercises: bottomRowExercises, cardSize: cardSize, speed: 20, reversed: true) { exercise in
+                .id("top-\(selected?.rawValue ?? "none")")
+                LocationMarqueeRow(exercises: bottomRowExercises, cardSize: cardSize, speed: 20, reversed: false) { exercise in
                     selectedExercise = exercise
                     HapticManager.lightTap()
                 }
+                .id("bottom-\(selected?.rawValue ?? "none")")
             }
             .frame(height: cardSize * 2 + 6)
             .clipped()
             .opacity(appeared ? 1 : 0)
 
-            Spacer().frame(height: 10)
+            Spacer().frame(height: 6)
 
             VStack(spacing: 5) {
                 ForEach(Array(TrainingLocation.allCases.enumerated()), id: \.element) { index, location in
@@ -187,7 +199,7 @@ struct LocationSelectionPage: View {
             }
             .padding(.horizontal, 24)
 
-            Spacer(minLength: 8)
+            Spacer(minLength: 4)
 
             Button {
                 guard !isProceeding, let loc = selected else { return }
@@ -277,23 +289,23 @@ private struct LocationMarqueeRow: View {
                                 }
 
                                 Text(exercise.localizedName)
-                                    .font(.system(size: 11, weight: .bold))
+                                    .font(.system(size: 12, weight: .bold))
                                     .foregroundStyle(.white)
                                     .lineLimit(1)
                                     .padding(.horizontal, 6)
-                                    .padding(.bottom, 4)
-                                    .padding(.top, 20)
+                                    .padding(.bottom, 6)
+                                    .padding(.top, 22)
                                     .frame(maxWidth: .infinity, alignment: .leading)
                                     .background(
                                         LinearGradient(
-                                            colors: [.clear, Color.black.opacity(0.8)],
+                                            colors: [.clear, Color.black.opacity(0.85)],
                                             startPoint: .top,
                                             endPoint: .bottom
                                         )
                                     )
                             }
                             .frame(width: cardSize, height: cardSize)
-                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
                         }
                         .buttonStyle(.plain)
                         .id("\(batch)-\(index)")
@@ -359,7 +371,7 @@ private struct LocationCard: View {
                 }
                 .padding(.horizontal, 12)
             }
-            .frame(height: 42)
+            .frame(height: 48)
             .background(isSelected ? Color.mmOnboardingAccent.opacity(0.08) : Color.mmOnboardingCard)
             .clipShape(RoundedRectangle(cornerRadius: 12))
             .overlay(
