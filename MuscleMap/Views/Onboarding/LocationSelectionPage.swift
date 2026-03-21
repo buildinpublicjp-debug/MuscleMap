@@ -187,7 +187,7 @@ struct LocationSelectionPage: View {
             .contentShape(Rectangle())
             .opacity(appeared ? 1 : 0)
 
-            Spacer(minLength: 2)
+            Spacer().frame(height: 8)
 
             // 選択カード（次へボタン直上、コンパクト）
             VStack(spacing: 5) {
