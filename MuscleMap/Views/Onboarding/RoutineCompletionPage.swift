@@ -134,28 +134,23 @@ struct RoutineCompletionPage: View {
 
             Spacer().frame(height: 10)
 
-            // 筋肉マップ（前面+背面）+ カバレッジバー
-            muscleMapSection
-                .opacity(contentAppeared ? 1 : 0)
-                .scaleEffect(contentAppeared ? 1 : 0.92)
-
-            Spacer().frame(height: 10)
-
-            // カバレッジプログレスバー
-            coverageProgressBar
-                .padding(.horizontal, 24)
-                .opacity(contentAppeared ? 1 : 0)
-
-            Spacer().frame(height: 10)
-
-            // Day別種目リスト（スクロール）
+            // スクロール領域（マップ + カバレッジ + Dayグリッド）
             ScrollView(.vertical, showsIndicators: false) {
                 VStack(spacing: 10) {
+                    // 筋肉マップ（前面+背面）
+                    muscleMapSection
+                        .scaleEffect(contentAppeared ? 1 : 0.92)
+
+                    // カバレッジプログレスバー
+                    coverageProgressBar
+                        .padding(.horizontal, 24)
+
+                    // Day別GIFグリッド
                     ForEach(Array(routine.days.enumerated()), id: \.element.id) { dayIndex, day in
                         daySection(dayIndex: dayIndex, day: day)
                     }
                 }
-                .padding(.horizontal, 24)
+                .padding(.horizontal, 16)
                 .padding(.bottom, 8)
             }
             .opacity(contentAppeared ? 1 : 0)
@@ -193,8 +188,7 @@ struct RoutineCompletionPage: View {
 
     private var muscleMapSection: some View {
         MuscleMapView(muscleStates: animatedMuscleStates)
-            .frame(height: 200)
-            .padding(.horizontal, 16)
+            .frame(height: 180)
     }
 
     // MARK: - カバレッジプログレスバー
@@ -243,26 +237,49 @@ struct RoutineCompletionPage: View {
         }
     }
 
-    // MARK: - Dayセクション（Day名 + 種目チップ横スクロール）
+    // MARK: - 2カラムGIFグリッド用
+
+    private let gridColumns = [
+        GridItem(.flexible(), spacing: 8),
+        GridItem(.flexible(), spacing: 8),
+    ]
+
+    private enum CardState {
+        case past      // 通過済み
+        case current   // ハイライト中
+        case future    // 未到達
+    }
+
+    private func cardState(flatIndex: Int) -> CardState {
+        if flatIndex < flatExerciseIndex {
+            return .past
+        } else if flatIndex == flatExerciseIndex {
+            return .current
+        } else {
+            return .future
+        }
+    }
+
+    // MARK: - Dayセクション（Day名 + 2カラムGIFグリッド）
 
     @ViewBuilder
     private func daySection(dayIndex: Int, day: RoutineDay) -> some View {
         let groups = muscleGroupsForDay(day)
 
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: 8) {
             // Dayヘッダー
             HStack(spacing: 6) {
                 Text("Day \(dayIndex + 1)")
-                    .font(.system(size: 13, weight: .heavy))
-                    .foregroundStyle(Color.mmOnboardingAccent)
+                    .font(.system(size: 14, weight: .heavy))
+                    .foregroundStyle(Color.mmOnboardingTextMain)
 
                 ForEach(groups.prefix(3), id: \.self) { group in
                     Text(group.localizedName)
-                        .font(.system(size: 9, weight: .bold))
+                        .font(.system(size: 10, weight: .bold))
                         .foregroundStyle(Color.mmOnboardingAccent)
-                        .padding(.horizontal, 5)
+                        .padding(.horizontal, 6)
                         .padding(.vertical, 2)
-                        .background(Color.mmOnboardingAccent.opacity(0.12))
+                        .background(Color.mmOnboardingAccent.opacity(0.15))
                         .clipShape(Capsule())
                 }
 
@@ -272,100 +289,87 @@ struct RoutineCompletionPage: View {
                     .font(.system(size: 15, weight: .heavy))
                     .foregroundStyle(Color.mmOnboardingTextMain)
                 Text(isJapanese ? "種目" : "ex")
-                    .font(.system(size: 10))
+                    .font(.system(size: 11))
                     .foregroundStyle(Color.mmOnboardingTextSub)
             }
 
-            // 種目チップ（横スクロール）
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 6) {
-                    ForEach(Array(day.exercises.enumerated()), id: \.element.id) { exIndex, routineExercise in
-                        let flatIndex = flatIndexFor(dayIndex: dayIndex, exerciseIndex: exIndex)
-                        let chipState = exerciseChipState(flatIndex: flatIndex)
+            // 2カラムGIFグリッド
+            LazyVGrid(columns: gridColumns, spacing: 8) {
+                ForEach(Array(day.exercises.enumerated()), id: \.element.id) { exIndex, routineExercise in
+                    let flatIndex = flatIndexFor(dayIndex: dayIndex, exerciseIndex: exIndex)
+                    let state = cardState(flatIndex: flatIndex)
 
-                        exerciseChip(
-                            routineExercise: routineExercise,
-                            state: chipState
-                        )
-                    }
+                    exerciseGifCard(
+                        routineExercise: routineExercise,
+                        state: state
+                    )
                 }
             }
         }
-        .padding(10)
+        .padding(12)
         .background(Color.mmOnboardingCard)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .clipShape(RoundedRectangle(cornerRadius: 14))
     }
 
-    // MARK: - 種目チップ
-
-    private enum ChipState {
-        case pending   // 未到達
-        case current   // ハイライト中
-        case done      // 通過済み
-    }
-
-    private func exerciseChipState(flatIndex: Int) -> ChipState {
-        if flatIndex < flatExerciseIndex {
-            return .done
-        } else if flatIndex == flatExerciseIndex {
-            return .current
-        } else {
-            return .pending
-        }
-    }
+    // MARK: - 種目GIFカード
 
     @ViewBuilder
-    private func exerciseChip(routineExercise: RoutineExercise, state: ChipState) -> some View {
+    private func exerciseGifCard(routineExercise: RoutineExercise, state: CardState) -> some View {
         let def = ExerciseStore.shared.exercise(for: routineExercise.exerciseId)
         let name = def?.localizedName ?? routineExercise.exerciseId
 
-        HStack(spacing: 6) {
-            // ステータスアイコン
-            switch state {
-            case .done:
-                Image(systemName: "checkmark.circle.fill")
-                    .font(.system(size: 10))
-                    .foregroundStyle(Color.mmOnboardingAccent)
-            case .current:
-                Image(systemName: "play.fill")
-                    .font(.system(size: 8))
-                    .foregroundStyle(Color.mmOnboardingAccent)
-            case .pending:
-                Circle()
-                    .stroke(Color.mmOnboardingTextSub.opacity(0.3), lineWidth: 1.5)
-                    .frame(width: 10, height: 10)
-            }
-
-            // GIFサムネイル
+        ZStack(alignment: .bottom) {
+            // GIF or プレースホルダー
             if ExerciseGifView.hasGif(exerciseId: routineExercise.exerciseId) {
-                ExerciseGifView(exerciseId: routineExercise.exerciseId, size: .thumbnail)
-                    .frame(width: 28, height: 28)
-                    .clipShape(RoundedRectangle(cornerRadius: 6))
+                ExerciseGifView(exerciseId: routineExercise.exerciseId, size: .card)
+                    .scaledToFill()
+            } else {
+                Color.mmOnboardingBg
+                Image(systemName: "dumbbell.fill")
+                    .font(.system(size: 24))
+                    .foregroundStyle(Color.mmOnboardingTextSub.opacity(0.3))
             }
 
-            Text(name)
-                .font(.system(size: 11, weight: state == .current || state == .done ? .semibold : .medium))
-                .foregroundStyle(
-                    state == .done ? Color.mmOnboardingAccent :
-                    state == .current ? Color.mmOnboardingTextMain :
-                    Color.mmOnboardingTextSub
+            // グラデーション + 種目名 + セット×レップ
+            VStack(alignment: .leading, spacing: 2) {
+                Text(name)
+                    .font(.system(size: 11, weight: .bold))
+                    .foregroundStyle(.white)
+                    .lineLimit(1)
+                Text("\(routineExercise.suggestedSets)×\(routineExercise.suggestedReps)")
+                    .font(.system(size: 9, weight: .semibold))
+                    .foregroundStyle(.white.opacity(0.7))
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(8)
+            .background(
+                LinearGradient(
+                    colors: [Color.clear, Color.black.opacity(0.75)],
+                    startPoint: .top,
+                    endPoint: .bottom
                 )
-                .lineLimit(1)
+            )
         }
-        .padding(.horizontal, 8)
-        .padding(.vertical, 6)
-        .background(
-            state == .current ? Color.mmOnboardingAccent.opacity(0.2) :
-            state == .done ? Color.mmOnboardingAccent.opacity(0.08) :
-            Color.mmOnboardingBg.opacity(0.5)
-        )
-        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .aspectRatio(1, contentMode: .fit)
+        .clipShape(RoundedRectangle(cornerRadius: 10))
+        // アニメーション状態
         .overlay(
-            RoundedRectangle(cornerRadius: 8)
-                .stroke(state == .current ? Color.mmOnboardingAccent : .clear, lineWidth: 2)
+            RoundedRectangle(cornerRadius: 10)
+                .stroke(
+                    state == .current ? Color.mmOnboardingAccent : .clear,
+                    lineWidth: 2
+                )
         )
-        .opacity(state == .pending ? 0.3 : 1.0)
-        .scaleEffect(state == .current ? 1.05 : 1.0)
+        .overlay(alignment: .topLeading) {
+            if state == .past {
+                Image(systemName: "checkmark.circle.fill")
+                    .font(.system(size: 16))
+                    .foregroundStyle(Color.mmOnboardingAccent)
+                    .padding(6)
+            }
+        }
+        .opacity(state == .future ? 0.3 : 1.0)
+        .scaleEffect(state == .current ? 1.03 : 1.0)
         .animation(.easeInOut(duration: 0.3), value: state == .current)
     }
 
