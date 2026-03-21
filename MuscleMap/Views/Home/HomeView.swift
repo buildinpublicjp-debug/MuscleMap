@@ -170,15 +170,6 @@ struct HomeView: View {
                                 .padding(.horizontal)
                             }
 
-                            // 5. 未刺激警告（該当する場合のみ）
-                            if !vm.neglectedMuscleInfos.isEmpty {
-                                NeglectedWarningView(muscleInfos: vm.neglectedMuscleInfos)
-                                    .padding(.horizontal)
-                            }
-
-                            // 6. 凡例
-                            MuscleMapLegend()
-                                .padding(.horizontal)
                         }
                         .padding(.top, 8)
                         .padding(.bottom, 16)
