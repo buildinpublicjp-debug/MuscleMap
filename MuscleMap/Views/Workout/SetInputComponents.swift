@@ -298,37 +298,50 @@ struct SetInputCard: View {
             .scaleEffect(recordButtonScale)
             .buttonStyle(.plain)
 
-            // 次のルーティン種目ボタン
-            if let nextExercise = viewModel.nextRoutineExercise,
-               nextExercise.id != viewModel.selectedExercise?.id {
-                Button {
-                    viewModel.goToNextRoutineExercise()
-                    HapticManager.lightTap()
-                } label: {
-                    HStack(spacing: 8) {
-                        if ExerciseGifView.hasGif(exerciseId: nextExercise.id) {
-                            ExerciseGifView(exerciseId: nextExercise.id, size: .thumbnail)
-                                .frame(width: 32, height: 32)
-                                .clipShape(Circle())
-                        }
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(localization.currentLanguage == .japanese ? "次の種目" : "Next Exercise")
-                                .font(.system(size: 10))
-                                .foregroundStyle(Color.mmTextSecondary)
-                            Text(localization.currentLanguage == .japanese ? nextExercise.nameJA : nextExercise.nameEN)
-                                .font(.system(size: 14, weight: .bold))
-                                .foregroundStyle(Color.mmTextPrimary)
-                                .lineLimit(1)
-                        }
-                        Spacer()
-                        Image(systemName: "chevron.right")
-                            .foregroundStyle(Color.mmAccentPrimary)
-                    }
-                    .padding(12)
-                    .background(Color.mmBgSecondary)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
+            // ルーティン残り種目一覧（横スクロールカード）
+            if let routineDay = viewModel.activeRoutineDay {
+                let remainingExercises = routineDay.exercises.filter {
+                    viewModel.routineExerciseCompletion[$0.exerciseId] != true
+                    && $0.exerciseId != viewModel.selectedExercise?.id
                 }
-                .buttonStyle(.plain)
+
+                if !remainingExercises.isEmpty {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text(localization.currentLanguage == .japanese ? "残りの種目" : "Remaining")
+                            .font(.system(size: 12, weight: .bold))
+                            .foregroundStyle(Color.mmTextSecondary)
+
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 8) {
+                                ForEach(remainingExercises) { routineExercise in
+                                    if let def = ExerciseStore.shared.exercise(for: routineExercise.exerciseId) {
+                                        Button {
+                                            viewModel.selectExercise(def)
+                                            HapticManager.lightTap()
+                                        } label: {
+                                            HStack(spacing: 8) {
+                                                if ExerciseGifView.hasGif(exerciseId: def.id) {
+                                                    ExerciseGifView(exerciseId: def.id, size: .thumbnail)
+                                                        .frame(width: 36, height: 36)
+                                                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                                                }
+                                                Text(def.localizedName)
+                                                    .font(.system(size: 12, weight: .semibold))
+                                                    .foregroundStyle(Color.mmTextPrimary)
+                                                    .lineLimit(1)
+                                            }
+                                            .padding(.horizontal, 10)
+                                            .padding(.vertical, 8)
+                                            .background(Color.mmBgSecondary)
+                                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                                        }
+                                        .buttonStyle(.plain)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
         .padding()
