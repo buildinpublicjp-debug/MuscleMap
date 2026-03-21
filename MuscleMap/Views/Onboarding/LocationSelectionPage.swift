@@ -72,7 +72,7 @@ struct LocationSelectionPage: View {
     ]
 
     /// GIFカードサイズ
-    private let cardSize: CGFloat = 100
+    private let cardSize: CGFloat = 140
 
     private func isTrueBodyweight(_ exercise: ExerciseDefinition) -> Bool {
         let id = exercise.id.lowercased()
@@ -182,7 +182,7 @@ struct LocationSelectionPage: View {
                     HapticManager.lightTap()
                 }
             )
-            .frame(height: cardSize * 2 + 6)
+            .frame(height: cardSize * 2 + 8)
             .clipped()
             .contentShape(Rectangle())
             .opacity(appeared ? 1 : 0)
@@ -270,7 +270,7 @@ private struct UnifiedMarqueeGallery: View {
     let speed: Double // pt/sec
     let onTap: (ExerciseDefinition) -> Void
 
-    private let spacing: CGFloat = 6
+    private let spacing: CGFloat = 8
 
     /// 上段1セット分の幅（上下で長い方を基準にする）
     private var setWidth: CGFloat {
@@ -341,22 +341,23 @@ private struct ExerciseGifCard: View {
 
                 // 名前オーバーレイ（下部グラデーション上）
                 LinearGradient(
-                    colors: [.clear, .black.opacity(0.7)],
+                    colors: [.clear, .black.opacity(0.85)],
                     startPoint: .top,
                     endPoint: .bottom
                 )
-                .frame(height: cardSize * 0.35)
+                .frame(height: cardSize * 0.4)
 
                 Text(exercise.localizedName)
-                    .font(.system(size: 10, weight: .bold))
+                    .font(.system(size: 12, weight: .bold))
                     .foregroundStyle(.white)
                     .lineLimit(1)
                     .truncationMode(.tail)
-                    .padding(.horizontal, 4)
-                    .padding(.bottom, 4)
+                    .padding(.horizontal, 6)
+                    .padding(.bottom, 6)
+                    .shadow(color: .black.opacity(0.5), radius: 2, y: 1)
             }
             .frame(width: cardSize, height: cardSize)
-            .clipShape(RoundedRectangle(cornerRadius: 10))
+            .clipShape(RoundedRectangle(cornerRadius: 12))
         }
         .buttonStyle(.plain)
     }
