@@ -8,6 +8,7 @@ struct ProfileInputPage: View {
     let onNext: () -> Void
 
     @State private var selectedExperience: TrainingExperience?
+    @State private var heightCm: Int = Int(AppState.shared.userProfile.heightCm)
     @State private var weightKg: Int = Int(AppState.shared.userProfile.weightKg)
     @State private var nickname: String = AppState.shared.userProfile.nickname
     @State private var selectedUnit: WeightUnit = AppState.shared.weightUnit
@@ -103,10 +104,16 @@ struct ProfileInputPage: View {
                     // セクション1: トレーニング経験（横並び4択）
                     experienceSection
 
-                    // セクション2: 体重ステッパー
+                    // セクション2: 身長ステッパー
+                    heightStepperSection
+
+                    // セクション3: 体重ステッパー
                     weightStepperSection
 
-                    // セクション3: ニックネーム
+                    // BMI表示
+                    bmiSection
+
+                    // セクション4: ニックネーム
                     nicknameSection
                 }
                 .padding(.horizontal, 24)
@@ -128,6 +135,7 @@ struct ProfileInputPage: View {
             if profile.trainingExperience != .beginner || profile.weightKg != 70 {
                 selectedExperience = profile.trainingExperience
             }
+            heightCm = max(140, min(220, Int(profile.heightCm)))
             weightKg = max(30, Int(profile.weightKg))
             nickname = profile.nickname
 
@@ -194,6 +202,90 @@ struct ProfileInputPage: View {
             )
         }
         .buttonStyle(.plain)
+    }
+
+    // MARK: - 身長ステッパーセクション
+
+    private var heightStepperSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                Text(isJapanese ? "身長" : "Height")
+                    .font(.system(size: 15, weight: .bold))
+                    .foregroundStyle(Color.mmOnboardingTextMain)
+
+                Text(isJapanese ? "BMI計算に使用します" : "Used for BMI calculation")
+                    .font(.system(size: 11))
+                    .foregroundStyle(Color.mmOnboardingTextSub.opacity(0.7))
+
+                Spacer()
+            }
+
+            // ステッパー本体
+            HStack {
+                // マイナスボタン（タップ-1cm、長押し-5cm）
+                Button {
+                    guard heightCm > 140 else { return }
+                    heightCm -= 1
+                    AppState.shared.userProfile.heightCm = Double(heightCm)
+                    HapticManager.lightTap()
+                } label: {
+                    Image(systemName: "minus")
+                        .font(.system(size: 18, weight: .bold))
+                        .foregroundStyle(Color.mmOnboardingAccent)
+                        .frame(width: 48, height: 48)
+                        .background(Color.mmOnboardingAccent.opacity(0.1))
+                        .clipShape(Circle())
+                }
+                .buttonStyle(.plain)
+                .onLongPressGesture(minimumDuration: 0.3) {
+                    heightCm = max(140, heightCm - 5)
+                    AppState.shared.userProfile.heightCm = Double(heightCm)
+                    HapticManager.lightTap()
+                }
+
+                Spacer()
+
+                // 身長表示
+                HStack(alignment: .firstTextBaseline, spacing: 4) {
+                    Text("\(heightCm)")
+                        .font(.system(size: 42, weight: .heavy))
+                        .foregroundStyle(Color.mmOnboardingTextMain)
+                        .contentTransition(.numericText())
+                        .animation(.snappy(duration: 0.2), value: heightCm)
+
+                    Text("cm")
+                        .font(.system(size: 18, weight: .bold))
+                        .foregroundStyle(Color.mmOnboardingTextSub)
+                }
+
+                Spacer()
+
+                // プラスボタン（タップ+1cm、長押し+5cm）
+                Button {
+                    guard heightCm < 220 else { return }
+                    heightCm += 1
+                    AppState.shared.userProfile.heightCm = Double(heightCm)
+                    HapticManager.lightTap()
+                } label: {
+                    Image(systemName: "plus")
+                        .font(.system(size: 18, weight: .bold))
+                        .foregroundStyle(Color.mmOnboardingAccent)
+                        .frame(width: 48, height: 48)
+                        .background(Color.mmOnboardingAccent.opacity(0.1))
+                        .clipShape(Circle())
+                }
+                .buttonStyle(.plain)
+                .onLongPressGesture(minimumDuration: 0.3) {
+                    heightCm = min(220, heightCm + 5)
+                    AppState.shared.userProfile.heightCm = Double(heightCm)
+                    HapticManager.lightTap()
+                }
+            }
+            .padding(.vertical, 8)
+            .padding(.horizontal, 16)
+            .background(Color.mmOnboardingCard)
+            .clipShape(RoundedRectangle(cornerRadius: 16))
+        }
     }
 
     // MARK: - 体重ステッパーセクション
@@ -302,6 +394,47 @@ struct ProfileInputPage: View {
         }
     }
 
+    // MARK: - BMI表示セクション
+
+    /// BMI値を計算
+    private var bmiValue: Double {
+        let h = Double(heightCm) / 100.0
+        guard h > 0 else { return 0 }
+        return Double(weightKg) / (h * h)
+    }
+
+    /// BMIカテゴリ（30以上は非表示）
+    private var bmiCategory: String? {
+        let bmi = bmiValue
+        if bmi < 18.5 {
+            return isJapanese ? "やせ型" : "Underweight"
+        } else if bmi < 25.0 {
+            return isJapanese ? "標準" : "Normal"
+        } else if bmi < 30.0 {
+            return isJapanese ? "やや肥満" : "Overweight"
+        }
+        return nil // 30以上は非表示
+    }
+
+    private var bmiSection: some View {
+        Group {
+            if let category = bmiCategory {
+                HStack(spacing: 6) {
+                    Text("BMI")
+                        .font(.caption)
+                        .foregroundStyle(Color.mmOnboardingTextSub)
+                    Text(String(format: "%.1f", bmiValue))
+                        .font(.caption.bold())
+                        .foregroundStyle(Color.mmOnboardingTextMain)
+                    Text("(\(category))")
+                        .font(.caption)
+                        .foregroundStyle(Color.mmOnboardingTextSub)
+                }
+                .frame(maxWidth: .infinity, alignment: .center)
+            }
+        }
+    }
+
     // MARK: - ニックネームセクション
 
     private var nicknameSection: some View {
@@ -334,6 +467,7 @@ struct ProfileInputPage: View {
         Button {
             guard !isProceeding, selectedExperience != nil else { return }
             isProceeding = true
+            AppState.shared.userProfile.heightCm = Double(heightCm)
             AppState.shared.userProfile.weightKg = Double(weightKg)
             AppState.shared.userProfile.nickname = nickname
             HapticManager.lightTap()
