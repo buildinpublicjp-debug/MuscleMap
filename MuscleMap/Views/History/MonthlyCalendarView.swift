@@ -5,6 +5,7 @@ import SwiftUI
 struct MonthlyCalendarView: View {
     let workoutDates: Set<DateComponents>
     let dailyMuscleGroups: [DateComponents: Set<MuscleGroup>]
+    let dailyMuscleMappings: [DateComponents: [String: Int]]
     var onDateSelected: ((Date) -> Void)?
 
     @State private var currentMonth = Date()
@@ -14,10 +15,12 @@ struct MonthlyCalendarView: View {
     init(
         workoutDates: Set<DateComponents>,
         dailyMuscleGroups: [DateComponents: Set<MuscleGroup>] = [:],
+        dailyMuscleMappings: [DateComponents: [String: Int]] = [:],
         onDateSelected: ((Date) -> Void)? = nil
     ) {
         self.workoutDates = workoutDates
         self.dailyMuscleGroups = dailyMuscleGroups
+        self.dailyMuscleMappings = dailyMuscleMappings
         self.onDateSelected = onDateSelected
     }
 
@@ -42,42 +45,10 @@ struct MonthlyCalendarView: View {
 
             // カレンダーグリッド
             calendarGrid
-
-            // カラー凡例（ワークアウトがある場合のみ表示）
-            if hasAnyWorkout {
-                muscleGroupLegend
-            }
         }
         .padding()
         .background(Color.mmBgCard)
         .clipShape(RoundedRectangle(cornerRadius: 16))
-    }
-
-    // MARK: - 筋肉グループ凡例
-
-    private var muscleGroupLegend: some View {
-        let allGroups: [(MuscleGroup, String)] = [
-            (.chest, L10n.categoryChest),
-            (.back, L10n.categoryBack),
-            (.shoulders, L10n.categoryShoulders),
-            (.arms, L10n.categoryArms),
-            (.core, L10n.coreType),
-            (.lowerBody, L10n.lowerBody)
-        ]
-
-        return HStack(spacing: 8) {
-            ForEach(allGroups, id: \.0) { group, name in
-                HStack(spacing: 3) {
-                    RoundedRectangle(cornerRadius: 2)
-                        .fill(muscleGroupColor(group))
-                        .frame(width: 8, height: 8)
-                    Text(name)
-                        .font(.system(size: 9))
-                        .foregroundStyle(Color.mmTextSecondary)
-                }
-            }
-        }
-        .padding(.top, 4)
     }
 
     // MARK: - 月ナビゲーション
@@ -137,7 +108,7 @@ struct MonthlyCalendarView: View {
     private var calendarGrid: some View {
         let days = daysInMonth()
 
-        return LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 7), spacing: 8) {
+        return LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 7), spacing: 4) {
             ForEach(days, id: \.self) { day in
                 if let date = day {
                     DayCell(
@@ -145,7 +116,7 @@ struct MonthlyCalendarView: View {
                         isToday: calendar.isDateInToday(date),
                         isSelected: selectedDate.map { calendar.isDate($0, inSameDayAs: date) } ?? false,
                         hasWorkout: hasWorkout(on: date),
-                        muscleGroups: muscleGroups(on: date)
+                        muscleMapping: muscleMapping(on: date)
                     ) {
                         selectedDate = date
                         onDateSelected?(date)
@@ -153,7 +124,7 @@ struct MonthlyCalendarView: View {
                     }
                 } else {
                     Color.clear
-                        .frame(height: 58)
+                        .frame(height: 62)
                 }
             }
         }
@@ -218,76 +189,50 @@ struct MonthlyCalendarView: View {
         return workoutDates.contains(components)
     }
 
-    private func muscleGroups(on date: Date) -> Set<MuscleGroup> {
+    private func muscleMapping(on date: Date) -> [String: Int] {
         let components = calendar.dateComponents([.year, .month, .day], from: date)
-        return dailyMuscleGroups[components] ?? []
+        return dailyMuscleMappings[components] ?? [:]
     }
 }
 
-// MARK: - 筋肉グループ色ヘルパー（カレンダー共通）
-
-private func muscleGroupColor(_ group: MuscleGroup) -> Color {
-    switch group {
-    case .chest: return .mmMuscleJustWorked      // 赤系
-    case .back: return .mmAccentSecondary        // 青系
-    case .shoulders: return .mmMuscleAmber       // 黄系
-    case .arms: return .mmMuscleCoral            // オレンジ系
-    case .core: return .mmMuscleLime             // 黄緑系
-    case .lowerBody: return .mmAccentPrimary     // 緑系
-    }
-}
-
-// MARK: - 日付セル
+// MARK: - 日付セル（ミニマッスルマップ付き）
 
 private struct DayCell: View {
     let date: Date
     let isToday: Bool
     let isSelected: Bool
     let hasWorkout: Bool
-    let muscleGroups: Set<MuscleGroup>
+    let muscleMapping: [String: Int]
     let action: () -> Void
 
     private let calendar = Calendar.current
 
     var body: some View {
         Button(action: action) {
-            VStack(spacing: 2) {
+            VStack(spacing: 1) {
                 Text("\(calendar.component(.day, from: date))")
-                    .font(.subheadline)
-                    .fontWeight(isToday ? .bold : .regular)
+                    .font(.system(size: 12, weight: isToday ? .bold : .regular))
                     .foregroundStyle(textColor)
 
-                // ワークアウトアイコン（鍛えた筋肉グループの色ドット表示）
-                if hasWorkout && !muscleGroups.isEmpty {
-                    workoutIndicator
+                // ワークアウトした日はミニマッスルマップを表示
+                if hasWorkout && !muscleMapping.isEmpty {
+                    MiniMuscleMapView(muscleMapping: muscleMapping)
+                        .frame(width: 28, height: 36)
+                        .allowsHitTesting(false)
                 } else if hasWorkout {
-                    // 筋肉グループ情報がない場合はダンベルアイコン
                     Image(systemName: "dumbbell.fill")
                         .font(.system(size: 10))
                         .foregroundStyle(Color.mmAccentPrimary)
+                        .frame(height: 36)
+                } else {
+                    Color.clear
+                        .frame(height: 36)
                 }
-                // 空の日は何も表示しない
             }
             .frame(maxWidth: .infinity)
-            .frame(height: 58)
+            .frame(height: 62)
             .background(backgroundColor)
             .clipShape(RoundedRectangle(cornerRadius: 8))
-        }
-    }
-
-    /// ワークアウトした筋肉グループをカラードットで表示
-    private var workoutIndicator: some View {
-        HStack(spacing: 2) {
-            ForEach(Array(muscleGroups).sorted(by: { $0.rawValue < $1.rawValue }).prefix(3), id: \.self) { group in
-                Circle()
-                    .fill(muscleGroupColor(group))
-                    .frame(width: 6, height: 6)
-            }
-            if muscleGroups.count > 3 {
-                Text("+")
-                    .font(.system(size: 7, weight: .bold))
-                    .foregroundStyle(Color.mmTextSecondary)
-            }
         }
     }
 
@@ -332,6 +277,13 @@ private struct DayCell: View {
                 DateComponents(year: 2026, month: 2, day: 7): [.shoulders, .core],
                 DateComponents(year: 2026, month: 2, day: 10): [.lowerBody],
                 DateComponents(year: 2026, month: 2, day: 11): [.chest, .back, .shoulders, .arms]
+            ],
+            dailyMuscleMappings: [
+                DateComponents(year: 2026, month: 2, day: 3): ["chest_upper": 100, "chest_lower": 80, "triceps": 50],
+                DateComponents(year: 2026, month: 2, day: 5): ["lats": 100, "biceps": 70, "traps_upper": 40],
+                DateComponents(year: 2026, month: 2, day: 7): ["deltoid_anterior": 80, "deltoid_lateral": 100, "rectus_abdominis": 60],
+                DateComponents(year: 2026, month: 2, day: 10): ["quadriceps": 100, "hamstrings": 70, "glutes": 80],
+                DateComponents(year: 2026, month: 2, day: 11): ["chest_upper": 80, "lats": 60, "deltoid_lateral": 50, "biceps": 40]
             ]
         )
         .padding()

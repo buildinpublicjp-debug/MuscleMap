@@ -30,6 +30,9 @@ class HistoryViewModel {
     // カレンダー用：日別の筋肉グループデータ
     var dailyMuscleGroups: [DateComponents: Set<MuscleGroup>] = [:]
 
+    // カレンダー用：日別の筋肉マッピング（ミニマッスルマップ表示用）
+    var dailyMuscleMappings: [DateComponents: [String: Int]] = [:]
+
     // チャート用（stored property: 毎render再計算を防止）
     var dailyVolumeData: [DailyVolume] = []
 
@@ -62,6 +65,7 @@ class HistoryViewModel {
         calculateTopExercises()
         calculateWorkoutDates()
         calculateDailyMuscleGroups()
+        calculateDailyMuscleMappings()
         calculateDailyVolumeData()
         calculatePeriodMuscleSets()
         calculateExerciseTrendData()
@@ -287,6 +291,29 @@ class HistoryViewModel {
         }
 
         dailyMuscleGroups = result
+    }
+
+    // MARK: - 日別の筋肉マッピング（カレンダーミニマップ用）
+
+    private func calculateDailyMuscleMappings() {
+        let calendar = Calendar.current
+        var result: [DateComponents: [String: Int]] = [:]
+
+        for session in sessions {
+            let components = calendar.dateComponents([.year, .month, .day], from: session.startDate)
+            var mapping = result[components] ?? [:]
+
+            for workoutSet in session.sets {
+                guard let exercise = exerciseStore.exercise(for: workoutSet.exerciseId) else { continue }
+                for (muscleId, intensity) in exercise.muscleMapping {
+                    mapping[muscleId] = max(mapping[muscleId] ?? 0, intensity)
+                }
+            }
+
+            result[components] = mapping
+        }
+
+        dailyMuscleMappings = result
     }
 
     // MARK: - 期間内の筋肉別セット数（マップビュー用）

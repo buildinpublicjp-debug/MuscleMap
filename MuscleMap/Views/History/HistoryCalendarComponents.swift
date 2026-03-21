@@ -13,7 +13,8 @@ struct HistoryCalendarView: View {
                 // 月間カレンダー（カラーバー付き）
                 MonthlyCalendarView(
                     workoutDates: viewModel.workoutDates,
-                    dailyMuscleGroups: viewModel.dailyMuscleGroups
+                    dailyMuscleGroups: viewModel.dailyMuscleGroups,
+                    dailyMuscleMappings: viewModel.dailyMuscleMappings
                 ) { date in
                     onDateSelected(date)
                 }
