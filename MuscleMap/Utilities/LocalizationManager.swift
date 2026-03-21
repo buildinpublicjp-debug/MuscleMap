@@ -924,7 +924,7 @@ enum L10n {
             ko: "나의 트레이너 유형은 \"\(typeName)\"입니다! \(hashtag)\n\(url)",
             es: "¡Mi tipo de entrenamiento es \"\(typeName)\"! \(hashtag)\n\(url)",
             fr: "Mon type d'entraînement est « \(typeName) » ! \(hashtag)\n\(url)",
-            de: "Mein Trainingstyp ist „\(typeName)"! \(hashtag)\n\(url)")
+            de: "Mein Trainingstyp ist \"\(typeName)\"! \(hashtag)\n\(url)")
     }
 
     // バランス軸
