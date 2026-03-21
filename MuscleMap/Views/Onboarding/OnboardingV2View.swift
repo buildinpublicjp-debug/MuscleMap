@@ -31,6 +31,9 @@ struct OnboardingV2View: View {
                     currentPage = 1
                 }
                 .tag(0)
+                .background(Color.mmOnboardingBg)
+                .clipped()
+                .zIndex(currentPage == 0 ? 1 : 0)
 
                 // ページ1: 週間トレーニング頻度
                 FrequencySelectionPage { frequency in
@@ -38,6 +41,9 @@ struct OnboardingV2View: View {
                     currentPage = 2
                 }
                 .tag(1)
+                .background(Color.mmOnboardingBg)
+                .clipped()
+                .zIndex(currentPage == 1 ? 1 : 0)
 
                 // ページ2: トレーニング場所
                 LocationSelectionPage { location in
@@ -45,40 +51,61 @@ struct OnboardingV2View: View {
                     currentPage = 3
                 }
                 .tag(2)
+                .background(Color.mmOnboardingBg)
+                .clipped()
+                .zIndex(currentPage == 2 ? 1 : 0)
 
                 // ページ3: プロフィール入力（トレ歴 + 体重 + ニックネーム統合）
                 ProfileInputPage {
                     afterProfileInput()
                 }
                 .tag(3)
+                .background(Color.mmOnboardingBg)
+                .clipped()
+                .zIndex(currentPage == 3 ? 1 : 0)
 
                 // ページ4: PR入力（経験者のみ: oneYearPlus / veteran）
                 PRInputPage {
                     currentPage = 5
                 }
                 .tag(4)
+                .background(Color.mmOnboardingBg)
+                .clipped()
+                .zIndex(currentPage == 4 ? 1 : 0)
 
                 // ページ5: 回復サイクルプレビュー
                 GoalMusclePreviewPage {
                     currentPage = 6
                 }
                 .tag(5)
+                .background(Color.mmOnboardingBg)
+                .clipped()
+                .zIndex(currentPage == 5 ? 1 : 0)
 
                 // ページ6: ルーティンビルダー
                 RoutineBuilderPage {
                     currentPage = 7
                 }
                 .tag(6)
+                .background(Color.mmOnboardingBg)
+                .clipped()
+                .zIndex(currentPage == 6 ? 1 : 0)
 
                 // ページ7: 回復通知（Paywall前の独立ページ）
                 NotificationPermissionView {
                     currentPage = 8
                 }
                 .tag(7)
+                .background(Color.mmOnboardingBg)
+                .clipped()
+                .zIndex(currentPage == 7 ? 1 : 0)
 
                 // ページ8: ルーティン完了 + ハードペイウォール
                 RoutineCompletionPage(onComplete: onComplete)
                     .tag(8)
+                    .background(Color.mmOnboardingBg)
+                    .clipped()
+                    .zIndex(currentPage == 8 ? 1 : 0)
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
             .animation(.easeInOut(duration: 0.4), value: currentPage)

@@ -72,37 +72,34 @@ struct ProfileInputPage: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            Spacer().frame(height: 24)
-
-            // タイトル
-            VStack(spacing: 8) {
-                Text(L10n.profileInputTitle)
-                    .font(.system(size: 28, weight: .heavy))
-                    .foregroundStyle(Color.mmOnboardingTextMain)
-                    .multilineTextAlignment(.center)
-
-                Text(L10n.profileInputSubtitle)
-                    .font(.subheadline)
-                    .foregroundStyle(Color.mmOnboardingTextSub)
-                    .multilineTextAlignment(.center)
-            }
-            .padding(.horizontal, 24)
-            .opacity(appeared ? 1 : 0)
-            .offset(y: appeared ? 0 : 20)
-
-            Spacer().frame(height: 12)
-
-            // 筋肉マップミニビュー（経験レベルで色が変わる）
-            MuscleMapView(muscleStates: experienceMapStates)
-                .frame(height: 120)
-                .padding(.horizontal, 24)
-                .animation(.spring(response: 0.4, dampingFraction: 0.8), value: selectedExperience)
-                .opacity(appeared ? 1 : 0)
-
-            Spacer().frame(height: 12)
-
             ScrollView(.vertical, showsIndicators: false) {
-                VStack(spacing: 16) {
+                VStack(spacing: 12) {
+                    Spacer().frame(height: 16)
+
+                    // タイトル
+                    VStack(spacing: 6) {
+                        Text(L10n.profileInputTitle)
+                            .font(.system(size: 24, weight: .heavy))
+                            .foregroundStyle(Color.mmOnboardingTextMain)
+                            .multilineTextAlignment(.center)
+
+                        Text(L10n.profileInputSubtitle)
+                            .font(.system(size: 14))
+                            .foregroundStyle(Color.mmOnboardingTextSub)
+                            .multilineTextAlignment(.center)
+                    }
+                    .padding(.horizontal, 24)
+                    .opacity(appeared ? 1 : 0)
+                    .offset(y: appeared ? 0 : 20)
+
+                    // 筋肉マップミニビュー（経験レベルで色が変わる）
+                    MuscleMapView(muscleStates: experienceMapStates)
+                        .frame(height: 100)
+                        .frame(maxWidth: 240)
+                        .frame(maxWidth: .infinity)
+                        .animation(.spring(response: 0.4, dampingFraction: 0.8), value: selectedExperience)
+                        .opacity(appeared ? 1 : 0)
+
                     // セクション1: トレーニング経験（横並び4択）
                     experienceSection
 
@@ -127,11 +124,11 @@ struct ProfileInputPage: View {
             .opacity(appeared ? 1 : 0)
             .offset(y: appeared ? 0 : 20)
 
-            Spacer(minLength: 16)
-
             // 次へボタン
             nextButton
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.mmOnboardingBg)
         .onAppear {
             isProceeding = false  // スワイプ戻り時にボタンを有効化
 

@@ -69,7 +69,7 @@ enum WeeklyFrequency: Int, CaseIterable, Codable {
     }
 }
 
-// MARK: - 頻度選択画面（超回復アニメーション + GIFマーキー付き）
+// MARK: - 頻度選択画面（超回復アニメーション付き）
 
 struct FrequencySelectionPage: View {
     let onNext: (WeeklyFrequency) -> Void
@@ -86,42 +86,6 @@ struct FrequencySelectionPage: View {
 
     private var isJapanese: Bool {
         LocalizationManager.shared.currentLanguage == .japanese
-    }
-
-    /// 選択中の頻度に対応する種目リスト（マーキー用）
-    private var marqueeExercises: [ExerciseDefinition] {
-        guard let freq = selected else { return [] }
-        let store = ExerciseStore.shared
-        store.loadIfNeeded()
-        let parts = WorkoutRecommendationEngine.splitParts(for: freq.rawValue)
-        let targetGroups = Set(parts.flatMap { $0.muscleGroups })
-        var result: [ExerciseDefinition] = []
-        var seenIds: Set<String> = []
-        for ex in store.exercises {
-            guard result.count < 16 else { break }
-            if let primary = ex.primaryMuscle,
-               targetGroups.contains(primary.group),
-               !seenIds.contains(ex.id),
-               ExerciseGifView.hasGif(exerciseId: ex.id) {
-                seenIds.insert(ex.id)
-                result.append(ex)
-            }
-        }
-        return result
-    }
-
-    /// 上段の種目
-    private var topRowExercises: [ExerciseDefinition] {
-        let items = marqueeExercises
-        let mid = (items.count + 1) / 2
-        return Array(items.prefix(mid))
-    }
-
-    /// 下段の種目
-    private var bottomRowExercises: [ExerciseDefinition] {
-        let items = marqueeExercises
-        let mid = (items.count + 1) / 2
-        return Array(items.dropFirst(mid))
     }
 
     var body: some View {
@@ -167,19 +131,6 @@ struct FrequencySelectionPage: View {
             .font(.system(size: 10))
             .padding(.top, 2)
             .opacity(appeared ? 1 : 0)
-
-            // GIFマーキー（頻度選択後に表示、2行統一速度）
-            if selected != nil && !marqueeExercises.isEmpty {
-                VStack(spacing: 4) {
-                    FrequencyMarqueeRow(exercises: topRowExercises, speed: 30)
-                        .frame(height: 80)
-                    FrequencyMarqueeRow(exercises: bottomRowExercises, speed: 30)
-                        .frame(height: 80)
-                }
-                .clipped()
-                .padding(.top, 4)
-                .transition(.opacity.combined(with: .move(edge: .top)))
-            }
 
             // ヒントテキスト or タイムラインバー
             if selected == nil {
@@ -457,80 +408,6 @@ struct FrequencySelectionPage: View {
             }
         }
         return -1 // まだ刺激されてない（今週まだトレーニングされていない）
-    }
-}
-
-// MARK: - GIFマーキー行（TimelineViewベース統一速度）
-
-private struct FrequencyMarqueeRow: View {
-    let exercises: [ExerciseDefinition]
-    let speed: Double  // pt/sec
-    private let cardSize: CGFloat = 80
-    private let spacing: CGFloat = 6
-
-    /// 1セット分の合計幅
-    private var setWidth: CGFloat {
-        CGFloat(exercises.count) * (cardSize + spacing)
-    }
-
-    var body: some View {
-        TimelineView(.animation) { timeline in
-            let elapsed = timeline.date.timeIntervalSinceReferenceDate
-            let totalWidth = setWidth
-            let offset: CGFloat = totalWidth > 0
-                ? -CGFloat(elapsed.truncatingRemainder(dividingBy: Double(totalWidth) / speed) * speed)
-                : 0
-
-            HStack(spacing: spacing) {
-                // 2セット並べてシームレスループ
-                ForEach(0..<2, id: \.self) { batch in
-                    ForEach(Array(exercises.enumerated()), id: \.offset) { index, exercise in
-                        frequencyMarqueeCard(exercise: exercise)
-                            .id("\(batch)-\(index)")
-                    }
-                }
-            }
-            .offset(x: offset)
-        }
-        .clipped()
-    }
-
-    private func frequencyMarqueeCard(exercise: ExerciseDefinition) -> some View {
-        ZStack(alignment: .bottom) {
-            if ExerciseGifView.hasGif(exerciseId: exercise.id) {
-                ExerciseGifView(exerciseId: exercise.id, size: .card)
-                    .scaledToFill()
-                    .frame(width: cardSize, height: cardSize)
-                    .clipped()
-            } else {
-                Color.mmOnboardingBg
-                    .frame(width: cardSize, height: cardSize)
-                    .overlay(
-                        Image(systemName: "dumbbell.fill")
-                            .font(.system(size: 18))
-                            .foregroundStyle(Color.mmOnboardingTextSub.opacity(0.3))
-                    )
-            }
-
-            // 種目名（グラデーション付き）
-            Text(exercise.localizedName)
-                .font(.system(size: 9, weight: .bold))
-                .foregroundStyle(.white)
-                .lineLimit(1)
-                .padding(.horizontal, 4)
-                .padding(.bottom, 3)
-                .padding(.top, 14)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .background(
-                    LinearGradient(
-                        colors: [.clear, Color.black.opacity(0.7)],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
-                )
-        }
-        .frame(width: cardSize, height: cardSize)
-        .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 }
 

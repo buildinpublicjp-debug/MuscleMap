@@ -72,7 +72,7 @@ struct LocationSelectionPage: View {
     ]
 
     /// GIFカードサイズ
-    private let cardSize: CGFloat = 160
+    private let cardSize: CGFloat = 100
 
     private func isTrueBodyweight(_ exercise: ExerciseDefinition) -> Bool {
         let id = exercise.id.lowercased()
@@ -171,21 +171,20 @@ struct LocationSelectionPage: View {
 
             Spacer().frame(height: 4)
 
-            // GIFギャラリー（2行、自動スクロール）
-            MarqueeGifRow(exercises: topRowExercises, cardSize: cardSize, speed: 30, onTap: { exercise in
-                selectedExercise = exercise
-                HapticManager.lightTap()
-            })
-            .frame(height: cardSize)
-            .opacity(appeared ? 1 : 0)
-
-            Spacer().frame(height: 8)
-
-            MarqueeGifRow(exercises: bottomRowExercises, cardSize: cardSize, speed: 25, onTap: { exercise in
-                selectedExercise = exercise
-                HapticManager.lightTap()
-            })
-            .frame(height: cardSize)
+            // GIFギャラリー（2行一体型マーキー）
+            UnifiedMarqueeGallery(
+                topExercises: topRowExercises,
+                bottomExercises: bottomRowExercises,
+                cardSize: cardSize,
+                speed: 28,
+                onTap: { exercise in
+                    selectedExercise = exercise
+                    HapticManager.lightTap()
+                }
+            )
+            .frame(height: cardSize * 2 + 6)
+            .clipped()
+            .contentShape(Rectangle())
             .opacity(appeared ? 1 : 0)
 
             Spacer(minLength: 2)
@@ -262,43 +261,58 @@ struct LocationSelectionPage: View {
 
 }
 
-// MARK: - マーキー自動スクロール行
+// MARK: - 2行一体型マーキーギャラリー
 
-private struct MarqueeGifRow: View {
-    let exercises: [ExerciseDefinition]
+private struct UnifiedMarqueeGallery: View {
+    let topExercises: [ExerciseDefinition]
+    let bottomExercises: [ExerciseDefinition]
     let cardSize: CGFloat
     let speed: Double // pt/sec
     let onTap: (ExerciseDefinition) -> Void
 
-    private let spacing: CGFloat = 8
+    private let spacing: CGFloat = 6
 
-    /// 1セット分の合計幅
+    /// 上段1セット分の幅（上下で長い方を基準にする）
     private var setWidth: CGFloat {
-        CGFloat(exercises.count) * cardSize + CGFloat(exercises.count) * spacing
+        let topCount = max(topExercises.count, 1)
+        let bottomCount = max(bottomExercises.count, 1)
+        let maxCount = max(topCount, bottomCount)
+        return CGFloat(maxCount) * (cardSize + spacing)
     }
 
     var body: some View {
         TimelineView(.animation) { timeline in
             let elapsed = timeline.date.timeIntervalSinceReferenceDate
             let totalWidth = setWidth
-            // ゼロ除算防止
             let offset: CGFloat = totalWidth > 0
                 ? -CGFloat(elapsed.truncatingRemainder(dividingBy: Double(totalWidth) / speed) * speed)
                 : 0
 
-            HStack(spacing: spacing) {
-                // 2セット並べてシームレスループ
-                ForEach(0..<2, id: \.self) { _ in
-                    ForEach(exercises, id: \.id) { exercise in
-                        ExerciseGifCard(exercise: exercise, cardSize: cardSize) {
-                            onTap(exercise)
+            VStack(spacing: spacing) {
+                // 上段
+                HStack(spacing: spacing) {
+                    ForEach(0..<2, id: \.self) { _ in
+                        ForEach(topExercises, id: \.id) { exercise in
+                            ExerciseGifCard(exercise: exercise, cardSize: cardSize) {
+                                onTap(exercise)
+                            }
+                        }
+                    }
+                }
+
+                // 下段
+                HStack(spacing: spacing) {
+                    ForEach(0..<2, id: \.self) { _ in
+                        ForEach(bottomExercises, id: \.id) { exercise in
+                            ExerciseGifCard(exercise: exercise, cardSize: cardSize) {
+                                onTap(exercise)
+                            }
                         }
                     }
                 }
             }
             .offset(x: offset)
         }
-        .clipped()
     }
 }
 
@@ -319,7 +333,7 @@ private struct ExerciseGifCard: View {
                     ZStack {
                         Color.mmOnboardingBg
                         Image(systemName: "dumbbell.fill")
-                            .font(.system(size: 32))
+                            .font(.system(size: 24))
                             .foregroundStyle(Color.mmOnboardingTextSub.opacity(0.4))
                     }
                     .frame(width: cardSize, height: cardSize)
@@ -334,15 +348,15 @@ private struct ExerciseGifCard: View {
                 .frame(height: cardSize * 0.35)
 
                 Text(exercise.localizedName)
-                    .font(.system(size: 11, weight: .bold))
+                    .font(.system(size: 10, weight: .bold))
                     .foregroundStyle(.white)
                     .lineLimit(1)
                     .truncationMode(.tail)
-                    .padding(.horizontal, 6)
-                    .padding(.bottom, 6)
+                    .padding(.horizontal, 4)
+                    .padding(.bottom, 4)
             }
             .frame(width: cardSize, height: cardSize)
-            .clipShape(RoundedRectangle(cornerRadius: 14))
+            .clipShape(RoundedRectangle(cornerRadius: 10))
         }
         .buttonStyle(.plain)
     }

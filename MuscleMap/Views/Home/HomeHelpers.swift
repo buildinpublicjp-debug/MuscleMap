@@ -205,6 +205,25 @@ struct TodayRecommendationInline: View {
                 Spacer()
             }
 
+            // 対象筋肉グループ
+            if !displayDay.muscleGroups.isEmpty {
+                let groupNames = displayDay.muscleGroups.compactMap { raw in
+                    MuscleGroup(rawValue: raw)
+                }.map { group in
+                    localization.currentLanguage == .japanese ? group.japaneseName : group.englishName
+                }
+                if !groupNames.isEmpty {
+                    HStack(spacing: 6) {
+                        Image(systemName: "figure.strengthtraining.traditional")
+                            .font(.system(size: 11))
+                            .foregroundStyle(Color.mmAccentPrimary)
+                        Text(groupNames.joined(separator: "・"))
+                            .font(.system(size: 13))
+                            .foregroundStyle(Color.mmTextSecondary)
+                    }
+                }
+            }
+
             // Dayタブバー（2日以上ある場合のみ表示）
             if allDays.count > 1 {
                 ScrollView(.horizontal, showsIndicators: false) {
@@ -396,6 +415,39 @@ struct TodayRecommendationInline: View {
                     }
                     .foregroundStyle(remaining > 0 ? Color.mmAccentPrimary : Color.mmWarning)
                 }
+            }
+
+            // 次のDay予告（今日のDay表示時のみ、2日以上のルーティンがある場合）
+            if isToday, allDays.count > 1 {
+                let nextIndex = (todayDayIndex + 1) % allDays.count
+                let nextDay = allDays[nextIndex]
+                let nextGroupNames = nextDay.muscleGroups.compactMap { MuscleGroup(rawValue: $0) }
+                    .map { localization.currentLanguage == .japanese ? $0.japaneseName : $0.englishName }
+
+                HStack(spacing: 8) {
+                    Image(systemName: "arrow.right.circle.fill")
+                        .font(.system(size: 14))
+                        .foregroundStyle(Color.mmTextSecondary)
+
+                    Text(localization.currentLanguage == .japanese ? "次回" : "Next")
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundStyle(Color.mmTextSecondary)
+
+                    Text(nextDay.name)
+                        .font(.system(size: 12, weight: .bold))
+                        .foregroundStyle(Color.mmTextPrimary)
+
+                    if !nextGroupNames.isEmpty {
+                        Text(nextGroupNames.joined(separator: "・"))
+                            .font(.system(size: 12))
+                            .foregroundStyle(Color.mmTextSecondary)
+                    }
+
+                    Spacer()
+                }
+                .padding(10)
+                .background(Color.mmBgPrimary.opacity(0.5))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
             }
         }
         .padding(16)
