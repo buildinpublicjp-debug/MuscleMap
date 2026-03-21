@@ -60,8 +60,6 @@ struct LocationSelectionPage: View {
     @State private var appeared = false
     @State private var isProceeding = false
     @State private var selectedExercise: ExerciseDefinition?
-    @State private var scrollTimer: Timer?
-    @State private var autoScrollTarget: Int = 0
 
     /// 器具が必要な「自重」種目を除外するID判定
     private static let bodyweightExcludeIds: Set<String> = [
@@ -173,9 +171,22 @@ struct LocationSelectionPage: View {
 
             Spacer().frame(height: 4)
 
-            // GIFギャラリー（2行、慣性スクロール + 自動スクロール）
-            gifGallery
-                .opacity(appeared ? 1 : 0)
+            // GIFギャラリー（2行、自動スクロール）
+            MarqueeGifRow(exercises: topRowExercises, cardSize: cardSize, speed: 30, onTap: { exercise in
+                selectedExercise = exercise
+                HapticManager.lightTap()
+            })
+            .frame(height: cardSize)
+            .opacity(appeared ? 1 : 0)
+
+            Spacer().frame(height: 8)
+
+            MarqueeGifRow(exercises: bottomRowExercises, cardSize: cardSize, speed: 25, onTap: { exercise in
+                selectedExercise = exercise
+                HapticManager.lightTap()
+            })
+            .frame(height: cardSize)
+            .opacity(appeared ? 1 : 0)
 
             Spacer(minLength: 2)
 
@@ -205,7 +216,6 @@ struct LocationSelectionPage: View {
             Button {
                 guard !isProceeding, let loc = selected else { return }
                 isProceeding = true
-                stopScrollTimer()
                 HapticManager.lightTap()
                 onNext(loc)
             } label: {
@@ -241,9 +251,6 @@ struct LocationSelectionPage: View {
                 appeared = true
             }
         }
-        .onDisappear {
-            stopScrollTimer()
-        }
         .sheet(item: $selectedExercise) { exercise in
             NavigationStack {
                 ExerciseDetailView(exercise: exercise)
@@ -253,75 +260,45 @@ struct LocationSelectionPage: View {
         }
     }
 
-    // MARK: - GIFギャラリー（ScrollView慣性スクロール + 自動スクロール）
+}
 
-    private var gifGallery: some View {
-        VStack(spacing: 6) {
-            // 上段
-            ScrollViewReader { proxy in
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 6) {
-                        ForEach(Array(topRowExercises.enumerated()), id: \.element.id) { index, exercise in
-                            ExerciseGifCard(exercise: exercise, cardSize: cardSize) {
-                                selectedExercise = exercise
-                                HapticManager.lightTap()
-                            }
-                            .id("top-\(index)")
-                        }
-                    }
-                    .padding(.horizontal, 16)
-                }
-                .onAppear {
-                    startAutoScroll(proxy: proxy, row: "top", count: topRowExercises.count)
-                }
-            }
-            .frame(height: cardSize)
+// MARK: - マーキー自動スクロール行
 
-            // 下段
-            ScrollViewReader { proxy in
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 6) {
-                        ForEach(Array(bottomRowExercises.enumerated()), id: \.element.id) { index, exercise in
-                            ExerciseGifCard(exercise: exercise, cardSize: cardSize) {
-                                selectedExercise = exercise
-                                HapticManager.lightTap()
-                            }
-                            .id("bottom-\(index)")
-                        }
-                    }
-                    .padding(.horizontal, 16)
-                }
-                .onAppear {
-                    startAutoScroll(proxy: proxy, row: "bottom", count: bottomRowExercises.count)
-                }
-            }
-            .frame(height: cardSize)
-        }
-        .onChange(of: selected) {
-            stopScrollTimer()
-            autoScrollTarget = 0
-        }
+private struct MarqueeGifRow: View {
+    let exercises: [ExerciseDefinition]
+    let cardSize: CGFloat
+    let speed: Double // pt/sec
+    let onTap: (ExerciseDefinition) -> Void
+
+    private let spacing: CGFloat = 8
+
+    /// 1セット分の合計幅
+    private var setWidth: CGFloat {
+        CGFloat(exercises.count) * cardSize + CGFloat(exercises.count) * spacing
     }
 
-    // MARK: - 自動スクロール（ゆっくり1枚ずつ進む）
+    var body: some View {
+        TimelineView(.animation) { timeline in
+            let elapsed = timeline.date.timeIntervalSinceReferenceDate
+            let totalWidth = setWidth
+            // ゼロ除算防止
+            let offset: CGFloat = totalWidth > 0
+                ? -CGFloat(elapsed.truncatingRemainder(dividingBy: Double(totalWidth) / speed) * speed)
+                : 0
 
-    private func startAutoScroll(proxy: ScrollViewProxy, row: String, count: Int) {
-        guard count > 2 else { return }
-
-        scrollTimer = Timer.scheduledTimer(withTimeInterval: 2.5, repeats: true) { _ in
-            Task { @MainActor in
-                autoScrollTarget += 1
-                let target = autoScrollTarget % count
-                withAnimation(.easeInOut(duration: 0.8)) {
-                    proxy.scrollTo("\(row)-\(target)", anchor: .leading)
+            HStack(spacing: spacing) {
+                // 2セット並べてシームレスループ
+                ForEach(0..<2, id: \.self) { _ in
+                    ForEach(exercises, id: \.id) { exercise in
+                        ExerciseGifCard(exercise: exercise, cardSize: cardSize) {
+                            onTap(exercise)
+                        }
+                    }
                 }
             }
+            .offset(x: offset)
         }
-    }
-
-    private func stopScrollTimer() {
-        scrollTimer?.invalidate()
-        scrollTimer = nil
+        .clipped()
     }
 }
 
