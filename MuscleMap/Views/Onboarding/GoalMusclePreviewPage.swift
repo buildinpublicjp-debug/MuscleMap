@@ -175,7 +175,7 @@ struct GoalMusclePreviewPage: View {
             Button {
                 guard !isProceeding else { return }
                 isProceeding = true
-                HapticManager.lightTap()
+                HapticManager.mediumTap()
                 stopAnimation()
                 onNext()
             } label: {

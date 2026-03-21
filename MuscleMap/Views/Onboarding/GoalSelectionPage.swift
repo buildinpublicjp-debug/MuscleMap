@@ -139,7 +139,7 @@ struct GoalSelectionPage: View {
                     tappedMuscle = muscle
                 }
             )
-            .frame(height: 200)
+            .frame(height: 220)
             .padding(.horizontal, 16)
             .animation(.easeInOut(duration: 0.3), value: goalValues.map { "\($0.key):\($0.value)" })
 
@@ -207,7 +207,7 @@ struct GoalSelectionPage: View {
             Button {
                 guard !isProceeding, hasAnyGoal else { return }
                 isProceeding = true
-                HapticManager.lightTap()
+                HapticManager.mediumTap()
                 saveGoalData()
                 onNext()
             } label: {

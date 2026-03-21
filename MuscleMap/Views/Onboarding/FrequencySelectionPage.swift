@@ -90,7 +90,7 @@ struct FrequencySelectionPage: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            Spacer().frame(height: 20)
+            Spacer().frame(height: 16)
 
             // ヘッダー
             VStack(spacing: 4) {
@@ -117,10 +117,9 @@ struct FrequencySelectionPage: View {
                     tappedMuscle = muscle
                 }
             )
-            .frame(height: selected != nil ? 240 : 320)
+            .frame(height: 220)
             .padding(.horizontal, 16)
             .opacity(appeared ? 1 : 0)
-            .animation(.easeInOut(duration: 0.4), value: selected != nil)
 
             // 色のレジェンド
             HStack(spacing: 16) {
@@ -196,7 +195,7 @@ struct FrequencySelectionPage: View {
             Button {
                 guard !isProceeding, let freq = selected else { return }
                 isProceeding = true
-                HapticManager.lightTap()
+                HapticManager.mediumTap()
                 stopAnimation()
                 onNext(freq)
             } label: {
@@ -223,7 +222,7 @@ struct FrequencySelectionPage: View {
             .buttonStyle(.plain)
             .disabled(selected == nil)
             .padding(.horizontal, 24)
-            .padding(.bottom, 24)
+            .padding(.bottom, 32)
             .animation(.easeInOut(duration: 0.2), value: selected)
         }
         .sheet(item: $tappedMuscle) { muscle in
@@ -340,7 +339,7 @@ struct FrequencySelectionPage: View {
 
         updateMuscleStatesForDay(0, parts: parts, trainingDays: trainingDays)
 
-        let timer = Timer.scheduledTimer(withTimeInterval: 1.5, repeats: true) { [trainingDays] _ in
+        let timer = Timer.scheduledTimer(withTimeInterval: 1.2, repeats: true) { [trainingDays] _ in
             Task { @MainActor in
                 animationDay = (animationDay + 1) % 7
                 updateMuscleStatesForDay(animationDay, parts: parts, trainingDays: trainingDays)
@@ -383,7 +382,7 @@ struct FrequencySelectionPage: View {
             // daysSince < 0 → まだ刺激されてない → .inactive のまま
         }
 
-        withAnimation(.easeInOut(duration: 1.0)) {
+        withAnimation(.easeInOut(duration: 1.2)) {
             muscleStates = states
         }
     }

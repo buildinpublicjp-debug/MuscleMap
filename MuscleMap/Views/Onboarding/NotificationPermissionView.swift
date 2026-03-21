@@ -43,7 +43,7 @@ struct NotificationPermissionView: View {
             VStack(spacing: 0) {
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 0) {
-                        Spacer().frame(height: 24)
+                        Spacer().frame(height: 16)
 
                         // ヘッドライン
                         Text(isJapanese ? "回復したら、教える。" : "We'll Tell You When You're Ready.")
@@ -53,7 +53,7 @@ struct NotificationPermissionView: View {
                             .opacity(appeared ? 1 : 0)
                             .offset(y: appeared ? 0 : 10)
 
-                        Spacer().frame(height: 6)
+                        Spacer().frame(height: 4)
 
                         // サブテキスト（刺激→回復→成長）
                         Text(isJapanese
@@ -66,11 +66,11 @@ struct NotificationPermissionView: View {
                             .opacity(appeared ? 1 : 0)
                             .offset(y: appeared ? 0 : 10)
 
-                        Spacer().frame(height: 16)
+                        Spacer().frame(height: 8)
 
                         // 筋肉マップ（回復アニメーション）
                         MuscleMapView(muscleStates: muscleStates)
-                            .frame(height: 300)
+                            .frame(height: 220)
                             .padding(.horizontal, 24)
                             .opacity(appeared ? 1 : 0)
                             .scaleEffect(appeared ? 1 : 0.9)
@@ -145,7 +145,7 @@ struct NotificationPermissionView: View {
 
                     // あとでボタン
                     Button {
-                        HapticManager.lightTap()
+                        HapticManager.mediumTap()
                         onComplete()
                     } label: {
                         Text(L10n.maybeLater)
@@ -165,7 +165,7 @@ struct NotificationPermissionView: View {
             // 1.2秒ごとにフェーズ切替（赤→黄→緑→暗い→赤→...）
             animationTimer = Timer.scheduledTimer(withTimeInterval: 1.2, repeats: true) { _ in
                 Task { @MainActor in
-                    withAnimation(.easeInOut(duration: 0.8)) {
+                    withAnimation(.easeInOut(duration: 1.2)) {
                         animationPhase = (animationPhase + 1) % 4
                     }
                 }
@@ -257,7 +257,7 @@ struct NotificationPermissionView: View {
 
     private func requestNotificationPermission() {
         isRequesting = true
-        HapticManager.lightTap()
+        HapticManager.mediumTap()
 
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { granted, _ in
             DispatchQueue.main.async {

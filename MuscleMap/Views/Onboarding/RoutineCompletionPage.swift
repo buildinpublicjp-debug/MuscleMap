@@ -112,7 +112,7 @@ struct RoutineCompletionPage: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            Spacer().frame(height: 12)
+            Spacer().frame(height: 16)
 
             // 目標別キャッチコピー + サブタイトル（コンパクト）
             VStack(spacing: 4) {
@@ -132,7 +132,7 @@ struct RoutineCompletionPage: View {
             .opacity(headerAppeared ? 1 : 0)
             .offset(y: headerAppeared ? 0 : 20)
 
-            Spacer().frame(height: 6)
+            Spacer().frame(height: 8)
 
             // スクロール領域（マップ + カバレッジ + Dayグリッド）
             ScrollView(.vertical, showsIndicators: false) {
@@ -140,7 +140,7 @@ struct RoutineCompletionPage: View {
                     // 筋肉マップ（コンパクト）+ カバレッジバー
                     HStack(spacing: 0) {
                         muscleMapSection
-                            .frame(height: 130)
+                            .frame(height: 120)
                             .frame(maxWidth: .infinity)
 
                         // カバレッジ（縦レイアウト、マップ横に配置）
@@ -355,7 +355,7 @@ struct RoutineCompletionPage: View {
         VStack(spacing: 12) {
             // Pro版ボタン
             Button {
-                HapticManager.lightTap()
+                HapticManager.mediumTap()
                 showingPaywall = true
             } label: {
                 HStack(spacing: 8) {
@@ -384,7 +384,7 @@ struct RoutineCompletionPage: View {
 
             // 無料ではじめる
             Button {
-                HapticManager.lightTap()
+                HapticManager.mediumTap()
                 onComplete()
             } label: {
                 Text(L10n.ctaGetStartedFree)
@@ -413,7 +413,7 @@ struct RoutineCompletionPage: View {
             .foregroundStyle(Color.mmOnboardingTextSub)
         }
         .padding(.horizontal, 24)
-        .padding(.bottom, 24)
+        .padding(.bottom, 32)
     }
 
     // MARK: - アニメーションロジック

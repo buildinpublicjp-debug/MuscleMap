@@ -98,7 +98,7 @@ struct PRInputPage: View {
                         HapticManager.lightTap()
                     }
                 )
-                .frame(height: 340)
+                .frame(height: 120)
 
                 // 未入力時のタップガイド（マップ中央下部）
                 if recordedPRs.isEmpty {
@@ -245,7 +245,7 @@ struct PRInputPage: View {
                     guard !isProceeding else { return }
                     isProceeding = true
                     savePRs()
-                    HapticManager.lightTap()
+                    HapticManager.mediumTap()
                     onNext()
                 } label: {
                     Text(L10n.next)
@@ -267,7 +267,7 @@ struct PRInputPage: View {
                 Button {
                     guard !isProceeding else { return }
                     isProceeding = true
-                    HapticManager.lightTap()
+                    HapticManager.mediumTap()
                     onNext()
                 } label: {
                     Text(isJapanese ? "わからない場合はスキップ →" : "Skip if unsure →")
@@ -277,7 +277,7 @@ struct PRInputPage: View {
                 .buttonStyle(.plain)
             }
             .padding(.horizontal, 24)
-            .padding(.bottom, 24)
+            .padding(.bottom, 32)
             .opacity(appeared ? 1 : 0)
         }
         .onAppear {

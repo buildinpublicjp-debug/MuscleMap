@@ -575,7 +575,7 @@ struct ProfileInputPage: View {
             AppState.shared.userProfile.weightKg = Double(weightKg)
             AppState.shared.userProfile.bodyFatPercentage = bodyFatEnabled ? Double(bodyFatPct) : nil
             AppState.shared.userProfile.nickname = nickname
-            HapticManager.lightTap()
+            HapticManager.mediumTap()
             onNext()
         } label: {
             Text(L10n.next)

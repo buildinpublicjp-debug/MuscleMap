@@ -215,7 +215,7 @@ struct LocationSelectionPage: View {
             Button {
                 guard !isProceeding, let loc = selected else { return }
                 isProceeding = true
-                HapticManager.lightTap()
+                HapticManager.mediumTap()
                 onNext(loc)
             } label: {
                 Text(L10n.next)

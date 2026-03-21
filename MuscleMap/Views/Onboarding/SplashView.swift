@@ -75,7 +75,7 @@ struct SplashView: View {
                 // 続行ボタン（グロー効果付き）
                 if showContinue {
                     Button {
-                        HapticManager.lightTap()
+                        HapticManager.mediumTap()
                         onComplete()
                     } label: {
                         Text(isJapanese ? "始める" : "Get Started")

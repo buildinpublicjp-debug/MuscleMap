@@ -90,7 +90,7 @@ struct RoutineBuilderPage: View {
 
                 // CTA: 「このメニューで始める」
                 Button {
-                    HapticManager.lightTap()
+                    HapticManager.mediumTap()
                     let routine = UserRoutine(days: days, createdAt: Date())
                     RoutineManager.shared.saveRoutine(routine)
                     for day in days {
@@ -206,7 +206,7 @@ struct RoutineBuilderPage: View {
                         MuscleMapView(
                             muscleStates: muscleStatesForDay(day)
                         )
-                        .frame(height: 70)
+                        .frame(height: 120)
                         .padding(.horizontal, 24)
 
                         // 4列GIFグリッド
