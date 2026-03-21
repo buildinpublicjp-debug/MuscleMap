@@ -15,6 +15,11 @@ struct GoalMusclePreviewPage: View {
     @State private var muscleStates: [Muscle: MuscleVisualState] = [:]
     @State private var animationTimerRef: Timer?
 
+    private let gridColumns = [
+        GridItem(.flexible(), spacing: 8),
+        GridItem(.flexible(), spacing: 8),
+    ]
+
     private var isJapanese: Bool {
         LocalizationManager.shared.currentLanguage == .japanese
     }
@@ -41,7 +46,7 @@ struct GoalMusclePreviewPage: View {
     /// WeeklyFrequencyからtrainingDaysを取得
     private var trainingDays: [Int: Int] {
         guard let wf = WeeklyFrequency(rawValue: frequency) else {
-            return [0: 0, 2: 1] // デフォルト: 週2
+            return [0: 0, 2: 1]
         }
         return wf.trainingDays
     }
@@ -74,84 +79,99 @@ struct GoalMusclePreviewPage: View {
         }
     }
 
+    /// SplitPartの筋肉グループに対応する代表種目を取得
+    private func exercisesForPart(_ part: SplitPart) -> [ExerciseDefinition] {
+        let store = ExerciseStore.shared
+        store.loadIfNeeded()
+        let targetGroups = Set(part.muscleGroups)
+        let maxCount = targetGroups.count >= 2 ? 4 : 3
+        var result: [ExerciseDefinition] = []
+        var seenIds: Set<String> = []
+
+        // primaryMuscle のグループがターゲットに含まれる種目を取得
+        for ex in store.exercises {
+            guard seenIds.count < maxCount else { break }
+            if let primary = ex.primaryMuscle,
+               targetGroups.contains(primary.group),
+               !seenIds.contains(ex.id),
+               ExerciseGifView.hasGif(exerciseId: ex.id) {
+                seenIds.insert(ex.id)
+                result.append(ex)
+            }
+        }
+        return result
+    }
+
     var body: some View {
         VStack(spacing: 0) {
-            Spacer().frame(height: 20)
+            // スクロール可能コンテンツ
+            ScrollView(.vertical, showsIndicators: false) {
+                VStack(spacing: 0) {
+                    Spacer().frame(height: 16)
 
-            // ヘッダー: 目標連動キャッチコピー
-            Text(goalBasedHeadline)
-                .font(.system(size: 26, weight: .heavy))
-                .foregroundStyle(Color.mmOnboardingAccent)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, 24)
-                .opacity(appeared ? 1 : 0)
-                .offset(y: appeared ? 0 : 15)
+                    // ヘッダー: 目標連動キャッチコピー
+                    Text(goalBasedHeadline)
+                        .font(.system(size: 24, weight: .heavy))
+                        .foregroundStyle(Color.mmOnboardingAccent)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 24)
+                        .opacity(appeared ? 1 : 0)
+                        .offset(y: appeared ? 0 : 15)
 
-            Spacer().frame(height: 4)
+                    Spacer().frame(height: 4)
 
-            // サブタイトル
-            Text(isJapanese
-                ? "あなたの目標・経験・環境から最適な分割法を作成しました"
-                : "Optimized split based on your goals, experience & equipment")
-                .font(.system(size: 13))
-                .foregroundStyle(Color.mmOnboardingTextSub)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, 24)
-                .opacity(appeared ? 1 : 0)
+                    // サブタイトル
+                    Text(isJapanese
+                        ? "あなたの目標・経験・環境から最適な分割法を作成しました"
+                        : "Optimized split based on your goals, experience & equipment")
+                        .font(.system(size: 12))
+                        .foregroundStyle(Color.mmOnboardingTextSub)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 24)
+                        .opacity(appeared ? 1 : 0)
 
-            Spacer().frame(height: 8)
+                    Spacer().frame(height: 6)
 
-            // 筋肉マップ（大きく、回復サイクルアニメーション）
-            MuscleMapView(muscleStates: muscleStates)
-                .frame(height: 350)
-                .padding(.horizontal, 12)
-                .opacity(mapAppeared ? 1 : 0)
-                .scaleEffect(mapAppeared ? 1 : 0.92)
+                    // 筋肉マップ（回復サイクルアニメーション）
+                    MuscleMapView(muscleStates: muscleStates)
+                        .frame(height: 300)
+                        .padding(.horizontal, 12)
+                        .opacity(mapAppeared ? 1 : 0)
+                        .scaleEffect(mapAppeared ? 1 : 0.92)
 
-            Spacer().frame(height: 6)
+                    Spacer().frame(height: 4)
 
-            // カバー率バッジ
-            Text(isJapanese ? "\(coveragePercent)%の筋肉をカバー" : "\(coveragePercent)% muscle coverage")
-                .font(.system(size: 14, weight: .heavy))
-                .foregroundStyle(Color.mmOnboardingAccent)
-                .padding(.horizontal, 14)
-                .padding(.vertical, 6)
-                .background(Color.mmOnboardingAccent.opacity(0.12))
-                .clipShape(Capsule())
-                .opacity(mapAppeared ? 1 : 0)
+                    // カバー率バッジ
+                    Text(isJapanese ? "\(coveragePercent)%の筋肉をカバー" : "\(coveragePercent)% muscle coverage")
+                        .font(.system(size: 13, weight: .heavy))
+                        .foregroundStyle(Color.mmOnboardingAccent)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 5)
+                        .background(Color.mmOnboardingAccent.opacity(0.12))
+                        .clipShape(Capsule())
+                        .opacity(mapAppeared ? 1 : 0)
 
-            Spacer().frame(height: 10)
+                    Spacer().frame(height: 12)
 
-            // Day構成カード（横スクロール）
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 10) {
-                    ForEach(Array(splitParts.enumerated()), id: \.offset) { index, part in
-                        dayCard(index: index, part: part)
-                            .opacity(cardsAppeared ? 1 : 0)
-                            .offset(y: cardsAppeared ? 0 : 10)
-                            .animation(
-                                .easeOut(duration: 0.3).delay(Double(index) * 0.08),
-                                value: cardsAppeared
-                            )
+                    // Day別GIFグリッド
+                    VStack(spacing: 16) {
+                        ForEach(Array(splitParts.enumerated()), id: \.offset) { index, part in
+                            daySectionView(index: index, part: part)
+                                .opacity(cardsAppeared ? 1 : 0)
+                                .offset(y: cardsAppeared ? 0 : 10)
+                                .animation(
+                                    .easeOut(duration: 0.3).delay(Double(index) * 0.08),
+                                    value: cardsAppeared
+                                )
+                        }
                     }
+                    .padding(.horizontal, 24)
+
+                    Spacer().frame(height: 16)
                 }
-                .padding(.horizontal, 24)
             }
 
-            Spacer(minLength: 0)
-
-            // ティーザーテキスト
-            HStack(spacing: 4) {
-                Image(systemName: "arrow.right.circle")
-                    .font(.system(size: 11))
-                Text(isJapanese ? "次のページで種目を確認できます" : "You'll see exercises on the next page")
-                    .font(.system(size: 12))
-            }
-            .foregroundStyle(Color.mmOnboardingTextSub)
-            .opacity(appeared ? 1 : 0)
-            .padding(.bottom, 6)
-
-            // 次へボタン
+            // 固定フッター: 次へボタン
             Button {
                 guard !isProceeding else { return }
                 isProceeding = true
@@ -201,27 +221,29 @@ struct GoalMusclePreviewPage: View {
         trainingDays[animationDay]
     }
 
-    // MARK: - Dayカード
+    // MARK: - Day別セクション（ヘッダー + GIFグリッド）
 
-    private func dayCard(index: Int, part: SplitPart) -> some View {
-        let groups = part.muscleGroups
+    private func daySectionView(index: Int, part: SplitPart) -> some View {
         let partName = isJapanese ? part.name : splitPartEnglishName(part.name)
-        let exerciseCount = groups.count >= 2 ? 4 : 3
+        let exercises = exercisesForPart(part)
         let isActive = index == currentAnimDayIndex
 
-        return VStack(spacing: 6) {
-            Text("Day \(index + 1)")
-                .font(.system(size: 14, weight: .heavy))
-                .foregroundStyle(Color.mmOnboardingAccent)
+        return VStack(alignment: .leading, spacing: 8) {
+            // Dayヘッダー
+            HStack {
+                Text("Day \(index + 1)")
+                    .font(.system(size: 14, weight: .heavy))
+                    .foregroundStyle(Color.mmOnboardingAccent)
 
-            Text(partName)
-                .font(.system(size: 13, weight: .bold))
-                .foregroundStyle(Color.mmOnboardingTextMain)
-                .lineLimit(1)
+                Text(partName)
+                    .font(.system(size: 13, weight: .bold))
+                    .foregroundStyle(Color.mmOnboardingTextMain)
+                    .lineLimit(1)
 
-            // 筋肉グループチップ
-            HStack(spacing: 4) {
-                ForEach(groups.prefix(3), id: \.self) { group in
+                Spacer()
+
+                // 筋肉グループチップ
+                ForEach(part.muscleGroups.prefix(2), id: \.self) { group in
                     Text(group.localizedName)
                         .font(.system(size: 9, weight: .bold))
                         .foregroundStyle(Color.mmOnboardingAccent)
@@ -232,14 +254,41 @@ struct GoalMusclePreviewPage: View {
                 }
             }
 
-            // 種目数
-            Text(isJapanese ? "\(exerciseCount)種目" : "\(exerciseCount) exercises")
-                .font(.system(size: 10))
-                .foregroundStyle(Color.mmOnboardingTextSub)
+            // 2カラムGIFグリッド
+            LazyVGrid(columns: gridColumns, spacing: 8) {
+                ForEach(exercises, id: \.id) { exercise in
+                    ZStack(alignment: .bottom) {
+                        GeometryReader { geo in
+                            Color.mmOnboardingBg
+                            ExerciseGifView(exerciseId: exercise.id, size: .card)
+                                .scaledToFill()
+                                .frame(width: geo.size.width, height: geo.size.height)
+                                .clipped()
+                        }
+
+                        // グラデーション + 種目名
+                        LinearGradient(
+                            colors: [.clear, Color.black.opacity(0.75)],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                        .frame(height: 48)
+
+                        Text(exercise.localizedName)
+                            .font(.system(size: 11, weight: .bold))
+                            .foregroundStyle(.white)
+                            .lineLimit(1)
+                            .padding(.horizontal, 6)
+                            .padding(.bottom, 6)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                    .aspectRatio(1, contentMode: .fit)
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                }
+            }
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 12)
-        .background(isActive ? Color.mmOnboardingAccent.opacity(0.15) : Color.mmOnboardingCard)
+        .padding(12)
+        .background(isActive ? Color.mmOnboardingAccent.opacity(0.1) : Color.mmOnboardingCard)
         .clipShape(RoundedRectangle(cornerRadius: 14))
         .overlay(
             RoundedRectangle(cornerRadius: 14)
