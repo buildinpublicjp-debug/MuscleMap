@@ -40,27 +40,22 @@ enum WeeklyFrequency: Int, CaseIterable, Codable {
         }
     }
 
-    /// スケジュールプレビュー用の曜日割り当て（日英対応）
+    /// スケジュールプレビュー用の曜日割り当て（splitPartsから動的生成）
     var schedulePreview: [String] {
         let isJapanese = LocalizationManager.shared.currentLanguage == .japanese
-        switch self {
-        case .twice:
-            return isJapanese
-                ? ["上半身", "OFF", "下半身", "OFF", "OFF", "OFF", "OFF"]
-                : ["Upper", "OFF", "Lower", "OFF", "OFF", "OFF", "OFF"]
-        case .thrice:
-            return isJapanese
-                ? ["胸・肩", "OFF", "背中", "OFF", "脚", "OFF", "OFF"]
-                : ["Chest", "OFF", "Back", "OFF", "Legs", "OFF", "OFF"]
-        case .four:
-            return isJapanese
-                ? ["胸", "背中", "OFF", "肩・腕", "脚", "OFF", "OFF"]
-                : ["Chest", "Back", "OFF", "Arms", "Legs", "OFF", "OFF"]
-        case .fivePlus:
-            return isJapanese
-                ? ["胸", "背中", "肩", "腕", "脚", "OFF", "OFF"]
-                : ["Chest", "Back", "Shldrs", "Arms", "Legs", "OFF", "OFF"]
+        let parts = WorkoutRecommendationEngine.splitParts(for: self.rawValue)
+        var schedule: [String] = Array(repeating: "OFF", count: 7)
+
+        for (dayIndex, partIndex) in trainingDays {
+            guard partIndex < parts.count else { continue }
+            let part = parts[partIndex]
+            // muscleGroups の主要グループ名を短縮表示（最大2つ）
+            let names = part.muscleGroups.prefix(2).map { group in
+                isJapanese ? group.japaneseName : group.shortEnglishName
+            }
+            schedule[dayIndex] = names.joined(separator: "・")
         }
+        return schedule
     }
 
     /// アニメーション用: 各曜日にどのパートを刺激するか（0-indexed day → SplitPart index, nil=OFF）
@@ -345,7 +340,7 @@ struct FrequencySelectionPage: View {
 
         updateMuscleStatesForDay(0, parts: parts, trainingDays: trainingDays)
 
-        let timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [trainingDays] _ in
+        let timer = Timer.scheduledTimer(withTimeInterval: 0.6, repeats: true) { [trainingDays] _ in
             Task { @MainActor in
                 animationDay = (animationDay + 1) % 7
                 updateMuscleStatesForDay(animationDay, parts: parts, trainingDays: trainingDays)
@@ -388,7 +383,7 @@ struct FrequencySelectionPage: View {
             // daysSince < 0 → まだ刺激されてない → .inactive のまま
         }
 
-        withAnimation(.easeInOut(duration: 0.4)) {
+        withAnimation(.easeInOut(duration: 0.3)) {
             muscleStates = states
         }
     }

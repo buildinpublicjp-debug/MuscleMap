@@ -172,6 +172,18 @@ enum MuscleGroup: String, CaseIterable, Codable, Identifiable {
         }
     }
 
+    /// 短縮英語名（タイムラインバー等の狭いスペース用）
+    var shortEnglishName: String {
+        switch self {
+        case .chest: return "Chest"
+        case .back: return "Back"
+        case .shoulders: return "Shldr"
+        case .arms: return "Arms"
+        case .core: return "Core"
+        case .lowerBody: return "Legs"
+        }
+    }
+
     /// ローカライズ名（現在の言語設定に応じて返す）
     #if os(watchOS)
     var localizedName: String { japaneseName }
