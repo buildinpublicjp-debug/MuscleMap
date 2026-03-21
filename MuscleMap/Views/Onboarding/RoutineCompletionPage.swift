@@ -227,9 +227,9 @@ struct RoutineCompletionPage: View {
         MuscleMapView(muscleStates: animatedMuscleStates)
     }
 
-    // MARK: - 4カラムGIFグリッド用
+    // MARK: - 3カラムGIFグリッド用
 
-    private let gridColumns = Array(repeating: GridItem(.flexible(), spacing: 6), count: 4)
+    private let gridColumns = Array(repeating: GridItem(.flexible(), spacing: 8), count: 3)
 
     private enum CardState {
         case past      // 通過済み
@@ -247,7 +247,7 @@ struct RoutineCompletionPage: View {
         }
     }
 
-    // MARK: - Dayセクション（Day名 + 4カラムコンパクトGIFグリッド）
+    // MARK: - Dayセクション（Day名 + 3カラムGIFグリッド）
 
     @ViewBuilder
     private func daySection(dayIndex: Int, day: RoutineDay) -> some View {
@@ -257,7 +257,7 @@ struct RoutineCompletionPage: View {
             // Dayヘッダー（1行にコンパクト）
             HStack(spacing: 6) {
                 Text("Day \(dayIndex + 1)")
-                    .font(.system(size: 13, weight: .heavy))
+                    .font(.system(size: 14, weight: .heavy))
                     .foregroundStyle(Color.mmOnboardingTextMain)
 
                 ForEach(groups.prefix(3), id: \.self) { group in
@@ -273,8 +273,8 @@ struct RoutineCompletionPage: View {
                 Spacer()
             }
 
-            // 4カラムGIFグリッド（コンパクト）
-            LazyVGrid(columns: gridColumns, spacing: 6) {
+            // 3カラムGIFグリッド
+            LazyVGrid(columns: gridColumns, spacing: 8) {
                 ForEach(Array(day.exercises.enumerated()), id: \.element.id) { exIndex, routineExercise in
                     let flatIndex = flatIndexFor(dayIndex: dayIndex, exerciseIndex: exIndex)
                     let state = cardState(flatIndex: flatIndex)
@@ -291,62 +291,69 @@ struct RoutineCompletionPage: View {
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 
-    // MARK: - コンパクト種目カード（70x70）
+    // MARK: - 種目カード（3列グリッド用、高さ110pt）
 
     @ViewBuilder
     private func compactExerciseCard(routineExercise: RoutineExercise, state: CardState) -> some View {
         let def = ExerciseStore.shared.exercise(for: routineExercise.exerciseId)
         let name = def?.localizedName ?? routineExercise.exerciseId
 
-        VStack(spacing: 2) {
-            ZStack(alignment: .bottom) {
-                // GIF or プレースホルダー
-                if ExerciseGifView.hasGif(exerciseId: routineExercise.exerciseId) {
-                    ExerciseGifView(exerciseId: routineExercise.exerciseId, size: .card)
-                        .scaledToFill()
-                        .frame(width: 70, height: 70)
-                        .clipped()
-                } else {
-                    ZStack {
-                        Color.mmOnboardingBg
-                        Image(systemName: "dumbbell.fill")
-                            .font(.system(size: 18))
-                            .foregroundStyle(Color.mmOnboardingTextSub.opacity(0.3))
-                    }
-                    .frame(width: 70, height: 70)
+        ZStack(alignment: .bottom) {
+            // GIF or プレースホルダー
+            if ExerciseGifView.hasGif(exerciseId: routineExercise.exerciseId) {
+                ExerciseGifView(exerciseId: routineExercise.exerciseId, size: .card)
+                    .scaledToFill()
+                    .frame(height: 110)
+                    .clipped()
+            } else {
+                ZStack {
+                    Color.mmOnboardingBg
+                    Image(systemName: "dumbbell.fill")
+                        .font(.system(size: 22))
+                        .foregroundStyle(Color.mmOnboardingTextSub.opacity(0.3))
                 }
-
-                // チェックマーク（通過済み）
-                if state == .past {
-                    Color.black.opacity(0.3)
-                        .frame(width: 70, height: 70)
-                        .overlay(
-                            Image(systemName: "checkmark.circle.fill")
-                                .font(.system(size: 16))
-                                .foregroundStyle(Color.mmOnboardingAccent)
-                        )
-                }
+                .frame(height: 110)
             }
-            .frame(width: 70, height: 70)
-            .clipShape(RoundedRectangle(cornerRadius: 8))
-            .overlay(
-                RoundedRectangle(cornerRadius: 8)
-                    .stroke(
-                        state == .current ? Color.mmOnboardingAccent : .clear,
-                        lineWidth: 2
-                    )
-            )
-            .opacity(state == .future ? 0.4 : 1.0)
-            .scaleEffect(state == .current ? 1.05 : 1.0)
-            .animation(.easeInOut(duration: 0.3), value: state == .current)
 
-            // 種目名
+            // チェックマーク（通過済み）
+            if state == .past {
+                Color.black.opacity(0.3)
+                    .frame(height: 110)
+                    .overlay(
+                        Image(systemName: "checkmark.circle.fill")
+                            .font(.system(size: 20))
+                            .foregroundStyle(Color.mmOnboardingAccent)
+                    )
+            }
+
+            // 名前オーバーレイ（グラデーション背景）
+            LinearGradient(
+                colors: [.clear, .black.opacity(0.75)],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .frame(height: 40)
+
             Text(name)
-                .font(.system(size: 9, weight: .medium))
-                .foregroundStyle(Color.mmOnboardingTextSub)
+                .font(.system(size: 11, weight: .bold))
+                .foregroundStyle(.white)
                 .lineLimit(1)
-                .frame(width: 70)
+                .padding(.horizontal, 6)
+                .padding(.bottom, 6)
+                .shadow(color: .black.opacity(0.5), radius: 2, y: 1)
         }
+        .frame(height: 110)
+        .clipShape(RoundedRectangle(cornerRadius: 10))
+        .overlay(
+            RoundedRectangle(cornerRadius: 10)
+                .stroke(
+                    state == .current ? Color.mmOnboardingAccent : .clear,
+                    lineWidth: 2
+                )
+        )
+        .opacity(state == .future ? 0.4 : 1.0)
+        .scaleEffect(state == .current ? 1.05 : 1.0)
+        .animation(.easeInOut(duration: 0.3), value: state == .current)
     }
 
     // MARK: - CTAボタン
