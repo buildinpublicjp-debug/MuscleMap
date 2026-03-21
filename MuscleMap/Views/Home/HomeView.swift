@@ -32,7 +32,7 @@ struct HomeView: View {
 
                 if let vm = viewModel {
                     ScrollView {
-                        VStack(spacing: 24) {
+                        VStack(spacing: 16) {
                             // 1. 週間ストリークバッジ（ワークアウト履歴がない場合は非表示）
                             WeeklyStreakBadge(
                                 weeks: streakViewModel.currentStreak,
@@ -55,7 +55,7 @@ struct HomeView: View {
                                     },
                                     demoMode: showDemo
                                 )
-                                .frame(maxHeight: 500)
+                                .frame(height: 350)
 
                                 // 初回コーチマーク
                                 if showCoachMark {
@@ -132,7 +132,7 @@ struct HomeView: View {
                                     .padding(.horizontal)
 
                                     StrengthMapView(muscleScores: strengthScores)
-                                        .frame(maxHeight: 500)
+                                        .frame(height: 350)
                                         .padding(.horizontal)
                                 }
                             } else if !PurchaseManager.shared.isPremium {
@@ -180,7 +180,8 @@ struct HomeView: View {
                             MuscleMapLegend()
                                 .padding(.horizontal)
                         }
-                        .padding(.vertical)
+                        .padding(.top, 8)
+                        .padding(.bottom, 16)
                     }
                 }
             }
