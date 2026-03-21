@@ -520,13 +520,13 @@ private struct WeightInputSheet: View {
                         .foregroundStyle(Color.mmOnboardingTextSub)
                         .onTapGesture {
                             withAnimation(.snappy(duration: 0.15)) {
-                                weight = max(0, weight - 2.5)
+                                weight = max(0, min(300, weight - 2.5))
                             }
                             HapticManager.stepperChanged()
                         }
                         .onLongPressGesture(minimumDuration: 0.3, perform: {}) { pressing in
                             if pressing {
-                                startHoldTimer(increment: -2.5)
+                                startHoldTimer(increment: -0.25)
                             } else {
                                 stopHoldTimer()
                             }
@@ -534,9 +534,7 @@ private struct WeightInputSheet: View {
 
                     // 重量表示
                     VStack(spacing: 0) {
-                        Text(weight.truncatingRemainder(dividingBy: 1) == 0
-                             ? "\(Int(weight))"
-                             : String(format: "%.1f", weight))
+                        Text(weightDisplayString(weight))
                             .font(.system(size: 42, weight: .heavy))
                             .foregroundStyle(Color.mmOnboardingTextMain)
                             .frame(minWidth: 80)
@@ -553,13 +551,13 @@ private struct WeightInputSheet: View {
                         .foregroundStyle(Color.mmOnboardingAccent)
                         .onTapGesture {
                             withAnimation(.snappy(duration: 0.15)) {
-                                weight += 2.5
+                                weight = min(300, weight + 2.5)
                             }
                             HapticManager.stepperChanged()
                         }
                         .onLongPressGesture(minimumDuration: 0.3, perform: {}) { pressing in
                             if pressing {
-                                startHoldTimer(increment: 2.5)
+                                startHoldTimer(increment: 0.25)
                             } else {
                                 stopHoldTimer()
                             }
@@ -602,7 +600,7 @@ private struct WeightInputSheet: View {
         holdTimer = Timer.scheduledTimer(withTimeInterval: 0.12, repeats: true) { _ in
             Task { @MainActor in
                 withAnimation(.snappy(duration: 0.1)) {
-                    weight = max(0, weight + increment)
+                    weight = max(0, min(300, weight + increment))
                 }
                 HapticManager.stepperChanged()
             }
@@ -612,6 +610,19 @@ private struct WeightInputSheet: View {
     private func stopHoldTimer() {
         holdTimer?.invalidate()
         holdTimer = nil
+    }
+
+    /// 整数なら "80"、小数なら "80.25"（末尾0除去）
+    private func weightDisplayString(_ value: Double) -> String {
+        if value.truncatingRemainder(dividingBy: 1) == 0 {
+            return "\(Int(value))"
+        }
+        let formatted = String(format: "%.2f", value)
+        // 末尾の "0" を除去（例: "80.50" → "80.5"）
+        if formatted.hasSuffix("0") {
+            return String(formatted.dropLast())
+        }
+        return formatted
     }
 }
 
