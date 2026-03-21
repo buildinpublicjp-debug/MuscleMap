@@ -91,12 +91,12 @@ struct PaywallView: View {
             Color.mmBgSecondary.ignoresSafeArea()
 
             VStack(spacing: 0) {
-                Spacer().frame(height: isHardPaywall ? 20 : 36)
+                Spacer().frame(height: isHardPaywall ? 16 : 28)
 
                 // 1. ヘッドライン（コンパクト）
                 headlineSection
 
-                Spacer().frame(height: 10)
+                Spacer().frame(height: 4)
 
                 // 2. マーキーGIF（2行）
                 marqueeSection
@@ -106,9 +106,9 @@ struct PaywallView: View {
                 // 3. 価格セクション
                 pricingSection
 
-                Spacer().frame(height: 10)
+                Spacer().frame(height: 8)
 
-                // 4. 機能リスト（コンパクト）
+                // 4. 機能リスト（コンパクト横並び）
                 featureListSection
 
                 Spacer(minLength: 4)
@@ -170,22 +170,26 @@ struct PaywallView: View {
         }
     }
 
-    // MARK: - ヘッドライン（コンパクト）
+    // MARK: - ヘッドライン（コンパクト2行）
 
     private var headlineSection: some View {
-        VStack(spacing: 4) {
+        VStack(spacing: 2) {
             if !routine.days.isEmpty && totalExercises > 0 {
                 Text(isJapanese
-                    ? "\(routine.days.count)日間 × \(totalExercises)種目のプログラムが待っています"
-                    : "Your \(routine.days.count)-day, \(totalExercises)-exercise program is ready")
-                    .font(.system(size: 16, weight: .heavy))
+                    ? "\(routine.days.count)日間 × \(totalExercises)種目の"
+                    : "Your \(routine.days.count)-day, \(totalExercises)-exercise")
+                    .font(.system(size: 18, weight: .heavy))
                     .foregroundStyle(Color.mmTextPrimary)
-                    .multilineTextAlignment(.center)
+                Text(isJapanese
+                    ? "プログラムが待っています"
+                    : "program is ready")
+                    .font(.system(size: 18, weight: .heavy))
+                    .foregroundStyle(Color.mmTextPrimary)
             } else {
                 Text(isJapanese
                     ? "あなた専用のメニューを毎日届ける"
                     : "Your Personalized Menu, Every Day")
-                    .font(.system(size: 16, weight: .heavy))
+                    .font(.system(size: 18, weight: .heavy))
                     .foregroundStyle(Color.mmTextPrimary)
                     .multilineTextAlignment(.center)
             }
@@ -199,12 +203,12 @@ struct PaywallView: View {
         .padding(.horizontal, 24)
     }
 
-    // MARK: - マーキーセクション（2行）
+    // MARK: - マーキーセクション（2行、120x120）
 
     private var marqueeSection: some View {
         VStack(spacing: 6) {
-            PaywallMarqueeRow(exercises: marqueeRow1Exercises, speed: 30, reversed: false)
-            PaywallMarqueeRow(exercises: marqueeRow2Exercises, speed: 25, reversed: true)
+            PaywallMarqueeRow(exercises: marqueeRow1Exercises, speed: 25, reversed: false)
+            PaywallMarqueeRow(exercises: marqueeRow2Exercises, speed: 20, reversed: true)
         }
     }
 
@@ -269,40 +273,31 @@ struct PaywallView: View {
         .padding(.horizontal, 24)
     }
 
-    // MARK: - Pro機能リスト（コンパクト）
+    // MARK: - Pro機能リスト（コンパクト横並び）
 
     private var featureListSection: some View {
-        VStack(spacing: 6) {
-            featureRow(
-                icon: "sparkles",
-                text: isJapanese ? "毎日のメニューを自動提案" : "Daily personalized workout suggestions"
-            )
-            featureRow(
-                icon: "infinity",
-                text: isJapanese ? "週7回、いつでもワークアウトを記録" : "Track workouts 7 days a week"
-            )
-            featureRow(
-                icon: "bell.badge.fill",
-                text: isJapanese ? "筋肉が回復したら通知" : "Recovery notifications when muscles are ready"
-            )
+        HStack(spacing: 0) {
+            featureItem(icon: "sparkles", text: isJapanese ? "パーソナライズ" : "Personalized")
+            featureItem(icon: "infinity", text: isJapanese ? "無制限記録" : "Unlimited")
+            featureItem(icon: "flame.fill", text: isJapanese ? "回復通知" : "Recovery")
         }
-        .padding(12)
+        .padding(.vertical, 8)
+        .padding(.horizontal, 12)
         .background(Color.mmBgCard.opacity(0.5))
         .clipShape(RoundedRectangle(cornerRadius: 12))
         .padding(.horizontal, 24)
     }
 
-    private func featureRow(icon: String, text: String) -> some View {
-        HStack(spacing: 8) {
+    private func featureItem(icon: String, text: String) -> some View {
+        HStack(spacing: 4) {
             Image(systemName: icon)
-                .font(.system(size: 12, weight: .medium))
+                .font(.system(size: 10, weight: .medium))
                 .foregroundStyle(Color.mmAccentPrimary)
-                .frame(width: 20)
             Text(text)
-                .font(.system(size: 12))
+                .font(.system(size: 11, weight: .semibold))
                 .foregroundStyle(Color.mmTextPrimary)
-            Spacer()
         }
+        .frame(maxWidth: .infinity)
     }
 
     // MARK: - フッター
@@ -393,13 +388,13 @@ struct PaywallView: View {
     }
 }
 
-// MARK: - マーキー行（種目GIF自動横スクロール）
+// MARK: - マーキー行（種目GIF自動横スクロール、120x120カード）
 
 private struct PaywallMarqueeRow: View {
     let exercises: [ExerciseDefinition]
     let speed: CGFloat       // px/sec
     let reversed: Bool       // trueなら左→右に流れる
-    private let cardSize: CGFloat = 100
+    private let cardSize: CGFloat = 120
 
     @State private var offset: CGFloat = 0
 
@@ -454,19 +449,19 @@ private struct PaywallMarqueeRow: View {
                     .frame(width: cardSize, height: cardSize)
                     .overlay(
                         Image(systemName: "dumbbell.fill")
-                            .font(.system(size: 20))
+                            .font(.system(size: 24))
                             .foregroundStyle(Color.mmTextSecondary.opacity(0.3))
                     )
             }
 
-            // 種目名
+            // 種目名（グラデーション付き）
             Text(isJapanese ? exercise.nameJA : exercise.nameEN)
-                .font(.system(size: 9, weight: .bold))
+                .font(.system(size: 10, weight: .bold))
                 .foregroundStyle(.white)
                 .lineLimit(1)
                 .padding(.horizontal, 6)
                 .padding(.bottom, 4)
-                .padding(.top, 16)
+                .padding(.top, 20)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .background(
                     LinearGradient(
@@ -477,7 +472,7 @@ private struct PaywallMarqueeRow: View {
                 )
         }
         .frame(width: cardSize, height: cardSize)
-        .clipShape(RoundedRectangle(cornerRadius: 10))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 }
 
