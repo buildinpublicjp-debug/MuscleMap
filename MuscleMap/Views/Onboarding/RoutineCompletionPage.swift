@@ -3,15 +3,20 @@ import SwiftUI
 // MARK: - ルーティン完了 + ハードペイウォールページ
 
 /// ルーティンサマリーを表示し、Pro契約を促すオンボーディング最終ページ
-/// 閉じるボタンなし — 「無料ではじめる」で完了 or PaywallViewから課金
+/// 種目→筋肉ライトアップアニメーション付き
 struct RoutineCompletionPage: View {
     let onComplete: () -> Void
 
     @State private var showingPaywall = false
     @State private var headerAppeared = false
-    @State private var cardsAppeared = false
-    @State private var mapAppeared = false
+    @State private var contentAppeared = false
     @State private var buttonGlow = false
+
+    // アニメーション状態
+    @State private var flatExerciseIndex: Int = -1
+    @State private var highlightedMuscles: Set<String> = []
+    @State private var animationCompleted = false
+    @State private var timerHolder = TimerHolder()
 
     /// 保存済みルーティン
     private var routine: UserRoutine {
@@ -23,42 +28,40 @@ struct RoutineCompletionPage: View {
         routine.days.reduce(0) { $0 + $1.exercises.count }
     }
 
-    /// ルーティン全体の筋肉マッピング（全種目のmuscleMappingを統合）
-    private var combinedMuscleMapping: [String: Int] {
-        var mapping: [String: Int] = [:]
-        let store = ExerciseStore.shared
-
-        for day in routine.days {
-            for exercise in day.exercises {
-                guard let def = store.exercise(for: exercise.exerciseId) else { continue }
-                for (muscleId, intensity) in def.muscleMapping {
-                    mapping[muscleId] = max(mapping[muscleId] ?? 0, intensity)
-                }
-            }
+    /// 全Day・全種目をフラット化（dayIndex付き）
+    private var allFlatExercises: [(dayIndex: Int, exercise: RoutineExercise)] {
+        routine.days.enumerated().flatMap { dayIdx, day in
+            day.exercises.map { (dayIndex: dayIdx, exercise: $0) }
         }
-        return mapping
     }
 
-    /// MuscleMapView用: 全Dayの種目が刺激する筋肉をハイライト
-    private var programMuscleStates: [Muscle: MuscleVisualState] {
-        var stimulated: Set<Muscle> = []
-        let store = ExerciseStore.shared
+    /// 現在ハイライト中の種目が属するDayのインデックス
+    private var currentDayIndex: Int? {
+        guard flatExerciseIndex >= 0, flatExerciseIndex < allFlatExercises.count else { return nil }
+        return allFlatExercises[flatExerciseIndex].dayIndex
+    }
 
-        for day in routine.days {
-            for exercise in day.exercises {
-                if let def = store.exercise(for: exercise.exerciseId) {
-                    for (muscleId, _) in def.muscleMapping {
-                        if let muscle = Muscle(rawValue: muscleId) {
-                            stimulated.insert(muscle)
-                        }
-                    }
-                }
-            }
-        }
+    /// 筋肉カバレッジ%
+    private var muscleCoverage: Double {
+        let allMuscleCount = Muscle.allCases.count
+        guard allMuscleCount > 0 else { return 0 }
+        let covered = highlightedMuscles.filter { Muscle(rawValue: $0) != nil }.count
+        return Double(covered) / Double(allMuscleCount)
+    }
 
+    private var coveragePercent: Int {
+        Int(muscleCoverage * 100)
+    }
+
+    /// アニメーション連動の筋肉マップ状態
+    private var animatedMuscleStates: [Muscle: MuscleVisualState] {
         var states: [Muscle: MuscleVisualState] = [:]
         for muscle in Muscle.allCases {
-            states[muscle] = stimulated.contains(muscle) ? .recovering(progress: 0.1) : .inactive
+            if highlightedMuscles.contains(muscle.rawValue) {
+                states[muscle] = .recovering(progress: 0.05)
+            } else {
+                states[muscle] = .inactive
+            }
         }
         return states
     }
@@ -105,11 +108,7 @@ struct RoutineCompletionPage: View {
         }
     }
 
-    /// カバー率（マッピングされた筋肉数 / 全21筋肉）
-    private var coveragePercent: Int {
-        let coveredCount = combinedMuscleMapping.count
-        return min(100, coveredCount * 100 / max(1, Muscle.allCases.count))
-    }
+    // MARK: - Body
 
     var body: some View {
         VStack(spacing: 0) {
@@ -135,39 +134,31 @@ struct RoutineCompletionPage: View {
 
             Spacer().frame(height: 10)
 
-            // ビフォーアフター（自己流 vs MuscleMap最適化）
-            optimizationBadge
-                .opacity(headerAppeared ? 1 : 0)
-                .offset(y: headerAppeared ? 0 : 10)
-
-            Spacer().frame(height: 6)
-
-            // 筋肉マップ（カバー率オーバーレイ付き）
+            // 筋肉マップ（前面+背面）+ カバレッジバー
             muscleMapSection
-                .opacity(mapAppeared ? 1 : 0)
-                .scaleEffect(mapAppeared ? 1 : 0.92)
+                .opacity(contentAppeared ? 1 : 0)
+                .scaleEffect(contentAppeared ? 1 : 0.92)
 
-            Spacer().frame(height: 6)
+            Spacer().frame(height: 10)
 
-            // Dayサマリー（縦リスト）
-            VStack(spacing: 8) {
-                ForEach(Array(routine.days.enumerated()), id: \.element.id) { index, day in
-                    dayInfoRow(index: index, day: day)
-                        .opacity(cardsAppeared ? 1 : 0)
-                        .offset(y: cardsAppeared ? 0 : 10)
-                        .animation(
-                            .easeOut(duration: 0.3).delay(Double(index) * 0.08),
-                            value: cardsAppeared
-                        )
-                }
-            }
-            .padding(.horizontal, 24)
-
-            // 合計行（1行）
-            totalSummaryRow
-                .opacity(cardsAppeared ? 1 : 0)
+            // カバレッジプログレスバー
+            coverageProgressBar
                 .padding(.horizontal, 24)
-                .padding(.top, 6)
+                .opacity(contentAppeared ? 1 : 0)
+
+            Spacer().frame(height: 10)
+
+            // Day別種目リスト（スクロール）
+            ScrollView(.vertical, showsIndicators: false) {
+                VStack(spacing: 10) {
+                    ForEach(Array(routine.days.enumerated()), id: \.element.id) { dayIndex, day in
+                        daySection(dayIndex: dayIndex, day: day)
+                    }
+                }
+                .padding(.horizontal, 24)
+                .padding(.bottom, 8)
+            }
+            .opacity(contentAppeared ? 1 : 0)
 
             Spacer(minLength: 4)
 
@@ -178,134 +169,204 @@ struct RoutineCompletionPage: View {
             withAnimation(.easeOut(duration: 0.5)) {
                 headerAppeared = true
             }
-            withAnimation(.easeOut(duration: 0.6).delay(0.2)) {
-                mapAppeared = true
-            }
-            withAnimation(.easeOut(duration: 0.5).delay(0.4)) {
-                cardsAppeared = true
+            withAnimation(.easeOut(duration: 0.5).delay(0.2)) {
+                contentAppeared = true
             }
             withAnimation(.easeInOut(duration: 1.5).repeatForever(autoreverses: true)) {
                 buttonGlow = true
             }
+            // アニメーション開始（ページ遷移後に少し待つ）
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) {
+                startAnimation()
+            }
+        }
+        .onDisappear {
+            timerHolder.timer?.invalidate()
+            timerHolder.timer = nil
         }
         .fullScreenCover(isPresented: $showingPaywall) {
             PaywallView(isHardPaywall: true)
         }
     }
 
-    // MARK: - ビフォーアフターバッジ（自己流 vs 最適化）
-
-    private var optimizationBadge: some View {
-        HStack(spacing: 6) {
-            // Before: 自己流
-            HStack(spacing: 4) {
-                Image(systemName: "xmark.circle")
-                    .font(.system(size: 11))
-                    .foregroundStyle(Color.mmOnboardingTextSub)
-                Text(isJapanese ? "自己流" : "Guessing")
-                    .font(.system(size: 11, weight: .medium))
-                    .foregroundStyle(Color.mmOnboardingTextSub)
-            }
-
-            Image(systemName: "arrow.right")
-                .font(.system(size: 9, weight: .bold))
-                .foregroundStyle(Color.mmOnboardingAccent)
-
-            // After: 最適化
-            HStack(spacing: 4) {
-                Image(systemName: "checkmark.circle.fill")
-                    .font(.system(size: 11))
-                    .foregroundStyle(Color.mmOnboardingAccent)
-                Text(isJapanese ? "科学的に最適化" : "Science-Based")
-                    .font(.system(size: 11, weight: .bold))
-                    .foregroundStyle(Color.mmOnboardingAccent)
-            }
-        }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 6)
-        .background(Color.mmOnboardingCard)
-        .clipShape(Capsule())
-    }
-
-    // MARK: - 筋肉マップ（大きく + カバー率オーバーレイ）
+    // MARK: - 筋肉マップセクション
 
     private var muscleMapSection: some View {
-        ZStack(alignment: .bottom) {
-            // 筋肉マップ（前面+背面）
-            MuscleMapView(muscleStates: programMuscleStates)
-                .frame(height: 200)
-                .padding(.horizontal, 16)
-
-            // カバー率オーバーレイ（マップ中央下部）
-            Text(isJapanese ? "\(coveragePercent)%の筋肉をカバー" : "\(coveragePercent)% muscle coverage")
-                .font(.system(size: 12, weight: .bold))
-                .foregroundStyle(Color.mmOnboardingAccent)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 5)
-                .background(Color.mmOnboardingBg.opacity(0.8))
-                .clipShape(Capsule())
-                .padding(.bottom, 4)
-        }
+        MuscleMapView(muscleStates: animatedMuscleStates)
+            .frame(height: 200)
+            .padding(.horizontal, 16)
     }
 
-    // MARK: - Day情報行（横幅フル、情報リッチ）
+    // MARK: - カバレッジプログレスバー
 
-    @ViewBuilder
-    private func dayInfoRow(index: Int, day: RoutineDay) -> some View {
-        let groups = muscleGroupsForDay(day)
-
-        HStack(spacing: 8) {
-            // Day番号
-            Text("Day \(index + 1)")
-                .font(.system(size: 14, weight: .heavy))
-                .foregroundStyle(Color.mmOnboardingAccent)
-                .frame(width: 50, alignment: .leading)
-
-            // 部位チップ
-            HStack(spacing: 4) {
-                ForEach(groups.prefix(3), id: \.self) { group in
-                    Text(group.localizedName)
-                        .font(.system(size: 10, weight: .bold))
-                        .foregroundStyle(Color.mmOnboardingAccent)
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 3)
-                        .background(Color.mmOnboardingAccent.opacity(0.15))
-                        .clipShape(Capsule())
-                }
+    private var coverageProgressBar: some View {
+        VStack(spacing: 4) {
+            HStack {
+                Text(isJapanese ? "筋肉カバレッジ" : "Muscle Coverage")
+                    .font(.system(size: 11, weight: .bold))
+                    .foregroundStyle(Color.mmOnboardingTextSub)
+                Spacer()
+                Text("\(coveragePercent)%")
+                    .font(.system(size: 13, weight: .heavy))
+                    .foregroundStyle(animationCompleted ? Color.mmOnboardingAccent : Color.mmOnboardingTextMain)
+                    .contentTransition(.numericText())
+                    .animation(.snappy(duration: 0.2), value: coveragePercent)
             }
 
-            Spacer()
+            GeometryReader { geo in
+                ZStack(alignment: .leading) {
+                    RoundedRectangle(cornerRadius: 3)
+                        .fill(Color.mmOnboardingCard)
+                        .frame(height: 6)
 
-            // 種目数（大きく）
-            Text("\(day.exercises.count)")
-                .font(.system(size: 18, weight: .heavy))
-                .foregroundStyle(Color.mmOnboardingTextMain)
-            Text(isJapanese ? "種目" : "ex")
-                .font(.system(size: 11))
-                .foregroundStyle(Color.mmOnboardingTextSub)
+                    RoundedRectangle(cornerRadius: 3)
+                        .fill(
+                            animationCompleted
+                                ? Color.mmOnboardingAccent
+                                : Color.mmMuscleCoral
+                        )
+                        .frame(width: geo.size.width * muscleCoverage, height: 6)
+                        .animation(.easeInOut(duration: 0.4), value: muscleCoverage)
+                }
+            }
+            .frame(height: 6)
+
+            // 完了メッセージ
+            if animationCompleted {
+                Text(isJapanese
+                    ? "全身をバランスよくカバー！"
+                    : "Full body coverage!")
+                    .font(.system(size: 11, weight: .bold))
+                    .foregroundStyle(Color.mmOnboardingAccent)
+                    .transition(.opacity.combined(with: .move(edge: .bottom)))
+            }
         }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 12)
-        .background(Color.mmOnboardingCard)
-        .clipShape(RoundedRectangle(cornerRadius: 14))
     }
 
-    // MARK: - 合計行
+    // MARK: - Dayセクション（Day名 + 種目チップ横スクロール）
 
-    private var totalSummaryRow: some View {
-        HStack {
-            Image(systemName: "flame.fill")
-                .font(.system(size: 12))
-                .foregroundStyle(Color.mmOnboardingAccent)
-            Text(L10n.routineTotalExercises(totalExercises, routine.days.count))
-                .font(.system(size: 13, weight: .bold))
-                .foregroundStyle(Color.mmOnboardingAccent)
-            Spacer()
+    @ViewBuilder
+    private func daySection(dayIndex: Int, day: RoutineDay) -> some View {
+        let groups = muscleGroupsForDay(day)
+
+        VStack(alignment: .leading, spacing: 6) {
+            // Dayヘッダー
+            HStack(spacing: 6) {
+                Text("Day \(dayIndex + 1)")
+                    .font(.system(size: 13, weight: .heavy))
+                    .foregroundStyle(Color.mmOnboardingAccent)
+
+                ForEach(groups.prefix(3), id: \.self) { group in
+                    Text(group.localizedName)
+                        .font(.system(size: 9, weight: .bold))
+                        .foregroundStyle(Color.mmOnboardingAccent)
+                        .padding(.horizontal, 5)
+                        .padding(.vertical, 2)
+                        .background(Color.mmOnboardingAccent.opacity(0.12))
+                        .clipShape(Capsule())
+                }
+
+                Spacer()
+
+                Text("\(day.exercises.count)")
+                    .font(.system(size: 15, weight: .heavy))
+                    .foregroundStyle(Color.mmOnboardingTextMain)
+                Text(isJapanese ? "種目" : "ex")
+                    .font(.system(size: 10))
+                    .foregroundStyle(Color.mmOnboardingTextSub)
+            }
+
+            // 種目チップ（横スクロール）
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 6) {
+                    ForEach(Array(day.exercises.enumerated()), id: \.element.id) { exIndex, routineExercise in
+                        let flatIndex = flatIndexFor(dayIndex: dayIndex, exerciseIndex: exIndex)
+                        let chipState = exerciseChipState(flatIndex: flatIndex)
+
+                        exerciseChip(
+                            routineExercise: routineExercise,
+                            state: chipState
+                        )
+                    }
+                }
+            }
         }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 8)
-        .background(Color.mmOnboardingAccent.opacity(0.08))
-        .clipShape(RoundedRectangle(cornerRadius: 10))
+        .padding(10)
+        .background(Color.mmOnboardingCard)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+
+    // MARK: - 種目チップ
+
+    private enum ChipState {
+        case pending   // 未到達
+        case current   // ハイライト中
+        case done      // 通過済み
+    }
+
+    private func exerciseChipState(flatIndex: Int) -> ChipState {
+        if flatIndex < flatExerciseIndex {
+            return .done
+        } else if flatIndex == flatExerciseIndex {
+            return .current
+        } else {
+            return .pending
+        }
+    }
+
+    @ViewBuilder
+    private func exerciseChip(routineExercise: RoutineExercise, state: ChipState) -> some View {
+        let def = ExerciseStore.shared.exercise(for: routineExercise.exerciseId)
+        let name = def?.localizedName ?? routineExercise.exerciseId
+
+        HStack(spacing: 6) {
+            // ステータスアイコン
+            switch state {
+            case .done:
+                Image(systemName: "checkmark.circle.fill")
+                    .font(.system(size: 10))
+                    .foregroundStyle(Color.mmOnboardingAccent)
+            case .current:
+                Image(systemName: "play.fill")
+                    .font(.system(size: 8))
+                    .foregroundStyle(Color.mmOnboardingAccent)
+            case .pending:
+                Circle()
+                    .stroke(Color.mmOnboardingTextSub.opacity(0.3), lineWidth: 1.5)
+                    .frame(width: 10, height: 10)
+            }
+
+            // GIFサムネイル
+            if ExerciseGifView.hasGif(exerciseId: routineExercise.exerciseId) {
+                ExerciseGifView(exerciseId: routineExercise.exerciseId, size: .thumbnail)
+                    .frame(width: 28, height: 28)
+                    .clipShape(RoundedRectangle(cornerRadius: 6))
+            }
+
+            Text(name)
+                .font(.system(size: 11, weight: state == .current || state == .done ? .semibold : .medium))
+                .foregroundStyle(
+                    state == .done ? Color.mmOnboardingAccent :
+                    state == .current ? Color.mmOnboardingTextMain :
+                    Color.mmOnboardingTextSub
+                )
+                .lineLimit(1)
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 6)
+        .background(
+            state == .current ? Color.mmOnboardingAccent.opacity(0.2) :
+            state == .done ? Color.mmOnboardingAccent.opacity(0.08) :
+            Color.mmOnboardingBg.opacity(0.5)
+        )
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .overlay(
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(state == .current ? Color.mmOnboardingAccent : .clear, lineWidth: 2)
+        )
+        .opacity(state == .pending ? 0.3 : 1.0)
+        .scaleEffect(state == .current ? 1.05 : 1.0)
+        .animation(.easeInOut(duration: 0.3), value: state == .current)
     }
 
     // MARK: - CTAボタン
@@ -373,6 +434,69 @@ struct RoutineCompletionPage: View {
         }
         .padding(.horizontal, 24)
         .padding(.bottom, 24)
+    }
+
+    // MARK: - アニメーションロジック
+
+    /// フラットインデックスを計算
+    private func flatIndexFor(dayIndex: Int, exerciseIndex: Int) -> Int {
+        var index = 0
+        for d in 0..<dayIndex {
+            index += routine.days[d].exercises.count
+        }
+        return index + exerciseIndex
+    }
+
+    /// アニメーション開始
+    private func startAnimation() {
+        flatExerciseIndex = -1
+        highlightedMuscles = []
+        animationCompleted = false
+
+        timerHolder.timer = Timer.scheduledTimer(withTimeInterval: 0.8, repeats: true) { [self] _ in
+            Task { @MainActor in
+                self.advanceAnimation()
+            }
+        }
+    }
+
+    /// アニメーション1ステップ進行
+    private func advanceAnimation() {
+        flatExerciseIndex += 1
+
+        if flatExerciseIndex < allFlatExercises.count {
+            let entry = allFlatExercises[flatExerciseIndex]
+            highlightExercise(entry.exercise)
+        } else {
+            // 全種目通過 → 完了演出
+            timerHolder.timer?.invalidate()
+            timerHolder.timer = nil
+            withAnimation(.easeInOut(duration: 0.5)) {
+                animationCompleted = true
+            }
+            HapticManager.setCompleted()
+        }
+    }
+
+    /// 種目の筋肉をハイライト（累積）
+    private func highlightExercise(_ routineExercise: RoutineExercise) {
+        guard let def = ExerciseStore.shared.exercise(for: routineExercise.exerciseId) else { return }
+        withAnimation(.easeInOut(duration: 0.5)) {
+            for muscleId in def.muscleMapping.keys {
+                highlightedMuscles.insert(muscleId)
+            }
+        }
+        HapticManager.lightTap()
+    }
+}
+
+// MARK: - Timer保持用（@Stateで参照型を保持）
+
+private class TimerHolder {
+    var timer: Timer?
+
+    deinit {
+        timer?.invalidate()
     }
 }
 
