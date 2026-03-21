@@ -123,7 +123,7 @@ struct PRInputPage: View {
             .animation(.spring(response: 0.4, dampingFraction: 0.8), value: recordedPRs.count)
             .opacity(appeared ? 1 : 0)
 
-            Spacer().frame(height: 4)
+            Spacer().frame(height: 8)
 
             // 種目GIFカード（横スクロール）
             ScrollView(.horizontal, showsIndicators: false) {
@@ -161,14 +161,14 @@ struct PRInputPage: View {
                         } label: {
                             VStack(spacing: 4) {
                                 Image(systemName: "plus.circle")
-                                    .font(.system(size: 24))
+                                    .font(.system(size: 28))
                                 Text(isJapanese ? "追加" : "Add")
-                                    .font(.system(size: 11, weight: .bold))
+                                    .font(.system(size: 12, weight: .bold))
                             }
                             .foregroundStyle(Color.mmOnboardingTextSub)
-                            .frame(width: 100, height: 100)
+                            .frame(width: 140, height: 140)
                             .background(Color.mmOnboardingCard)
-                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
                         }
                         .buttonStyle(.plain)
                     }
@@ -180,19 +180,18 @@ struct PRInputPage: View {
 
             // 強さレベルプレビュー or 動機付けテキスト
             if recordedPRs.isEmpty {
-                VStack(spacing: 8) {
+                HStack(spacing: 8) {
                     Image(systemName: "chart.line.uptrend.xyaxis")
-                        .font(.system(size: 28))
-                        .foregroundStyle(Color.mmOnboardingAccent.opacity(0.4))
+                        .font(.system(size: 18))
+                        .foregroundStyle(Color.mmOnboardingAccent.opacity(0.5))
                     Text(isJapanese
                         ? "重量を入力すると、あなたの強さレベルが判定されます"
                         : "Enter your weights to see your strength level")
-                        .font(.system(size: 13))
+                        .font(.system(size: 12))
                         .foregroundStyle(Color.mmOnboardingTextSub)
-                        .multilineTextAlignment(.center)
                 }
-                .padding(.horizontal, 32)
-                .padding(.vertical, 8)
+                .padding(.horizontal, 24)
+                .padding(.vertical, 6)
                 .opacity(appeared ? 1 : 0)
             } else if let level = overallLevel {
                 VStack(spacing: 8) {
@@ -626,7 +625,7 @@ private struct WeightInputSheet: View {
     }
 }
 
-// MARK: - 種目GIFコンパクトカード（100x100横スクロール用）
+// MARK: - 種目GIFコンパクトカード（140x140横スクロール用）
 
 private struct PRCompactGifCard: View {
     let exercise: ExerciseDefinition
@@ -651,21 +650,21 @@ private struct PRCompactGifCard: View {
                 // グラデーション + 種目名 + kg
                 VStack(alignment: .leading, spacing: 1) {
                     Text(exercise.localizedName)
-                        .font(.system(size: 10, weight: .bold))
+                        .font(.system(size: 12, weight: .bold))
                         .foregroundStyle(.white)
                         .lineLimit(1)
                     if let weight = recordedWeight {
                         Text("\(Int(weight))kg")
-                            .font(.system(size: 12, weight: .heavy))
+                            .font(.system(size: 14, weight: .heavy))
                             .foregroundStyle(Color.mmOnboardingAccent)
                     } else {
                         Text(exercise.localizedEquipment)
-                            .font(.system(size: 9))
+                            .font(.system(size: 10))
                             .foregroundStyle(.white.opacity(0.7))
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(6)
+                .padding(8)
                 .background(
                     LinearGradient(
                         colors: [Color.clear, Color.black.opacity(0.75)],
@@ -674,8 +673,8 @@ private struct PRCompactGifCard: View {
                     )
                 )
             }
-            .frame(width: 100, height: 100)
-            .clipShape(RoundedRectangle(cornerRadius: 10))
+            .frame(width: 140, height: 140)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
         }
         .buttonStyle(.plain)
     }
