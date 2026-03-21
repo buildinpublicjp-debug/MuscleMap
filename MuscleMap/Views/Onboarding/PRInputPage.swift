@@ -125,52 +125,23 @@ struct PRInputPage: View {
 
             Spacer().frame(height: 4)
 
-            // BIG3コンパクトチップ（横スクロール）
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 8) {
-                    ForEach(defaultExercises, id: \.id) { exercise in
-                        Button {
-                            selectedExercise = exercise
-                            HapticManager.lightTap()
-                        } label: {
-                            HStack(spacing: 6) {
-                                if ExerciseGifView.hasGif(exerciseId: exercise.id) {
-                                    ExerciseGifView(exerciseId: exercise.id, size: .thumbnail)
-                                        .frame(width: 40, height: 40)
-                                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                                }
-
-                                VStack(alignment: .leading, spacing: 1) {
-                                    Text(exercise.localizedName)
-                                        .font(.system(size: 11, weight: .bold))
-                                        .foregroundStyle(Color.mmOnboardingTextMain)
-                                        .lineLimit(1)
-
-                                    if let weight = recordedPRs[exercise.id] {
-                                        Text("\(Int(weight))kg")
-                                            .font(.system(size: 10, weight: .bold))
-                                            .foregroundStyle(Color.mmOnboardingAccent)
-                                    } else {
-                                        Text(isJapanese ? "タップで入力" : "Tap to enter")
-                                            .font(.system(size: 9))
-                                            .foregroundStyle(Color.mmOnboardingTextSub)
-                                    }
-                                }
-                            }
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 8)
-                            .background(
-                                recordedPRs[exercise.id] != nil
-                                    ? Color.mmOnboardingAccent.opacity(0.08)
-                                    : Color.mmOnboardingCard
-                            )
-                            .clipShape(RoundedRectangle(cornerRadius: 10))
-                        }
-                        .buttonStyle(.plain)
+            // BIG3 GIFグリッド（2カラム）
+            let gridColumns = [
+                GridItem(.flexible(), spacing: 8),
+                GridItem(.flexible(), spacing: 8),
+            ]
+            LazyVGrid(columns: gridColumns, spacing: 8) {
+                ForEach(defaultExercises, id: \.id) { exercise in
+                    PRExerciseGridCard(
+                        exercise: exercise,
+                        recordedWeight: recordedPRs[exercise.id]
+                    ) {
+                        selectedExercise = exercise
+                        HapticManager.lightTap()
                     }
                 }
-                .padding(.horizontal, 24)
             }
+            .padding(.horizontal, 24)
             .opacity(appeared ? 1 : 0)
 
             Spacer().frame(height: 4)
@@ -329,7 +300,7 @@ struct PRInputPage: View {
                     }
                 }
             )
-            .presentationDetents([.medium])
+            .presentationDetents([.large])
             .presentationDragIndicator(.visible)
         }
         // 種目選択 → 重量入力シート
@@ -370,6 +341,10 @@ private struct MuscleExerciseSheet: View {
         ExerciseStore.shared.exercises(targeting: muscle)
     }
 
+    private var gridColumns: [GridItem] {
+        [GridItem(.flexible(), spacing: 8), GridItem(.flexible(), spacing: 8)]
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             // ヘッダー
@@ -386,62 +361,16 @@ private struct MuscleExerciseSheet: View {
             .padding(.top, 20)
             .padding(.bottom, 12)
 
-            // 種目リスト
+            // 種目GIFグリッド（2カラム）
             ScrollView(.vertical, showsIndicators: false) {
-                VStack(spacing: 8) {
+                LazyVGrid(columns: gridColumns, spacing: 8) {
                     ForEach(exercises) { exercise in
-                        Button {
+                        PRExerciseGridCard(
+                            exercise: exercise,
+                            recordedWeight: recordedPRs[exercise.id]
+                        ) {
                             onSelectExercise(exercise)
-                        } label: {
-                            HStack(spacing: 12) {
-                                // GIF 100x100
-                                if ExerciseGifView.hasGif(exerciseId: exercise.id) {
-                                    ExerciseGifView(exerciseId: exercise.id, size: .thumbnail)
-                                        .frame(width: 100, height: 100)
-                                        .clipShape(RoundedRectangle(cornerRadius: 14))
-                                } else {
-                                    RoundedRectangle(cornerRadius: 14)
-                                        .fill(Color.mmOnboardingBg)
-                                        .frame(width: 100, height: 100)
-                                        .overlay(
-                                            Image(systemName: "dumbbell")
-                                                .font(.title2)
-                                                .foregroundStyle(Color.mmOnboardingTextSub)
-                                        )
-                                }
-
-                                VStack(alignment: .leading, spacing: 2) {
-                                    Text(exercise.localizedName)
-                                        .font(.subheadline.bold())
-                                        .foregroundStyle(Color.mmOnboardingTextMain)
-                                        .lineLimit(1)
-                                    Text(exercise.localizedEquipment)
-                                        .font(.caption2)
-                                        .foregroundStyle(Color.mmOnboardingTextSub)
-                                }
-
-                                Spacer()
-
-                                // 入力済みマーク
-                                if let weight = recordedPRs[exercise.id] {
-                                    Text("\(Int(weight))kg")
-                                        .font(.caption.bold())
-                                        .foregroundStyle(Color.mmOnboardingAccent)
-                                        .padding(.horizontal, 8)
-                                        .padding(.vertical, 4)
-                                        .background(Color.mmOnboardingAccent.opacity(0.12))
-                                        .clipShape(Capsule())
-                                } else {
-                                    Image(systemName: "chevron.right")
-                                        .font(.caption)
-                                        .foregroundStyle(Color.mmOnboardingTextSub)
-                                }
-                            }
-                            .padding(12)
-                            .background(Color.mmOnboardingCard)
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
                         }
-                        .buttonStyle(.plain)
                     }
                 }
                 .padding(.horizontal, 20)
@@ -627,6 +556,83 @@ private struct WeightInputSheet: View {
     private func stopHoldTimer() {
         holdTimer?.invalidate()
         holdTimer = nil
+    }
+}
+
+// MARK: - 種目GIFグリッドカード（共通）
+
+private struct PRExerciseGridCard: View {
+    let exercise: ExerciseDefinition
+    let recordedWeight: Double?
+    let onTap: () -> Void
+
+    var body: some View {
+        Button(action: onTap) {
+            ZStack(alignment: .bottom) {
+                // GIF（card size, scaledToFill）
+                if ExerciseGifView.hasGif(exerciseId: exercise.id) {
+                    ExerciseGifView(exerciseId: exercise.id, size: .card)
+                        .scaledToFill()
+                } else {
+                    Color.mmOnboardingCard
+                        .overlay(
+                            Image(systemName: "dumbbell")
+                                .font(.title2)
+                                .foregroundStyle(Color.mmOnboardingTextSub)
+                        )
+                }
+
+                // グラデーション + 種目名 + 器具
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(exercise.localizedName)
+                        .font(.system(size: 12, weight: .bold))
+                        .foregroundStyle(.white)
+                        .lineLimit(1)
+                    Text(exercise.localizedEquipment)
+                        .font(.system(size: 9))
+                        .foregroundStyle(.white.opacity(0.7))
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(8)
+                .background(
+                    LinearGradient(
+                        colors: [Color.clear, Color.black.opacity(0.75)],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
+
+                // 入力済み重量バッジ（右上）
+                if let weight = recordedWeight {
+                    VStack {
+                        HStack {
+                            Spacer()
+                            Text("\(Int(weight))kg")
+                                .font(.system(size: 11, weight: .heavy))
+                                .foregroundStyle(Color.mmOnboardingBg)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4)
+                                .background(Color.mmOnboardingAccent)
+                                .clipShape(Capsule())
+                                .padding(6)
+                        }
+                        Spacer()
+                    }
+                } else {
+                    // 未入力ガイド（中央）
+                    VStack {
+                        Spacer()
+                        Image(systemName: "plus.circle.fill")
+                            .font(.system(size: 24))
+                            .foregroundStyle(.white.opacity(0.6))
+                        Spacer()
+                    }
+                }
+            }
+            .aspectRatio(1, contentMode: .fit)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+        }
+        .buttonStyle(.plain)
     }
 }
 

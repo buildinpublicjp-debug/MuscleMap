@@ -78,8 +78,8 @@ struct LocationSelectionPage: View {
         "burpee"
     ]
 
-    /// GIFカード1列の幅（カード140 + spacing8）
-    private let columnWidth: CGFloat = 148
+    /// GIFカード1列の幅（カード160 + spacing8）
+    private let columnWidth: CGFloat = 168
 
     private func isTrueBodyweight(_ exercise: ExerciseDefinition) -> Bool {
         let id = exercise.id.lowercased()
@@ -140,10 +140,10 @@ struct LocationSelectionPage: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            Spacer().frame(height: 48)
+            Spacer().frame(height: 32)
 
             // ヘッダー
-            VStack(spacing: 8) {
+            VStack(spacing: 4) {
                 Text(L10n.locationTitle)
                     .font(.system(size: 28, weight: .heavy))
                     .foregroundStyle(Color.mmOnboardingTextMain)
@@ -158,7 +158,7 @@ struct LocationSelectionPage: View {
             .opacity(appeared ? 1 : 0)
             .offset(y: appeared ? 0 : 20)
 
-            Spacer().frame(height: 12)
+            Spacer().frame(height: 6)
 
             // 種目数バッジ
             HStack(spacing: 8) {
@@ -178,13 +178,13 @@ struct LocationSelectionPage: View {
             }
             .opacity(appeared ? 1 : 0)
 
-            Spacer().frame(height: 12)
+            Spacer().frame(height: 6)
 
             // GIFギャラリー（2行グリッド、滑らか自動スクロール）
             gifGallery
                 .opacity(appeared ? 1 : 0)
 
-            Spacer(minLength: 8)
+            Spacer(minLength: 4)
 
             // 選択カード（次へボタン直上、コンパクト）
             VStack(spacing: 5) {
@@ -368,13 +368,13 @@ private struct ExerciseGifCard: View {
             VStack(spacing: 4) {
                 if ExerciseGifView.hasGif(exerciseId: exercise.id) {
                     ExerciseGifView(exerciseId: exercise.id, size: .card)
-                        .frame(width: 130, height: 130)
+                        .frame(width: 150, height: 150)
                         .clipShape(RoundedRectangle(cornerRadius: 16))
                 } else {
                     ZStack {
                         RoundedRectangle(cornerRadius: 16)
                             .fill(Color.mmOnboardingBg)
-                            .frame(width: 130, height: 130)
+                            .frame(width: 150, height: 150)
                         Image(systemName: "dumbbell.fill")
                             .font(.system(size: 32))
                             .foregroundStyle(Color.mmOnboardingTextSub.opacity(0.4))
@@ -391,7 +391,7 @@ private struct ExerciseGifCard: View {
                     .font(.system(size: 10))
                     .foregroundStyle(Color.mmOnboardingTextSub)
             }
-            .frame(width: 140, height: 180)
+            .frame(width: 160, height: 200)
         }
         .buttonStyle(.plain)
     }
