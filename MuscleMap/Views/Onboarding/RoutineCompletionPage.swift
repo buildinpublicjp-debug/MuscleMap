@@ -112,19 +112,19 @@ struct RoutineCompletionPage: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            Spacer().frame(height: 16)
+            Spacer().frame(height: 12)
 
-            // 目標別キャッチコピー + サブタイトル
-            VStack(spacing: 6) {
+            // 目標別キャッチコピー + サブタイトル（コンパクト）
+            VStack(spacing: 4) {
                 Text(goalBasedHeadline)
-                    .font(.system(size: 30, weight: .heavy))
+                    .font(.system(size: 22, weight: .heavy))
                     .foregroundStyle(Color.mmOnboardingAccent)
                     .multilineTextAlignment(.center)
 
                 Text(isJapanese
-                    ? "あなたの目標・経験・環境から最適な分割法を作成しました"
-                    : "Optimized for your goals, experience & equipment")
-                    .font(.system(size: 13))
+                    ? "目標・経験・環境から最適化"
+                    : "Optimized for your goals & experience")
+                    .font(.system(size: 12))
                     .foregroundStyle(Color.mmOnboardingTextSub)
                     .multilineTextAlignment(.center)
             }
@@ -132,20 +132,57 @@ struct RoutineCompletionPage: View {
             .opacity(headerAppeared ? 1 : 0)
             .offset(y: headerAppeared ? 0 : 20)
 
-            Spacer().frame(height: 10)
+            Spacer().frame(height: 6)
 
             // スクロール領域（マップ + カバレッジ + Dayグリッド）
             ScrollView(.vertical, showsIndicators: false) {
-                VStack(spacing: 10) {
-                    // 筋肉マップ（前面+背面）
-                    muscleMapSection
-                        .scaleEffect(contentAppeared ? 1 : 0.92)
+                VStack(spacing: 8) {
+                    // 筋肉マップ（コンパクト）+ カバレッジバー
+                    HStack(spacing: 0) {
+                        muscleMapSection
+                            .frame(height: 130)
+                            .frame(maxWidth: .infinity)
 
-                    // カバレッジプログレスバー
-                    coverageProgressBar
-                        .padding(.horizontal, 24)
+                        // カバレッジ（縦レイアウト、マップ横に配置）
+                        VStack(spacing: 6) {
+                            Text(isJapanese ? "カバレッジ" : "Coverage")
+                                .font(.system(size: 10, weight: .bold))
+                                .foregroundStyle(Color.mmOnboardingTextSub)
 
-                    // Day別GIFグリッド
+                            Text("\(coveragePercent)%")
+                                .font(.system(size: 28, weight: .heavy))
+                                .foregroundStyle(animationCompleted ? Color.mmOnboardingAccent : Color.mmOnboardingTextMain)
+                                .contentTransition(.numericText())
+                                .animation(.snappy(duration: 0.2), value: coveragePercent)
+
+                            // ミニプログレスバー
+                            GeometryReader { geo in
+                                ZStack(alignment: .leading) {
+                                    RoundedRectangle(cornerRadius: 3)
+                                        .fill(Color.mmOnboardingCard)
+                                        .frame(height: 4)
+                                    RoundedRectangle(cornerRadius: 3)
+                                        .fill(animationCompleted ? Color.mmOnboardingAccent : Color.mmMuscleCoral)
+                                        .frame(width: geo.size.width * muscleCoverage, height: 4)
+                                        .animation(.easeInOut(duration: 0.4), value: muscleCoverage)
+                                }
+                            }
+                            .frame(height: 4)
+
+                            if animationCompleted {
+                                Text(isJapanese ? "全身カバー!" : "Full body!")
+                                    .font(.system(size: 9, weight: .bold))
+                                    .foregroundStyle(Color.mmOnboardingAccent)
+                                    .transition(.opacity)
+                            }
+                        }
+                        .frame(width: 90)
+                        .padding(.trailing, 8)
+                    }
+                    .padding(.horizontal, 8)
+                    .scaleEffect(contentAppeared ? 1 : 0.92)
+
+                    // Day別コンパクトグリッド
                     ForEach(Array(routine.days.enumerated()), id: \.element.id) { dayIndex, day in
                         daySection(dayIndex: dayIndex, day: day)
                     }
@@ -188,61 +225,11 @@ struct RoutineCompletionPage: View {
 
     private var muscleMapSection: some View {
         MuscleMapView(muscleStates: animatedMuscleStates)
-            .frame(height: 180)
     }
 
-    // MARK: - カバレッジプログレスバー
+    // MARK: - 4カラムGIFグリッド用
 
-    private var coverageProgressBar: some View {
-        VStack(spacing: 4) {
-            HStack {
-                Text(isJapanese ? "筋肉カバレッジ" : "Muscle Coverage")
-                    .font(.system(size: 11, weight: .bold))
-                    .foregroundStyle(Color.mmOnboardingTextSub)
-                Spacer()
-                Text("\(coveragePercent)%")
-                    .font(.system(size: 13, weight: .heavy))
-                    .foregroundStyle(animationCompleted ? Color.mmOnboardingAccent : Color.mmOnboardingTextMain)
-                    .contentTransition(.numericText())
-                    .animation(.snappy(duration: 0.2), value: coveragePercent)
-            }
-
-            GeometryReader { geo in
-                ZStack(alignment: .leading) {
-                    RoundedRectangle(cornerRadius: 3)
-                        .fill(Color.mmOnboardingCard)
-                        .frame(height: 6)
-
-                    RoundedRectangle(cornerRadius: 3)
-                        .fill(
-                            animationCompleted
-                                ? Color.mmOnboardingAccent
-                                : Color.mmMuscleCoral
-                        )
-                        .frame(width: geo.size.width * muscleCoverage, height: 6)
-                        .animation(.easeInOut(duration: 0.4), value: muscleCoverage)
-                }
-            }
-            .frame(height: 6)
-
-            // 完了メッセージ
-            if animationCompleted {
-                Text(isJapanese
-                    ? "全身をバランスよくカバー！"
-                    : "Full body coverage!")
-                    .font(.system(size: 11, weight: .bold))
-                    .foregroundStyle(Color.mmOnboardingAccent)
-                    .transition(.opacity.combined(with: .move(edge: .bottom)))
-            }
-        }
-    }
-
-    // MARK: - 2カラムGIFグリッド用
-
-    private let gridColumns = [
-        GridItem(.flexible(), spacing: 8),
-        GridItem(.flexible(), spacing: 8),
-    ]
+    private let gridColumns = Array(repeating: GridItem(.flexible(), spacing: 6), count: 4)
 
     private enum CardState {
         case past      // 通過済み
@@ -260,117 +247,106 @@ struct RoutineCompletionPage: View {
         }
     }
 
-    // MARK: - Dayセクション（Day名 + 2カラムGIFグリッド）
+    // MARK: - Dayセクション（Day名 + 4カラムコンパクトGIFグリッド）
 
     @ViewBuilder
     private func daySection(dayIndex: Int, day: RoutineDay) -> some View {
         let groups = muscleGroupsForDay(day)
 
-        VStack(alignment: .leading, spacing: 8) {
-            // Dayヘッダー
+        VStack(alignment: .leading, spacing: 6) {
+            // Dayヘッダー（1行にコンパクト）
             HStack(spacing: 6) {
                 Text("Day \(dayIndex + 1)")
-                    .font(.system(size: 14, weight: .heavy))
+                    .font(.system(size: 13, weight: .heavy))
                     .foregroundStyle(Color.mmOnboardingTextMain)
 
                 ForEach(groups.prefix(3), id: \.self) { group in
                     Text(group.localizedName)
-                        .font(.system(size: 10, weight: .bold))
+                        .font(.system(size: 9, weight: .bold))
                         .foregroundStyle(Color.mmOnboardingAccent)
-                        .padding(.horizontal, 6)
+                        .padding(.horizontal, 5)
                         .padding(.vertical, 2)
                         .background(Color.mmOnboardingAccent.opacity(0.15))
                         .clipShape(Capsule())
                 }
 
                 Spacer()
-
-                Text("\(day.exercises.count)")
-                    .font(.system(size: 15, weight: .heavy))
-                    .foregroundStyle(Color.mmOnboardingTextMain)
-                Text(isJapanese ? "種目" : "ex")
-                    .font(.system(size: 11))
-                    .foregroundStyle(Color.mmOnboardingTextSub)
             }
 
-            // 2カラムGIFグリッド
-            LazyVGrid(columns: gridColumns, spacing: 8) {
+            // 4カラムGIFグリッド（コンパクト）
+            LazyVGrid(columns: gridColumns, spacing: 6) {
                 ForEach(Array(day.exercises.enumerated()), id: \.element.id) { exIndex, routineExercise in
                     let flatIndex = flatIndexFor(dayIndex: dayIndex, exerciseIndex: exIndex)
                     let state = cardState(flatIndex: flatIndex)
 
-                    exerciseGifCard(
+                    compactExerciseCard(
                         routineExercise: routineExercise,
                         state: state
                     )
                 }
             }
         }
-        .padding(12)
+        .padding(10)
         .background(Color.mmOnboardingCard)
-        .clipShape(RoundedRectangle(cornerRadius: 14))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 
-    // MARK: - 種目GIFカード
+    // MARK: - コンパクト種目カード（70x70）
 
     @ViewBuilder
-    private func exerciseGifCard(routineExercise: RoutineExercise, state: CardState) -> some View {
+    private func compactExerciseCard(routineExercise: RoutineExercise, state: CardState) -> some View {
         let def = ExerciseStore.shared.exercise(for: routineExercise.exerciseId)
         let name = def?.localizedName ?? routineExercise.exerciseId
 
-        ZStack(alignment: .bottom) {
-            // GIF or プレースホルダー
-            if ExerciseGifView.hasGif(exerciseId: routineExercise.exerciseId) {
-                ExerciseGifView(exerciseId: routineExercise.exerciseId, size: .card)
-                    .scaledToFill()
-            } else {
-                Color.mmOnboardingBg
-                Image(systemName: "dumbbell.fill")
-                    .font(.system(size: 24))
-                    .foregroundStyle(Color.mmOnboardingTextSub.opacity(0.3))
-            }
+        VStack(spacing: 2) {
+            ZStack(alignment: .bottom) {
+                // GIF or プレースホルダー
+                if ExerciseGifView.hasGif(exerciseId: routineExercise.exerciseId) {
+                    ExerciseGifView(exerciseId: routineExercise.exerciseId, size: .card)
+                        .scaledToFill()
+                        .frame(width: 70, height: 70)
+                        .clipped()
+                } else {
+                    ZStack {
+                        Color.mmOnboardingBg
+                        Image(systemName: "dumbbell.fill")
+                            .font(.system(size: 18))
+                            .foregroundStyle(Color.mmOnboardingTextSub.opacity(0.3))
+                    }
+                    .frame(width: 70, height: 70)
+                }
 
-            // グラデーション + 種目名 + セット×レップ
-            VStack(alignment: .leading, spacing: 2) {
-                Text(name)
-                    .font(.system(size: 11, weight: .bold))
-                    .foregroundStyle(.white)
-                    .lineLimit(1)
-                Text("\(routineExercise.suggestedSets)×\(routineExercise.suggestedReps)")
-                    .font(.system(size: 9, weight: .semibold))
-                    .foregroundStyle(.white.opacity(0.7))
+                // チェックマーク（通過済み）
+                if state == .past {
+                    Color.black.opacity(0.3)
+                        .frame(width: 70, height: 70)
+                        .overlay(
+                            Image(systemName: "checkmark.circle.fill")
+                                .font(.system(size: 16))
+                                .foregroundStyle(Color.mmOnboardingAccent)
+                        )
+                }
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(8)
-            .background(
-                LinearGradient(
-                    colors: [Color.clear, Color.black.opacity(0.75)],
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
+            .frame(width: 70, height: 70)
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(
+                        state == .current ? Color.mmOnboardingAccent : .clear,
+                        lineWidth: 2
+                    )
             )
+            .opacity(state == .future ? 0.4 : 1.0)
+            .scaleEffect(state == .current ? 1.05 : 1.0)
+            .animation(.easeInOut(duration: 0.3), value: state == .current)
+
+            // 種目名
+            Text(name)
+                .font(.system(size: 9, weight: .medium))
+                .foregroundStyle(Color.mmOnboardingTextSub)
+                .lineLimit(1)
+                .frame(width: 70)
         }
-        .aspectRatio(1, contentMode: .fit)
-        .clipShape(RoundedRectangle(cornerRadius: 10))
-        // アニメーション状態
-        .overlay(
-            RoundedRectangle(cornerRadius: 10)
-                .stroke(
-                    state == .current ? Color.mmOnboardingAccent : .clear,
-                    lineWidth: 2
-                )
-        )
-        .overlay(alignment: .topLeading) {
-            if state == .past {
-                Image(systemName: "checkmark.circle.fill")
-                    .font(.system(size: 16))
-                    .foregroundStyle(Color.mmOnboardingAccent)
-                    .padding(6)
-            }
-        }
-        .opacity(state == .future ? 0.3 : 1.0)
-        .scaleEffect(state == .current ? 1.03 : 1.0)
-        .animation(.easeInOut(duration: 0.3), value: state == .current)
     }
 
     // MARK: - CTAボタン
