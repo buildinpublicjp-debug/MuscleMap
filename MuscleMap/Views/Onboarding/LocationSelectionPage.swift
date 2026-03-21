@@ -79,7 +79,7 @@ struct LocationSelectionPage: View {
         return !Self.bodyweightExcludeIds.contains(where: { id.contains($0) })
     }
 
-    /// 選択した場所で使える種目（最大20件）
+    /// 選択した場所で使える種目（最大12件 — 1行マーキー用）
     private var filteredExercises: [ExerciseDefinition] {
         let store = ExerciseStore.shared
         store.loadIfNeeded()
@@ -95,21 +95,7 @@ struct LocationSelectionPage: View {
         case .gym, .both, .none:
             exercises = store.exercises.filter { !Self.gymExcludeIds.contains($0.id) }
         }
-        return Array(exercises.prefix(20))
-    }
-
-    /// 上段の種目
-    private var topRowExercises: [ExerciseDefinition] {
-        let items = filteredExercises
-        let mid = (items.count + 1) / 2
-        return Array(items.prefix(mid))
-    }
-
-    /// 下段の種目
-    private var bottomRowExercises: [ExerciseDefinition] {
-        let items = filteredExercises
-        let mid = (items.count + 1) / 2
-        return Array(items.dropFirst(mid))
+        return Array(exercises.prefix(12))
     }
 
     /// フィルタ後の全種目数（バッジ表示用）
@@ -131,17 +117,17 @@ struct LocationSelectionPage: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            Spacer().frame(height: 20)
+            Spacer().frame(height: 16)
 
             // ヘッダー
             VStack(spacing: 4) {
                 Text(L10n.locationTitle)
-                    .font(.system(size: 28, weight: .heavy))
+                    .font(.system(size: 26, weight: .heavy))
                     .foregroundStyle(Color.mmOnboardingTextMain)
                     .multilineTextAlignment(.center)
 
                 Text(L10n.locationSubtitle)
-                    .font(.system(size: 14))
+                    .font(.system(size: 13))
                     .foregroundStyle(Color.mmOnboardingTextSub)
                     .multilineTextAlignment(.center)
             }
@@ -171,25 +157,24 @@ struct LocationSelectionPage: View {
 
             Spacer().frame(height: 4)
 
-            // GIFギャラリー（2行一体型マーキー）
-            UnifiedMarqueeGallery(
-                topExercises: topRowExercises,
-                bottomExercises: bottomRowExercises,
+            // GIFギャラリー（1行マーキー）
+            SingleRowMarqueeGallery(
+                exercises: filteredExercises,
                 cardSize: cardSize,
-                speed: 28,
+                speed: 30,
                 onTap: { exercise in
                     selectedExercise = exercise
                     HapticManager.lightTap()
                 }
             )
-            .frame(height: cardSize * 2 + 8)
+            .frame(height: cardSize)
             .clipped()
             .contentShape(Rectangle())
             .opacity(appeared ? 1 : 0)
 
-            Spacer().frame(height: 8)
+            Spacer().frame(height: 12)
 
-            // 選択カード（次へボタン直上、コンパクト）
+            // 選択カード
             VStack(spacing: 5) {
                 ForEach(Array(TrainingLocation.allCases.enumerated()), id: \.element) { index, location in
                     LocationCard(
@@ -209,7 +194,8 @@ struct LocationSelectionPage: View {
                 }
             }
             .padding(.horizontal, 24)
-            .padding(.bottom, 12)
+
+            Spacer(minLength: 8)
 
             // 次へボタン
             Button {
@@ -261,23 +247,19 @@ struct LocationSelectionPage: View {
 
 }
 
-// MARK: - 2行一体型マーキーギャラリー
+// MARK: - 1行マーキーギャラリー
 
-private struct UnifiedMarqueeGallery: View {
-    let topExercises: [ExerciseDefinition]
-    let bottomExercises: [ExerciseDefinition]
+private struct SingleRowMarqueeGallery: View {
+    let exercises: [ExerciseDefinition]
     let cardSize: CGFloat
-    let speed: Double // pt/sec
+    let speed: Double
     let onTap: (ExerciseDefinition) -> Void
 
     private let spacing: CGFloat = 8
 
-    /// 上段1セット分の幅（上下で長い方を基準にする）
     private var setWidth: CGFloat {
-        let topCount = max(topExercises.count, 1)
-        let bottomCount = max(bottomExercises.count, 1)
-        let maxCount = max(topCount, bottomCount)
-        return CGFloat(maxCount) * (cardSize + spacing)
+        let count = max(exercises.count, 1)
+        return CGFloat(count) * (cardSize + spacing)
     }
 
     var body: some View {
@@ -288,25 +270,11 @@ private struct UnifiedMarqueeGallery: View {
                 ? -CGFloat(elapsed.truncatingRemainder(dividingBy: Double(totalWidth) / speed) * speed)
                 : 0
 
-            VStack(spacing: spacing) {
-                // 上段
-                HStack(spacing: spacing) {
-                    ForEach(0..<2, id: \.self) { _ in
-                        ForEach(topExercises, id: \.id) { exercise in
-                            ExerciseGifCard(exercise: exercise, cardSize: cardSize) {
-                                onTap(exercise)
-                            }
-                        }
-                    }
-                }
-
-                // 下段
-                HStack(spacing: spacing) {
-                    ForEach(0..<2, id: \.self) { _ in
-                        ForEach(bottomExercises, id: \.id) { exercise in
-                            ExerciseGifCard(exercise: exercise, cardSize: cardSize) {
-                                onTap(exercise)
-                            }
+            HStack(spacing: spacing) {
+                ForEach(0..<3, id: \.self) { _ in
+                    ForEach(exercises, id: \.id) { exercise in
+                        ExerciseGifCard(exercise: exercise, cardSize: cardSize) {
+                            onTap(exercise)
                         }
                     }
                 }
