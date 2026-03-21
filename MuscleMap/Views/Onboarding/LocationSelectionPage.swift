@@ -60,13 +60,8 @@ struct LocationSelectionPage: View {
     @State private var appeared = false
     @State private var isProceeding = false
     @State private var selectedExercise: ExerciseDefinition?
-    @State private var scrollOffset: CGFloat = 0
     @State private var scrollTimer: Timer?
-    @State private var isUserScrolling = false
-    @State private var dragBaseOffset: CGFloat = 0
-
-    /// スクロール速度（px/フレーム、30fps想定 → 約15px/秒）
-    private let scrollSpeed: CGFloat = 0.5
+    @State private var autoScrollTarget: Int = 0
 
     /// 器具が必要な「自重」種目を除外するID判定
     private static let bodyweightExcludeIds: Set<String> = [
@@ -78,15 +73,15 @@ struct LocationSelectionPage: View {
         "burpee"
     ]
 
-    /// GIFカード1列の幅（カード160 + spacing8）
-    private let columnWidth: CGFloat = 168
+    /// GIFカードサイズ
+    private let cardSize: CGFloat = 160
 
     private func isTrueBodyweight(_ exercise: ExerciseDefinition) -> Bool {
         let id = exercise.id.lowercased()
         return !Self.bodyweightExcludeIds.contains(where: { id.contains($0) })
     }
 
-    /// 選択した場所で使える種目（最大20件、2行グリッド用）
+    /// 選択した場所で使える種目（最大20件）
     private var filteredExercises: [ExerciseDefinition] {
         let store = ExerciseStore.shared
         store.loadIfNeeded()
@@ -105,20 +100,18 @@ struct LocationSelectionPage: View {
         return Array(exercises.prefix(20))
     }
 
-    /// 2行グリッド用カラムデータ（上下ペア）
-    private var gridColumns: [(Int, (ExerciseDefinition, ExerciseDefinition?))] {
+    /// 上段の種目
+    private var topRowExercises: [ExerciseDefinition] {
         let items = filteredExercises
-        var columns: [(Int, (ExerciseDefinition, ExerciseDefinition?))] = []
-        let rowCount = 2
-        let colCount = (items.count + rowCount - 1) / rowCount
-        for col in 0..<colCount {
-            let topIndex = col
-            let bottomIndex = col + colCount
-            let top = items[topIndex]
-            let bottom = bottomIndex < items.count ? items[bottomIndex] : nil
-            columns.append((col, (top, bottom)))
-        }
-        return columns
+        let mid = (items.count + 1) / 2
+        return Array(items.prefix(mid))
+    }
+
+    /// 下段の種目
+    private var bottomRowExercises: [ExerciseDefinition] {
+        let items = filteredExercises
+        let mid = (items.count + 1) / 2
+        return Array(items.dropFirst(mid))
     }
 
     /// フィルタ後の全種目数（バッジ表示用）
@@ -140,7 +133,7 @@ struct LocationSelectionPage: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            Spacer().frame(height: 32)
+            Spacer().frame(height: 20)
 
             // ヘッダー
             VStack(spacing: 4) {
@@ -150,7 +143,7 @@ struct LocationSelectionPage: View {
                     .multilineTextAlignment(.center)
 
                 Text(L10n.locationSubtitle)
-                    .font(.system(size: 16))
+                    .font(.system(size: 14))
                     .foregroundStyle(Color.mmOnboardingTextSub)
                     .multilineTextAlignment(.center)
             }
@@ -158,33 +151,33 @@ struct LocationSelectionPage: View {
             .opacity(appeared ? 1 : 0)
             .offset(y: appeared ? 0 : 20)
 
-            Spacer().frame(height: 6)
+            Spacer().frame(height: 4)
 
             // 種目数バッジ
-            HStack(spacing: 8) {
+            HStack(spacing: 6) {
                 Text(L10n.exerciseCountLabel(totalFilteredCount))
-                    .font(.system(size: 14, weight: .bold))
+                    .font(.system(size: 13, weight: .bold))
                     .foregroundStyle(Color.mmOnboardingAccent)
 
                 if selected == .home || selected == .bodyweight {
                     Text(L10n.locationHomeExercises)
-                        .font(.caption)
+                        .font(.caption2)
                         .foregroundStyle(Color.mmOnboardingTextSub)
                 } else {
                     Text(L10n.locationExerciseCount)
-                        .font(.caption)
+                        .font(.caption2)
                         .foregroundStyle(Color.mmOnboardingTextSub)
                 }
             }
             .opacity(appeared ? 1 : 0)
 
-            Spacer().frame(height: 6)
+            Spacer().frame(height: 4)
 
-            // GIFギャラリー（2行グリッド、滑らか自動スクロール）
+            // GIFギャラリー（2行、慣性スクロール + 自動スクロール）
             gifGallery
                 .opacity(appeared ? 1 : 0)
 
-            Spacer(minLength: 4)
+            Spacer(minLength: 2)
 
             // 選択カード（次へボタン直上、コンパクト）
             VStack(spacing: 5) {
@@ -243,7 +236,7 @@ struct LocationSelectionPage: View {
             .animation(.easeInOut(duration: 0.2), value: selected)
         }
         .onAppear {
-            isProceeding = false  // スワイプ戻り時にボタンを有効化
+            isProceeding = false
             withAnimation(.easeOut(duration: 0.5)) {
                 appeared = true
             }
@@ -260,92 +253,67 @@ struct LocationSelectionPage: View {
         }
     }
 
-    // MARK: - 1セット分のコンテンツ幅
-
-    private var oneSetWidth: CGFloat {
-        CGFloat(gridColumns.count) * columnWidth
-    }
-
-    // MARK: - GIFギャラリー（Timerベース滑らか自動スクロール）
+    // MARK: - GIFギャラリー（ScrollView慣性スクロール + 自動スクロール）
 
     private var gifGallery: some View {
-        GeometryReader { _ in
-            HStack(alignment: .top, spacing: 8) {
-                // 1セット目
-                ForEach(gridColumns, id: \.0) { _, pair in
-                    gifColumn(pair: pair)
+        VStack(spacing: 6) {
+            // 上段
+            ScrollViewReader { proxy in
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 6) {
+                        ForEach(Array(topRowExercises.enumerated()), id: \.element.id) { index, exercise in
+                            ExerciseGifCard(exercise: exercise, cardSize: cardSize) {
+                                selectedExercise = exercise
+                                HapticManager.lightTap()
+                            }
+                            .id("top-\(index)")
+                        }
+                    }
+                    .padding(.horizontal, 16)
                 }
-                // 2セット目（無限ループ用複製）
-                ForEach(gridColumns, id: \.0) { _, pair in
-                    gifColumn(pair: pair)
+                .onAppear {
+                    startAutoScroll(proxy: proxy, row: "top", count: topRowExercises.count)
                 }
             }
-            .padding(.horizontal, 24)
-            .offset(x: scrollOffset)
-        }
-        .contentShape(Rectangle())
-        .clipped()
-        .simultaneousGesture(
-            DragGesture(minimumDistance: 10, coordinateSpace: .local)
-                .onChanged { value in
-                    if !isUserScrolling {
-                        isUserScrolling = true
-                        stopScrollTimer()
-                        dragBaseOffset = scrollOffset
+            .frame(height: cardSize)
+
+            // 下段
+            ScrollViewReader { proxy in
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 6) {
+                        ForEach(Array(bottomRowExercises.enumerated()), id: \.element.id) { index, exercise in
+                            ExerciseGifCard(exercise: exercise, cardSize: cardSize) {
+                                selectedExercise = exercise
+                                HapticManager.lightTap()
+                            }
+                            .id("bottom-\(index)")
+                        }
                     }
-                    scrollOffset = dragBaseOffset + value.translation.width / 3
+                    .padding(.horizontal, 16)
                 }
-                .onEnded { _ in
-                    // 2秒後に自動スクロール再開
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                        isUserScrolling = false
-                        startScrollTimer()
-                    }
+                .onAppear {
+                    startAutoScroll(proxy: proxy, row: "bottom", count: bottomRowExercises.count)
                 }
-        )
-        .onAppear {
-            startScrollTimer()
+            }
+            .frame(height: cardSize)
         }
         .onChange(of: selected) {
             stopScrollTimer()
-            scrollOffset = 0
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                startScrollTimer()
-            }
+            autoScrollTarget = 0
         }
     }
 
-    @ViewBuilder
-    private func gifColumn(pair: (ExerciseDefinition, ExerciseDefinition?)) -> some View {
-        VStack(spacing: 8) {
-            ExerciseGifCard(exercise: pair.0) {
-                selectedExercise = pair.0
-                HapticManager.lightTap()
-            }
-            if let second = pair.1 {
-                ExerciseGifCard(exercise: second) {
-                    selectedExercise = second
-                    HapticManager.lightTap()
-                }
-            }
-        }
-    }
+    // MARK: - 自動スクロール（ゆっくり1枚ずつ進む）
 
-    // MARK: - Timerベース自動スクロール（30fps）
+    private func startAutoScroll(proxy: ScrollViewProxy, row: String, count: Int) {
+        guard count > 2 else { return }
 
-    private func startScrollTimer() {
-        stopScrollTimer()
-        let setWidth = oneSetWidth
-        guard setWidth > 0 else { return }
-
-        scrollTimer = Timer.scheduledTimer(withTimeInterval: 1.0 / 30.0, repeats: true) { _ in
+        scrollTimer = Timer.scheduledTimer(withTimeInterval: 2.5, repeats: true) { _ in
             Task { @MainActor in
-                guard !isUserScrolling else { return }
-                scrollOffset -= scrollSpeed
-
-                // 1セット分スクロールしたらリセット（継ぎ目なしループ）
-                if scrollOffset <= -setWidth {
-                    scrollOffset += setWidth
+                autoScrollTarget += 1
+                let target = autoScrollTarget % count
+                withAnimation(.easeInOut(duration: 0.8)) {
+                    proxy.scrollTo("\(row)-\(target)", anchor: .leading)
                 }
             }
         }
@@ -357,41 +325,47 @@ struct LocationSelectionPage: View {
     }
 }
 
-// MARK: - GIFカード（ギャラリー用）
+// MARK: - GIFカード（ギャラリー用、名前オーバーレイ付き）
 
 private struct ExerciseGifCard: View {
     let exercise: ExerciseDefinition
+    let cardSize: CGFloat
     let onTap: () -> Void
 
     var body: some View {
         Button(action: onTap) {
-            VStack(spacing: 4) {
+            ZStack(alignment: .bottom) {
                 if ExerciseGifView.hasGif(exerciseId: exercise.id) {
                     ExerciseGifView(exerciseId: exercise.id, size: .card)
-                        .frame(width: 150, height: 150)
-                        .clipShape(RoundedRectangle(cornerRadius: 16))
+                        .frame(width: cardSize, height: cardSize)
                 } else {
                     ZStack {
-                        RoundedRectangle(cornerRadius: 16)
-                            .fill(Color.mmOnboardingBg)
-                            .frame(width: 150, height: 150)
+                        Color.mmOnboardingBg
                         Image(systemName: "dumbbell.fill")
                             .font(.system(size: 32))
                             .foregroundStyle(Color.mmOnboardingTextSub.opacity(0.4))
                     }
+                    .frame(width: cardSize, height: cardSize)
                 }
 
+                // 名前オーバーレイ（下部グラデーション上）
+                LinearGradient(
+                    colors: [.clear, .black.opacity(0.7)],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .frame(height: cardSize * 0.35)
+
                 Text(exercise.localizedName)
-                    .font(.system(size: 11, weight: .medium))
-                    .foregroundStyle(Color.mmOnboardingTextMain)
+                    .font(.system(size: 11, weight: .bold))
+                    .foregroundStyle(.white)
                     .lineLimit(1)
                     .truncationMode(.tail)
-
-                Text(exercise.localizedEquipment)
-                    .font(.system(size: 10))
-                    .foregroundStyle(Color.mmOnboardingTextSub)
+                    .padding(.horizontal, 6)
+                    .padding(.bottom, 6)
             }
-            .frame(width: 160, height: 200)
+            .frame(width: cardSize, height: cardSize)
+            .clipShape(RoundedRectangle(cornerRadius: 14))
         }
         .buttonStyle(.plain)
     }
