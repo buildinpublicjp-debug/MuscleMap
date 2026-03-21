@@ -69,7 +69,7 @@ struct GoalMusclePriority {
         switch goal {
         case .getBig:
             return BaseData(
-                muscles: [.chestUpper, .chestLower, .lats, .quadriceps, .hamstrings, .glutes],
+                muscles: [.chestUpper, .chestLower, .lats, .trapsMiddleLower, .quadriceps, .hamstrings, .glutes, .triceps],
                 headline: isJa ? "大きい筋肉から鍛えれば効率最大" : "Target big muscles for maximum efficiency",
                 reasons: [
                     MuscleReason(muscle: isJa ? "大胸筋" : "Chest", reason: isJa ? "上半身のボリューム" : "Upper body volume"),
@@ -79,7 +79,7 @@ struct GoalMusclePriority {
             )
         case .dontGetDisrespected:
             return BaseData(
-                muscles: [.deltoidAnterior, .deltoidLateral, .chestUpper, .trapsUpper],
+                muscles: [.deltoidAnterior, .deltoidLateral, .chestUpper, .trapsUpper, .triceps, .biceps, .forearms],
                 headline: isJa ? "存在感は上半身の幅で決まる" : "Presence comes from upper body width",
                 reasons: [
                     MuscleReason(muscle: isJa ? "三角筋" : "Delts", reason: isJa ? "肩幅を広げる" : "Widen your shoulders"),
@@ -89,7 +89,7 @@ struct GoalMusclePriority {
             )
         case .martialArts:
             return BaseData(
-                muscles: [.lats, .quadriceps, .hamstrings, .rectusAbdominis, .obliques],
+                muscles: [.lats, .quadriceps, .hamstrings, .rectusAbdominis, .obliques, .deltoidPosterior, .forearms, .gastrocnemius, .glutes],
                 headline: isJa ? "打撃力は背中と脚から生まれる" : "Striking power comes from back & legs",
                 reasons: [
                     MuscleReason(muscle: isJa ? "広背筋" : "Lats", reason: isJa ? "パンチの引き" : "Punch retraction"),
@@ -99,7 +99,7 @@ struct GoalMusclePriority {
             )
         case .sports:
             return BaseData(
-                muscles: [.quadriceps, .hamstrings, .glutes, .rectusAbdominis, .deltoidAnterior],
+                muscles: [.quadriceps, .hamstrings, .glutes, .rectusAbdominis, .deltoidAnterior, .gastrocnemius, .soleus, .adductors],
                 headline: isJa ? "パフォーマンスは下半身と体幹が土台" : "Performance starts with legs & core",
                 reasons: [
                     MuscleReason(muscle: isJa ? "脚" : "Legs", reason: isJa ? "爆発的なパワー" : "Explosive power"),
@@ -109,7 +109,7 @@ struct GoalMusclePriority {
             )
         case .getAttractive:
             return BaseData(
-                muscles: [.chestUpper, .deltoidAnterior, .deltoidLateral, .biceps, .rectusAbdominis],
+                muscles: [.chestUpper, .deltoidAnterior, .deltoidLateral, .biceps, .rectusAbdominis, .obliques, .triceps],
                 headline: isJa ? "Tシャツ映えは胸と肩のシルエット" : "Great silhouette starts with chest & shoulders",
                 reasons: [
                     MuscleReason(muscle: isJa ? "大胸筋" : "Chest", reason: isJa ? "胸板の厚み" : "Chest thickness"),
@@ -119,7 +119,7 @@ struct GoalMusclePriority {
             )
         case .moveWell:
             return BaseData(
-                muscles: [.quadriceps, .glutes, .rectusAbdominis, .erectorSpinae, .lats],
+                muscles: [.quadriceps, .glutes, .rectusAbdominis, .erectorSpinae, .lats, .hipFlexors, .soleus, .adductors],
                 headline: isJa ? "日常の動きは全部ここから" : "Everyday movement starts here",
                 reasons: [
                     MuscleReason(muscle: isJa ? "脚" : "Legs", reason: isJa ? "階段・歩行の基盤" : "Stairs & walking foundation"),
@@ -129,7 +129,7 @@ struct GoalMusclePriority {
             )
         case .health:
             return BaseData(
-                muscles: [.quadriceps, .hamstrings, .glutes, .erectorSpinae, .rectusAbdominis],
+                muscles: [.quadriceps, .hamstrings, .glutes, .erectorSpinae, .rectusAbdominis, .hipFlexors, .gastrocnemius, .soleus],
                 headline: isJa ? "抗老化に最も効くのは大筋群" : "Large muscles are key to anti-aging",
                 reasons: [
                     MuscleReason(muscle: isJa ? "脚" : "Legs", reason: isJa ? "転倒予防・代謝維持" : "Fall prevention & metabolism"),
