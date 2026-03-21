@@ -236,7 +236,7 @@ struct PRInputPage: View {
                 .opacity(appeared ? 1 : 0)
             }
 
-            Spacer(minLength: 2)
+            Spacer().frame(height: 12)
 
             // 次へ + スキップ
             VStack(spacing: 8) {
