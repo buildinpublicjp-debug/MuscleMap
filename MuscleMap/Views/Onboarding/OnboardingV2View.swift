@@ -1,6 +1,6 @@
 import SwiftUI
 
-// MARK: - オンボーディングV2（最大9ページ: 目標 → 頻度 → 場所 → プロフィール → [PR] → 回復サイクル → メニュー → 通知 → 完了）
+// MARK: - オンボーディングV2（最大8ページ: 目標 → 頻度 → 場所 → プロフィール → [PR] → メニュー → 通知 → 完了）
 
 struct OnboardingV2View: View {
     let onComplete: () -> Void
@@ -17,7 +17,7 @@ struct OnboardingV2View: View {
         if showPRInput {
             currentPage = 4 // PR入力ページへ
         } else {
-            currentPage = 5 // GoalMusclePreviewPageへスキップ
+            currentPage = 5 // RoutineBuilderPageへスキップ
         }
     }
 
@@ -114,21 +114,16 @@ struct OnboardingV2View: View {
                 currentPage = 5
             }
         case 5:
-            GoalMusclePreviewPage {
+            RoutineBuilderPage {
                 navigatingForward = true
                 currentPage = 6
             }
         case 6:
-            RoutineBuilderPage {
+            NotificationPermissionView {
                 navigatingForward = true
                 currentPage = 7
             }
         case 7:
-            NotificationPermissionView {
-                navigatingForward = true
-                currentPage = 8
-            }
-        case 8:
             RoutineCompletionPage(onComplete: onComplete)
         default:
             EmptyView()
@@ -153,9 +148,9 @@ struct OnboardingV2View: View {
     /// インジケーターに表示するページ番号（PR入力スキップ時はページ4を除外）
     private var indicatorPages: [Int] {
         if showPRInput {
-            return Array(0..<9)
+            return Array(0..<8)
         } else {
-            return [0, 1, 2, 3, 5, 6, 7, 8]
+            return [0, 1, 2, 3, 5, 6, 7]
         }
     }
 }

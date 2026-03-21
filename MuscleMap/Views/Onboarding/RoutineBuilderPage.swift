@@ -21,6 +21,14 @@ struct RoutineBuilderPage: View {
         return WorkoutRecommendationEngine.splitParts(for: frequency)
     }
 
+    /// カバーされる筋肉の割合
+    private var coveragePercent: Int {
+        let allMuscles = Set(splitParts.flatMap { $0.muscleGroups.flatMap { $0.muscles } })
+        let total = Muscle.allCases.count
+        guard total > 0 else { return 0 }
+        return Int(Double(allMuscles.count) / Double(total) * 100)
+    }
+
     var body: some View {
         VStack(spacing: 0) {
             Spacer().frame(height: 16)
@@ -43,7 +51,19 @@ struct RoutineBuilderPage: View {
             .opacity(headerAppeared ? 1 : 0)
             .offset(y: headerAppeared ? 0 : 12)
 
-            Spacer().frame(height: 8)
+            Spacer().frame(height: 6)
+
+            // カバー率バッジ（GoalMusclePreviewから移植）
+            Text(isJapanese ? "\(coveragePercent)%の筋肉をカバー" : "\(coveragePercent)% muscle coverage")
+                .font(.system(size: 13, weight: .bold))
+                .foregroundStyle(Color.mmOnboardingAccent)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 5)
+                .background(Color.mmOnboardingAccent.opacity(0.12))
+                .clipShape(Capsule())
+                .opacity(headerAppeared ? 1 : 0)
+
+            Spacer().frame(height: 6)
 
             // Day タブバー（閲覧のみ）
             dayTabBar
