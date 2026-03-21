@@ -28,6 +28,16 @@ struct RecommendedExercise: Identifiable {
 struct SplitPart {
     let name: String
     let muscleGroups: [MuscleGroup]
+    /// 日本語の説明（例: 「押す動作の筋肉をまとめて効率UP」）
+    let descriptionJA: String
+    /// 英語の説明（例: "Push muscles grouped for efficiency"）
+    let descriptionEN: String
+    /// 難易度: "beginner" / "intermediate" / "advanced"
+    let difficulty: String
+
+    @MainActor var localizedDescription: String {
+        LocalizationManager.shared.currentLanguage == .japanese ? descriptionJA : descriptionEN
+    }
 }
 
 // MARK: - ワークアウト提案エンジン
@@ -200,37 +210,184 @@ struct WorkoutRecommendationEngine {
         case 2:
             // 上半身 / 下半身
             return [
-                SplitPart(name: "上半身", muscleGroups: [.chest, .back, .shoulders, .arms]),
-                SplitPart(name: "下半身", muscleGroups: [.lowerBody, .core]),
+                SplitPart(
+                    name: "上半身",
+                    muscleGroups: [.chest, .back, .shoulders, .arms],
+                    descriptionJA: "胸・背中・肩・腕をまとめて鍛える",
+                    descriptionEN: "Train chest, back, shoulders & arms together",
+                    difficulty: "beginner"
+                ),
+                SplitPart(
+                    name: "下半身",
+                    muscleGroups: [.lowerBody, .core],
+                    descriptionJA: "脚と体幹を集中的に鍛える",
+                    descriptionEN: "Focus on legs and core",
+                    difficulty: "beginner"
+                ),
             ]
         case 3:
             // Push / Pull / Legs
             return [
-                SplitPart(name: "Push", muscleGroups: [.chest, .shoulders]),
-                SplitPart(name: "Pull", muscleGroups: [.back, .arms]),
-                SplitPart(name: "Legs", muscleGroups: [.lowerBody, .core]),
+                SplitPart(
+                    name: "Push",
+                    muscleGroups: [.chest, .shoulders],
+                    descriptionJA: "押す動作の筋肉をまとめて効率UP",
+                    descriptionEN: "Push muscles grouped for efficiency",
+                    difficulty: "beginner"
+                ),
+                SplitPart(
+                    name: "Pull",
+                    muscleGroups: [.back, .arms],
+                    descriptionJA: "引く動作の筋肉を集中トレーニング",
+                    descriptionEN: "Pull muscles trained in one session",
+                    difficulty: "beginner"
+                ),
+                SplitPart(
+                    name: "Legs",
+                    muscleGroups: [.lowerBody, .core],
+                    descriptionJA: "下半身と体幹で土台を作る",
+                    descriptionEN: "Build your foundation with legs & core",
+                    difficulty: "beginner"
+                ),
             ]
         case 4:
             // 胸肩三頭 / 背中二頭 / 脚 / 肩腕
             return [
-                SplitPart(name: "胸・肩・三頭", muscleGroups: [.chest, .shoulders]),
-                SplitPart(name: "背中・二頭", muscleGroups: [.back, .arms]),
-                SplitPart(name: "脚", muscleGroups: [.lowerBody, .core]),
-                SplitPart(name: "肩・腕", muscleGroups: [.shoulders, .arms]),
+                SplitPart(
+                    name: "胸・肩・三頭",
+                    muscleGroups: [.chest, .shoulders],
+                    descriptionJA: "ベンチプレス系で胸と肩を追い込む",
+                    descriptionEN: "Chest & shoulders with pressing movements",
+                    difficulty: "intermediate"
+                ),
+                SplitPart(
+                    name: "背中・二頭",
+                    muscleGroups: [.back, .arms],
+                    descriptionJA: "ロウ・プル系で背中と二頭を連動",
+                    descriptionEN: "Back & biceps with rowing & pulling",
+                    difficulty: "intermediate"
+                ),
+                SplitPart(
+                    name: "脚",
+                    muscleGroups: [.lowerBody, .core],
+                    descriptionJA: "スクワット中心で脚全体を強化",
+                    descriptionEN: "Squat-focused leg development",
+                    difficulty: "intermediate"
+                ),
+                SplitPart(
+                    name: "肩・腕",
+                    muscleGroups: [.shoulders, .arms],
+                    descriptionJA: "肩と腕のアイソレーション重視",
+                    descriptionEN: "Isolation work for shoulders & arms",
+                    difficulty: "intermediate"
+                ),
             ]
         case 5:
             // 胸 / 背中 / 脚 / 肩 / 腕
             return [
-                SplitPart(name: "胸", muscleGroups: [.chest]),
-                SplitPart(name: "背中", muscleGroups: [.back]),
-                SplitPart(name: "脚", muscleGroups: [.lowerBody, .core]),
-                SplitPart(name: "肩", muscleGroups: [.shoulders]),
-                SplitPart(name: "腕", muscleGroups: [.arms]),
+                SplitPart(
+                    name: "胸",
+                    muscleGroups: [.chest],
+                    descriptionJA: "胸だけに集中して徹底的に追い込む",
+                    descriptionEN: "Dedicated chest session for maximum volume",
+                    difficulty: "advanced"
+                ),
+                SplitPart(
+                    name: "背中",
+                    muscleGroups: [.back],
+                    descriptionJA: "広背筋・僧帽筋をフル刺激",
+                    descriptionEN: "Full stimulation for lats & traps",
+                    difficulty: "advanced"
+                ),
+                SplitPart(
+                    name: "脚",
+                    muscleGroups: [.lowerBody, .core],
+                    descriptionJA: "脚と体幹を高ボリュームで鍛える",
+                    descriptionEN: "High-volume legs & core training",
+                    difficulty: "advanced"
+                ),
+                SplitPart(
+                    name: "肩",
+                    muscleGroups: [.shoulders],
+                    descriptionJA: "三角筋の前部・側部・後部を個別攻略",
+                    descriptionEN: "Target all three deltoid heads",
+                    difficulty: "advanced"
+                ),
+                SplitPart(
+                    name: "腕",
+                    muscleGroups: [.arms],
+                    descriptionJA: "二頭・三頭・前腕をバランスよく強化",
+                    descriptionEN: "Balanced biceps, triceps & forearms",
+                    difficulty: "advanced"
+                ),
             ]
         default:
             // デフォルト: 3分割
             return splitParts(for: 3)
         }
+    }
+
+    // MARK: - 追加Day候補の生成
+
+    /// 既存Dayでカバーされていない筋肉グループから追加Day候補を生成
+    @MainActor
+    static func suggestAdditionalDay(existingDays: [RoutineDay]) -> SplitPart? {
+        // 既存Dayがカバーしている筋肉グループを収集
+        let coveredGroups: Set<MuscleGroup> = {
+            var groups: Set<MuscleGroup> = []
+            for day in existingDays {
+                for rawValue in day.muscleGroups {
+                    if let group = MuscleGroup(rawValue: rawValue) {
+                        groups.insert(group)
+                    }
+                }
+            }
+            return groups
+        }()
+
+        // 全グループとの差分
+        let allGroups = Set(MuscleGroup.allCases)
+        let uncovered = allGroups.subtracting(coveredGroups)
+
+        guard !uncovered.isEmpty else {
+            // 全グループカバー済み → ボリューム不足のグループを提案
+            // 出現回数が最も少ないグループを選出
+            var counts: [MuscleGroup: Int] = [:]
+            for group in MuscleGroup.allCases { counts[group] = 0 }
+            for day in existingDays {
+                for rawValue in day.muscleGroups {
+                    if let group = MuscleGroup(rawValue: rawValue) {
+                        counts[group, default: 0] += 1
+                    }
+                }
+            }
+            guard let leastGroup = counts.min(by: { $0.value < $1.value })?.key else {
+                return nil
+            }
+            let isJa = LocalizationManager.shared.currentLanguage == .japanese
+            return SplitPart(
+                name: isJa ? "\(leastGroup.japaneseName)強化" : "\(leastGroup.englishName) Focus",
+                muscleGroups: [leastGroup],
+                descriptionJA: "\(leastGroup.japaneseName)のボリュームを増やして弱点克服",
+                descriptionEN: "Extra volume for \(leastGroup.englishName.lowercased()) to address weak point",
+                difficulty: "intermediate"
+            )
+        }
+
+        // 未カバーグループをまとめて1つのDayに
+        let sortedUncovered = MuscleGroup.allCases.filter { uncovered.contains($0) }
+        let isJa = LocalizationManager.shared.currentLanguage == .japanese
+        let name = isJa
+            ? sortedUncovered.map { $0.japaneseName }.joined(separator: "・")
+            : sortedUncovered.map { $0.englishName }.joined(separator: " & ")
+
+        return SplitPart(
+            name: name,
+            muscleGroups: sortedUncovered,
+            descriptionJA: "カバーされていない部位を補完する追加Day",
+            descriptionEN: "Additional day to cover untrained muscle groups",
+            difficulty: sortedUncovered.count >= 3 ? "intermediate" : "beginner"
+        )
     }
 
     // MARK: - 分割法の曜日×部位テキスト（オンボーディング表示用）
