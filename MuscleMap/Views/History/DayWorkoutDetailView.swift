@@ -509,29 +509,25 @@ private struct HistorySetEditSheet: View {
                             .foregroundStyle(Color.mmTextSecondary)
 
                         HStack(spacing: 16) {
-                            Button {
+                            WeightStepperButton(systemImage: "minus") {
+                                if editWeight >= 0.25 {
+                                    editWeight -= 0.25
+                                }
+                            } onLongPress: {
                                 if editWeight >= 2.5 {
                                     editWeight -= 2.5
-                                    HapticManager.stepperChanged()
                                 }
-                            } label: {
-                                Image(systemName: "minus.circle.fill")
-                                    .font(.title2)
-                                    .foregroundStyle(Color.mmTextSecondary)
                             }
 
-                            Text(String(format: "%.1f", editWeight))
+                            Text(String(format: "%.2f", editWeight))
                                 .font(.system(size: 36, weight: .heavy, design: .monospaced))
                                 .foregroundStyle(Color.mmTextPrimary)
                                 .frame(minWidth: 100)
 
-                            Button {
+                            WeightStepperButton(systemImage: "plus") {
+                                editWeight += 0.25
+                            } onLongPress: {
                                 editWeight += 2.5
-                                HapticManager.stepperChanged()
-                            } label: {
-                                Image(systemName: "plus.circle.fill")
-                                    .font(.title2)
-                                    .foregroundStyle(Color.mmAccentPrimary)
                             }
                         }
                     }
