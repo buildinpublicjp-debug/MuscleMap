@@ -1287,4 +1287,195 @@ enum L10n {
     static func levelUpKgToNext(_ kg: Int, _ levelName: String) -> String {
         loc("あと\(kg)kgで\(levelName)", "\(kg)kg to \(levelName)", zhHans: "距\(levelName)还需\(kg)kg", ko: "\(levelName)까지 \(kg)kg", es: "\(kg)kg para \(levelName)", fr: "\(kg)kg pour \(levelName)", de: "\(kg)kg bis \(levelName)")
     }
+
+    // MARK: - SplashView
+    static var splashHeadline: String { loc("鍛えた筋肉が光る。", "Watch your muscles light up.", zhHans: "锻炼的肌肉会发光。", ko: "단련한 근육이 빛난다.", es: "Tus músculos se iluminan.", fr: "Vos muscles s'illuminent.", de: "Deine Muskeln leuchten auf.") }
+    static var splashSubheadline: String { loc("あなたの体の変化を、目で見る。", "See your body transform.", zhHans: "用眼睛看到身体的变化。", ko: "몸의 변화를 눈으로 보세요.", es: "Observa cómo tu cuerpo se transforma.", fr: "Voyez votre corps se transformer.", de: "Sieh deinen Körper sich verändern.") }
+
+    // MARK: - GoalSelectionPage
+    static var keyTargets: String { loc("重点部位", "Key Targets", zhHans: "重点部位", ko: "중점 부위", es: "Objetivos clave", fr: "Cibles clés", de: "Schwerpunkte") }
+    static var tapToSelectGoals: String { loc("タップして目標を選択", "Tap to select your goals", zhHans: "点击选择目标", ko: "탭하여 목표를 선택하세요", es: "Toca para seleccionar tus objetivos", fr: "Appuyez pour sélectionner vos objectifs", de: "Tippen, um Ziele auszuwählen") }
+
+    // MARK: - FrequencySelectionPage
+    static var freqTwice: String { loc("週2回", "2× / week", zhHans: "每周2次", ko: "주 2회", es: "2× / semana", fr: "2× / semaine", de: "2× / Woche") }
+    static var freqThrice: String { loc("週3回", "3× / week", zhHans: "每周3次", ko: "주 3회", es: "3× / semana", fr: "3× / semaine", de: "3× / Woche") }
+    static var freqFour: String { loc("週4回", "4× / week", zhHans: "每周4次", ko: "주 4회", es: "4× / semana", fr: "4× / semaine", de: "4× / Woche") }
+    static var freqFivePlus: String { loc("週5回以上", "5+ / week", zhHans: "每周5次以上", ko: "주 5회 이상", es: "5+ / semana", fr: "5+ / semaine", de: "5+ / Woche") }
+    static var freqTwiceDesc: String { loc("上半身と下半身を分けて鍛える", "Upper body & lower body split", zhHans: "上下半身分开训练", ko: "상체와 하체를 나누어 운동", es: "División superior e inferior", fr: "Split haut et bas du corps", de: "Ober- und Unterkörper-Split") }
+    static var freqThriceDesc: String { loc("胸・背中・脚の3分割", "Chest, back & legs — 3 day split", zhHans: "胸·背·腿3分化", ko: "가슴·등·다리 3분할", es: "Pecho, espalda y piernas — 3 días", fr: "Poitrine, dos et jambes — 3 jours", de: "Brust, Rücken & Beine — 3er Split") }
+    static var freqFourDesc: String { loc("部位ごとにしっかり追い込む", "Dedicated day for each muscle group", zhHans: "每个部位深度训练", ko: "부위별로 확실하게 운동", es: "Día dedicado a cada grupo muscular", fr: "Jour dédié à chaque groupe musculaire", de: "Eigener Tag pro Muskelgruppe") }
+    static var freqFivePlusDesc: String { loc("毎日違う部位をフルで鍛える", "Full volume per muscle group daily", zhHans: "每天全力训练不同部位", ko: "매일 다른 부위를 풀로 운동", es: "Volumen completo por grupo cada día", fr: "Volume complet par groupe chaque jour", de: "Volles Volumen pro Muskelgruppe täglich") }
+    static var freqTwiceDetail: String { loc("各部位に十分な回復時間。初心者に最適", "Full recovery time. Best for beginners", zhHans: "各部位充足恢复时间。最适合初学者", ko: "각 부위에 충분한 회복 시간. 초보자에게 최적", es: "Tiempo de recuperación completo. Ideal para principiantes", fr: "Temps de récupération complet. Idéal pour débutants", de: "Volle Erholungszeit. Ideal für Anfänger") }
+    static var freqThriceDetail: String { loc("胸・背中・脚の王道3分割", "Classic 3-day split for balanced growth", zhHans: "经典胸·背·腿3分化", ko: "클래식 3분할로 균형 잡힌 성장", es: "Split clásico de 3 días para crecimiento equilibrado", fr: "Split classique 3 jours pour croissance équilibrée", de: "Klassischer 3er-Split für ausgewogenes Wachstum") }
+    static var freqFourDetail: String { loc("部位ごとにしっかり追い込む", "Dedicated focus per muscle group", zhHans: "每个部位深度训练", ko: "부위별 집중 운동", es: "Enfoque dedicado por grupo muscular", fr: "Focus dédié par groupe musculaire", de: "Fokus pro Muskelgruppe") }
+    static var freqFivePlusDetail: String { loc("各部位を個別にフルで鍛える", "Maximum volume per muscle group", zhHans: "各部位全力训练", ko: "각 부위를 개별적으로 풀로 운동", es: "Máximo volumen por grupo muscular", fr: "Volume maximum par groupe musculaire", de: "Maximales Volumen pro Muskelgruppe") }
+    static var freqTitle: String { loc("週にどれくらいやれる？", "How often can you train?", zhHans: "每周能练几次？", ko: "일주일에 몇 번 할 수 있어?", es: "¿Cuántas veces puedes entrenar?", fr: "Combien de fois par semaine ?", de: "Wie oft kannst du trainieren?") }
+    static var freqSubtitle: String { loc("あなたに合った分割法を提案します", "We'll suggest the best split for you", zhHans: "我们会推荐最适合你的分割法", ko: "당신에게 맞는 분할법을 제안합니다", es: "Te sugeriremos la mejor división", fr: "Nous vous suggérerons le meilleur split", de: "Wir schlagen dir den besten Split vor") }
+    static var legendStimulus: String { loc("刺激", "Stimulus", zhHans: "刺激", ko: "자극", es: "Estímulo", fr: "Stimulus", de: "Stimulus") }
+    static var legendRecovering: String { loc("回復中", "Recovering", zhHans: "恢复中", ko: "회복 중", es: "Recuperando", fr: "Récupération", de: "Erholung") }
+    static var legendInactive: String { loc("未刺激", "Inactive", zhHans: "未刺激", ko: "미자극", es: "Inactivo", fr: "Inactif", de: "Inaktiv") }
+    static var freqCycleHint: String { loc("頻度を選ぶとサイクルが動きます", "Select to see the recovery cycle", zhHans: "选择频率查看恢复周期", ko: "빈도를 선택하면 사이클이 움직입니다", es: "Selecciona para ver el ciclo de recuperación", fr: "Sélectionnez pour voir le cycle de récupération", de: "Wähle, um den Erholungszyklus zu sehen") }
+    static var freqRecommended: String { loc("初心者におすすめ", "Recommended", zhHans: "推荐新手", ko: "초보자 추천", es: "Recomendado", fr: "Recommandé", de: "Empfohlen") }
+    static var freqCycleDescription: String { loc("赤＝刺激 → 黄＝回復中 → 暗い＝回復完了。このサイクルで鍛える", "Red = stimulated → Yellow = recovering → Dark = recovered. Train with this cycle", zhHans: "红=刺激 → 黄=恢复中 → 暗=恢复完成。按此周期训练", ko: "빨강=자극 → 노랑=회복 중 → 어두운=회복 완료. 이 사이클로 운동", es: "Rojo = estimulado → Amarillo = recuperando → Oscuro = recuperado", fr: "Rouge = stimulé → Jaune = récupération → Sombre = récupéré", de: "Rot = stimuliert → Gelb = Erholung → Dunkel = erholt") }
+    static func freqDayLabels() -> [String] { [loc("月", "Mon", zhHans: "一", ko: "월", es: "Lun", fr: "Lun", de: "Mo"), loc("火", "Tue", zhHans: "二", ko: "화", es: "Mar", fr: "Mar", de: "Di"), loc("水", "Wed", zhHans: "三", ko: "수", es: "Mié", fr: "Mer", de: "Mi"), loc("木", "Thu", zhHans: "四", ko: "목", es: "Jue", fr: "Jeu", de: "Do"), loc("金", "Fri", zhHans: "五", ko: "금", es: "Vie", fr: "Ven", de: "Fr"), loc("土", "Sat", zhHans: "六", ko: "토", es: "Sáb", fr: "Sam", de: "Sa"), loc("日", "Sun", zhHans: "日", ko: "일", es: "Dom", fr: "Dim", de: "So")] }
+
+    // MARK: - LocationSelectionPage
+    static var locGym: String { loc("ジム", "Gym", zhHans: "健身房", ko: "헬스장", es: "Gimnasio", fr: "Salle de sport", de: "Fitnessstudio") }
+    static var locHome: String { loc("自宅", "Home", zhHans: "家里", ko: "자택", es: "Casa", fr: "Domicile", de: "Zuhause") }
+    static var locBodyweight: String { loc("自重のみ", "Bodyweight Only", zhHans: "徒手训练", ko: "맨몸 운동만", es: "Solo peso corporal", fr: "Poids du corps uniquement", de: "Nur Eigengewicht") }
+    static var locBoth: String { loc("両方", "Both", zhHans: "两者都", ko: "둘 다", es: "Ambos", fr: "Les deux", de: "Beides") }
+    static var locGymSub: String { loc("マシン・バーベル・ダンベル全部", "Full equipment access", zhHans: "机器·杠铃·哑铃齐全", ko: "머신·바벨·덤벨 전부", es: "Acceso completo al equipo", fr: "Accès complet à l'équipement", de: "Voller Gerätezugang") }
+    static var locHomeSub: String { loc("ダンベルと自重で鍛える", "Dumbbells & bodyweight", zhHans: "哑铃和自重训练", ko: "덤벨과 맨몸 운동", es: "Mancuernas y peso corporal", fr: "Haltères et poids du corps", de: "Hanteln & Eigengewicht") }
+    static var locBodyweightSub: String { loc("器具なし、体ひとつで", "No equipment needed", zhHans: "无需器械，徒手训练", ko: "기구 없이 몸 하나로", es: "Sin equipo necesario", fr: "Aucun équipement nécessaire", de: "Keine Geräte nötig") }
+    static var locBothSub: String { loc("ジムと自宅を組み合わせ", "Mix gym and home", zhHans: "健身房和家里结合", ko: "헬스장과 자택을 조합", es: "Combina gimnasio y casa", fr: "Mix salle et domicile", de: "Kombination Studio & Zuhause") }
+
+    // MARK: - TrainingHistoryPage (ProfileInputPage)
+    static var expNewbie: String { loc("初心者", "Newbie", zhHans: "新手", ko: "초보자", es: "Novato", fr: "Débutant", de: "Anfänger") }
+    static var expSixMonths: String { loc("半年", "6 Mo", zhHans: "半年", ko: "반년", es: "6 meses", fr: "6 mois", de: "6 Mon.") }
+    static var expOneYearPlus: String { loc("1年+", "1 Yr+", zhHans: "1年+", ko: "1년+", es: "1 año+", fr: "1 an+", de: "1 J+") }
+    static var expVeteran: String { loc("ベテラン", "Veteran", zhHans: "老手", ko: "베테랑", es: "Veterano", fr: "Vétéran", de: "Veteran") }
+    static var expRecommendNewbie: String { loc("わからない場合は「初心者」がおすすめ", "If unsure, select \"Newbie\"", zhHans: "不确定的话选择「新手」", ko: "잘 모르겠으면 \"초보자\"를 선택", es: "Si no estás seguro, selecciona \"Novato\"", fr: "Si incertain, sélectionnez \"Débutant\"", de: "Im Zweifel \"Anfänger\" wählen") }
+    static var heightLabel: String { loc("身長", "Height", zhHans: "身高", ko: "신장", es: "Altura", fr: "Taille", de: "Größe") }
+    static var heightUsedForBMI: String { loc("BMI計算に使用します", "Used for BMI calculation", zhHans: "用于计算BMI", ko: "BMI 계산에 사용됩니다", es: "Usado para cálculo de IMC", fr: "Utilisé pour le calcul de l'IMC", de: "Wird für BMI-Berechnung verwendet") }
+    static var weightUsedForSuggestion: String { loc("体重から最適な重量を提案します", "Used to suggest optimal weights", zhHans: "根据体重推荐最佳训练重量", ko: "체중으로 최적 중량을 제안합니다", es: "Para sugerir pesos óptimos", fr: "Pour suggérer les poids optimaux", de: "Zur Empfehlung optimaler Gewichte") }
+    static var bodyFatLabel: String { loc("体脂肪率", "Body Fat", zhHans: "体脂率", ko: "체지방률", es: "Grasa corporal", fr: "Masse grasse", de: "Körperfett") }
+    static var bodyFatShort: String { loc("体脂肪率", "BF%", zhHans: "体脂率", ko: "체지방률", es: "% grasa", fr: "% MG", de: "KF%") }
+    static var bfAthlete: String { loc("アスリート", "Athlete", zhHans: "运动员", ko: "운동선수", es: "Atleta", fr: "Athlète", de: "Athlet") }
+    static var bfFitness: String { loc("フィットネス", "Fitness", zhHans: "健身", ko: "피트니스", es: "Fitness", fr: "Fitness", de: "Fitness") }
+    static var bfAverage: String { loc("標準", "Average", zhHans: "标准", ko: "표준", es: "Promedio", fr: "Moyen", de: "Durchschnitt") }
+    static var bfAboveAverage: String { loc("やや高め", "Above Average", zhHans: "偏高", ko: "다소 높음", es: "Por encima del promedio", fr: "Au-dessus de la moyenne", de: "Überdurchschnittlich") }
+    static var bfHigh: String { loc("高め", "High", zhHans: "高", ko: "높음", es: "Alto", fr: "Élevé", de: "Hoch") }
+
+    // MARK: - PRInputPage
+    static var prTapMuscles: String { loc("筋肉をタップして重量を入力", "Tap muscles to enter weights", zhHans: "点击肌肉输入重量", ko: "근육을 탭하여 중량 입력", es: "Toca los músculos para ingresar pesos", fr: "Appuyez sur les muscles pour entrer les poids", de: "Tippe auf Muskeln, um Gewichte einzugeben") }
+    static var addLabel: String { loc("追加", "Add", zhHans: "添加", ko: "추가", es: "Añadir", fr: "Ajouter", de: "Hinzufügen") }
+    static var yourLevel: String { loc("現在のレベル", "Your Level", zhHans: "当前水平", ko: "현재 레벨", es: "Tu nivel", fr: "Votre niveau", de: "Dein Level") }
+    static var skipIfUnsure: String { loc("わからない場合はスキップ →", "Skip if unsure →", zhHans: "不确定可以跳过 →", ko: "잘 모르겠으면 건너뛰기 →", es: "Omitir si no estás seguro →", fr: "Passer si incertain →", de: "Überspringen wenn unsicher →") }
+    static var prMaxWeight: String { loc("最大重量 (1RM)", "Max Weight (1RM)", zhHans: "最大重量 (1RM)", ko: "최대 중량 (1RM)", es: "Peso máximo (1RM)", fr: "Poids max (1RM)", de: "Maximalgewicht (1RM)") }
+    static var prMaxWeightDesc: String { loc("1回だけ挙げられる最大の重量", "The heaviest weight you can lift once", zhHans: "你只能举一次的最大重量", ko: "한 번만 들 수 있는 최대 중량", es: "El peso más pesado que puedes levantar una vez", fr: "Le poids le plus lourd que vous pouvez soulever une fois", de: "Das schwerste Gewicht, das du einmal heben kannst") }
+    static var recordButton: String { loc("記録する", "Record", zhHans: "记录", ko: "기록하기", es: "Registrar", fr: "Enregistrer", de: "Aufzeichnen") }
+    static var prEnterWeightHint: String { loc("重量を入力すると、あなたの強さレベルが判定されます", "Enter weights to see your strength level", zhHans: "输入重量后，会判定你的力量水平", ko: "중량을 입력하면 강도 레벨이 판정됩니다", es: "Introduce pesos para ver tu nivel de fuerza", fr: "Entrez les poids pour voir votre niveau", de: "Gib Gewichte ein, um dein Stärkelevel zu sehen") }
+    static var prMoreInputHint: String { loc("もっと入力すると精度が上がります", "More entries improve accuracy", zhHans: "输入越多精度越高", ko: "더 입력하면 정확도가 올라갑니다", es: "Más entradas mejoran la precisión", fr: "Plus d'entrées améliorent la précision", de: "Mehr Eingaben verbessern die Genauigkeit") }
+    static var addedLabel: String { loc("追加済み", "Added", zhHans: "已添加", ko: "추가됨", es: "Añadido", fr: "Ajouté", de: "Hinzugefügt") }
+
+    // MARK: - MenuGeneratingPage
+    static var menuGeneratingTitle: String { loc("あなた専用メニューを作成中", "Creating Your Custom Menu", zhHans: "正在创建你的专属菜单", ko: "맞춤 메뉴를 만드는 중", es: "Creando tu menú personalizado", fr: "Création de votre menu personnalisé", de: "Dein individuelles Menü wird erstellt") }
+    static var mgStep1: String { loc("目標と経験を分析中…", "Analyzing goals & experience…", zhHans: "分析目标和经验…", ko: "목표와 경험 분석 중…", es: "Analizando objetivos y experiencia…", fr: "Analyse des objectifs et de l'expérience…", de: "Ziele und Erfahrung werden analysiert…") }
+    static var mgStep2: String { loc("最適な種目を選定中…", "Selecting optimal exercises…", zhHans: "选择最佳动作…", ko: "최적 종목 선정 중…", es: "Seleccionando ejercicios óptimos…", fr: "Sélection des exercices optimaux…", de: "Optimale Übungen werden ausgewählt…") }
+    static var mgStep3: String { loc("分割スケジュールを構築中…", "Building your split schedule…", zhHans: "构建分割计划…", ko: "분할 스케줄 구축 중…", es: "Construyendo tu plan de división…", fr: "Construction de votre programme split…", de: "Dein Split-Plan wird erstellt…") }
+    static var mgStep4: String { loc("あなた専用メニュー完成！", "Your custom menu is ready!", zhHans: "你的专属菜单完成！", ko: "맞춤 메뉴 완성!", es: "¡Tu menú personalizado está listo!", fr: "Votre menu personnalisé est prêt !", de: "Dein individuelles Menü ist fertig!") }
+
+    // MARK: - RoutineBuilderPage
+    static func muscleCoveragePercent(_ pct: Int) -> String { loc("\(pct)%の筋肉をカバー", "\(pct)% muscle coverage", zhHans: "覆盖\(pct)%肌肉", ko: "\(pct)% 근육 커버", es: "\(pct)% cobertura muscular", fr: "\(pct)% de couverture musculaire", de: "\(pct)% Muskelabdeckung") }
+    static func reviewDay(_ num: Int) -> String { loc("Day \(num) を確認する", "Review Day \(num)", zhHans: "查看Day \(num)", ko: "Day \(num) 확인하기", es: "Revisar Día \(num)", fr: "Voir Jour \(num)", de: "Tag \(num) ansehen") }
+    static var routineChangeLater: String { loc("メニューは後から設定で変更できます", "You can customize your routine later in Settings", zhHans: "菜单可以在设置中更改", ko: "메뉴는 나중에 설정에서 변경할 수 있습니다", es: "Puedes cambiar tu rutina después en Ajustes", fr: "Vous pouvez modifier votre routine plus tard dans les Réglages", de: "Du kannst dein Menü später in den Einstellungen ändern") }
+    static var routineAutoSuggested: String { loc("あなたの目標に合わせて自動提案しました", "Auto-suggested based on your goals", zhHans: "根据你的目标自动推荐", ko: "목표에 맞춰 자동 제안했습니다", es: "Sugerido automáticamente según tus objetivos", fr: "Suggestion automatique selon vos objectifs", de: "Automatisch basierend auf deinen Zielen vorgeschlagen") }
+    static func totalExercisesPerWeek(_ exercises: Int, _ days: Int) -> String { loc("合計 \(exercises)種目 / 週\(days)回", "Total \(exercises) exercises / \(days)× per week", zhHans: "共\(exercises)个动作 / 每周\(days)次", ko: "총 \(exercises)종목 / 주\(days)회", es: "Total \(exercises) ejercicios / \(days)× por semana", fr: "Total \(exercises) exercices / \(days)× par semaine", de: "Gesamt \(exercises) Übungen / \(days)× pro Woche") }
+    static func dayExerciseCount(_ count: Int) -> String { loc("\(count)種目", "\(count) exercises", zhHans: "\(count)个动作", ko: "\(count)종목", es: "\(count) ejercicios", fr: "\(count) exercices", de: "\(count) Übungen") }
+    static var rbTipPush: String { loc("💡 「押す」動作の筋肉をまとめて効率UP", "💡 Group push muscles for maximum efficiency", zhHans: "💡 推的动作肌肉组合提高效率", ko: "💡 밀기 동작 근육을 모아서 효율 UP", es: "💡 Agrupa músculos de empuje para máxima eficiencia", fr: "💡 Regroupez les muscles de poussée pour plus d'efficacité", de: "💡 Druckmuskulatur bündeln für maximale Effizienz") }
+    static var rbTipPull: String { loc("💡 「引く」動作の筋肉で背中を厚く", "💡 Pull muscles build a thicker back", zhHans: "💡 拉的动作肌肉让背部更厚", ko: "💡 당기기 동작 근육으로 등을 두껍게", es: "💡 Los músculos de tirón construyen una espalda más gruesa", fr: "💡 Les muscles de traction construisent un dos plus épais", de: "💡 Zugmuskulatur für einen breiteren Rücken") }
+    static var rbTipLegs: String { loc("💡 下半身は代謝UPの最重要パーツ", "💡 Lower body is key for boosting metabolism", zhHans: "💡 下半身是提高代谢的最重要部位", ko: "💡 하체는 대사 UP의 가장 중요한 부위", es: "💡 El tren inferior es clave para el metabolismo", fr: "💡 Le bas du corps est clé pour le métabolisme", de: "💡 Unterkörper ist der Schlüssel zum Stoffwechsel") }
+    static var rbTipShoulders: String { loc("💡 肩を鍛えると全体のシルエットが変わる", "💡 Shoulders transform your overall silhouette", zhHans: "💡 练肩可以改变整体轮廓", ko: "💡 어깨를 단련하면 전체 실루엣이 변한다", es: "💡 Los hombros transforman tu silueta", fr: "💡 Les épaules transforment votre silhouette", de: "💡 Schultern verändern deine gesamte Silhouette") }
+    static var rbTipArms: String { loc("💡 腕はTシャツから見える「名刺」", "💡 Arms are your \"business card\" in a T-shirt", zhHans: "💡 手臂是T恤下的「名片」", ko: "💡 팔은 티셔츠 속 \"명함\"", es: "💡 Los brazos son tu \"tarjeta de presentación\"", fr: "💡 Les bras sont votre \"carte de visite\"", de: "💡 Arme sind deine \"Visitenkarte\" im T-Shirt") }
+    static var rbTipAux: String { loc("💡 補助筋もまとめてカバー", "💡 Accessory muscles covered together", zhHans: "💡 辅助肌肉也一起覆盖", ko: "💡 보조근도 함께 커버", es: "💡 Músculos auxiliares cubiertos también", fr: "💡 Muscles accessoires couverts ensemble", de: "💡 Hilfsmuskulatur wird gleich mittrainiert") }
+
+    // MARK: - NotificationPermissionView
+    static var notifHeadline: String { loc("回復したら、教える。", "We'll Tell You When You're Ready.", zhHans: "恢复了就告诉你。", ko: "회복되면 알려줄게.", es: "Te avisamos cuando estés listo.", fr: "On vous prévient quand c'est bon.", de: "Wir sagen dir, wann du bereit bist.") }
+    static var notifSubheadline: String { loc("筋肉が回復したタイミングで通知を受け取れます\nベストなタイミングで次のトレーニングへ。", "Get notified when your muscles recover.\nTrain at the perfect time.", zhHans: "肌肉恢复时收到通知\n在最佳时机进行下一次训练。", ko: "근육이 회복되면 알림을 받으세요\n최적의 타이밍에 다음 트레이닝으로.", es: "Recibe notificaciones cuando tus músculos se recuperen.\nEntrena en el momento perfecto.", fr: "Soyez notifié quand vos muscles récupèrent.\nEntraînez-vous au moment parfait.", de: "Erhalte Benachrichtigungen, wenn deine Muskeln erholt sind.\nTrainiere zum perfekten Zeitpunkt.") }
+    static var notifMockTitle1: String { loc("🔥 大胸筋・三角筋 回復完了！", "🔥 Chest & Delts Recovered!", zhHans: "🔥 胸肌·三角肌恢复完成！", ko: "🔥 대흉근·삼각근 회복 완료!", es: "🔥 ¡Pecho y deltoides recuperados!", fr: "🔥 Pectoraux et deltoïdes récupérés !", de: "🔥 Brust & Schultern erholt!") }
+    static var notifMockBody1: String { loc("プッシュの日です。トレーニングしよう！", "Push day. Time to train!", zhHans: "今天是推日。开始训练吧！", ko: "푸쉬 데이입니다. 트레이닝하자!", es: "Día de empuje. ¡A entrenar!", fr: "Jour de poussée. C'est l'heure !", de: "Push-Tag. Zeit zu trainieren!") }
+    static var notifMockTime1: String { loc("たった今", "Just now", zhHans: "刚刚", ko: "방금", es: "Ahora mismo", fr: "À l'instant", de: "Gerade eben") }
+    static var notifMockTitle2: String { loc("🏆 ベンチプレス PR更新チャンス！", "🏆 Bench Press PR Opportunity!", zhHans: "🏆 卧推PR更新机会！", ko: "🏆 벤치프레스 PR 갱신 찬스!", es: "🏆 ¡Oportunidad de PR en press de banca!", fr: "🏆 Occasion de PR au développé couché !", de: "🏆 Bankdrücken PR-Chance!") }
+    static var notifMockBody2: String { loc("前回62.5kg×8。今日65kgに挑戦できるかも", "Last time 62.5kg×8. Try 65kg today?", zhHans: "上次62.5kg×8。今天可以挑战65kg", ko: "지난번 62.5kg×8. 오늘 65kg에 도전할 수 있을지도", es: "Última vez 62.5kg×8. ¿Intentar 65kg hoy?", fr: "Dernière fois 62.5kg×8. Essayer 65kg aujourd'hui ?", de: "Letztes Mal 62.5kg×8. Heute 65kg versuchen?") }
+    static var notifMockTime2: String { loc("2時間前", "2h ago", zhHans: "2小时前", ko: "2시간 전", es: "Hace 2h", fr: "Il y a 2h", de: "Vor 2 Std.") }
+    static var notifEnableButton: String { loc("回復通知をオンにする", "Turn On Recovery Alerts", zhHans: "开启恢复通知", ko: "회복 알림 켜기", es: "Activar alertas de recuperación", fr: "Activer les alertes de récupération", de: "Erholungsbenachrichtigungen aktivieren") }
+    static var notifStepStimulate: String { loc("刺激", "Stimulate", zhHans: "刺激", ko: "자극", es: "Estimular", fr: "Stimuler", de: "Stimulieren") }
+    static var notifStepRecover: String { loc("回復", "Recover", zhHans: "恢复", ko: "회복", es: "Recuperar", fr: "Récupérer", de: "Erholen") }
+    static var notifStepGrow: String { loc("成長", "Grow", zhHans: "成长", ko: "성장", es: "Crecer", fr: "Grandir", de: "Wachsen") }
+
+    // MARK: - RoutineCompletionPage
+    static var completionDefaultTitle: String { loc("あなた専用プログラム完成", "Your Program is Ready", zhHans: "你的专属计划完成", ko: "맞춤 프로그램 완성", es: "Tu programa está listo", fr: "Votre programme est prêt", de: "Dein Programm ist fertig") }
+    static var completionBulk: String { loc("デカくなる準備完了。", "Ready to Get Big.", zhHans: "变大的准备完成。", ko: "커질 준비 완료.", es: "Listo para crecer.", fr: "Prêt à grossir.", de: "Bereit, groß zu werden.") }
+    static var completionStrength: String { loc("強くなる準備完了。", "Ready to Get Strong.", zhHans: "变强的准备完成。", ko: "강해질 준비 완료.", es: "Listo para ser fuerte.", fr: "Prêt à devenir fort.", de: "Bereit, stark zu werden.") }
+    static var completionFight: String { loc("闘う体の準備完了。", "Fight-Ready Program.", zhHans: "战斗体格准备完成。", ko: "싸우는 몸 준비 완료.", es: "Programa listo para pelear.", fr: "Programme prêt au combat.", de: "Kampfbereit.") }
+    static var completionTransform: String { loc("変わる準備完了。", "Ready to Transform.", zhHans: "蜕变准备完成。", ko: "변할 준비 완료.", es: "Listo para transformarte.", fr: "Prêt à se transformer.", de: "Bereit zur Transformation.") }
+    static var completionAthlete: String { loc("アスリートの準備完了。", "Athletic Program Ready.", zhHans: "运动员计划就绪。", ko: "운동선수 준비 완료.", es: "Programa atlético listo.", fr: "Programme athlétique prêt.", de: "Athleten-Programm bereit.") }
+    static var completionMobility: String { loc("動ける体の準備完了。", "Mobility Program Ready.", zhHans: "灵活身体准备完成。", ko: "움직이는 몸 준비 완료.", es: "Programa de movilidad listo.", fr: "Programme mobilité prêt.", de: "Mobilität-Programm bereit.") }
+    static var completionHealth: String { loc("健康への第一歩。", "Your Health Journey Starts.", zhHans: "迈向健康的第一步。", ko: "건강을 향한 첫걸음.", es: "Tu camino a la salud comienza.", fr: "Votre parcours santé commence.", de: "Dein Gesundheitsweg beginnt.") }
+    static var coverageLabel: String { loc("カバレッジ", "Coverage", zhHans: "覆盖率", ko: "커버리지", es: "Cobertura", fr: "Couverture", de: "Abdeckung") }
+    static var fullBodyCover: String { loc("全身カバー!", "Full body!", zhHans: "全身覆盖!", ko: "전신 커버!", es: "¡Cuerpo completo!", fr: "Corps entier !", de: "Ganzkörper!") }
+    static var completionOptimized: String { loc("目標・経験・環境から最適化", "Optimized for your goals, experience & environment", zhHans: "根据目标·经验·环境优化", ko: "목표·경험·환경에 맞춰 최적화", es: "Optimizado para tus objetivos, experiencia y entorno", fr: "Optimisé selon vos objectifs, expérience et environnement", de: "Optimiert für deine Ziele, Erfahrung & Umgebung") }
+
+    // MARK: - GoalMusclePreviewPage
+    static var gmProgBulk: String { loc("デカくなるプログラム", "Program to Get Big", zhHans: "增肌计划", ko: "벌크업 프로그램", es: "Programa para crecer", fr: "Programme pour grossir", de: "Programm zum Masseaufbau") }
+    static var gmProgStrength: String { loc("強くなるプログラム", "Program to Get Strong", zhHans: "增强力量计划", ko: "강해지는 프로그램", es: "Programa para ser fuerte", fr: "Programme pour devenir fort", de: "Programm zum Starkwerden") }
+    static var gmProgFight: String { loc("闘う体のプログラム", "Fighter's Program", zhHans: "格斗体格计划", ko: "격투 프로그램", es: "Programa de luchador", fr: "Programme de combat", de: "Kämpfer-Programm") }
+    static var gmProgTransform: String { loc("変わるためのプログラム", "Transformation Program", zhHans: "蜕变计划", ko: "변화 프로그램", es: "Programa de transformación", fr: "Programme de transformation", de: "Transformations-Programm") }
+    static var gmProgAthlete: String { loc("アスリートのプログラム", "Athlete's Program", zhHans: "运动员计划", ko: "운동선수 프로그램", es: "Programa de atleta", fr: "Programme d'athlète", de: "Athleten-Programm") }
+    static var gmProgMobility: String { loc("動ける体のプログラム", "Mobility Program", zhHans: "灵活身体计划", ko: "움직이는 몸 프로그램", es: "Programa de movilidad", fr: "Programme mobilité", de: "Mobilitäts-Programm") }
+    static var gmProgHealth: String { loc("健康のためのプログラム", "Health Program", zhHans: "健康计划", ko: "건강 프로그램", es: "Programa de salud", fr: "Programme santé", de: "Gesundheits-Programm") }
+    static var gmPreviewSubtitle: String { loc("あなたの目標・経験・環境から最適な分割法を作成しました", "We've created the optimal split based on your goals, experience & environment", zhHans: "根据你的目标·经验·环境创建了最佳分割法", ko: "목표·경험·환경에 맞는 최적의 분할법을 만들었습니다", es: "Hemos creado la división óptima según tus objetivos", fr: "Nous avons créé le split optimal selon vos objectifs", de: "Wir haben den optimalen Split basierend auf deinen Zielen erstellt") }
+    static var reviewExercises: String { loc("種目を確認する →", "Review Exercises →", zhHans: "查看动作 →", ko: "종목 확인하기 →", es: "Revisar ejercicios →", fr: "Voir les exercices →", de: "Übungen ansehen →") }
+
+    // MARK: - PaywallView
+    static var pwProcessing: String { loc("処理中...", "Processing...", zhHans: "处理中...", ko: "처리 중...", es: "Procesando...", fr: "Traitement...", de: "Verarbeitung...") }
+    static var purchaseError: String { loc("購入エラー", "Purchase Error", zhHans: "购买错误", ko: "구매 오류", es: "Error de compra", fr: "Erreur d'achat", de: "Kauffehler") }
+    static var unknownError: String { loc("不明なエラーが発生しました。", "An unknown error occurred.", zhHans: "发生未知错误。", ko: "알 수 없는 오류가 발생했습니다.", es: "Ocurrió un error desconocido.", fr: "Une erreur inconnue s'est produite.", de: "Ein unbekannter Fehler ist aufgetreten.") }
+    static var pwMonthlyButton: String { loc("月額¥590で始める", "Start for $4.99/month", zhHans: "每月¥590开始", ko: "월 ¥590으로 시작", es: "Empezar por $4.99/mes", fr: "Commencer à 4,99$/mois", de: "Starten für 4,99$/Monat") }
+    static var pwYearlyPrice: String { loc("年額¥4,900（月¥408）", "$39.99/year ($3.33/mo)", zhHans: "年费¥4,900（月¥408）", ko: "연 ¥4,900 (월 ¥408)", es: "$39.99/año ($3.33/mes)", fr: "39,99$/an (3,33$/mois)", de: "39,99$/Jahr (3,33$/Monat)") }
+    static var pwFreeTrial: String { loc("7日間無料トライアル", "7-day free trial", zhHans: "7天免费试用", ko: "7일 무료 체험", es: "Prueba gratuita de 7 días", fr: "Essai gratuit de 7 jours", de: "7-Tage-Testversion") }
+    static var pwCancelAnytime: String { loc("いつでもキャンセル可能", "Cancel anytime", zhHans: "随时可取消", ko: "언제든지 취소 가능", es: "Cancela cuando quieras", fr: "Annulez à tout moment", de: "Jederzeit kündbar") }
+    static var pwRestorePurchase: String { loc("購入を復元", "Restore Purchase", zhHans: "恢复购买", ko: "구매 복원", es: "Restaurar compra", fr: "Restaurer l'achat", de: "Kauf wiederherstellen") }
+    static var pwStartFreeNow: String { loc("無料で今すぐ始める", "Start Free Now", zhHans: "免费立即开始", ko: "무료로 지금 시작", es: "Empezar gratis ahora", fr: "Commencer gratuitement", de: "Jetzt kostenlos starten") }
+    static var pwTermsOfUse: String { loc("利用規約", "Terms of Use", zhHans: "使用条款", ko: "이용약관", es: "Términos de uso", fr: "Conditions d'utilisation", de: "Nutzungsbedingungen") }
+    static var pwPrivacyPolicy: String { loc("プライバシーポリシー", "Privacy Policy", zhHans: "隐私政策", ko: "개인정보처리방침", es: "Política de privacidad", fr: "Politique de confidentialité", de: "Datenschutzrichtlinie") }
+    static var pwNoRestorableFound: String { loc("復元できる購入履歴が見つかりませんでした。", "No restorable purchases were found.", zhHans: "未找到可恢复的购买记录。", ko: "복원할 수 있는 구매 내역을 찾을 수 없습니다.", es: "No se encontraron compras restaurables.", fr: "Aucun achat restaurable trouvé.", de: "Keine wiederherstellbaren Käufe gefunden.") }
+    static var pwLegalText: String { loc("購入によりApple IDに請求されます。定期購読は期限切れの24時間以内に自動更新されます。iTunesアカウント設定から自動更新をオフにすることができます。", "Payment will be charged to your Apple ID. Subscriptions automatically renew within 24 hours before expiration. You can turn off auto-renewal in your iTunes account settings.", zhHans: "购买将向Apple ID收费。订阅将在到期前24小时内自动续订。您可以在iTunes帐户设置中关闭自动续订。", ko: "구매 시 Apple ID로 청구됩니다. 구독은 만료 24시간 전에 자동 갱신됩니다. iTunes 계정 설정에서 자동 갱신을 끌 수 있습니다.", es: "El pago se cargará a tu Apple ID. Las suscripciones se renuevan automáticamente 24 horas antes del vencimiento. Puedes desactivar la renovación automática en los ajustes de tu cuenta de iTunes.", fr: "Le paiement sera débité de votre Apple ID. Les abonnements se renouvellent automatiquement 24h avant l'expiration. Vous pouvez désactiver le renouvellement dans les réglages iTunes.", de: "Die Zahlung wird über deine Apple-ID abgerechnet. Abonnements verlängern sich automatisch 24 Stunden vor Ablauf. Du kannst die automatische Verlängerung in den iTunes-Kontoeinstellungen deaktivieren.") }
+    static func pwHeadlineWithRoutine(_ days: Int, _ exercises: Int) -> String { loc("あなた専用の\(days)日間メニュー", "Your \(days)-Day Program", zhHans: "你的\(days)天专属菜单", ko: "맞춤 \(days)일 메뉴", es: "Tu programa de \(days) días", fr: "Votre programme de \(days) jours", de: "Dein \(days)-Tage-Programm") }
+    static func pwHeadlineExercises(_ count: Int) -> String { loc("\(count)種目、今日から始めよう", "\(count) exercises — start today", zhHans: "\(count)个动作，今天就开始", ko: "\(count)종목, 오늘부터 시작하자", es: "\(count) ejercicios — empieza hoy", fr: "\(count) exercices — commencez aujourd'hui", de: "\(count) Übungen — starte heute") }
+    static var pwHeadlineFallback: String { loc("理想のカラダへ、最短ルート", "The Fastest Path to Your Ideal Body", zhHans: "通往理想身体的最短路线", ko: "이상적인 몸으로 가는 최단 루트", es: "El camino más rápido a tu cuerpo ideal", fr: "Le chemin le plus court vers votre corps idéal", de: "Der schnellste Weg zu deinem Idealkörper") }
+    static func pwGoalSubtitle(_ goalName: String) -> String { loc("「\(goalName)」のために最適化", "Optimized for \"\(goalName)\"", zhHans: "为「\(goalName)」优化", ko: "「\(goalName)」을 위해 최적화", es: "Optimizado para \"\(goalName)\"", fr: "Optimisé pour « \(goalName) »", de: "Optimiert für \u{201E}\(goalName)\u{201C}") }
+    static var pwFeature: String { loc("機能", "Feature", zhHans: "功能", ko: "기능", es: "Función", fr: "Fonction", de: "Funktion") }
+    static var pwFree: String { loc("無料", "Free", zhHans: "免费", ko: "무료", es: "Gratis", fr: "Gratuit", de: "Kostenlos") }
+    static var pwRecoveryMap: String { loc("回復マップ", "Recovery Map", zhHans: "恢复图", ko: "회복 맵", es: "Mapa de recuperación", fr: "Carte de récupération", de: "Erholungskarte") }
+    static var pwWorkoutLog: String { loc("ワークアウト記録", "Workout Log", zhHans: "训练记录", ko: "운동 기록", es: "Registro de ejercicio", fr: "Journal d'entraînement", de: "Trainingsprotokoll") }
+    static var pwOncePerWeek: String { loc("週1回", "1/wk", zhHans: "每周1次", ko: "주1회", es: "1/sem", fr: "1/sem", de: "1/Wo") }
+    static var pwRoutines: String { loc("ルーティン", "Routines", zhHans: "训练计划", ko: "루틴", es: "Rutinas", fr: "Routines", de: "Routinen") }
+    static var pwMenuSuggest: String { loc("メニュー提案", "Menu Suggest", zhHans: "菜单建议", ko: "메뉴 제안", es: "Sugerencia de menú", fr: "Suggestion de menu", de: "Menüvorschlag") }
+
+    // MARK: - HomeHelpers
+    static var coachMarkTitle: String { loc("これがあなたの筋肉マップ", "This is your muscle map", zhHans: "这是你的肌肉图", ko: "이것이 당신의 근육 맵", es: "Este es tu mapa muscular", fr: "Voici votre carte musculaire", de: "Das ist deine Muskelkarte") }
+    static var coachMarkBody: String { loc("トレーニングすると筋肉が赤く光ります。\n回復すると黄→暗い色に戻ります。", "Muscles light up red after training.\nThey turn yellow → dark as they recover.", zhHans: "训练后肌肉会变红。\n恢复后会从黄色→暗色。", ko: "트레이닝하면 근육이 빨갛게 빛납니다.\n회복되면 노랑→어두운 색으로 돌아갑니다.", es: "Los músculos se iluminan en rojo al entrenar.\nSe vuelven amarillos → oscuros al recuperarse.", fr: "Les muscles s'illuminent en rouge après l'entraînement.\nIls passent au jaune → sombre en récupérant.", de: "Muskeln leuchten rot nach dem Training.\nSie werden gelb → dunkel bei der Erholung.") }
+    static var gotIt: String { loc("わかった！", "Got it!", zhHans: "明白了！", ko: "알겠어!", es: "¡Entendido!", fr: "Compris !", de: "Verstanden!") }
+
+    // MARK: - ActiveWorkoutComponents
+    static var routineComplete: String { loc("ルーティン完了!", "Routine Complete!", zhHans: "训练完成!", ko: "루틴 완료!", es: "¡Rutina completada!", fr: "Routine terminée !", de: "Routine abgeschlossen!") }
+    static var routineCompleteHint: String { loc("追加で種目を記録するか、ワークアウトを終了できます", "Add more exercises or finish your workout", zhHans: "可以继续记录或结束训练", ko: "추가 종목을 기록하거나 워크아웃을 종료할 수 있습니다", es: "Añade más ejercicios o termina tu entrenamiento", fr: "Ajoutez des exercices ou terminez votre entraînement", de: "Weitere Übungen hinzufügen oder Training beenden") }
+    static func exerciseProgress(_ completed: Int, _ total: Int) -> String { loc("\(completed)/\(total) 種目完了", "\(completed)/\(total) exercises done", zhHans: "\(completed)/\(total) 个动作完成", ko: "\(completed)/\(total) 종목 완료", es: "\(completed)/\(total) ejercicios completados", fr: "\(completed)/\(total) exercices terminés", de: "\(completed)/\(total) Übungen fertig") }
+
+    // MARK: - SettingsView (inline)
+    static var settingsTrainingExp: String { loc("トレーニング経験", "Training Experience", zhHans: "训练经验", ko: "트레이닝 경험", es: "Experiencia de entrenamiento", fr: "Expérience d'entraînement", de: "Trainingserfahrung") }
+    static var settingsExpBeginner: String { loc("これから始める", "Beginner", zhHans: "刚开始", ko: "이제 시작", es: "Principiante", fr: "Débutant", de: "Anfänger") }
+    static var settingsExpSixMonths: String { loc("半年くらい", "About 6 months", zhHans: "大约半年", ko: "약 반년", es: "Unos 6 meses", fr: "Environ 6 mois", de: "Etwa 6 Monate") }
+    static var settingsExpOneYear: String { loc("1年以上", "1+ years", zhHans: "1年以上", ko: "1년 이상", es: "1+ años", fr: "1+ ans", de: "1+ Jahre") }
+    static var settingsExpVeteran: String { loc("3年以上のベテラン", "3+ years veteran", zhHans: "3年以上老手", ko: "3년 이상 베테랑", es: "Veterano de 3+ años", fr: "Vétéran 3+ ans", de: "3+ Jahre Veteran") }
+    static var settingsExpLabel: String { loc("経験レベル", "Experience Level", zhHans: "经验等级", ko: "경험 레벨", es: "Nivel de experiencia", fr: "Niveau d'expérience", de: "Erfahrungslevel") }
+    static var settingsExpChanged: String { loc("変更しました", "Changes saved", zhHans: "已更改", ko: "변경되었습니다", es: "Cambios guardados", fr: "Modifications enregistrées", de: "Änderungen gespeichert") }
+    static var settingsExpMenuHint: String { loc("メニュー提案のセット数・レップ数に影響します", "Affects suggested sets & reps in menu proposals", zhHans: "影响菜单建议的组数和次数", ko: "메뉴 제안의 세트 수·렙 수에 영향", es: "Afecta los sets y reps sugeridos", fr: "Affecte les séries et répétitions suggérées", de: "Beeinflusst vorgeschlagene Sätze & Wiederholungen") }
+
+    // MARK: - ExerciseDictionaryView (inline)
+    static var allEquipment: String { loc("全器具", "All", zhHans: "全部器械", ko: "전체 기구", es: "Todo", fr: "Tout", de: "Alle") }
+    static var exerciseDictTitle: String { loc("種目辞典", "Exercise Dictionary", zhHans: "动作词典", ko: "종목 사전", es: "Diccionario de ejercicios", fr: "Dictionnaire d'exercices", de: "Übungswörterbuch") }
+    static func filteredExercisesCount(_ count: Int) -> String { loc("\(count)種目", "\(count) exercises", zhHans: "\(count)个动作", ko: "\(count)종목", es: "\(count) ejercicios", fr: "\(count) exercices", de: "\(count) Übungen") }
+
+    // MARK: - NotificationManager (inline)
+    static func notifRecoveryComplete(_ muscles: String) -> String { loc("💪 \(muscles) 回復完了！", "💪 \(muscles) Recovery Complete!", zhHans: "💪 \(muscles) 恢复完成！", ko: "💪 \(muscles) 회복 완료!", es: "💪 ¡\(muscles) recuperados!", fr: "💪 \(muscles) récupérés !", de: "💪 \(muscles) erholt!") }
+    static func notifNextPart(_ part: String) -> String { loc("次は\(part)の日。トレーニングしよう！", "Next is \(part) day. Time to train!", zhHans: "下次是\(part)日。开始训练吧！", ko: "다음은 \(part) 날. 트레이닝하자!", es: "Siguiente: día de \(part). ¡A entrenar!", fr: "Prochain : jour de \(part). Allons-y !", de: "Als nächstes: \(part)-Tag. Los geht's!") }
+    static var notifTrainRecoveredMuscles: String { loc("回復した筋肉を鍛えよう！", "Train your recovered muscles!", zhHans: "锻炼恢复好的肌肉吧！", ko: "회복된 근육을 단련하자!", es: "¡Entrena tus músculos recuperados!", fr: "Entraînez vos muscles récupérés !", de: "Trainiere deine erholten Muskeln!") }
+    static var notifRecoveryCompleteShort: String { loc("💪 回復完了！", "💪 Recovery Complete!", zhHans: "💪 恢复完成！", ko: "💪 회복 완료!", es: "💪 ¡Recuperación completa!", fr: "💪 Récupération terminée !", de: "💪 Erholung abgeschlossen!") }
+    static var notifTimeToTrain: String { loc("トレーニングの時間", "Time to Train", zhHans: "训练时间到了", ko: "트레이닝 시간", es: "Hora de entrenar", fr: "C'est l'heure de s'entraîner", de: "Zeit zu trainieren") }
+    static func notifMuscleWaiting(_ muscle: String) -> String { loc("\(muscle)が待ってるぞ 🔥", "\(muscle) is waiting 🔥", zhHans: "\(muscle)在等你 🔥", ko: "\(muscle)이(가) 기다리고 있어 🔥", es: "\(muscle) te espera 🔥", fr: "\(muscle) vous attend 🔥", de: "\(muscle) wartet auf dich 🔥") }
+    static var notifTwoDaysOff: String { loc("2日空いたよ。今日やろう 🔥", "2 days off. Let's go today 🔥", zhHans: "已经休息2天了。今天练起来 🔥", ko: "2일 쉬었어. 오늘 하자 🔥", es: "2 días sin entrenar. ¡Vamos hoy! 🔥", fr: "2 jours de repos. Allons-y aujourd'hui 🔥", de: "2 Tage Pause. Los geht's heute 🔥") }
+    static var notifWeeklySummary: String { loc("週間サマリー", "Weekly Summary", zhHans: "每周总结", ko: "주간 요약", es: "Resumen semanal", fr: "Résumé hebdomadaire", de: "Wochenzusammenfassung") }
+    static func notifWeeklyBody(_ count: Int) -> String { loc("先週は\(count)回トレーニング。今週も頑張ろう！", "Last week: \(count) workouts. Keep it up!", zhHans: "上周训练了\(count)次。这周也加油！", ko: "지난주 \(count)회 트레이닝. 이번 주도 힘내자!", es: "Semana pasada: \(count) entrenamientos. ¡Sigue así!", fr: "Semaine dernière : \(count) entraînements. Continuez !", de: "Letzte Woche: \(count) Trainings. Weiter so!") }
 }

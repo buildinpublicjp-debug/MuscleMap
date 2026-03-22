@@ -28,9 +28,7 @@ struct PaywallView: View {
     private var goalSubtitle: String? {
         guard let goalRaw = AppState.shared.primaryOnboardingGoal,
               let goal = OnboardingGoal(rawValue: goalRaw) else { return nil }
-        return isJapanese
-            ? "「\(goal.localizedName)」のために最適化"
-            : "Optimized for \"\(goal.localizedName)\""
+        return L10n.pwGoalSubtitle(goal.localizedName)
     }
 
     /// マーキー用の種目リスト（全種目、重複除去）
@@ -88,37 +86,46 @@ struct PaywallView: View {
 
     var body: some View {
         ZStack {
-            Color.mmBgSecondary.ignoresSafeArea()
+            // プレミアム背景グラデーション（上部ダークグリーン→ダーク）
+            LinearGradient(
+                colors: [
+                    Color(red: 0.06, green: 0.12, blue: 0.08),
+                    Color.mmBgSecondary
+                ],
+                startPoint: .top,
+                endPoint: .center
+            )
+            .ignoresSafeArea()
 
             GeometryReader { geo in
                 let h = geo.size.height
-                let cardSize = min(max(h * 0.15, 110), 160)
+                // マーキーカードサイズ: 画面高さの18%ベース（小画面でも十分大きく）
+                let cardSize = min(max(h * 0.18, 120), 170)
 
                 VStack(spacing: 0) {
-                    Spacer().frame(height: isHardPaywall ? 16 : 28)
+                    // 上部マージン
+                    Color.clear.frame(height: isHardPaywall ? 16 : 32)
 
                     // 1. ヘッドライン
                     headlineSection
-
-                    Spacer().frame(height: 4)
+                        .frame(height: h * 0.10)
 
                     // 2. マーキーGIF（2行）
                     marqueeArea(cardSize: cardSize)
+                        .frame(height: cardSize * 2 + 6)
 
-                    Spacer().frame(height: 12)
-
-                    // 3. 価格セクション
-                    pricingSection
-
-                    Spacer().frame(height: 8)
-
-                    // 4. 機能リスト（コンパクト横並び）
+                    // 3. Free vs Pro 比較テーブル（ボタン直前配置）
                     featureListSection
+                        .padding(.top, 10)
 
-                    Spacer(minLength: 4)
+                    // 4. 価格セクション（テーブル直後 → 即行動）
+                    pricingSection
+                        .padding(.top, 10)
 
-                    // 5. フッター
+                    // 5. フッター（下に吸着）
                     footerSection
+                        .padding(.top, 8)
+                        .padding(.bottom, 8)
                 }
             }
 
@@ -148,7 +155,7 @@ struct PaywallView: View {
                         ProgressView()
                             .scaleEffect(1.4)
                             .tint(Color.mmAccentPrimary)
-                        Text(isJapanese ? "処理中..." : "Processing...")
+                        Text(L10n.pwProcessing)
                             .font(.subheadline)
                             .foregroundStyle(Color.mmTextSecondary)
                     }
@@ -158,10 +165,10 @@ struct PaywallView: View {
                 }
             }
         }
-        .alert(isJapanese ? "購入エラー" : "Purchase Error", isPresented: $showingError) {
+        .alert(L10n.purchaseError, isPresented: $showingError) {
             Button("OK") {}
         } message: {
-            Text(errorMessage ?? (isJapanese ? "不明なエラーが発生しました。" : "An unknown error occurred."))
+            Text(errorMessage ?? L10n.unknownError)
         }
         .interactiveDismissDisabled(isHardPaywall)
         .onAppear {
@@ -175,34 +182,31 @@ struct PaywallView: View {
         }
     }
 
-    // MARK: - ヘッドライン（コンパクト2行）
+    // MARK: - ヘッドライン（感情訴求）
 
     private var headlineSection: some View {
-        VStack(spacing: 2) {
+        VStack(spacing: 3) {
             if !routine.days.isEmpty && totalExercises > 0 {
-                Text(isJapanese
-                    ? "\(routine.days.count)日間 × \(totalExercises)種目の"
-                    : "Your \(routine.days.count)-day, \(totalExercises)-exercise")
-                    .font(.system(size: 24, weight: .heavy))
+                // 1行目: 「あなた専用のN日間メニュー」— N をアクセントカラーで強調
+                Text(L10n.pwHeadlineWithRoutine(routine.days.count, totalExercises))
+                    .font(.system(size: 22, weight: .heavy))
                     .foregroundStyle(Color.mmTextPrimary)
-                Text(isJapanese
-                    ? "プログラムが待っています"
-                    : "program is ready")
-                    .font(.system(size: 24, weight: .heavy))
-                    .foregroundStyle(Color.mmTextPrimary)
+
+                // 2行目: 「N種目、今日から始めよう」— N をアクセントカラーで強調
+                Text(L10n.pwHeadlineExercises(totalExercises))
+                    .font(.system(size: 22, weight: .heavy))
+                    .foregroundStyle(Color.mmAccentPrimary.opacity(0.8))
             } else {
-                Text(isJapanese
-                    ? "あなた専用のメニューを毎日届ける"
-                    : "Your Personalized Menu, Every Day")
-                    .font(.system(size: 24, weight: .heavy))
+                Text(L10n.pwHeadlineFallback)
+                    .font(.system(size: 22, weight: .heavy))
                     .foregroundStyle(Color.mmTextPrimary)
                     .multilineTextAlignment(.center)
             }
 
             if let subtitle = goalSubtitle {
                 Text(subtitle)
-                    .font(.system(size: 14))
-                    .foregroundStyle(Color.mmAccentPrimary)
+                    .font(.system(size: 13))
+                    .foregroundStyle(Color.mmTextSecondary)
             }
         }
         .padding(.horizontal, 24)
@@ -217,106 +221,201 @@ struct PaywallView: View {
         }
     }
 
-    // MARK: - 価格セクション
+    // MARK: - Free vs Pro 比較テーブル
+
+    private var featureListSection: some View {
+        VStack(spacing: 0) {
+            // ヘッダー行
+            HStack(spacing: 0) {
+                Text(L10n.pwFeature)
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(Color.mmTextSecondary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+
+                Text(L10n.pwFree)
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(Color.mmTextSecondary)
+                    .frame(width: 52)
+
+                Text("Pro")
+                    .font(.system(size: 11, weight: .bold))
+                    .foregroundStyle(Color.mmBgPrimary)
+                    .frame(width: 52)
+                    .padding(.vertical, 3)
+                    .background(Color.mmAccentPrimary)
+                    .clipShape(Capsule())
+                    .shadow(color: Color.mmAccentPrimary.opacity(0.5), radius: 6, y: 0)
+            }
+            .padding(.horizontal, 14)
+            .padding(.vertical, 7)
+
+            // セパレーター
+            Rectangle()
+                .fill(Color.mmBorder.opacity(0.3))
+                .frame(height: 0.5)
+                .padding(.horizontal, 14)
+
+            // 比較行（セパレーター付き）
+            comparisonRow(
+                feature: L10n.pwRecoveryMap,
+                freeValue: .check, proValue: .check
+            )
+            comparisonSeparator
+            comparisonRow(
+                feature: L10n.pwWorkoutLog,
+                freeValue: .limited(L10n.pwOncePerWeek), proValue: .check
+            )
+            comparisonSeparator
+            comparisonRow(
+                feature: L10n.pwRoutines,
+                freeValue: .cross, proValue: .check
+            )
+            comparisonSeparator
+            comparisonRow(
+                feature: L10n.pwMenuSuggest,
+                freeValue: .cross, proValue: .check
+            )
+            comparisonSeparator
+            comparisonRow(
+                feature: "Strength Map",
+                freeValue: .cross, proValue: .check
+            )
+
+            // 下部パディング
+            Color.clear.frame(height: 4)
+        }
+        .background(Color.mmBgCard)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(Color.mmBorder.opacity(0.2), lineWidth: 0.5)
+        )
+        .padding(.horizontal, 24)
+    }
+
+    private var comparisonSeparator: some View {
+        Rectangle()
+            .fill(Color.mmBorder.opacity(0.2))
+            .frame(height: 0.5)
+            .padding(.horizontal, 14)
+    }
+
+    private enum ComparisonValue {
+        case check, cross, limited(String)
+    }
+
+    private func comparisonRow(feature: String, freeValue: ComparisonValue, proValue: ComparisonValue) -> some View {
+        HStack(spacing: 0) {
+            Text(feature)
+                .font(.system(size: 12, weight: .medium))
+                .foregroundStyle(Color.mmTextPrimary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+            comparisonCell(value: freeValue)
+                .frame(width: 52)
+
+            comparisonCell(value: proValue)
+                .frame(width: 52)
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 5)
+    }
+
+    @ViewBuilder
+    private func comparisonCell(value: ComparisonValue) -> some View {
+        switch value {
+        case .check:
+            Image(systemName: "checkmark")
+                .font(.system(size: 12, weight: .bold))
+                .foregroundStyle(Color.mmAccentPrimary)
+        case .cross:
+            Image(systemName: "xmark")
+                .font(.system(size: 10, weight: .medium))
+                .foregroundStyle(Color.mmTextSecondary.opacity(0.5))
+        case .limited(let text):
+            Text(text)
+                .font(.system(size: 10, weight: .bold))
+                .foregroundStyle(Color.mmWarning)
+        }
+    }
+
+    // MARK: - 価格セクション（月額メインCTA + 年額サブ）
 
     private var pricingSection: some View {
-        VStack(spacing: 6) {
-            // 年額ボタン（推奨、目立たせる）
-            Button {
-                HapticManager.lightTap()
-                purchase(productId: "yearly")
-            } label: {
-                VStack(spacing: 4) {
-                    HStack(spacing: 6) {
-                        Text(isJapanese ? "7日間無料で始める" : "Start Free for 7 Days")
-                            .font(.system(size: 18, weight: .heavy))
-                        Text("31%OFF")
-                            .font(.system(size: 11, weight: .bold))
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 3)
-                            .background(Color.mmBgPrimary.opacity(0.2))
-                            .clipShape(Capsule())
-                    }
-                    .foregroundStyle(Color.mmBgPrimary)
-
-                    Text(isJapanese ? "¥4,900/年（月¥408）" : "$39.99/year ($3.33/mo)")
-                        .font(.system(size: 13))
-                        .foregroundStyle(Color.mmBgPrimary.opacity(0.7))
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 16)
-                .background(
-                    LinearGradient(
-                        colors: [Color.mmAccentPrimary, Color.mmAccentPrimary.opacity(0.85)],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
-                .clipShape(RoundedRectangle(cornerRadius: 16))
-                .shadow(color: Color.mmAccentPrimary.opacity(0.3), radius: 8, y: 4)
-            }
-            .buttonStyle(.plain)
-            .disabled(PurchaseManager.shared.isLoading)
-
-            // 月額ボタン
+        VStack(spacing: 8) {
+            // 月額ボタン（メインCTA — プレミアムグラデーション）
             Button {
                 HapticManager.lightTap()
                 purchase(productId: "monthly")
             } label: {
-                Text(isJapanese ? "¥590/月" : "$4.99/month")
-                    .font(.system(size: 13))
-                    .foregroundStyle(Color.mmTextSecondary)
+                Text(L10n.pwMonthlyButton)
+                    .font(.system(size: 18, weight: .heavy))
+                    .foregroundStyle(Color.mmBgPrimary)
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, 8)
-                    .background(Color.mmBgCard)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 12)
-                            .stroke(Color.mmBorder, lineWidth: 1)
+                    .frame(height: 60)
+                    .background(
+                        LinearGradient(
+                            colors: [
+                                Color(red: 0.2, green: 1.0, blue: 0.8),
+                                Color.mmAccentPrimary,
+                                Color(red: 0, green: 0.75, blue: 0.4)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
                     )
+                    .clipShape(RoundedRectangle(cornerRadius: 16))
+                    .shadow(color: Color.mmAccentPrimary.opacity(0.3), radius: 8, y: 4)
             }
             .buttonStyle(.plain)
             .disabled(PurchaseManager.shared.isLoading)
 
-            Text(isJapanese ? "いつでもキャンセル可能" : "Cancel anytime")
+            // 年額ボタン（サブ — 31%OFFバッジ付き控えめデザイン）
+            Button {
+                HapticManager.lightTap()
+                purchase(productId: "yearly")
+            } label: {
+                HStack(spacing: 8) {
+                    Text(L10n.pwYearlyPrice)
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(Color.mmTextPrimary)
+
+                    Spacer()
+
+                    Text("31%OFF")
+                        .font(.system(size: 11, weight: .bold))
+                        .foregroundStyle(Color.mmAccentPrimary)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(Color.mmAccentPrimary.opacity(0.15))
+                        .clipShape(Capsule())
+                }
+                .padding(.horizontal, 16)
+                .frame(maxWidth: .infinity)
+                .frame(height: 48)
+                .background(Color.mmBgCard)
+                .clipShape(RoundedRectangle(cornerRadius: 14))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 14)
+                        .stroke(Color.mmBorder, lineWidth: 1)
+                )
+                .shadow(color: Color.black.opacity(0.2), radius: 4, y: 2)
+            }
+            .buttonStyle(.plain)
+            .disabled(PurchaseManager.shared.isLoading)
+
+            Text(L10n.pwCancelAnytime)
                 .font(.system(size: 10))
                 .foregroundStyle(Color.mmTextSecondary)
         }
         .padding(.horizontal, 24)
     }
 
-    // MARK: - Pro機能リスト（コンパクト横並び）
-
-    private var featureListSection: some View {
-        HStack(spacing: 0) {
-            featureItem(icon: "sparkles", text: isJapanese ? "パーソナライズ" : "Personalized")
-            featureItem(icon: "infinity", text: isJapanese ? "無制限記録" : "Unlimited")
-            featureItem(icon: "flame.fill", text: isJapanese ? "回復通知" : "Recovery")
-        }
-        .padding(.vertical, 8)
-        .padding(.horizontal, 12)
-        .background(Color.mmBgCard.opacity(0.5))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-        .padding(.horizontal, 24)
-    }
-
-    private func featureItem(icon: String, text: String) -> some View {
-        HStack(spacing: 4) {
-            Image(systemName: icon)
-                .font(.system(size: 10, weight: .medium))
-                .foregroundStyle(Color.mmAccentPrimary)
-            Text(text)
-                .font(.system(size: 11, weight: .semibold))
-                .foregroundStyle(Color.mmTextPrimary)
-        }
-        .frame(maxWidth: .infinity)
-    }
-
     // MARK: - フッター
 
     private var footerSection: some View {
-        VStack(spacing: 6) {
-            // 復元 + 無料オプション（横並び）
+        VStack(spacing: 5) {
+            // 復元 + 無料オプション
             HStack(spacing: 16) {
                 Button {
                     HapticManager.lightTap()
@@ -326,9 +425,7 @@ struct PaywallView: View {
                             if restored {
                                 dismiss()
                             } else {
-                                errorMessage = isJapanese
-                                    ? "復元できる購入履歴が見つかりませんでした。"
-                                    : "No restorable purchases were found."
+                                errorMessage = L10n.pwNoRestorableFound
                                 showingError = true
                             }
                         } catch {
@@ -337,7 +434,7 @@ struct PaywallView: View {
                         }
                     }
                 } label: {
-                    Text(isJapanese ? "購入を復元" : "Restore Purchase")
+                    Text(L10n.pwRestorePurchase)
                         .font(.caption2)
                         .foregroundStyle(Color.mmTextSecondary)
                 }
@@ -348,7 +445,7 @@ struct PaywallView: View {
                         HapticManager.lightTap()
                         dismiss()
                     } label: {
-                        Text(isJapanese ? "無料で今すぐ始める" : "Start Free Now")
+                        Text(L10n.pwStartFreeNow)
                             .font(.caption2)
                             .foregroundStyle(Color.mmTextSecondary.opacity(0.6))
                     }
@@ -359,26 +456,24 @@ struct PaywallView: View {
             // 法的リンク
             HStack(spacing: 16) {
                 if let termsURL = URL(string: LegalURL.termsOfUse) {
-                    Link(isJapanese ? "利用規約" : "Terms of Use", destination: termsURL)
+                    Link(L10n.pwTermsOfUse, destination: termsURL)
                         .font(.system(size: 9))
                         .foregroundStyle(Color.mmTextSecondary.opacity(0.5))
                 }
                 if let privacyURL = URL(string: LegalURL.privacyPolicy) {
-                    Link(isJapanese ? "プライバシーポリシー" : "Privacy Policy", destination: privacyURL)
+                    Link(L10n.pwPrivacyPolicy, destination: privacyURL)
                         .font(.system(size: 9))
                         .foregroundStyle(Color.mmTextSecondary.opacity(0.5))
                 }
             }
 
             // 法的テキスト
-            Text(isJapanese
-                ? "購入によりApple IDに請求されます。定期購読は期限切れの24時間以内に自動更新されます。iTunesアカウント設定から自動更新をオフにすることができます。"
-                : "Payment will be charged to your Apple ID. Subscriptions automatically renew within 24 hours before expiration. You can turn off auto-renewal in your iTunes account settings.")
+            Text(L10n.pwLegalText)
                 .font(.system(size: 8))
                 .foregroundStyle(Color.mmTextSecondary.opacity(0.4))
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 24)
-                .padding(.bottom, 12)
+                .padding(.bottom, 8)
         }
     }
 

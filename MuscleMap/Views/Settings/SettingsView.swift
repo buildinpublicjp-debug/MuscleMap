@@ -548,27 +548,25 @@ struct ProfileEditSheet: View {
 
                     // トレーニング経験セクション
                     Section {
-                        Picker(isJapanese ? "トレーニング経験" : "Training Experience",
+                        Picker(L10n.settingsTrainingExp,
                                selection: $selectedExperience) {
-                            Text(isJapanese ? "これから始める" : "Beginner")
+                            Text(L10n.settingsExpBeginner)
                                 .tag(TrainingExperience.beginner)
-                            Text(isJapanese ? "半年くらい" : "About 6 months")
+                            Text(L10n.settingsExpSixMonths)
                                 .tag(TrainingExperience.halfYear)
-                            Text(isJapanese ? "1年以上" : "1+ years")
+                            Text(L10n.settingsExpOneYear)
                                 .tag(TrainingExperience.oneYearPlus)
-                            Text(isJapanese ? "3年以上のベテラン" : "3+ years veteran")
+                            Text(L10n.settingsExpVeteran)
                                 .tag(TrainingExperience.veteran)
                         }
                         .foregroundStyle(Color.mmTextPrimary)
                         .tint(Color.mmAccentPrimary)
                         .listRowBackground(Color.mmBgCard)
                     } header: {
-                        Text(isJapanese ? "経験レベル" : "Experience Level")
+                        Text(L10n.settingsExpLabel)
                             .foregroundStyle(Color.mmTextSecondary)
                     } footer: {
-                        Text(isJapanese
-                             ? "メニュー提案のセット数・レップ数に影響します"
-                             : "Affects suggested sets & reps in menu recommendations")
+                        Text(L10n.settingsExpMenuHint)
                             .foregroundStyle(Color.mmTextSecondary)
                     }
                 }
@@ -578,7 +576,7 @@ struct ProfileEditSheet: View {
                 if showingSavedToast {
                     VStack {
                         Spacer()
-                        Text(isJapanese ? "変更しました" : "Changes saved")
+                        Text(L10n.settingsExpChanged)
                             .font(.subheadline.bold())
                             .foregroundStyle(Color.mmBgPrimary)
                             .padding(.horizontal, 20)

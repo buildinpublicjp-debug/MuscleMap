@@ -81,19 +81,13 @@ struct HomeCoachMarkView: View {
 struct MapExplanationOverlay: View {
     let onDismiss: () -> Void
 
-    private var isJapanese: Bool { LocalizationManager.shared.currentLanguage == .japanese }
-
     var body: some View {
         VStack(spacing: 8) {
-            Text(isJapanese
-                ? "これがあなたの筋肉マップ"
-                : "This is your muscle map")
+            Text(L10n.coachMarkTitle)
                 .font(.system(size: 16, weight: .bold))
                 .foregroundStyle(Color.mmTextPrimary)
 
-            Text(isJapanese
-                ? "トレーニングすると筋肉が赤く光ります。\n回復すると黄→暗い色に戻ります。"
-                : "Muscles turn red after training.\nThey fade as they recover.")
+            Text(L10n.coachMarkBody)
                 .font(.system(size: 13))
                 .foregroundStyle(Color.mmTextSecondary)
                 .multilineTextAlignment(.center)
@@ -102,7 +96,7 @@ struct MapExplanationOverlay: View {
                 HapticManager.lightTap()
                 onDismiss()
             } label: {
-                Text(isJapanese ? "わかった！" : "Got it!")
+                Text(L10n.gotIt)
                     .font(.system(size: 14, weight: .bold))
                     .foregroundStyle(Color.mmBgPrimary)
                     .padding(.horizontal, 24)

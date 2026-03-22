@@ -50,9 +50,7 @@ struct RoutineBuilderPage: View {
                     .foregroundStyle(Color.mmOnboardingTextMain)
                     .multilineTextAlignment(.center)
 
-                Text(isJapanese
-                    ? "あなたの目標に合わせて自動提案しました"
-                    : "Auto-generated for your goals")
+                Text(L10n.routineAutoSuggested)
                     .font(.system(size: 12))
                     .foregroundStyle(Color.mmOnboardingAccent.opacity(0.8))
                     .multilineTextAlignment(.center)
@@ -64,7 +62,7 @@ struct RoutineBuilderPage: View {
             Spacer().frame(height: 6)
 
             // カバー率バッジ（GoalMusclePreviewから移植）
-            Text(isJapanese ? "\(coveragePercent)%の筋肉をカバー" : "\(coveragePercent)% muscle coverage")
+            Text(L10n.muscleCoveragePercent(coveragePercent))
                 .font(.system(size: 13, weight: .bold))
                 .foregroundStyle(Color.mmOnboardingAccent)
                 .padding(.horizontal, 12)
@@ -107,9 +105,7 @@ struct RoutineBuilderPage: View {
                 // サマリー行
                 let totalExercises = days.flatMap(\.exercises).count
                 let totalDays = days.count
-                Text(isJapanese
-                    ? "合計 \(totalExercises)種目 / 週\(totalDays)回"
-                    : "\(totalExercises) exercises / \(totalDays) days per week")
+                Text(L10n.totalExercisesPerWeek(totalExercises, totalDays))
                     .font(.system(size: 13, weight: .medium))
                     .foregroundStyle(Color.mmOnboardingTextSub)
 
@@ -132,7 +128,7 @@ struct RoutineBuilderPage: View {
                         HStack(spacing: 6) {
                             Text("✨")
                                 .font(.system(size: 16))
-                            Text(isJapanese ? "このメニューで始める" : "Start with This Menu")
+                            Text(L10n.startWithThisMenu)
                                 .font(.system(size: 18, weight: .bold))
                         }
                         .foregroundStyle(Color.mmOnboardingBg)
@@ -162,7 +158,7 @@ struct RoutineBuilderPage: View {
                         }
                     } label: {
                         HStack(spacing: 6) {
-                            Text(isJapanese ? "Day \(nextDayNum) を確認する" : "Review Day \(nextDayNum)")
+                            Text(L10n.reviewDay(nextDayNum))
                                 .font(.system(size: 18, weight: .bold))
                             Image(systemName: "arrow.right")
                                 .font(.system(size: 16, weight: .bold))
@@ -183,7 +179,7 @@ struct RoutineBuilderPage: View {
                 }
 
                 // 変更可能テキスト
-                Text(isJapanese ? "メニューは後から設定で変更できます" : "You can customize your routine later in Settings")
+                Text(L10n.routineChangeLater)
                     .font(.system(size: 12))
                     .foregroundStyle(Color.mmOnboardingTextSub)
             }
@@ -295,9 +291,7 @@ struct RoutineBuilderPage: View {
                     HStack(spacing: 4) {
                         Image(systemName: "figure.strengthtraining.traditional")
                             .font(.system(size: 11))
-                        Text(isJapanese
-                            ? "\(day.exercises.count)種目"
-                            : "\(day.exercises.count) exercises")
+                        Text(L10n.dayExerciseCount(day.exercises.count))
                             .font(.system(size: 12, weight: .bold))
                     }
                     .foregroundStyle(Color.mmOnboardingTextSub)
@@ -322,7 +316,7 @@ struct RoutineBuilderPage: View {
                                 VStack(spacing: 6) {
                                     Image(systemName: "plus.circle")
                                         .font(.system(size: 28))
-                                    Text(isJapanese ? "追加" : "Add")
+                                    Text(L10n.addLabel)
                                         .font(.system(size: 12, weight: .bold))
                                 }
                                 .foregroundStyle(Color.mmOnboardingTextSub)
@@ -648,33 +642,21 @@ struct RoutineBuilderPage: View {
     private func educationHint(for day: RoutineDay) -> String {
         let groups = Set(day.muscleGroups)
         if groups.contains("chest") && groups.contains("shoulders") {
-            return isJapanese
-                ? "\u{1F4A1} 「押す」動作の筋肉をまとめて効率UP"
-                : "\u{1F4A1} Push muscles grouped for efficiency"
+            return L10n.rbTipPush
         }
         if groups.contains("back") {
-            return isJapanese
-                ? "\u{1F4A1} 「引く」動作の筋肉で背中を厚く"
-                : "\u{1F4A1} Pull muscles for a thick back"
+            return L10n.rbTipPull
         }
         if groups.contains("lowerBody") {
-            return isJapanese
-                ? "\u{1F4A1} 下半身は代謝UPの最重要パーツ"
-                : "\u{1F4A1} Legs are key for boosting metabolism"
+            return L10n.rbTipLegs
         }
         if groups.contains("shoulders") {
-            return isJapanese
-                ? "\u{1F4A1} 肩を鍛えると全体のシルエットが変わる"
-                : "\u{1F4A1} Shoulders transform your overall silhouette"
+            return L10n.rbTipShoulders
         }
         if groups.contains("arms") {
-            return isJapanese
-                ? "\u{1F4A1} 腕はTシャツから見える「名刺」"
-                : "\u{1F4A1} Arms are your visible \"business card\""
+            return L10n.rbTipArms
         }
-        return isJapanese
-            ? "\u{1F4A1} 補助筋もまとめてカバー"
-            : "\u{1F4A1} Synergist muscles covered together"
+        return L10n.rbTipAux
     }
 }
 
@@ -863,7 +845,7 @@ struct RoutineExercisePickerSheet: View {
                                         HStack(spacing: 4) {
                                             Image(systemName: "checkmark.circle.fill")
                                                 .font(.system(size: 14))
-                                            Text(isJapanese ? "追加済み" : "Added")
+                                            Text(L10n.addedLabel)
                                                 .font(.caption.bold())
                                         }
                                         .foregroundStyle(Color.mmOnboardingAccent.opacity(0.6))

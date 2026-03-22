@@ -346,9 +346,7 @@ struct RoutineProgressBar: View {
 
                 Spacer()
 
-                Text(isJapanese
-                    ? "\(completedCount)/\(totalCount) 種目完了"
-                    : "\(completedCount)/\(totalCount) done")
+                Text(L10n.exerciseProgress(completedCount, totalCount))
                     .font(.system(size: 12, weight: .semibold))
                     .foregroundStyle(Color.mmAccentPrimary)
             }
@@ -451,12 +449,10 @@ struct RoutineCompleteCard: View {
             Image(systemName: "checkmark.circle.fill")
                 .font(.system(size: 32))
                 .foregroundStyle(Color.mmAccentPrimary)
-            Text(isJapanese ? "ルーティン完了!" : "Routine Complete!")
+            Text(L10n.routineComplete)
                 .font(.system(size: 16, weight: .bold))
                 .foregroundStyle(Color.mmAccentPrimary)
-            Text(isJapanese
-                ? "追加で種目を記録するか、ワークアウトを終了できます"
-                : "Add more exercises or finish your workout")
+            Text(L10n.routineCompleteHint)
                 .font(.system(size: 12))
                 .foregroundStyle(Color.mmTextSecondary)
                 .multilineTextAlignment(.center)

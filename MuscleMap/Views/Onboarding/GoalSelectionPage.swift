@@ -64,10 +64,6 @@ struct GoalSelectionPage: View {
     @State private var headerAppeared = false
     @State private var tappedMuscle: Muscle?
 
-    private var isJapanese: Bool {
-        LocalizationManager.shared.currentLanguage == .japanese
-    }
-
     /// 少なくとも1つのスライダーが0より大きいか
     private var hasAnyGoal: Bool {
         goalValues.values.contains { $0 > 0 }
@@ -147,7 +143,7 @@ struct GoalSelectionPage: View {
             if !priorityMuscles.isEmpty {
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 6) {
-                        Text(isJapanese ? "重点部位" : "Key Targets")
+                        Text(L10n.keyTargets)
                             .font(.caption2)
                             .foregroundStyle(Color.mmOnboardingTextSub)
 
@@ -197,7 +193,7 @@ struct GoalSelectionPage: View {
 
             // 未選択ヒント
             if !hasAnyGoal {
-                Text(isJapanese ? "タップして目標を選択" : "Tap to select your goals")
+                Text(L10n.tapToSelectGoals)
                     .font(.system(size: 13))
                     .foregroundStyle(Color.mmOnboardingTextSub)
                     .padding(.bottom, 4)

@@ -47,18 +47,12 @@ final class NotificationManager {
             }.joined(separator: "・")
 
             let content = UNMutableNotificationContent()
-            content.title = isJapanese
-                ? "💪 \(muscleNames) 回復完了！"
-                : "💪 \(muscleNames) Recovered!"
+            content.title = L10n.notifRecoveryComplete(muscleNames)
 
             if let nextPart = nextPartName {
-                content.body = isJapanese
-                    ? "次は\(nextPart)の日。トレーニングしよう！"
-                    : "Time for \(nextPart) day. Let's train!"
+                content.body = L10n.notifNextPart(nextPart)
             } else {
-                content.body = isJapanese
-                    ? "回復した筋肉を鍛えよう！"
-                    : "Train your recovered muscles!"
+                content.body = L10n.notifTrainRecoveredMuscles
             }
             content.sound = .default
 
@@ -78,10 +72,8 @@ final class NotificationManager {
     func scheduleRecoveryReminder(nextPartName: String, recoveryDate: Date) {
         // 旧インターフェース: 単一の回復日で1通知
         let content = UNMutableNotificationContent()
-        content.title = isJapanese ? "💪 回復完了！" : "💪 Recovery Complete!"
-        content.body = isJapanese
-            ? "次は\(nextPartName)の日。トレーニングしよう！"
-            : "Time for \(nextPartName) day. Let's train!"
+        content.title = L10n.notifRecoveryCompleteShort
+        content.body = L10n.notifNextPart(nextPartName)
         content.sound = .default
 
         UNUserNotificationCenter.current()
@@ -109,15 +101,11 @@ final class NotificationManager {
         guard twoDaysLater > Date() else { return }
 
         let content = UNMutableNotificationContent()
-        content.title = isJapanese ? "トレーニングの時間" : "Time to Train"
+        content.title = L10n.notifTimeToTrain
         if let muscle = neglectedMuscleName {
-            content.body = isJapanese
-                ? "\(muscle)が待ってるぞ 🔥"
-                : "\(muscle) is waiting for you 🔥"
+            content.body = L10n.notifMuscleWaiting(muscle)
         } else {
-            content.body = isJapanese
-                ? "2日空いたよ。今日やろう 🔥"
-                : "2 days since last workout. Let's go 🔥"
+            content.body = L10n.notifTwoDaysOff
         }
         content.sound = .default
 
@@ -143,10 +131,8 @@ final class NotificationManager {
             .removePendingNotificationRequests(withIdentifiers: ["weekly_summary"])
 
         let content = UNMutableNotificationContent()
-        content.title = isJapanese ? "週間サマリー" : "Weekly Summary"
-        content.body = isJapanese
-            ? "先週は\(workoutCount)回トレーニング。今週も頑張ろう！"
-            : "Last week: \(workoutCount) workouts. Keep it up!"
+        content.title = L10n.notifWeeklySummary
+        content.body = L10n.notifWeeklyBody(workoutCount)
         content.sound = .default
 
         var dateComponents = DateComponents()

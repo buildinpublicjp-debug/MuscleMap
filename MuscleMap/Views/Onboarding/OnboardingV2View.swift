@@ -57,7 +57,7 @@ struct OnboardingV2View: View {
                             HStack(spacing: 4) {
                                 Image(systemName: "chevron.left")
                                     .font(.system(size: 14, weight: .semibold))
-                                Text(isJapanese ? "戻る" : "Back")
+                                Text(L10n.back)
                                     .font(.system(size: 14, weight: .medium))
                             }
                             .foregroundStyle(Color.mmOnboardingTextSub)
@@ -165,10 +165,6 @@ struct OnboardingV2View: View {
         } else {
             currentPage -= 1
         }
-    }
-
-    private var isJapanese: Bool {
-        LocalizationManager.shared.currentLanguage == .japanese
     }
 
     /// インジケーターに表示するページ番号（生成ページ5を除外、PR入力スキップ時はページ4も除外）

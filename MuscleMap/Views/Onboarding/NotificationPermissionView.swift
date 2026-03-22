@@ -50,7 +50,7 @@ struct NotificationPermissionView: View {
                         Spacer().frame(height: 16)
 
                         // ヘッドライン
-                        Text(isJapanese ? "回復したら、教える。" : "We'll Tell You When You're Ready.")
+                        Text(L10n.notifHeadline)
                             .font(.system(size: 28, weight: .heavy))
                             .foregroundStyle(Color.mmOnboardingAccent)
                             .multilineTextAlignment(.center)
@@ -60,9 +60,7 @@ struct NotificationPermissionView: View {
                         Spacer().frame(height: 4)
 
                         // サブテキスト（刺激→回復→成長）
-                        Text(isJapanese
-                            ? "筋肉が回復したタイミングで通知を受け取れます\nベストなタイミングで次のトレーニングへ。"
-                            : "Get notified when your muscles have recovered.\nTrain at the perfect time for maximum gains.")
+                        Text(L10n.notifSubheadline)
                             .font(.system(size: 14))
                             .foregroundStyle(Color.mmOnboardingTextSub)
                             .multilineTextAlignment(.center)
@@ -90,16 +88,16 @@ struct NotificationPermissionView: View {
                         // 通知プレビューカード（2枚）
                         VStack(spacing: 12) {
                             notificationCard(
-                                subtitle: isJapanese ? "🔥 大胸筋・三角筋 回復完了！" : "🔥 Chest & Delts Recovered!",
-                                body: isJapanese ? "プッシュの日です。トレーニングしよう！" : "Push day. Time to train!",
-                                time: isJapanese ? "たった今" : "Just now",
+                                subtitle: L10n.notifMockTitle1,
+                                body: L10n.notifMockBody1,
+                                time: L10n.notifMockTime1,
                                 isMain: true
                             )
 
                             notificationCard(
-                                subtitle: isJapanese ? "🏆 ベンチプレス PR更新チャンス！" : "🏆 Bench Press PR Opportunity!",
-                                body: isJapanese ? "前回62.5kg×8。今日65kgに挑戦できるかも" : "Last time 62.5kg×8. Try 65kg today?",
-                                time: isJapanese ? "2時間前" : "2h ago"
+                                subtitle: L10n.notifMockTitle2,
+                                body: L10n.notifMockBody2,
+                                time: L10n.notifMockTime2
                             )
                         }
                         .opacity(appeared ? 1 : 0)
@@ -128,7 +126,7 @@ struct NotificationPermissionView: View {
                                 )
                                 .clipShape(RoundedRectangle(cornerRadius: 16))
                         } else {
-                            Text(isJapanese ? "回復通知をオンにする" : "Turn On Recovery Alerts")
+                            Text(L10n.notifEnableButton)
                                 .font(.system(size: 18, weight: .bold))
                                 .foregroundStyle(Color.mmOnboardingBg)
                                 .frame(maxWidth: .infinity)
@@ -186,19 +184,19 @@ struct NotificationPermissionView: View {
 
     private var growthCycleSteps: some View {
         HStack(spacing: 0) {
-            stepBadge(icon: "flame.fill", text: isJapanese ? "刺激" : "Stimulate", color: .mmMuscleCoral)
+            stepBadge(icon: "flame.fill", text: L10n.notifStepStimulate, color: .mmMuscleCoral)
 
             Image(systemName: "arrow.right")
                 .font(.system(size: 10))
                 .foregroundStyle(Color.mmOnboardingTextSub)
 
-            stepBadge(icon: "clock.arrow.circlepath", text: isJapanese ? "回復" : "Recover", color: .mmOnboardingAccent, isHighlighted: true)
+            stepBadge(icon: "clock.arrow.circlepath", text: L10n.notifStepRecover, color: .mmOnboardingAccent, isHighlighted: true)
 
             Image(systemName: "arrow.right")
                 .font(.system(size: 10))
                 .foregroundStyle(Color.mmOnboardingTextSub)
 
-            stepBadge(icon: "arrow.up.circle.fill", text: isJapanese ? "成長" : "Grow", color: .mmAccentPrimary)
+            stepBadge(icon: "arrow.up.circle.fill", text: L10n.notifStepGrow, color: .mmAccentPrimary)
         }
     }
 

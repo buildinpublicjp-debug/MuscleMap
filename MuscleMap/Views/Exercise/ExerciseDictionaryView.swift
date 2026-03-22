@@ -76,7 +76,7 @@ struct ExerciseDictionaryView: View {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 6) {
                             filterChip(
-                                text: isJapanese ? "すべて" : "All",
+                                text: L10n.all,
                                 icon: nil,
                                 isSelected: selectedMuscleGroup == nil,
                                 action: {
@@ -108,7 +108,7 @@ struct ExerciseDictionaryView: View {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 6) {
                             filterChip(
-                                text: isJapanese ? "全器具" : "All",
+                                text: L10n.allEquipment,
                                 icon: nil,
                                 isSelected: selectedEquipment == nil,
                                 action: {
@@ -120,7 +120,7 @@ struct ExerciseDictionaryView: View {
                             )
 
                             filterChip(
-                                text: isJapanese ? "お気に入り" : "Favorites",
+                                text: L10n.favorites,
                                 icon: "star.fill",
                                 isSelected: selectedEquipment == "⭐",
                                 action: {
@@ -150,9 +150,7 @@ struct ExerciseDictionaryView: View {
 
                     // 種目数ヘッダー
                     HStack {
-                        Text(isJapanese
-                            ? "\(filteredExercises.count)種目"
-                            : "\(filteredExercises.count) exercises")
+                        Text(L10n.filteredExercisesCount(filteredExercises.count))
                             .font(.caption.bold())
                             .foregroundStyle(Color.mmTextSecondary)
                         Spacer()
@@ -224,7 +222,7 @@ struct ExerciseDictionaryView: View {
                 .padding(.vertical, 8)
             }
             .background(Color.mmBgPrimary)
-            .navigationTitle(isJapanese ? "種目辞典" : "Exercise Dictionary")
+            .navigationTitle(L10n.exerciseDictTitle)
             .navigationBarTitleDisplayMode(.inline)
             .toolbarColorScheme(.dark, for: .navigationBar)
         }

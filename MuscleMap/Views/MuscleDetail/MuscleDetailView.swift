@@ -352,7 +352,7 @@ private struct RelatedExercisesSection: View {
                 HStack(spacing: 6) {
                     // すべて
                     equipmentChip(
-                        text: isJapanese ? "すべて" : "All",
+                        text: L10n.all,
                         isSelected: viewModel.selectedEquipment == nil
                     ) {
                         viewModel.selectedEquipment = nil

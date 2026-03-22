@@ -88,23 +88,23 @@ struct RoutineCompletionPage: View {
     private var goalBasedHeadline: String {
         guard let raw = AppState.shared.primaryOnboardingGoal,
               let goal = OnboardingGoal(rawValue: raw) else {
-            return isJapanese ? "あなた専用プログラム完成" : "Your Program is Ready"
+            return L10n.completionDefaultTitle
         }
         switch goal {
         case .getBig:
-            return isJapanese ? "デカくなる準備完了。" : "Ready to Get Big."
+            return L10n.completionBulk
         case .dontGetDisrespected:
-            return isJapanese ? "強くなる準備完了。" : "Ready to Get Strong."
+            return L10n.completionStrength
         case .martialArts:
-            return isJapanese ? "闘う体の準備完了。" : "Fight-Ready Program."
+            return L10n.completionFight
         case .getAttractive:
-            return isJapanese ? "変わる準備完了。" : "Ready to Transform."
+            return L10n.completionTransform
         case .sports:
-            return isJapanese ? "アスリートの準備完了。" : "Athletic Program Ready."
+            return L10n.completionAthlete
         case .moveWell:
-            return isJapanese ? "動ける体の準備完了。" : "Mobility Program Ready."
+            return L10n.completionMobility
         case .health:
-            return isJapanese ? "健康への第一歩。" : "Your Health Journey Starts."
+            return L10n.completionHealth
         }
     }
 
@@ -121,9 +121,7 @@ struct RoutineCompletionPage: View {
                     .foregroundStyle(Color.mmOnboardingAccent)
                     .multilineTextAlignment(.center)
 
-                Text(isJapanese
-                    ? "目標・経験・環境から最適化"
-                    : "Optimized for your goals & experience")
+                Text(L10n.completionOptimized)
                     .font(.system(size: 12))
                     .foregroundStyle(Color.mmOnboardingTextSub)
                     .multilineTextAlignment(.center)
@@ -145,7 +143,7 @@ struct RoutineCompletionPage: View {
 
                         // カバレッジ（縦レイアウト、マップ横に配置）
                         VStack(spacing: 6) {
-                            Text(isJapanese ? "カバレッジ" : "Coverage")
+                            Text(L10n.coverageLabel)
                                 .font(.system(size: 10, weight: .bold))
                                 .foregroundStyle(Color.mmOnboardingTextSub)
 
@@ -170,7 +168,7 @@ struct RoutineCompletionPage: View {
                             .frame(height: 4)
 
                             if animationCompleted {
-                                Text(isJapanese ? "全身カバー!" : "Full body!")
+                                Text(L10n.fullBodyCover)
                                     .font(.system(size: 9, weight: .bold))
                                     .foregroundStyle(Color.mmOnboardingAccent)
                                     .transition(.opacity)

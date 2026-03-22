@@ -63,19 +63,19 @@ struct GoalMusclePreviewPage: View {
     private var goalBasedHeadline: String {
         switch currentGoal {
         case .getBig:
-            return isJapanese ? "デカくなるプログラム" : "Program to Get Big"
+            return L10n.gmProgBulk
         case .dontGetDisrespected:
-            return isJapanese ? "強くなるプログラム" : "Program to Get Strong"
+            return L10n.gmProgStrength
         case .martialArts:
-            return isJapanese ? "闘う体のプログラム" : "Fighter's Program"
+            return L10n.gmProgFight
         case .getAttractive:
-            return isJapanese ? "変わるためのプログラム" : "Transformation Program"
+            return L10n.gmProgTransform
         case .sports:
-            return isJapanese ? "アスリートのプログラム" : "Athlete's Program"
+            return L10n.gmProgAthlete
         case .moveWell:
-            return isJapanese ? "動ける体のプログラム" : "Mobility Program"
+            return L10n.gmProgMobility
         case .health:
-            return isJapanese ? "健康のためのプログラム" : "Health Program"
+            return L10n.gmProgHealth
         }
     }
 
@@ -121,9 +121,7 @@ struct GoalMusclePreviewPage: View {
                     Spacer().frame(height: 4)
 
                     // サブタイトル
-                    Text(isJapanese
-                        ? "あなたの目標・経験・環境から最適な分割法を作成しました"
-                        : "Optimized split based on your goals, experience & equipment")
+                    Text(L10n.gmPreviewSubtitle)
                         .font(.system(size: 12))
                         .foregroundStyle(Color.mmOnboardingTextSub)
                         .multilineTextAlignment(.center)
@@ -142,7 +140,7 @@ struct GoalMusclePreviewPage: View {
                     Spacer().frame(height: 4)
 
                     // カバー率バッジ
-                    Text(isJapanese ? "\(coveragePercent)%の筋肉をカバー" : "\(coveragePercent)% muscle coverage")
+                    Text(L10n.muscleCoveragePercent(coveragePercent))
                         .font(.system(size: 13, weight: .heavy))
                         .foregroundStyle(Color.mmOnboardingAccent)
                         .padding(.horizontal, 12)
@@ -179,7 +177,7 @@ struct GoalMusclePreviewPage: View {
                 stopAnimation()
                 onNext()
             } label: {
-                Text(isJapanese ? "種目を確認する →" : "Review Exercises →")
+                Text(L10n.reviewExercises)
                     .font(.system(size: 18, weight: .bold))
                     .foregroundStyle(Color.mmOnboardingBg)
                     .frame(maxWidth: .infinity)

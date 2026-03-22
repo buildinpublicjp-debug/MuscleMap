@@ -10,33 +10,30 @@ enum WeeklyFrequency: Int, CaseIterable, Codable {
     case fivePlus = 5
 
     var title: String {
-        let isJapanese = LocalizationManager.shared.currentLanguage == .japanese
         switch self {
-        case .twice: return isJapanese ? "週2回" : "2× / week"
-        case .thrice: return isJapanese ? "週3回" : "3× / week"
-        case .four: return isJapanese ? "週4回" : "4× / week"
-        case .fivePlus: return isJapanese ? "週5回以上" : "5+ / week"
+        case .twice: return L10n.freqTwice
+        case .thrice: return L10n.freqThrice
+        case .four: return L10n.freqFour
+        case .fivePlus: return L10n.freqFivePlus
         }
     }
 
     var subtitle: String {
-        let isJapanese = LocalizationManager.shared.currentLanguage == .japanese
         switch self {
-        case .twice: return isJapanese ? "上半身と下半身を分けて鍛える" : "Upper body & lower body split"
-        case .thrice: return isJapanese ? "胸・背中・脚の3分割" : "Chest, back & legs — 3 day split"
-        case .four: return isJapanese ? "部位ごとにしっかり追い込む" : "Dedicated day for each muscle group"
-        case .fivePlus: return isJapanese ? "毎日違う部位をフルで鍛える" : "Full volume per muscle group daily"
+        case .twice: return L10n.freqTwiceDesc
+        case .thrice: return L10n.freqThriceDesc
+        case .four: return L10n.freqFourDesc
+        case .fivePlus: return L10n.freqFivePlusDesc
         }
     }
 
     /// 医学的根拠テキスト
     var evidenceText: String {
-        let isJapanese = LocalizationManager.shared.currentLanguage == .japanese
         switch self {
-        case .twice: return isJapanese ? "各部位に十分な回復時間。初心者に最適" : "Full recovery time. Best for beginners"
-        case .thrice: return isJapanese ? "胸・背中・脚の王道3分割" : "Classic 3-day split for balanced growth"
-        case .four: return isJapanese ? "部位ごとにしっかり追い込む" : "Dedicated focus per muscle group"
-        case .fivePlus: return isJapanese ? "各部位を個別にフルで鍛える" : "Maximum volume per muscle group"
+        case .twice: return L10n.freqTwiceDetail
+        case .thrice: return L10n.freqThriceDetail
+        case .four: return L10n.freqFourDetail
+        case .fivePlus: return L10n.freqFivePlusDetail
         }
     }
 
@@ -84,10 +81,6 @@ struct FrequencySelectionPage: View {
     @State private var muscleStates: [Muscle: MuscleVisualState] = [:]
     @State private var animationTimerRef: Timer?
 
-    private var isJapanese: Bool {
-        LocalizationManager.shared.currentLanguage == .japanese
-    }
-
     var body: some View {
         GeometryReader { geo in
             let h = geo.size.height
@@ -99,12 +92,12 @@ struct FrequencySelectionPage: View {
 
             // ヘッダー
             VStack(spacing: 4) {
-                Text(isJapanese ? "週にどれくらいやれる？" : "How often can you train?")
+                Text(L10n.freqTitle)
                     .font(.system(size: 28, weight: .heavy))
                     .foregroundStyle(Color.mmOnboardingTextMain)
                     .multilineTextAlignment(.center)
 
-                Text(isJapanese ? "あなたに合った分割法を提案します" : "We'll suggest the best split for you")
+                Text(L10n.freqSubtitle)
                     .font(.system(size: 16))
                     .foregroundStyle(Color.mmOnboardingTextSub)
                     .multilineTextAlignment(.center)
@@ -128,9 +121,9 @@ struct FrequencySelectionPage: View {
 
             // 色のレジェンド
             HStack(spacing: 16) {
-                legendItem(color: Color.red.opacity(0.8), text: isJapanese ? "刺激" : "Stimulus")
-                legendItem(color: Color.yellow.opacity(0.8), text: isJapanese ? "回復中" : "Recovering")
-                legendItem(color: Color.mmOnboardingTextSub.opacity(0.3), text: isJapanese ? "未刺激" : "Inactive")
+                legendItem(color: Color.red.opacity(0.8), text: L10n.legendStimulus)
+                legendItem(color: Color.yellow.opacity(0.8), text: L10n.legendRecovering)
+                legendItem(color: Color.mmOnboardingTextSub.opacity(0.3), text: L10n.legendInactive)
             }
             .font(.system(size: 10))
             .padding(.top, 4)
@@ -138,16 +131,14 @@ struct FrequencySelectionPage: View {
 
             // ヒントテキスト or タイムラインバー
             if selected == nil {
-                Text(isJapanese ? "頻度を選ぶとサイクルが動きます" : "Select to see the recovery cycle")
+                Text(L10n.freqCycleHint)
                     .font(.caption)
                     .foregroundStyle(Color.mmOnboardingTextSub)
                     .padding(.top, 6)
                     .opacity(appeared ? 1 : 0)
             } else {
                 // 超回復の1行説明
-                Text(isJapanese
-                    ? "赤＝刺激 → 黄＝回復中 → 暗い＝回復完了。このサイクルで鍛える"
-                    : "Red = stimulated → Yellow = recovering → Dark = recovered")
+                Text(L10n.freqCycleDescription)
                     .font(.system(size: 10))
                     .foregroundStyle(Color.mmOnboardingTextSub)
                     .multilineTextAlignment(.center)
@@ -266,9 +257,7 @@ struct FrequencySelectionPage: View {
     // MARK: - タイムラインバー
 
     private var timelineBar: some View {
-        let dayLabels = isJapanese
-            ? ["月", "火", "水", "木", "金", "土", "日"]
-            : ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+        let dayLabels = L10n.freqDayLabels()
         let schedule = selected?.schedulePreview ?? []
 
         return HStack(spacing: 3) {
@@ -425,10 +414,6 @@ private struct FrequencyCompactCard: View {
     var cardHeight: CGFloat = 72
     let onTap: () -> Void
 
-    private var isJapanese: Bool {
-        LocalizationManager.shared.currentLanguage == .japanese
-    }
-
     var body: some View {
         Button(action: onTap) {
             HStack(spacing: 0) {
@@ -453,7 +438,7 @@ private struct FrequencyCompactCard: View {
                                 .foregroundStyle(Color.mmOnboardingTextMain)
 
                             if frequency == .twice {
-                                Text(isJapanese ? "初心者におすすめ" : "Recommended")
+                                Text(L10n.freqRecommended)
                                     .font(.system(size: 9, weight: .bold))
                                     .foregroundStyle(Color.mmOnboardingAccent)
                                     .padding(.horizontal, 6)

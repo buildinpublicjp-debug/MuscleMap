@@ -13,10 +13,6 @@ struct SplashView: View {
     @State private var showContinue: Bool = false
     @State private var glowOpacity: Double = 0.4
 
-    private var isJapanese: Bool {
-        LocalizationManager.shared.currentLanguage == .japanese
-    }
-
     var body: some View {
         ZStack {
             // 背景: 上部が少し明るいグラデーション
@@ -59,11 +55,11 @@ struct SplashView: View {
 
                 // タグライン（エモーショナル、大きめ）
                 VStack(spacing: 8) {
-                    Text(isJapanese ? "鍛えた筋肉が光る。" : "Watch your muscles light up.")
+                    Text(L10n.splashHeadline)
                         .font(.system(size: 28, weight: .heavy))
                         .foregroundStyle(Color.mmOnboardingTextMain)
 
-                    Text(isJapanese ? "あなたの体の変化を、目で見る。" : "See your body transform.")
+                    Text(L10n.splashSubheadline)
                         .font(.system(size: 16))
                         .foregroundStyle(Color.mmOnboardingTextSub)
                 }
@@ -78,7 +74,7 @@ struct SplashView: View {
                         HapticManager.mediumTap()
                         onComplete()
                     } label: {
-                        Text(isJapanese ? "始める" : "Get Started")
+                        Text(L10n.getStarted)
                             .font(.system(size: 18, weight: .bold))
                             .foregroundStyle(Color.mmOnboardingBg)
                             .frame(maxWidth: .infinity)

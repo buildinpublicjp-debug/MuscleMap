@@ -10,17 +10,13 @@ struct MenuGeneratingPage: View {
     @State private var currentStep = 0
     @State private var allDone = false
 
-    private var isJapanese: Bool {
-        LocalizationManager.shared.currentLanguage == .japanese
-    }
-
     /// ステップ定義（アイコン + テキスト）
-    private var steps: [(icon: String, textJA: String, textEN: String)] {
+    private var steps: [(icon: String, text: String)] {
         [
-            ("figure.strengthtraining.traditional", "目標と経験を分析中…", "Analyzing goals & experience…"),
-            ("dumbbell.fill", "最適な種目を選定中…", "Selecting optimal exercises…"),
-            ("calendar", "分割スケジュールを構築中…", "Building your split schedule…"),
-            ("checkmark.seal.fill", "あなた専用メニュー完成！", "Your custom menu is ready!"),
+            ("figure.strengthtraining.traditional", L10n.mgStep1),
+            ("dumbbell.fill", L10n.mgStep2),
+            ("calendar", L10n.mgStep3),
+            ("checkmark.seal.fill", L10n.mgStep4),
         ]
     }
 
@@ -37,7 +33,7 @@ struct MenuGeneratingPage: View {
                     .scaleEffect(appeared ? 1.0 : 0.6)
                     .opacity(appeared ? 1 : 0)
 
-                Text(isJapanese ? "あなた専用メニューを作成中" : "Creating Your Custom Menu")
+                Text(L10n.menuGeneratingTitle)
                     .font(.system(size: 22, weight: .heavy))
                     .foregroundStyle(Color.mmOnboardingTextMain)
                     .multilineTextAlignment(.center)
@@ -54,7 +50,7 @@ struct MenuGeneratingPage: View {
                     stepRow(
                         index: index,
                         icon: step.icon,
-                        text: isJapanese ? step.textJA : step.textEN
+                        text: step.text
                     )
                 }
             }

@@ -15,10 +15,10 @@ enum TrainingLocation: String, CaseIterable, Codable {
 
     var title: String {
         switch self {
-        case .gym: return isJapanese ? "ジム" : "Gym"
-        case .home: return isJapanese ? "自宅" : "Home"
-        case .bodyweight: return isJapanese ? "自重のみ" : "Bodyweight Only"
-        case .both: return isJapanese ? "両方" : "Both"
+        case .gym: return L10n.locGym
+        case .home: return L10n.locHome
+        case .bodyweight: return L10n.locBodyweight
+        case .both: return L10n.locBoth
         }
     }
 
@@ -33,10 +33,10 @@ enum TrainingLocation: String, CaseIterable, Codable {
 
     var subtitle: String {
         switch self {
-        case .gym: return isJapanese ? "マシン・バーベル・ダンベル全部" : "Full equipment access"
-        case .home: return isJapanese ? "ダンベルと自重で鍛える" : "Dumbbells & bodyweight"
-        case .bodyweight: return isJapanese ? "器具なし、体ひとつで" : "No equipment needed"
-        case .both: return isJapanese ? "ジムと自宅を組み合わせ" : "Mix gym and home"
+        case .gym: return L10n.locGymSub
+        case .home: return L10n.locHomeSub
+        case .bodyweight: return L10n.locBodyweightSub
+        case .both: return L10n.locBothSub
         }
     }
 

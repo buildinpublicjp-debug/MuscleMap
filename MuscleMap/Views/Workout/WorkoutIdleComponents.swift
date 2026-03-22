@@ -32,7 +32,7 @@ struct WorkoutIdleView: View {
                             selectedMuscle = muscle
                         }
                     )
-                    .frame(height: UIScreen.main.bounds.height * 0.55)
+                    .frame(height: UIScreen.main.bounds.height * 0.40)
                     .padding(.horizontal)
 
                     // ヒントテキスト
@@ -302,55 +302,53 @@ struct MuscleExercisePickerSheet: View {
                     }
                 } else {
                     ScrollView {
-                        LazyVStack(spacing: 12) {
-                            ForEach(relatedExercises) { exercise in
+                        LazyVStack(spacing: 0) {
+                            ForEach(relatedExercises.filter { ExerciseGifView.hasGif(exerciseId: $0.id) }) { exercise in
                                 Button {
                                     HapticManager.lightTap()
                                     onSelect(exercise)
                                 } label: {
-                                    VStack(alignment: .leading, spacing: 8) {
-                                        // GIF - カード型で大きく
-                                        if ExerciseGifView.hasGif(exerciseId: exercise.id) {
-                                            ExerciseGifView(exerciseId: exercise.id, size: .card)
-                                        } else {
-                                            MiniMuscleMapView(muscleMapping: exercise.muscleMapping)
-                                                .frame(height: 120)
-                                                .frame(maxWidth: .infinity)
-                                                .background(Color.mmBgSecondary)
-                                                .clipShape(RoundedRectangle(cornerRadius: 8))
-                                        }
+                                    HStack(spacing: 12) {
+                                        // サムネイルGIF
+                                        ExerciseGifView(exerciseId: exercise.id, size: .thumbnail)
+                                            .frame(width: 50, height: 50)
+                                            .clipShape(RoundedRectangle(cornerRadius: 8))
 
-                                        // 種目名 + 器具 + 前回記録
-                                        HStack {
-                                            VStack(alignment: .leading, spacing: 2) {
-                                                Text(localization.currentLanguage == .japanese ? exercise.nameJA : exercise.nameEN)
-                                                    .font(.subheadline.bold())
-                                                    .foregroundStyle(Color.mmTextPrimary)
-                                                    .lineLimit(1)
-                                                    .minimumScaleFactor(0.7)
-                                                Text(exercise.localizedEquipment)
-                                                    .font(.caption)
-                                                    .foregroundStyle(Color.mmTextSecondary)
-                                            }
-                                            Spacer()
-                                            if let record = lastRecord(for: exercise.id) {
-                                                Text(L10n.lastRecordLabel(record.weight, record.reps))
-                                                    .font(.caption.monospaced().bold())
-                                                    .foregroundStyle(Color.mmAccentPrimary)
-                                            }
-                                            Image(systemName: "chevron.right")
+                                        // 種目名 + 器具
+                                        VStack(alignment: .leading, spacing: 2) {
+                                            Text(localization.currentLanguage == .japanese ? exercise.nameJA : exercise.nameEN)
+                                                .font(.subheadline.bold())
+                                                .foregroundStyle(Color.mmTextPrimary)
+                                                .lineLimit(1)
+                                            Text(exercise.localizedEquipment)
                                                 .font(.caption)
                                                 .foregroundStyle(Color.mmTextSecondary)
                                         }
+
+                                        Spacer()
+
+                                        // 前回記録
+                                        if let record = lastRecord(for: exercise.id) {
+                                            Text(L10n.lastRecordLabel(record.weight, record.reps))
+                                                .font(.caption.monospaced().bold())
+                                                .foregroundStyle(Color.mmAccentPrimary)
+                                        }
+
+                                        Image(systemName: "chevron.right")
+                                            .font(.caption)
+                                            .foregroundStyle(Color.mmTextSecondary)
                                     }
-                                    .padding(12)
-                                    .background(Color.mmBgCard)
-                                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                                    .padding(.horizontal, 16)
+                                    .frame(height: 66)
                                 }
-                                .padding(.horizontal)
+                                .buttonStyle(.plain)
+
+                                Divider()
+                                    .background(Color.mmBgCard)
+                                    .padding(.leading, 78)
                             }
                         }
-                        .padding(.vertical)
+                        .padding(.vertical, 8)
                     }
                 }
             }

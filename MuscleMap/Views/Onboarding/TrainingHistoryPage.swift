@@ -17,8 +17,6 @@ struct ProfileInputPage: View {
     @State private var isProceeding = false
     @State private var appeared = false
 
-    private var isJapanese: Bool { LocalizationManager.shared.currentLanguage == .japanese }
-
     /// 経験選択肢の定義
     private struct ExpOption {
         let experience: TrainingExperience
@@ -29,13 +27,13 @@ struct ProfileInputPage: View {
     private var expOptions: [ExpOption] {
         [
             ExpOption(experience: .beginner, icon: "leaf.fill",
-                      shortName: isJapanese ? "初心者" : "Newbie"),
+                      shortName: L10n.expNewbie),
             ExpOption(experience: .halfYear, icon: "dumbbell.fill",
-                      shortName: isJapanese ? "半年" : "6 Mo"),
+                      shortName: L10n.expSixMonths),
             ExpOption(experience: .oneYearPlus, icon: "flame.fill",
-                      shortName: isJapanese ? "1年+" : "1 Yr+"),
+                      shortName: L10n.expOneYearPlus),
             ExpOption(experience: .veteran, icon: "bolt.fill",
-                      shortName: isJapanese ? "ベテラン" : "Veteran"),
+                      shortName: L10n.expVeteran),
         ]
     }
 
@@ -164,7 +162,7 @@ struct ProfileInputPage: View {
             }
 
             if selectedExperience == nil {
-                Text(isJapanese ? "わからない場合は「初心者」がおすすめ" : "If unsure, select \"Newbie\"")
+                Text(L10n.expRecommendNewbie)
                     .font(.system(size: 11))
                     .foregroundStyle(Color.mmOnboardingTextSub.opacity(0.7))
             }
@@ -213,11 +211,11 @@ struct ProfileInputPage: View {
     private var heightStepperSection: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
-                Text(isJapanese ? "身長" : "Height")
+                Text(L10n.heightLabel)
                     .font(.system(size: 15, weight: .bold))
                     .foregroundStyle(Color.mmOnboardingTextMain)
 
-                Text(isJapanese ? "BMI計算に使用します" : "Used for BMI calculation")
+                Text(L10n.heightUsedForBMI)
                     .font(.system(size: 11))
                     .foregroundStyle(Color.mmOnboardingTextSub.opacity(0.7))
 
@@ -301,7 +299,7 @@ struct ProfileInputPage: View {
                     .font(.system(size: 15, weight: .bold))
                     .foregroundStyle(Color.mmOnboardingTextMain)
 
-                Text(isJapanese ? "体重から最適な重量を提案します" : "Used to suggest optimal weights")
+                Text(L10n.weightUsedForSuggestion)
                     .font(.system(size: 11))
                     .foregroundStyle(Color.mmOnboardingTextSub.opacity(0.7))
 
@@ -403,7 +401,7 @@ struct ProfileInputPage: View {
     private var bodyFatSection: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack(spacing: 6) {
-                Text(isJapanese ? "体脂肪率" : "Body Fat")
+                Text(L10n.bodyFatLabel)
                     .font(.system(size: 15, weight: .bold))
                     .foregroundStyle(Color.mmOnboardingTextMain)
 
@@ -497,15 +495,15 @@ struct ProfileInputPage: View {
         let pct = Double(bodyFatPct)
         // 男性基準（一般的なトレーニーの場合）
         if pct < 10 {
-            return isJapanese ? "アスリート" : "Athlete"
+            return L10n.bfAthlete
         } else if pct < 15 {
-            return isJapanese ? "フィットネス" : "Fitness"
+            return L10n.bfFitness
         } else if pct < 20 {
-            return isJapanese ? "標準" : "Average"
+            return L10n.bfAverage
         } else if pct < 25 {
-            return isJapanese ? "やや高め" : "Above Average"
+            return L10n.bfAboveAverage
         } else {
-            return isJapanese ? "高め" : "High"
+            return L10n.bfHigh
         }
     }
 
@@ -524,7 +522,7 @@ struct ProfileInputPage: View {
             // 体脂肪率入力時はカテゴリ表示
             if bodyFatEnabled {
                 HStack(spacing: 4) {
-                    Text(isJapanese ? "体脂肪率" : "BF%")
+                    Text(L10n.bodyFatShort)
                         .font(.caption)
                         .foregroundStyle(Color.mmOnboardingTextSub)
                     Text("\(bodyFatPct)%")

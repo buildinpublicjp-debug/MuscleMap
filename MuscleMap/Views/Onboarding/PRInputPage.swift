@@ -16,9 +16,6 @@ struct PRInputPage: View {
     /// 種目選択 → 重量入力シート
     @State private var selectedExercise: ExerciseDefinition?
 
-    private var localization: LocalizationManager { LocalizationManager.shared }
-    private var isJapanese: Bool { localization.currentLanguage == .japanese }
-
     /// デフォルト体重
     private var bodyweightKg: Double {
         let w = AppState.shared.userProfile.weightKg
@@ -111,7 +108,7 @@ struct PRInputPage: View {
                         HStack(spacing: 6) {
                             Image(systemName: "hand.tap")
                                 .font(.system(size: 12))
-                            Text(isJapanese ? "筋肉をタップして重量を入力" : "Tap muscles to enter weights")
+                            Text(L10n.prTapMuscles)
                                 .font(.system(size: 12, weight: .medium))
                         }
                         .foregroundStyle(Color.mmOnboardingTextSub)
@@ -164,7 +161,7 @@ struct PRInputPage: View {
                             VStack(spacing: 4) {
                                 Image(systemName: "plus.circle")
                                     .font(.system(size: 28))
-                                Text(isJapanese ? "追加" : "Add")
+                                Text(L10n.addLabel)
                                     .font(.system(size: 12, weight: .bold))
                             }
                             .foregroundStyle(Color.mmOnboardingTextSub)
@@ -186,9 +183,7 @@ struct PRInputPage: View {
                     Image(systemName: "chart.line.uptrend.xyaxis")
                         .font(.system(size: 18))
                         .foregroundStyle(Color.mmOnboardingAccent.opacity(0.5))
-                    Text(isJapanese
-                        ? "重量を入力すると、あなたの強さレベルが判定されます"
-                        : "Enter your weights to see your strength level")
+                    Text(L10n.prEnterWeightHint)
                         .font(.system(size: 12))
                         .foregroundStyle(Color.mmOnboardingTextSub)
                 }
@@ -197,7 +192,7 @@ struct PRInputPage: View {
                 .opacity(appeared ? 1 : 0)
             } else if let level = overallLevel {
                 VStack(spacing: 8) {
-                    Text(isJapanese ? "現在のレベル" : "Your Level")
+                    Text(L10n.yourLevel)
                         .font(.system(size: 12))
                         .foregroundStyle(Color.mmOnboardingTextSub)
 
@@ -223,9 +218,7 @@ struct PRInputPage: View {
                         }
                     }
 
-                    Text(isJapanese
-                        ? "もっと入力すると精度が上がります"
-                        : "More entries = more accurate")
+                    Text(L10n.prMoreInputHint)
                         .font(.system(size: 11))
                         .foregroundStyle(Color.mmOnboardingTextSub)
                 }
@@ -271,7 +264,7 @@ struct PRInputPage: View {
                     HapticManager.mediumTap()
                     onNext()
                 } label: {
-                    Text(isJapanese ? "わからない場合はスキップ →" : "Skip if unsure →")
+                    Text(L10n.skipIfUnsure)
                         .font(.system(size: 13))
                         .foregroundStyle(Color.mmOnboardingTextSub.opacity(0.6))
                 }
@@ -364,7 +357,7 @@ private struct MuscleExerciseSheet: View {
                     .font(.headline.bold())
                     .foregroundStyle(Color.mmOnboardingTextMain)
                 Spacer()
-                Text(isJapanese ? "\(exercises.count)種目" : "\(exercises.count) exercises")
+                Text(L10n.exerciseCount(exercises.count))
                     .font(.caption)
                     .foregroundStyle(Color.mmOnboardingTextSub)
             }
@@ -375,7 +368,7 @@ private struct MuscleExerciseSheet: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 6) {
                     equipmentChip(
-                        text: isJapanese ? "すべて" : "All",
+                        text: L10n.all,
                         isSelected: selectedEquipment == nil
                     ) {
                         selectedEquipment = nil
@@ -440,9 +433,6 @@ private struct WeightInputSheet: View {
     @State private var weight: Double = 0
     @State private var holdTimer: Timer?
 
-    private var localization: LocalizationManager { LocalizationManager.shared }
-    private var isJapanese: Bool { localization.currentLanguage == .japanese }
-
     private var currentLevel: StrengthLevel? {
         guard weight > 0 else { return nil }
         return StrengthScoreCalculator.exerciseStrengthLevel(
@@ -494,11 +484,11 @@ private struct WeightInputSheet: View {
 
             // 重量入力エリア
             VStack(spacing: 12) {
-                Text(isJapanese ? "最大重量 (1RM)" : "Max Weight (1RM)")
+                Text(L10n.prMaxWeight)
                     .font(.caption)
                     .foregroundStyle(Color.mmOnboardingTextSub)
 
-                Text(isJapanese ? "1回だけ挙げられる最大の重量" : "The heaviest weight you can lift once")
+                Text(L10n.prMaxWeightDesc)
                     .font(.system(size: 10))
                     .foregroundStyle(Color.mmOnboardingTextSub.opacity(0.7))
 
@@ -560,7 +550,7 @@ private struct WeightInputSheet: View {
                 onSave(weight)
                 dismiss()
             } label: {
-                Text(isJapanese ? "記録する" : "Record")
+                Text(L10n.recordButton)
                     .font(.system(size: 16, weight: .bold))
                     .foregroundStyle(weight > 0 ? Color.mmOnboardingBg : Color.mmOnboardingTextSub)
                     .frame(maxWidth: .infinity)
