@@ -130,6 +130,22 @@ struct RecentExercisesSection: View {
                             onSelect(exercise)
                         } label: {
                             VStack(alignment: .leading, spacing: 6) {
+                                // GIFサムネイル（50x50）
+                                if ExerciseGifView.hasGif(exerciseId: exercise.id) {
+                                    ExerciseGifView(exerciseId: exercise.id, size: .thumbnail)
+                                        .frame(width: 50, height: 50)
+                                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                                } else {
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .fill(Color.mmBgSecondary)
+                                        .frame(width: 50, height: 50)
+                                        .overlay(
+                                            Image(systemName: "dumbbell.fill")
+                                                .font(.system(size: 18))
+                                                .foregroundStyle(Color.mmTextSecondary.opacity(0.5))
+                                        )
+                                }
+
                                 Text(localization.currentLanguage == .japanese ? exercise.nameJA : exercise.nameEN)
                                     .font(.subheadline.bold())
                                     .foregroundStyle(Color.mmTextPrimary)
