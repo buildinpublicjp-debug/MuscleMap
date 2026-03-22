@@ -150,8 +150,10 @@ struct WorkoutCompletionView: View {
                                 .multilineTextAlignment(.center)
                         }
 
-                        // 90日チャレンジ Day完了（進行中の場合のみ）
-                        ChallengeDayCompleteBanner()
+                        // 90日チャレンジ Day完了（チャレンジ進行中の場合のみ）
+                        if AppState.shared.challengeActive {
+                            ChallengeDayCompleteBanner()
+                        }
 
                         CompletionStatsCard(
                             totalVolume: totalVolume,

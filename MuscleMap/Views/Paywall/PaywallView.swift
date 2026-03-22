@@ -272,11 +272,6 @@ struct PaywallView: View {
             )
             comparisonSeparator
             comparisonRow(
-                feature: L10n.pwMenuSuggest,
-                freeValue: .cross, proValue: .check
-            )
-            comparisonSeparator
-            comparisonRow(
                 feature: "Strength Map",
                 freeValue: .cross, proValue: .check
             )
