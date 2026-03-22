@@ -8,6 +8,7 @@ struct WorkoutStartView: View {
     @State private var viewModel: WorkoutViewModel?
     @State private var showingExercisePicker = false
     @State private var muscleStates: [Muscle: MuscleVisualState] = [:]
+    @State private var showingPaywall = false
 
     // 完了画面用の状態（親ビューで管理してビュー遷移後も維持）
     @State private var completedSession: WorkoutSession?
@@ -96,24 +97,35 @@ struct WorkoutStartView: View {
                     loadMuscleStates() // 筋肉状態を更新
                 }
             }
+            .sheet(isPresented: $showingPaywall) {
+                PaywallView()
+            }
         }
     }
 
     /// ルーティンモードでワークアウト開始（HomeViewから遷移）
     private func handlePendingRoutineDay() {
-        guard PurchaseManager.shared.canRecordWorkout else { return }
         guard let pendingDay = RoutineManager.shared.pendingStartDay,
               let vm = viewModel else { return }
+        guard PurchaseManager.shared.canRecordWorkout else {
+            RoutineManager.shared.pendingStartDay = nil
+            showingPaywall = true
+            return
+        }
         RoutineManager.shared.pendingStartDay = nil
         vm.startWithRoutine(day: pendingDay)
     }
 
     /// 種目詳細画面から遷移してきた場合、セッション開始 + 種目選択
     private func handlePendingExercise() {
-        guard PurchaseManager.shared.canRecordWorkout else { return }
         guard let exerciseId = AppState.shared.pendingExerciseId,
               let vm = viewModel,
               let exercise = ExerciseStore.shared.exercise(for: exerciseId) else { return }
+        guard PurchaseManager.shared.canRecordWorkout else {
+            AppState.shared.pendingExerciseId = nil
+            showingPaywall = true
+            return
+        }
         AppState.shared.pendingExerciseId = nil
         vm.startOrResumeSession()
         vm.selectExercise(exercise)
@@ -121,10 +133,15 @@ struct WorkoutStartView: View {
 
     /// メニュー自動提案からの遷移: セッション開始 + 提案種目を自動セット
     private func handlePendingRecommendation() {
-        guard PurchaseManager.shared.canRecordWorkout else { return }
         guard let exercises = AppState.shared.pendingRecommendedExercises,
               !exercises.isEmpty,
               let vm = viewModel else { return }
+        guard PurchaseManager.shared.canRecordWorkout else {
+            AppState.shared.pendingRecommendedExercises = nil
+            AppState.shared.pendingRecommendationTrigger = nil
+            showingPaywall = true
+            return
+        }
         AppState.shared.pendingRecommendedExercises = nil
         vm.startOrResumeSession()
         vm.applyRecommendedExercises(exercises)
