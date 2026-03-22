@@ -33,6 +33,7 @@
 		28FE6EB995A52028BB6D502B /* MuscleMapWatchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05BEC55F57F5E8217B94DCEF /* MuscleMapWatchApp.swift */; };
 		2A555861BF8A9F88F287D670 /* exercises.json in Resources */ = {isa = PBXBuildFile; fileRef = F80DF745A0945BC8BB21285C /* exercises.json */; };
 		2B0DB00A02A6755A6F5F7B92 /* TrainingHistoryPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3E41C8D56E85379571671CD /* TrainingHistoryPage.swift */; };
+		2B1CBD0769D7AE61E1F01979 /* MenuGeneratingPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D2B7CC428443C96BED9863B /* MenuGeneratingPage.swift */; };
 		2B6CBAF613691D5E5D7C5450 /* RecoveryCalculatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 300D254EBBCA6CC21F07DD9B /* RecoveryCalculatorTests.swift */; };
 		2F734B8DA568908D7A52A0F3 /* WatchExerciseListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E26D800321E66EE9BBE7FE4A /* WatchExerciseListView.swift */; };
 		301535C97DFDCB2ED86B512D /* ShareMuscleMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ED8FA057402DBBDA14A597B /* ShareMuscleMapView.swift */; };
@@ -237,6 +238,7 @@
 		392E99750FD8E655338F6312 /* ExerciseGifView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseGifView.swift; sourceTree = "<group>"; };
 		3BE171442748D8639DE3CD7C /* HistoryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryViewModel.swift; sourceTree = "<group>"; };
 		3CD93A10C123C12F814A3878 /* WatchHapticManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchHapticManager.swift; sourceTree = "<group>"; };
+		3D2B7CC428443C96BED9863B /* MenuGeneratingPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuGeneratingPage.swift; sourceTree = "<group>"; };
 		3DCDB1B0B9F16FF2EB0762C3 /* Muscle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Muscle.swift; sourceTree = "<group>"; };
 		3F61D31BBAC55B5215E6A2B8 /* ExerciseStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseStoreTests.swift; sourceTree = "<group>"; };
 		3FF01BFBC85F09E4AC3175C4 /* MuscleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MuscleTests.swift; sourceTree = "<group>"; };
@@ -614,6 +616,7 @@
 				9FA2C8732A9BC181333E1969 /* GoalMusclePreviewPage.swift */,
 				413DA42F1C96CFED86465E68 /* GoalSelectionPage.swift */,
 				BA9A86B916E998FE1985F74C /* LocationSelectionPage.swift */,
+				3D2B7CC428443C96BED9863B /* MenuGeneratingPage.swift */,
 				336A17A21A6072FC531CA863 /* NotificationPermissionView.swift */,
 				F2D7479246A925801D0814DB /* OnboardingV2View.swift */,
 				A7665A2A3A6E18C8037F80DD /* OnboardingView.swift */,
@@ -976,6 +979,7 @@
 				662D5CBA07EFBBA0FA088CD9 /* LegalURL.swift in Sources */,
 				3EDDCA712A0B8E4A7415899B /* LocalizationManager.swift in Sources */,
 				211650C2DD71AFEEC0211B2B /* LocationSelectionPage.swift in Sources */,
+				2B1CBD0769D7AE61E1F01979 /* MenuGeneratingPage.swift in Sources */,
 				BF93B59B97FF9DA564A15D44 /* MenuPreviewSheet.swift in Sources */,
 				D352F429F17B8DB95A9E9867 /* MenuSuggestionService.swift in Sources */,
 				CD76F3A3C9C216083B0082EC /* MicroBodyMapView.swift in Sources */,

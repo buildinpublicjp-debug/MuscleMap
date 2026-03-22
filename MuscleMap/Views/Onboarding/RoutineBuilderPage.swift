@@ -8,6 +8,7 @@ struct RoutineBuilderPage: View {
 
     @State private var days: [RoutineDay] = []
     @State private var selectedDayIndex: Int = 0
+    @State private var confirmedUpToDay: Int = 0  // Day確認フロー: 0=Day1のみ閲覧可
     @State private var headerAppeared = false
     @State private var selectedExerciseDefinition: ExerciseDefinition?
     @State private var showingExercisePicker = false
@@ -79,9 +80,17 @@ struct RoutineBuilderPage: View {
 
             Spacer().frame(height: 6)
 
-            // 種目プレビュー（スワイプ切替対応）
+            // 種目プレビュー（ボタンで切替、スワイプは確認済みDayのみ）
             if !days.isEmpty {
-                TabView(selection: $selectedDayIndex) {
+                TabView(selection: Binding(
+                    get: { selectedDayIndex },
+                    set: { newValue in
+                        // 確認済みのDayのみスワイプ許可
+                        if newValue <= confirmedUpToDay {
+                            selectedDayIndex = newValue
+                        }
+                    }
+                )) {
                     ForEach(days.indices, id: \.self) { index in
                         exercisePreviewForDay(days[index], dayIndex: index, mapHeight: mapHeight, exerciseCardHeight: exerciseCardHeight)
                             .tag(index)
@@ -104,37 +113,74 @@ struct RoutineBuilderPage: View {
                     .font(.system(size: 13, weight: .medium))
                     .foregroundStyle(Color.mmOnboardingTextSub)
 
-                // CTA: 「このメニューで始める」
-                Button {
-                    HapticManager.mediumTap()
-                    let routine = UserRoutine(days: days, createdAt: Date())
-                    RoutineManager.shared.saveRoutine(routine)
-                    for day in days {
-                        for exercise in day.exercises {
-                            FavoritesManager.shared.add(exercise.exerciseId)
+                let isLastDay = selectedDayIndex >= days.count - 1
+                let allConfirmed = confirmedUpToDay >= days.count - 1
+
+                if isLastDay && allConfirmed {
+                    // 最終Day確認済み → 「このメニューで始める」
+                    Button {
+                        HapticManager.mediumTap()
+                        let routine = UserRoutine(days: days, createdAt: Date())
+                        RoutineManager.shared.saveRoutine(routine)
+                        for day in days {
+                            for exercise in day.exercises {
+                                FavoritesManager.shared.add(exercise.exerciseId)
+                            }
                         }
-                    }
-                    onNext()
-                } label: {
-                    HStack(spacing: 6) {
-                        Image(systemName: "sparkles")
-                            .font(.system(size: 16))
-                        Text(isJapanese ? "このメニューで始める" : "Start with This Menu")
-                            .font(.system(size: 18, weight: .bold))
-                    }
-                    .foregroundStyle(Color.mmOnboardingBg)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 56)
-                    .background(
-                        LinearGradient(
-                            colors: [Color.mmOnboardingAccent, Color.mmOnboardingAccentDark],
-                            startPoint: .leading,
-                            endPoint: .trailing
+                        onNext()
+                    } label: {
+                        HStack(spacing: 6) {
+                            Text("✨")
+                                .font(.system(size: 16))
+                            Text(isJapanese ? "このメニューで始める" : "Start with This Menu")
+                                .font(.system(size: 18, weight: .bold))
+                        }
+                        .foregroundStyle(Color.mmOnboardingBg)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 56)
+                        .background(
+                            LinearGradient(
+                                colors: [Color.mmOnboardingAccent, Color.mmOnboardingAccentDark],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            )
                         )
-                    )
-                    .clipShape(RoundedRectangle(cornerRadius: 16))
+                        .clipShape(RoundedRectangle(cornerRadius: 16))
+                    }
+                    .buttonStyle(.plain)
+                } else {
+                    // 次のDayへ進むボタン
+                    let nextDayNum = selectedDayIndex + 2
+                    Button {
+                        HapticManager.mediumTap()
+                        withAnimation(.easeInOut(duration: 0.25)) {
+                            let nextIndex = selectedDayIndex + 1
+                            if nextIndex > confirmedUpToDay {
+                                confirmedUpToDay = nextIndex
+                            }
+                            selectedDayIndex = nextIndex
+                        }
+                    } label: {
+                        HStack(spacing: 6) {
+                            Text(isJapanese ? "Day \(nextDayNum) を確認する" : "Review Day \(nextDayNum)")
+                                .font(.system(size: 18, weight: .bold))
+                            Image(systemName: "arrow.right")
+                                .font(.system(size: 16, weight: .bold))
+                        }
+                        .foregroundStyle(Color.mmOnboardingBg)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 56)
+                        .background(
+                            LinearGradient(
+                                colors: [Color.mmOnboardingAccent, Color.mmOnboardingAccentDark],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            )
+                        )
+                        .clipShape(RoundedRectangle(cornerRadius: 16))
+                    }
+                    .buttonStyle(.plain)
                 }
-                .buttonStyle(.plain)
 
                 // 変更可能テキスト
                 Text(isJapanese ? "メニューは後から設定で変更できます" : "You can customize your routine later in Settings")
@@ -176,7 +222,9 @@ struct RoutineBuilderPage: View {
     private var dayTabBar: some View {
         HStack(spacing: 0) {
             ForEach(days.indices, id: \.self) { index in
+                let isAccessible = index <= confirmedUpToDay
                 Button {
+                    guard isAccessible else { return }
                     withAnimation(.easeInOut(duration: 0.25)) {
                         selectedDayIndex = index
                     }
@@ -190,9 +238,11 @@ struct RoutineBuilderPage: View {
                             .lineLimit(1)
                     }
                     .foregroundStyle(
-                        selectedDayIndex == index
-                            ? Color.mmOnboardingAccent
-                            : Color.mmOnboardingTextSub
+                        !isAccessible
+                            ? Color.mmOnboardingTextSub.opacity(0.35)
+                            : selectedDayIndex == index
+                                ? Color.mmOnboardingAccent
+                                : Color.mmOnboardingTextSub
                     )
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 8)
@@ -205,6 +255,7 @@ struct RoutineBuilderPage: View {
                     }
                 }
                 .buttonStyle(.plain)
+                .disabled(!isAccessible)
             }
         }
         .padding(.horizontal, 20)
@@ -494,6 +545,12 @@ struct RoutineBuilderPage: View {
             exercises: candidateExercises,
             location: location
         )
+
+        // GIFあり種目のみ（カード表示品質を保つ）
+        let withGif = candidateExercises.filter { ExerciseGifView.hasGif(exerciseId: $0.id) }
+        if !withGif.isEmpty {
+            candidateExercises = withGif
+        }
 
         // 重点筋肉 + お気に入り優先ソート
         candidateExercises = sortByPriority(
