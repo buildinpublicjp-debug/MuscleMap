@@ -9,17 +9,11 @@ struct WorkoutIdleView: View {
     let onStart: () -> Void
     let onSelectExercise: (ExerciseDefinition) -> Void
 
-    @ObservedObject private var favorites = FavoritesManager.shared
     @Environment(\.modelContext) private var modelContext
     @State private var selectedMuscle: Muscle?
-    @State private var suggestedMenu: SuggestedMenu?
     @State private var showingExerciseLibrary = false
+    @State private var recentExercises: [ExerciseDefinition] = []
     private var localization: LocalizationManager { LocalizationManager.shared }
-
-    private var favoriteExercises: [ExerciseDefinition] {
-        let store = ExerciseStore.shared
-        return favorites.favoriteIds.compactMap { store.exercise(for: $0) }
-    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -41,28 +35,10 @@ struct WorkoutIdleView: View {
                         .foregroundStyle(Color.mmTextSecondary)
                         .multilineTextAlignment(.center)
 
-                    // おすすめメニュー（履歴ありの場合のみ）
-                    if let menu = suggestedMenu, !menu.exercises.isEmpty {
-                        RecommendedWorkoutBanner(
-                            menu: menu,
-                            onStart: {
-                                // おすすめの全種目をセッションに追加
-                                if menu.exercises.isEmpty {
-                                    onStart()
-                                } else {
-                                    for exercise in menu.exercises {
-                                        onSelectExercise(exercise.definition)
-                                    }
-                                }
-                            }
-                        )
-                        .padding(.horizontal)
-                    }
-
-                    // お気に入り種目
-                    if !favoriteExercises.isEmpty {
-                        FavoriteExercisesSection(
-                            exercises: favoriteExercises,
+                    // 最近使った種目
+                    if !recentExercises.isEmpty {
+                        RecentExercisesSection(
+                            exercises: recentExercises,
                             onSelect: onSelectExercise
                         )
                     }
@@ -102,107 +78,45 @@ struct WorkoutIdleView: View {
             }
         }
         .onAppear {
-            loadRecommendation()
+            loadRecentExercises()
         }
     }
 
-    /// おすすめメニューを取得
-    private func loadRecommendation() {
-        let repo = MuscleStateRepository(modelContext: modelContext)
-        let stimulations = repo.fetchLatestStimulations()
-        // 履歴がない場合は非表示
-        guard !stimulations.isEmpty else {
-            suggestedMenu = nil
+    /// 最近使った種目を取得（completedAt降順、exerciseId重複除去、最新10種目）
+    private func loadRecentExercises() {
+        let descriptor = FetchDescriptor<WorkoutSet>(
+            sortBy: [SortDescriptor(\.completedAt, order: .reverse)]
+        )
+        guard let allSets = try? modelContext.fetch(descriptor) else {
+            recentExercises = []
             return
         }
-        suggestedMenu = MenuSuggestionService.suggestTodayMenu(
-            stimulations: stimulations,
-            exerciseStore: ExerciseStore.shared
-        )
-    }
-}
-
-// MARK: - おすすめワークアウトバナー
-
-struct RecommendedWorkoutBanner: View {
-    let menu: SuggestedMenu
-    let onStart: () -> Void
-    private var localization: LocalizationManager { LocalizationManager.shared }
-
-    var body: some View {
-        Button {
-            HapticManager.lightTap()
-            onStart()
-        } label: {
-            HStack(spacing: 12) {
-                Text("💡")
-                    .font(.title3)
-
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(L10n.recommendedWorkout(groupName))
-                        .font(.subheadline.bold())
-                        .foregroundStyle(Color.mmTextPrimary)
-
-                    Text(L10n.startRecommended)
-                        .font(.caption)
-                        .foregroundStyle(Color.mmAccentPrimary)
-                }
-
-                Spacer()
-
-                Image(systemName: "chevron.right")
-                    .font(.caption)
-                    .foregroundStyle(Color.mmTextSecondary)
+        var seenIds: Set<String> = []
+        var result: [ExerciseDefinition] = []
+        for set in allSets {
+            if seenIds.insert(set.exerciseId).inserted,
+               let def = ExerciseStore.shared.exercise(for: set.exerciseId) {
+                result.append(def)
             }
-            .padding(16)
-            .background(
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(Color.mmAccentPrimary.opacity(0.08))
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 16)
-                    .stroke(Color.mmAccentPrimary.opacity(0.2), lineWidth: 1)
-            )
+            if result.count >= 10 { break }
         }
-        .buttonStyle(.plain)
-    }
-
-    private var groupName: String {
-        localization.currentLanguage == .japanese
-            ? menu.primaryGroup.japaneseName
-            : menu.primaryGroup.englishName
+        recentExercises = result
     }
 }
 
-// MARK: - お気に入り種目セクション
+// MARK: - 最近使った種目セクション
 
-struct FavoriteExercisesSection: View {
+struct RecentExercisesSection: View {
     let exercises: [ExerciseDefinition]
     let onSelect: (ExerciseDefinition) -> Void
-    @Environment(\.modelContext) private var modelContext
     private var localization: LocalizationManager { LocalizationManager.shared }
-
-    /// 種目の強さレベルを取得
-    private func strengthLevel(for exercise: ExerciseDefinition) -> StrengthLevel? {
-        let bodyweight = AppState.shared.userProfile.weightKg
-        guard let best1RM = PRManager.shared.getBestEffective1RM(
-            exerciseId: exercise.id, bodyweightKg: bodyweight, context: modelContext
-        ) else {
-            return nil
-        }
-        return StrengthScoreCalculator.exerciseStrengthLevel(
-            exerciseId: exercise.id,
-            estimated1RM: best1RM,
-            bodyweightKg: bodyweight
-        ).level
-    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Image(systemName: "star.fill")
-                    .foregroundStyle(Color.mmMuscleModerate)
-                Text(L10n.favoriteExercises)
+                Image(systemName: "clock.arrow.circlepath")
+                    .foregroundStyle(Color.mmAccentPrimary)
+                Text(localization.currentLanguage == .japanese ? "最近使った種目" : "Recent Exercises")
                     .font(.headline)
                     .foregroundStyle(Color.mmTextPrimary)
             }
@@ -229,27 +143,14 @@ struct FavoriteExercisesSection: View {
                                 .font(.caption2)
                                 .foregroundStyle(Color.mmTextSecondary)
 
-                                HStack(spacing: 4) {
-                                    if let primary = exercise.primaryMuscle {
-                                        Text(primary.localizedName)
-                                            .font(.caption2)
-                                            .padding(.horizontal, 6)
-                                            .padding(.vertical, 2)
-                                            .background(Color.mmAccentPrimary.opacity(0.15))
-                                            .foregroundStyle(Color.mmAccentPrimary)
-                                            .clipShape(Capsule())
-                                    }
-
-                                    // レベルバッジ
-                                    if let level = strengthLevel(for: exercise) {
-                                        Text(level.emoji + level.localizedName)
-                                            .font(.caption2)
-                                            .padding(.horizontal, 6)
-                                            .padding(.vertical, 2)
-                                            .background(level.color.opacity(0.15))
-                                            .foregroundStyle(level.color)
-                                            .clipShape(Capsule())
-                                    }
+                                if let primary = exercise.primaryMuscle {
+                                    Text(primary.localizedName)
+                                        .font(.caption2)
+                                        .padding(.horizontal, 6)
+                                        .padding(.vertical, 2)
+                                        .background(Color.mmAccentPrimary.opacity(0.15))
+                                        .foregroundStyle(Color.mmAccentPrimary)
+                                        .clipShape(Capsule())
                                 }
                             }
                             .frame(width: 140, alignment: .leading)

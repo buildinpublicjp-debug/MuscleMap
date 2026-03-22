@@ -1439,7 +1439,7 @@ enum L10n {
     static var pwFree: String { loc("無料", "Free", zhHans: "免费", ko: "무료", es: "Gratis", fr: "Gratuit", de: "Kostenlos") }
     static var pwRecoveryMap: String { loc("回復マップ", "Recovery Map", zhHans: "恢复图", ko: "회복 맵", es: "Mapa de recuperación", fr: "Carte de récupération", de: "Erholungskarte") }
     static var pwWorkoutLog: String { loc("ワークアウト記録", "Workout Log", zhHans: "训练记录", ko: "운동 기록", es: "Registro de ejercicio", fr: "Journal d'entraînement", de: "Trainingsprotokoll") }
-    static var pwOncePerWeek: String { loc("週1回", "1/wk", zhHans: "每周1次", ko: "주1회", es: "1/sem", fr: "1/sem", de: "1/Wo") }
+    static var pwOncePerWeek: String { loc("週2回", "2/wk", zhHans: "每周2次", ko: "주2회", es: "2/sem", fr: "2/sem", de: "2/Wo") }
     static var pwRoutines: String { loc("ルーティン", "Routines", zhHans: "训练计划", ko: "루틴", es: "Rutinas", fr: "Routines", de: "Routinen") }
     static var pwMenuSuggest: String { loc("メニュー提案", "Menu Suggest", zhHans: "菜单建议", ko: "메뉴 제안", es: "Sugerencia de menú", fr: "Suggestion de menu", de: "Menüvorschlag") }
 
