@@ -105,25 +105,27 @@ final class PurchaseManager {
 
     /// 今週のワークアウト記録回数
     var weeklyWorkoutCount: Int {
-        resetIfNewWeek()
-        return UserDefaults.standard.integer(forKey: Self.weeklyWorkoutCountKey)
+        UserDefaults.standard.integer(forKey: Self.weeklyWorkoutCountKey)
     }
 
     /// ワークアウト記録が可能か（Pro or 週間上限未満）
     var canRecordWorkout: Bool {
-        isPremium || weeklyWorkoutCount < Self.weeklyFreeLimit
+        resetIfNewWeek()
+        return isPremium || weeklyWorkoutCount < Self.weeklyFreeLimit
     }
 
     /// ワークアウト記録カウントをインクリメント
     func incrementWorkoutCount() {
+        guard !isPremium else { return }
         resetIfNewWeek()
         let current = UserDefaults.standard.integer(forKey: Self.weeklyWorkoutCountKey)
         UserDefaults.standard.set(current + 1, forKey: Self.weeklyWorkoutCountKey)
     }
 
-    /// 週が変わっていたらカウントをリセット
+    /// 週が変わっていたらカウントをリセット（月曜始まり）
     private func resetIfNewWeek() {
-        let calendar = Calendar.current
+        var calendar = Calendar.current
+        calendar.firstWeekday = 2 // 月曜リセット
         let now = Date()
         if let lastReset = UserDefaults.standard.object(forKey: Self.weeklyResetDateKey) as? Date {
             let lastWeek = calendar.component(.weekOfYear, from: lastReset)
@@ -144,14 +146,27 @@ final class PurchaseManager {
 
 // MARK: - エラー型
 
+@MainActor
 enum PurchaseError: LocalizedError {
     case noOffering
     case packageNotFound
 
-    var errorDescription: String? {
+    private var isJapanese: Bool {
+        LocalizationManager.shared.currentLanguage == .japanese
+    }
+
+    nonisolated var errorDescription: String? {
+        // Locale基準でフォールバック（MainActor外からも安全にアクセス）
+        let ja = Locale.current.language.languageCode?.identifier == "ja"
         switch self {
-        case .noOffering:      return "購入情報を取得できませんでした。再度お試しください。"
-        case .packageNotFound: return "対象のプランが見つかりませんでした。"
+        case .noOffering:
+            return ja
+                ? "購入情報を取得できませんでした。再度お試しください。"
+                : "Could not load purchase info. Please try again."
+        case .packageNotFound:
+            return ja
+                ? "対象のプランが見つかりませんでした。"
+                : "The selected plan was not found."
         }
     }
 }
