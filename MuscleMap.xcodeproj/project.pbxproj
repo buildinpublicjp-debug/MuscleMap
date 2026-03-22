@@ -1179,7 +1179,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = MuscleMapWidget/MuscleMapWidgetExtension.entitlements;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 5;
 				DEVELOPMENT_TEAM = CSQ9X74Y5Z;
 				INFOPLIST_FILE = MuscleMapWidget/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1187,7 +1187,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.0.0;
+				MARKETING_VERSION = 1.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.buildinpublic.MuscleMap.widget;
 				SDKROOT = iphoneos;
 				SWIFT_VERSION = 5.9;
@@ -1200,8 +1200,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = MuscleMapWatch/MuscleMapWatch.entitlements;
+				CURRENT_PROJECT_VERSION = 5;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.buildinpublic.MuscleMap;
+				MARKETING_VERSION = 1.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.buildinpublic.MuscleMap.watchkitapp;
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
@@ -1217,7 +1219,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = MuscleMap/MuscleMap.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 5;
 				DEVELOPMENT_TEAM = CSQ9X74Y5Z;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MuscleMap/Info.plist;
@@ -1231,7 +1233,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.0;
+				MARKETING_VERSION = 1.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.buildinpublic.MuscleMap;
 				SDKROOT = iphoneos;
 				SWIFT_VERSION = 5.9;
@@ -1244,8 +1246,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = MuscleMapWatch/MuscleMapWatch.entitlements;
+				CURRENT_PROJECT_VERSION = 5;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.buildinpublic.MuscleMap;
+				MARKETING_VERSION = 1.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.buildinpublic.MuscleMap.watchkitapp;
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
@@ -1277,7 +1281,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = MuscleMapWidget/MuscleMapWidgetExtension.entitlements;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 5;
 				DEVELOPMENT_TEAM = CSQ9X74Y5Z;
 				INFOPLIST_FILE = MuscleMapWidget/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1285,7 +1289,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.0.0;
+				MARKETING_VERSION = 1.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.buildinpublic.MuscleMap.widget;
 				SDKROOT = iphoneos;
 				SWIFT_VERSION = 5.9;
@@ -1299,7 +1303,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = MuscleMap/MuscleMap.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 5;
 				DEVELOPMENT_TEAM = CSQ9X74Y5Z;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MuscleMap/Info.plist;
@@ -1313,7 +1317,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.0;
+				MARKETING_VERSION = 1.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.buildinpublic.MuscleMap;
 				SDKROOT = iphoneos;
 				SWIFT_VERSION = 5.9;
