@@ -38,7 +38,7 @@ final class PurchaseManager {
     func refreshPremiumStatus() async {
         do {
             let info = try await Purchases.shared.customerInfo()
-            _isPremium = info.entitlements["premium"]?.isActive == true
+            _isPremium = info.entitlements["MuscleMap Pro"]?.isActive == true
         } catch {
             #if DEBUG
             print("RevenueCat customerInfo error: \(error)")
@@ -81,7 +81,7 @@ final class PurchaseManager {
 
         if result.userCancelled { return false }
 
-        _isPremium = result.customerInfo.entitlements["premium"]?.isActive == true
+        _isPremium = result.customerInfo.entitlements["MuscleMap Pro"]?.isActive == true
         return isPremium
     }
 
@@ -91,7 +91,7 @@ final class PurchaseManager {
         isLoading = true
         defer { isLoading = false }
         let info = try await Purchases.shared.restorePurchases()
-        _isPremium = info.entitlements["premium"]?.isActive == true
+        _isPremium = info.entitlements["MuscleMap Pro"]?.isActive == true
         return isPremium
     }
 
@@ -177,7 +177,7 @@ final class PurchaseDelegate: NSObject, PurchasesDelegate {
     static let shared = PurchaseDelegate()
     func purchases(_ purchases: Purchases, receivedUpdated customerInfo: CustomerInfo) {
         Task { @MainActor in
-            PurchaseManager.shared._isPremium = customerInfo.entitlements["premium"]?.isActive == true
+            PurchaseManager.shared._isPremium = customerInfo.entitlements["MuscleMap Pro"]?.isActive == true
         }
     }
 }
