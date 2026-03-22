@@ -57,6 +57,7 @@ enum OnboardingGoal: String, CaseIterable, Identifiable {
 
 struct GoalSelectionPage: View {
     let onNext: () -> Void
+    var currentPage: Int = 0
 
     @State private var goalValues: [String: Double] = [:]
     @State private var cardAppearances: [Bool] = Array(repeating: false, count: OnboardingGoal.allCases.count)
@@ -236,6 +237,9 @@ struct GoalSelectionPage: View {
                     cardAppearances[index] = true
                 }
             }
+        }
+        .onChange(of: currentPage) {
+            isProceeding = false
         }
     }
 

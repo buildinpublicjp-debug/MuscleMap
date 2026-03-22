@@ -145,6 +145,7 @@ struct SplashView: View {
 
 private struct SplashMuscleMapHero: View {
     @State private var animatedMuscles: Set<Muscle> = []
+    @State private var waveTask: Task<Void, Never>?
 
     var body: some View {
         HStack(spacing: 16) {
@@ -208,29 +209,39 @@ private struct SplashMuscleMapHero: View {
         }
         .padding(.horizontal, 40)
         .onAppear {
-            // 初回はマップ表示後に開始
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                startWaveAnimation()
-            }
+            startWaveAnimation()
+        }
+        .onDisappear {
+            waveTask?.cancel()
+            waveTask = nil
         }
     }
 
     private func startWaveAnimation() {
+        waveTask?.cancel()
         let allMuscles = Muscle.allCases
 
-        // 全筋肉を0.05秒間隔で順番に点灯
-        for (index, muscle) in allMuscles.enumerated() {
-            DispatchQueue.main.asyncAfter(deadline: .now() + Double(index) * 0.05) {
-                animatedMuscles.insert(muscle)
-            }
-        }
+        waveTask = Task { @MainActor in
+            // 初回は少し待ってから開始
+            try? await Task.sleep(for: .milliseconds(500))
+            guard !Task.isCancelled else { return }
 
-        // 全部光ったら2秒待って → リセット → 1秒後に再開
-        let totalLightUpTime = Double(allMuscles.count) * 0.05
-        DispatchQueue.main.asyncAfter(deadline: .now() + totalLightUpTime + 2.0) {
-            animatedMuscles.removeAll()
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                startWaveAnimation()
+            // ループ: 全筋肉を順番に点灯 → 待機 → リセット → 繰り返し
+            while !Task.isCancelled {
+                // 全筋肉を0.05秒間隔で順番に点灯
+                for muscle in allMuscles {
+                    guard !Task.isCancelled else { return }
+                    animatedMuscles.insert(muscle)
+                    try? await Task.sleep(for: .milliseconds(50))
+                }
+
+                // 全部光ったら2秒待つ
+                try? await Task.sleep(for: .seconds(2))
+                guard !Task.isCancelled else { return }
+
+                // リセット → 1秒待って再開
+                animatedMuscles.removeAll()
+                try? await Task.sleep(for: .seconds(1))
             }
         }
     }

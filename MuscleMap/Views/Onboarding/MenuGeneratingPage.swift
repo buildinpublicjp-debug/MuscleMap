@@ -9,6 +9,7 @@ struct MenuGeneratingPage: View {
     @State private var appeared = false
     @State private var currentStep = 0
     @State private var allDone = false
+    @State private var animationTask: Task<Void, Never>?
 
     /// ステップ定義（アイコン + テキスト）
     private var steps: [(icon: String, text: String)] {
@@ -84,6 +85,10 @@ struct MenuGeneratingPage: View {
         .onAppear {
             startAnimation()
         }
+        .onDisappear {
+            animationTask?.cancel()
+            animationTask = nil
+        }
     }
 
     /// 進捗率（0.0〜1.0）
@@ -149,33 +154,37 @@ struct MenuGeneratingPage: View {
     // MARK: - アニメーションシーケンス
 
     private func startAnimation() {
+        animationTask?.cancel()
+
         withAnimation(.easeOut(duration: 0.5)) {
             appeared = true
         }
 
-        // ステップ0 → 1 → 2 → 3 を順番に進行（各0.8秒間隔）
-        for i in 1...steps.count {
-            DispatchQueue.main.asyncAfter(deadline: .now() + Double(i) * 0.8) {
+        let stepCount = steps.count
+        animationTask = Task { @MainActor in
+            // ステップ0 → 1 → 2 → 3 を順番に進行（各0.8秒間隔）
+            for i in 1...stepCount {
+                try? await Task.sleep(for: .milliseconds(800))
+                guard !Task.isCancelled else { return }
                 withAnimation(.easeInOut(duration: 0.4)) {
                     currentStep = i
                 }
-                if i < steps.count {
+                if i < stepCount {
                     HapticManager.lightTap()
                 }
             }
-        }
 
-        // 全ステップ完了後、少し待って自動遷移
-        let totalDelay = Double(steps.count) * 0.8 + 0.6
-        DispatchQueue.main.asyncAfter(deadline: .now() + totalDelay) {
+            // 全ステップ完了後、少し待って自動遷移
+            try? await Task.sleep(for: .milliseconds(600))
+            guard !Task.isCancelled else { return }
             withAnimation(.easeInOut(duration: 0.3)) {
                 allDone = true
             }
             HapticManager.mediumTap()
-        }
 
-        // 自動遷移
-        DispatchQueue.main.asyncAfter(deadline: .now() + totalDelay + 0.5) {
+            // 自動遷移
+            try? await Task.sleep(for: .milliseconds(500))
+            guard !Task.isCancelled else { return }
             onComplete()
         }
     }

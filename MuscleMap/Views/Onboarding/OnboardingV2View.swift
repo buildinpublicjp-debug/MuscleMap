@@ -94,18 +94,18 @@ struct OnboardingV2View: View {
     private func pageView(for page: Int) -> some View {
         switch page {
         case 0:
-            GoalSelectionPage {
+            GoalSelectionPage(currentPage: currentPage) {
                 navigatingForward = true
                 currentPage = 1
             }
         case 1:
-            FrequencySelectionPage { frequency in
+            FrequencySelectionPage(currentPage: currentPage) { frequency in
                 AppState.shared.userProfile.weeklyFrequency = frequency.rawValue
                 navigatingForward = true
                 currentPage = 2
             }
         case 2:
-            LocationSelectionPage { location in
+            LocationSelectionPage(currentPage: currentPage) { location in
                 AppState.shared.userProfile.trainingLocation = location.rawValue
                 navigatingForward = true
                 currentPage = 3
@@ -148,6 +148,7 @@ struct OnboardingV2View: View {
 
     /// 戻るボタンのページ遷移（生成ページをスキップ、PR入力スキップ時はページ4も飛ばす）
     private func goBack() {
+        guard currentPage > 0 else { return }
         if currentPage == 6 {
             // RoutineBuilder(6)から戻る → 生成ページ(5)をスキップ
             if showPRInput {

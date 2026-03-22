@@ -54,6 +54,7 @@ enum TrainingLocation: String, CaseIterable, Codable {
 
 struct LocationSelectionPage: View {
     let onNext: (TrainingLocation) -> Void
+    var currentPage: Int = 0
 
     @State private var selected: TrainingLocation?
     @State private var appeared = false
@@ -237,6 +238,9 @@ struct LocationSelectionPage: View {
                 .padding(.bottom, 32)
                 .animation(.easeInOut(duration: 0.2), value: selected)
             }
+        }
+        .onChange(of: currentPage) {
+            isProceeding = false
         }
         .onAppear {
             isProceeding = false

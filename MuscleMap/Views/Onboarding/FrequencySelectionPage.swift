@@ -70,6 +70,7 @@ enum WeeklyFrequency: Int, CaseIterable, Codable {
 
 struct FrequencySelectionPage: View {
     let onNext: (WeeklyFrequency) -> Void
+    var currentPage: Int = 0
 
     @State private var selected: WeeklyFrequency?
     @State private var appeared = false
@@ -228,9 +229,11 @@ struct FrequencySelectionPage: View {
                 .presentationDetents([.medium, .large])
                 .presentationDragIndicator(.visible)
         }
+        .onChange(of: currentPage) {
+            isProceeding = false
+        }
         .onAppear {
-            isProceeding = false  // スワイプ戻り時にボタンを有効化
-
+            isProceeding = false
             // 目標の重点筋肉を初期ハイライト
             var initial: [Muscle: MuscleVisualState] = [:]
             let priorityMuscles = Set(AppState.shared.userProfile.goalPriorityMuscles.compactMap { Muscle(rawValue: $0) })
