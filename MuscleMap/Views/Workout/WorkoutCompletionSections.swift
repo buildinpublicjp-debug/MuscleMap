@@ -182,19 +182,19 @@ struct CompletionProBanner: View {
                     Image(systemName: "bolt.shield.fill")
                         .font(.title3)
                         .foregroundStyle(Color.mmAccentPrimary)
-                    Text(isJapanese ? "90日で体の変化を証明する" : "Prove your progress in 90 days")
+                    Text(isJapanese ? "90日で体の変化を証明する" : "Prove your transformation in 90 days")
                         .font(.subheadline.bold())
                         .foregroundStyle(Color.mmTextPrimary)
                 }
 
-                Text(isJapanese ? "Strength Map + 種目別グラフで成長を可視化" : "Visualize growth with Strength Map + exercise charts")
+                Text(isJapanese ? "Strength Map + 種目別グラフで成長を可視化" : "Visualize growth with Strength Map & trends")
                     .font(.caption)
                     .foregroundStyle(Color.mmTextSecondary)
 
                 HStack {
                     Spacer()
                     HStack(spacing: 4) {
-                        Text(isJapanese ? "Proを始める" : "Go Pro")
+                        Text(isJapanese ? "Proを始める" : "Start Pro")
                             .font(.caption.bold())
                             .foregroundStyle(Color.mmAccentPrimary)
                         Image(systemName: "chevron.right")

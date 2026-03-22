@@ -303,15 +303,15 @@ struct WorkoutCompletionView: View {
         let isJapanese = localization.currentLanguage == .japanese
         let muscleMessage: String
         if uniqueGroups.count > 2 {
-            muscleMessage = isJapanese ? "全身、しっかり追い込んだ" : "Full body, crushed it"
+            muscleMessage = isJapanese ? "全身、しっかり追い込んだ" : "Full body, solid session"
         } else if let group = dominantGroup {
             switch group {
-            case .chest: muscleMessage = isJapanese ? "胸板、また一段厚くなった" : "Chest gains, leveled up"
-            case .back: muscleMessage = isJapanese ? "背中の広がり、レベルアップ" : "Back width, leveled up"
-            case .shoulders: muscleMessage = isJapanese ? "肩幅、また一歩広がった" : "Shoulders, wider than ever"
-            case .lowerBody: muscleMessage = isJapanese ? "脚の土台、さらに強固に" : "Legs, stronger foundation"
-            case .arms: muscleMessage = isJapanese ? "腕、パンプした" : "Arms, fully pumped"
-            case .core: muscleMessage = isJapanese ? "体幹、ブレない体へ" : "Core, unshakable"
+            case .chest: muscleMessage = isJapanese ? "胸板、また一段厚くなった" : "Chest is getting thicker"
+            case .back: muscleMessage = isJapanese ? "背中の厚みが増した" : "Back is getting wider"
+            case .shoulders: muscleMessage = isJapanese ? "肩幅が広がった" : "Shoulders are broadening"
+            case .lowerBody: muscleMessage = isJapanese ? "下半身が安定した" : "Lower body is getting stronger"
+            case .arms: muscleMessage = isJapanese ? "腕が太くなった" : "Arms are growing"
+            case .core: muscleMessage = isJapanese ? "体幹が締まった" : "Core is tightening up"
             }
         } else {
             return nil
