@@ -90,31 +90,36 @@ struct PaywallView: View {
         ZStack {
             Color.mmBgSecondary.ignoresSafeArea()
 
-            VStack(spacing: 0) {
-                Spacer().frame(height: isHardPaywall ? 16 : 28)
+            GeometryReader { geo in
+                let h = geo.size.height
+                let cardSize = min(max(h * 0.15, 110), 160)
 
-                // 1. ヘッドライン（コンパクト）
-                headlineSection
+                VStack(spacing: 0) {
+                    Spacer().frame(height: isHardPaywall ? 16 : 28)
 
-                Spacer().frame(height: 4)
+                    // 1. ヘッドライン
+                    headlineSection
 
-                // 2. マーキーGIF（2行）
-                marqueeSection
+                    Spacer().frame(height: 4)
 
-                Spacer().frame(height: 12)
+                    // 2. マーキーGIF（2行）
+                    marqueeArea(cardSize: cardSize)
 
-                // 3. 価格セクション
-                pricingSection
+                    Spacer().frame(height: 12)
 
-                Spacer().frame(height: 8)
+                    // 3. 価格セクション
+                    pricingSection
 
-                // 4. 機能リスト（コンパクト横並び）
-                featureListSection
+                    Spacer().frame(height: 8)
 
-                Spacer(minLength: 4)
+                    // 4. 機能リスト（コンパクト横並び）
+                    featureListSection
 
-                // 5. フッター
-                footerSection
+                    Spacer(minLength: 4)
+
+                    // 5. フッター
+                    footerSection
+                }
             }
 
             // 閉じるボタン（右上固定、ハードペイウォール時は非表示）
@@ -178,37 +183,37 @@ struct PaywallView: View {
                 Text(isJapanese
                     ? "\(routine.days.count)日間 × \(totalExercises)種目の"
                     : "Your \(routine.days.count)-day, \(totalExercises)-exercise")
-                    .font(.system(size: 18, weight: .heavy))
+                    .font(.system(size: 24, weight: .heavy))
                     .foregroundStyle(Color.mmTextPrimary)
                 Text(isJapanese
                     ? "プログラムが待っています"
                     : "program is ready")
-                    .font(.system(size: 18, weight: .heavy))
+                    .font(.system(size: 24, weight: .heavy))
                     .foregroundStyle(Color.mmTextPrimary)
             } else {
                 Text(isJapanese
                     ? "あなた専用のメニューを毎日届ける"
                     : "Your Personalized Menu, Every Day")
-                    .font(.system(size: 18, weight: .heavy))
+                    .font(.system(size: 24, weight: .heavy))
                     .foregroundStyle(Color.mmTextPrimary)
                     .multilineTextAlignment(.center)
             }
 
             if let subtitle = goalSubtitle {
                 Text(subtitle)
-                    .font(.system(size: 13))
+                    .font(.system(size: 14))
                     .foregroundStyle(Color.mmAccentPrimary)
             }
         }
         .padding(.horizontal, 24)
     }
 
-    // MARK: - マーキーセクション（2行、140x140）
+    // MARK: - マーキーセクション（2行、レスポンシブカードサイズ）
 
-    private var marqueeSection: some View {
+    private func marqueeArea(cardSize: CGFloat) -> some View {
         VStack(spacing: 6) {
-            PaywallMarqueeRow(exercises: marqueeRow1Exercises, speed: 25, reversed: false)
-            PaywallMarqueeRow(exercises: marqueeRow2Exercises, speed: 20, reversed: true)
+            PaywallMarqueeRow(exercises: marqueeRow1Exercises, cardSize: cardSize, speed: 25, reversed: false)
+            PaywallMarqueeRow(exercises: marqueeRow2Exercises, cardSize: cardSize, speed: 20, reversed: true)
         }
     }
 
@@ -216,32 +221,39 @@ struct PaywallView: View {
 
     private var pricingSection: some View {
         VStack(spacing: 6) {
-            // 年額ボタン（推奨）
+            // 年額ボタン（推奨、目立たせる）
             Button {
                 HapticManager.lightTap()
                 purchase(productId: "yearly")
             } label: {
-                VStack(spacing: 3) {
+                VStack(spacing: 4) {
                     HStack(spacing: 6) {
                         Text(isJapanese ? "7日間無料で始める" : "Start Free for 7 Days")
-                            .font(.system(size: 17, weight: .bold))
+                            .font(.system(size: 18, weight: .heavy))
                         Text("31%OFF")
-                            .font(.system(size: 10, weight: .bold))
+                            .font(.system(size: 11, weight: .bold))
                             .padding(.horizontal, 6)
-                            .padding(.vertical, 2)
+                            .padding(.vertical, 3)
                             .background(Color.mmBgPrimary.opacity(0.2))
                             .clipShape(Capsule())
                     }
                     .foregroundStyle(Color.mmBgPrimary)
 
                     Text(isJapanese ? "¥4,900/年（月¥408）" : "$39.99/year ($3.33/mo)")
-                        .font(.system(size: 12))
+                        .font(.system(size: 13))
                         .foregroundStyle(Color.mmBgPrimary.opacity(0.7))
                 }
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, 14)
-                .background(Color.mmAccentPrimary)
+                .padding(.vertical, 16)
+                .background(
+                    LinearGradient(
+                        colors: [Color.mmAccentPrimary, Color.mmAccentPrimary.opacity(0.85)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
                 .clipShape(RoundedRectangle(cornerRadius: 16))
+                .shadow(color: Color.mmAccentPrimary.opacity(0.3), radius: 8, y: 4)
             }
             .buttonStyle(.plain)
             .disabled(PurchaseManager.shared.isLoading)
@@ -388,13 +400,13 @@ struct PaywallView: View {
     }
 }
 
-// MARK: - マーキー行（種目GIF自動横スクロール、120x120カード）
+// MARK: - マーキー行（種目GIF自動横スクロール、レスポンシブカードサイズ）
 
 private struct PaywallMarqueeRow: View {
     let exercises: [ExerciseDefinition]
+    let cardSize: CGFloat
     let speed: CGFloat       // px/sec
     let reversed: Bool       // trueなら左→右に流れる
-    private let cardSize: CGFloat = 140
 
     @State private var offset: CGFloat = 0
 
