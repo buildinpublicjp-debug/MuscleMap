@@ -10,7 +10,7 @@ final class PurchaseManager {
     #if DEBUG
     var debugOverridePremium: Bool? = nil
     /// true にするとDEBUGビルドで常にPro扱いになる（テスト用）
-    private let forceProForTesting = true
+    private let forceProForTesting = false
     #endif
 
     /// Pro課金状態（DEBUG時はオーバーライド優先）
