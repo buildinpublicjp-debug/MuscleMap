@@ -1,6 +1,6 @@
 import SwiftUI
 
-// MARK: - オンボーディングV2（最大8ページ: 目標 → 頻度 → 場所 → プロフィール → [PR] → メニュー → 通知 → 完了）
+// MARK: - オンボーディングV2（最大9ページ: 目標 → 頻度 → 場所 → プロフィール → [PR] → 生成演出 → メニュー → 通知 → 完了）
 
 struct OnboardingV2View: View {
     let onComplete: () -> Void
@@ -17,8 +17,13 @@ struct OnboardingV2View: View {
         if showPRInput {
             currentPage = 4 // PR入力ページへ
         } else {
-            currentPage = 5 // RoutineBuilderPageへスキップ
+            currentPage = 5 // MenuGeneratingPageへスキップ
         }
+    }
+
+    /// メニュー生成ページかどうか（戻るボタン・インジケーター非表示用）
+    private var isGeneratingPage: Bool {
+        currentPage == 5
     }
 
     /// 遷移方向を追跡（アニメーション方向制御用）
@@ -39,8 +44,8 @@ struct OnboardingV2View: View {
             }
             .animation(.easeInOut(duration: 0.3), value: currentPage)
 
-            // 戻るボタン（Page 1以降）
-            if currentPage > 0 {
+            // 戻るボタン（Page 1以降、生成ページでは非表示）
+            if currentPage > 0 && !isGeneratingPage {
                 VStack {
                     HStack {
                         Button {
@@ -65,18 +70,20 @@ struct OnboardingV2View: View {
                 }
             }
 
-            // ページインジケーター（PR入力スキップ時はページ4を除外）
-            VStack {
-                Spacer()
-                HStack(spacing: 8) {
-                    ForEach(indicatorPages, id: \.self) { page in
-                        Capsule()
-                            .fill(page == currentPage ? Color.mmOnboardingAccent : Color.mmOnboardingTextSub.opacity(0.3))
-                            .frame(width: page == currentPage ? 20 : 8, height: 8)
-                            .animation(.easeInOut(duration: 0.25), value: currentPage)
+            // ページインジケーター（PR入力スキップ時はページ4を除外、生成ページでは非表示）
+            if !isGeneratingPage {
+                VStack {
+                    Spacer()
+                    HStack(spacing: 8) {
+                        ForEach(indicatorPages, id: \.self) { page in
+                            Capsule()
+                                .fill(page == currentPage ? Color.mmOnboardingAccent : Color.mmOnboardingTextSub.opacity(0.3))
+                                .frame(width: page == currentPage ? 20 : 8, height: 8)
+                                .animation(.easeInOut(duration: 0.25), value: currentPage)
+                        }
                     }
+                    .padding(.bottom, 16)
                 }
-                .padding(.bottom, 16)
             }
         }
     }
@@ -114,16 +121,23 @@ struct OnboardingV2View: View {
                 currentPage = 5
             }
         case 5:
-            RoutineBuilderPage {
+            MenuGeneratingPage {
                 navigatingForward = true
-                currentPage = 6
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    currentPage = 6
+                }
             }
         case 6:
-            NotificationPermissionView {
+            RoutineBuilderPage {
                 navigatingForward = true
                 currentPage = 7
             }
         case 7:
+            NotificationPermissionView {
+                navigatingForward = true
+                currentPage = 8
+            }
+        case 8:
             RoutineCompletionPage(onComplete: onComplete)
         default:
             EmptyView()
@@ -132,10 +146,22 @@ struct OnboardingV2View: View {
 
     // MARK: - 戻るナビゲーション
 
-    /// 戻るボタンのページ遷移（PR入力スキップ時はページ4を飛ばす）
+    /// 戻るボタンのページ遷移（生成ページをスキップ、PR入力スキップ時はページ4も飛ばす）
     private func goBack() {
-        if currentPage == 5 && !showPRInput {
-            currentPage = 3 // PR入力スキップ時: 5→3
+        if currentPage == 6 {
+            // RoutineBuilder(6)から戻る → 生成ページ(5)をスキップ
+            if showPRInput {
+                currentPage = 4 // PR入力へ
+            } else {
+                currentPage = 3 // プロフィールへ
+            }
+        } else if currentPage == 5 {
+            // 生成ページ(5)には戻るボタンがないが念のため
+            if showPRInput {
+                currentPage = 4
+            } else {
+                currentPage = 3
+            }
         } else {
             currentPage -= 1
         }
@@ -145,12 +171,12 @@ struct OnboardingV2View: View {
         LocalizationManager.shared.currentLanguage == .japanese
     }
 
-    /// インジケーターに表示するページ番号（PR入力スキップ時はページ4を除外）
+    /// インジケーターに表示するページ番号（生成ページ5を除外、PR入力スキップ時はページ4も除外）
     private var indicatorPages: [Int] {
         if showPRInput {
-            return Array(0..<8)
+            return [0, 1, 2, 3, 4, 6, 7, 8]
         } else {
-            return [0, 1, 2, 3, 5, 6, 7]
+            return [0, 1, 2, 3, 6, 7, 8]
         }
     }
 }

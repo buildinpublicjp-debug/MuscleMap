@@ -40,6 +40,10 @@ struct NotificationPermissionView: View {
         ZStack {
             Color.mmOnboardingBg.ignoresSafeArea()
 
+            GeometryReader { geo in
+                let h = geo.size.height
+                let mapHeight = min(max(h * 0.36, 220), 380)
+
             VStack(spacing: 0) {
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 0) {
@@ -70,7 +74,7 @@ struct NotificationPermissionView: View {
 
                         // 筋肉マップ（回復アニメーション）
                         MuscleMapView(muscleStates: muscleStates)
-                            .frame(height: 220)
+                            .frame(height: mapHeight)
                             .padding(.horizontal, 24)
                             .opacity(appeared ? 1 : 0)
                             .scaleEffect(appeared ? 1 : 0.9)
@@ -81,10 +85,10 @@ struct NotificationPermissionView: View {
                         growthCycleSteps
                             .opacity(appeared ? 1 : 0)
 
-                        Spacer().frame(height: 16)
+                        Spacer().frame(height: 20)
 
                         // 通知プレビューカード（2枚）
-                        VStack(spacing: 8) {
+                        VStack(spacing: 12) {
                             notificationCard(
                                 subtitle: isJapanese ? "🔥 大胸筋・三角筋 回復完了！" : "🔥 Chest & Delts Recovered!",
                                 body: isJapanese ? "プッシュの日です。トレーニングしよう！" : "Push day. Time to train!",
@@ -101,7 +105,7 @@ struct NotificationPermissionView: View {
                         .opacity(appeared ? 1 : 0)
                         .offset(y: appeared ? 0 : 10)
 
-                        Spacer().frame(height: 16)
+                        Spacer().frame(height: 20)
                     }
                 }
 
@@ -157,6 +161,7 @@ struct NotificationPermissionView: View {
                     .padding(.bottom, 32)
                 }
             }
+            } // GeometryReader
         }
         .onAppear {
             withAnimation(.easeOut(duration: 0.6)) {
@@ -220,34 +225,34 @@ struct NotificationPermissionView: View {
     // MARK: - 通知プレビューカード
 
     private func notificationCard(subtitle: String, body: String, time: String, isMain: Bool = false) -> some View {
-        VStack(alignment: .leading, spacing: 3) {
+        VStack(alignment: .leading, spacing: 5) {
             HStack(spacing: 6) {
                 Image(systemName: "bell.fill")
-                    .font(.system(size: isMain ? 13 : 11))
+                    .font(.system(size: isMain ? 15 : 13))
                     .foregroundStyle(Color.mmOnboardingAccent)
                 Text("MuscleMap")
-                    .font(.system(size: isMain ? 13 : 11, weight: .bold))
+                    .font(.system(size: isMain ? 15 : 13, weight: .bold))
                     .foregroundStyle(Color.mmOnboardingTextMain)
                 Spacer()
                 Text(time)
-                    .font(.system(size: isMain ? 11 : 10))
+                    .font(.system(size: isMain ? 13 : 11))
                     .foregroundStyle(Color.mmOnboardingTextSub)
             }
 
             Text(subtitle)
-                .font(.system(size: isMain ? 15 : 13, weight: .bold))
+                .font(.system(size: isMain ? 17 : 15, weight: .bold))
                 .foregroundStyle(Color.mmOnboardingTextMain)
 
             Text(body)
-                .font(.system(size: isMain ? 13 : 12))
+                .font(.system(size: isMain ? 15 : 13))
                 .foregroundStyle(Color.mmOnboardingTextSub)
                 .lineLimit(1)
         }
-        .padding(isMain ? 14 : 10)
+        .padding(isMain ? 18 : 14)
         .background(Color.mmOnboardingCard)
-        .clipShape(RoundedRectangle(cornerRadius: 14))
+        .clipShape(RoundedRectangle(cornerRadius: 16))
         .overlay(
-            RoundedRectangle(cornerRadius: 14)
+            RoundedRectangle(cornerRadius: 16)
                 .stroke(Color.mmOnboardingAccent.opacity(isMain ? 0.3 : 0.15), lineWidth: isMain ? 1.5 : 1)
         )
         .padding(.horizontal, 24)

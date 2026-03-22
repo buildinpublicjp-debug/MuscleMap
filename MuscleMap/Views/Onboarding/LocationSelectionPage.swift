@@ -65,8 +65,6 @@ struct LocationSelectionPage: View {
     ]
     private static let gymExcludeIds: Set<String> = ["burpee"]
 
-    private let cardSize: CGFloat = 150
-
     private func isTrueBodyweight(_ exercise: ExerciseDefinition) -> Bool {
         let id = exercise.id.lowercased()
         return !Self.bodyweightExcludeIds.contains(where: { id.contains($0) })
@@ -119,119 +117,126 @@ struct LocationSelectionPage: View {
     }
 
     var body: some View {
-        VStack(spacing: 0) {
-            Spacer().frame(height: 8)
+        GeometryReader { geo in
+            let h = geo.size.height
+            let cardSize = min(max(h * 0.20, 130), 200)
+            let selectionCardHeight = min(max(h * 0.07, 48), 72)
 
-            VStack(spacing: 4) {
-                Text(L10n.locationTitle)
-                    .font(.system(size: 26, weight: .heavy))
-                    .foregroundStyle(Color.mmOnboardingTextMain)
-                    .multilineTextAlignment(.center)
+            VStack(spacing: 0) {
+                Spacer().frame(height: 8)
 
-                Text(L10n.locationSubtitle)
-                    .font(.system(size: 13))
-                    .foregroundStyle(Color.mmOnboardingTextSub)
-                    .multilineTextAlignment(.center)
-            }
-            .padding(.horizontal, 24)
-            .opacity(appeared ? 1 : 0)
-            .offset(y: appeared ? 0 : 20)
+                VStack(spacing: 4) {
+                    Text(L10n.locationTitle)
+                        .font(.system(size: 26, weight: .heavy))
+                        .foregroundStyle(Color.mmOnboardingTextMain)
+                        .multilineTextAlignment(.center)
 
-            Spacer().frame(height: 4)
-
-            HStack(spacing: 6) {
-                Text(L10n.exerciseCountLabel(totalFilteredCount))
-                    .font(.system(size: 13, weight: .bold))
-                    .foregroundStyle(Color.mmOnboardingAccent)
-                    .contentTransition(.numericText())
-                    .animation(.easeInOut(duration: 0.3), value: totalFilteredCount)
-
-                if selected == .home || selected == .bodyweight {
-                    Text(L10n.locationHomeExercises)
-                        .font(.caption2)
+                    Text(L10n.locationSubtitle)
+                        .font(.system(size: 13))
                         .foregroundStyle(Color.mmOnboardingTextSub)
-                } else {
-                    Text(L10n.locationExerciseCount)
-                        .font(.caption2)
-                        .foregroundStyle(Color.mmOnboardingTextSub)
+                        .multilineTextAlignment(.center)
                 }
-            }
-            .opacity(appeared ? 1 : 0)
+                .padding(.horizontal, 24)
+                .opacity(appeared ? 1 : 0)
+                .offset(y: appeared ? 0 : 20)
 
-            Spacer().frame(height: 4)
+                Spacer().frame(height: 4)
 
-            // 2行マーキー（選択連動: 種目が切り替わる、アニメーションリセットOK）
-            VStack(spacing: 6) {
-                LocationMarqueeRow(exercises: topRowExercises, cardSize: cardSize, speed: 25, reversed: false) { exercise in
-                    selectedExercise = exercise
-                    HapticManager.lightTap()
+                HStack(spacing: 6) {
+                    Text(L10n.exerciseCountLabel(totalFilteredCount))
+                        .font(.system(size: 13, weight: .bold))
+                        .foregroundStyle(Color.mmOnboardingAccent)
+                        .contentTransition(.numericText())
+                        .animation(.easeInOut(duration: 0.3), value: totalFilteredCount)
+
+                    if selected == .home || selected == .bodyweight {
+                        Text(L10n.locationHomeExercises)
+                            .font(.caption2)
+                            .foregroundStyle(Color.mmOnboardingTextSub)
+                    } else {
+                        Text(L10n.locationExerciseCount)
+                            .font(.caption2)
+                            .foregroundStyle(Color.mmOnboardingTextSub)
+                    }
                 }
-                .id("top-\(selected?.rawValue ?? "none")")
-                LocationMarqueeRow(exercises: bottomRowExercises, cardSize: cardSize, speed: 20, reversed: false) { exercise in
-                    selectedExercise = exercise
-                    HapticManager.lightTap()
+                .opacity(appeared ? 1 : 0)
+
+                Spacer().frame(height: 4)
+
+                // 2行マーキー（選択連動: 種目が切り替わる、アニメーションリセットOK）
+                VStack(spacing: 6) {
+                    LocationMarqueeRow(exercises: topRowExercises, cardSize: cardSize, speed: 25, reversed: false) { exercise in
+                        selectedExercise = exercise
+                        HapticManager.lightTap()
+                    }
+                    .id("top-\(selected?.rawValue ?? "none")")
+                    LocationMarqueeRow(exercises: bottomRowExercises, cardSize: cardSize, speed: 20, reversed: false) { exercise in
+                        selectedExercise = exercise
+                        HapticManager.lightTap()
+                    }
+                    .id("bottom-\(selected?.rawValue ?? "none")")
                 }
-                .id("bottom-\(selected?.rawValue ?? "none")")
-            }
-            .frame(height: cardSize * 2 + 6)
-            .clipped()
-            .opacity(appeared ? 1 : 0)
+                .frame(height: cardSize * 2 + 6)
+                .clipped()
+                .opacity(appeared ? 1 : 0)
 
-            Spacer().frame(height: 6)
+                Spacer().frame(height: 6)
 
-            VStack(spacing: 5) {
-                ForEach(Array(TrainingLocation.allCases.enumerated()), id: \.element) { index, location in
-                    LocationCard(
-                        location: location,
-                        isSelected: selected == location,
-                        onTap: {
-                            guard !isProceeding else { return }
-                            withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
-                                selected = location
+                VStack(spacing: 7) {
+                    ForEach(Array(TrainingLocation.allCases.enumerated()), id: \.element) { index, location in
+                        LocationCard(
+                            location: location,
+                            isSelected: selected == location,
+                            cardHeight: selectionCardHeight,
+                            onTap: {
+                                guard !isProceeding else { return }
+                                withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
+                                    selected = location
+                                }
+                                HapticManager.lightTap()
                             }
-                            HapticManager.lightTap()
-                        }
-                    )
-                    .opacity(appeared ? 1 : 0)
-                    .offset(y: appeared ? 0 : 20)
-                    .animation(.easeOut(duration: 0.4).delay(Double(index) * 0.08 + 0.3), value: appeared)
+                        )
+                        .opacity(appeared ? 1 : 0)
+                        .offset(y: appeared ? 0 : 20)
+                        .animation(.easeOut(duration: 0.4).delay(Double(index) * 0.08 + 0.3), value: appeared)
+                    }
                 }
-            }
-            .padding(.horizontal, 24)
+                .padding(.horizontal, 24)
 
-            Spacer(minLength: 4)
+                Spacer(minLength: 4)
 
-            Button {
-                guard !isProceeding, let loc = selected else { return }
-                isProceeding = true
-                HapticManager.mediumTap()
-                onNext(loc)
-            } label: {
-                Text(L10n.next)
-                    .font(.system(size: 18, weight: .bold))
-                    .foregroundStyle(selected != nil ? Color.mmOnboardingBg : Color.mmOnboardingTextSub)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 56)
-                    .background(
-                        Group {
-                            if selected != nil {
-                                LinearGradient(
-                                    colors: [Color.mmOnboardingAccent, Color.mmOnboardingAccentDark],
-                                    startPoint: .leading,
-                                    endPoint: .trailing
-                                )
-                            } else {
-                                Color.mmOnboardingCard
+                Button {
+                    guard !isProceeding, let loc = selected else { return }
+                    isProceeding = true
+                    HapticManager.mediumTap()
+                    onNext(loc)
+                } label: {
+                    Text(L10n.next)
+                        .font(.system(size: 18, weight: .bold))
+                        .foregroundStyle(selected != nil ? Color.mmOnboardingBg : Color.mmOnboardingTextSub)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 56)
+                        .background(
+                            Group {
+                                if selected != nil {
+                                    LinearGradient(
+                                        colors: [Color.mmOnboardingAccent, Color.mmOnboardingAccentDark],
+                                        startPoint: .leading,
+                                        endPoint: .trailing
+                                    )
+                                } else {
+                                    Color.mmOnboardingCard
+                                }
                             }
-                        }
-                    )
-                    .clipShape(RoundedRectangle(cornerRadius: 16))
+                        )
+                        .clipShape(RoundedRectangle(cornerRadius: 16))
+                }
+                .buttonStyle(.plain)
+                .disabled(selected == nil)
+                .padding(.horizontal, 24)
+                .padding(.bottom, 32)
+                .animation(.easeInOut(duration: 0.2), value: selected)
             }
-            .buttonStyle(.plain)
-            .disabled(selected == nil)
-            .padding(.horizontal, 24)
-            .padding(.bottom, 32)
-            .animation(.easeInOut(duration: 0.2), value: selected)
         }
         .onAppear {
             isProceeding = false
@@ -335,6 +340,7 @@ private struct LocationMarqueeRow: View {
 private struct LocationCard: View {
     let location: TrainingLocation
     let isSelected: Bool
+    var cardHeight: CGFloat = 66
     let onTap: () -> Void
 
     var body: some View {
@@ -371,7 +377,7 @@ private struct LocationCard: View {
                 }
                 .padding(.horizontal, 12)
             }
-            .frame(height: 48)
+            .frame(height: cardHeight)
             .background(isSelected ? Color.mmOnboardingAccent.opacity(0.08) : Color.mmOnboardingCard)
             .clipShape(RoundedRectangle(cornerRadius: 12))
             .overlay(

@@ -89,8 +89,13 @@ struct FrequencySelectionPage: View {
     }
 
     var body: some View {
+        GeometryReader { geo in
+            let h = geo.size.height
+            let mapHeight = min(max(h * 0.30, 180), 320)
+            let cardHeight = min(max(h * 0.08, 50), 80)
+
         VStack(spacing: 0) {
-            Spacer().frame(height: 16)
+            Spacer().frame(height: 20)
 
             // ヘッダー
             VStack(spacing: 4) {
@@ -117,7 +122,7 @@ struct FrequencySelectionPage: View {
                     tappedMuscle = muscle
                 }
             )
-            .frame(height: 220)
+            .frame(height: mapHeight)
             .padding(.horizontal, 16)
             .opacity(appeared ? 1 : 0)
 
@@ -128,7 +133,7 @@ struct FrequencySelectionPage: View {
                 legendItem(color: Color.mmOnboardingTextSub.opacity(0.3), text: isJapanese ? "未刺激" : "Inactive")
             }
             .font(.system(size: 10))
-            .padding(.top, 2)
+            .padding(.top, 4)
             .opacity(appeared ? 1 : 0)
 
             // ヒントテキスト or タイムラインバー
@@ -156,15 +161,16 @@ struct FrequencySelectionPage: View {
                     .transition(.opacity)
             }
 
-            Spacer().frame(height: 6)
+            Spacer().frame(height: 10)
 
             // 選択カード（コンパクトリスト）
             ScrollView {
-                VStack(spacing: 8) {
+                VStack(spacing: 10) {
                     ForEach(Array(WeeklyFrequency.allCases.enumerated()), id: \.element) { index, frequency in
                         FrequencyCompactCard(
                             frequency: frequency,
                             isSelected: selected == frequency,
+                            cardHeight: cardHeight,
                             onTap: {
                                 guard !isProceeding else { return }
                                 withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
@@ -225,6 +231,7 @@ struct FrequencySelectionPage: View {
             .padding(.bottom, 32)
             .animation(.easeInOut(duration: 0.2), value: selected)
         }
+        } // GeometryReader
         .sheet(item: $tappedMuscle) { muscle in
             FrequencyMuscleExerciseSheet(muscle: muscle)
                 .presentationDetents([.medium, .large])
@@ -415,6 +422,7 @@ struct FrequencySelectionPage: View {
 private struct FrequencyCompactCard: View {
     let frequency: WeeklyFrequency
     let isSelected: Bool
+    var cardHeight: CGFloat = 72
     let onTap: () -> Void
 
     private var isJapanese: Bool {
@@ -478,7 +486,7 @@ private struct FrequencyCompactCard: View {
                 }
                 .padding(.horizontal, 12)
             }
-            .frame(height: 50)
+            .frame(height: cardHeight)
             .background(isSelected ? Color.mmOnboardingAccent.opacity(0.08) : Color.mmOnboardingCard)
             .clipShape(RoundedRectangle(cornerRadius: 16))
             .overlay(

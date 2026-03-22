@@ -69,8 +69,13 @@ struct PRInputPage: View {
     }
 
     var body: some View {
+        GeometryReader { geo in
+            let h = geo.size.height
+            let mapHeight = min(max(h * 0.28, 180), 300)
+            let gifCardSize = min(max(h * 0.18, 130), 185)
+
         VStack(spacing: 0) {
-            Spacer().frame(height: 12)
+            Spacer().frame(height: 16)
 
             // ヘッダー
             VStack(spacing: 4) {
@@ -97,7 +102,7 @@ struct PRInputPage: View {
                         HapticManager.lightTap()
                     }
                 )
-                .frame(height: 200)
+                .frame(height: mapHeight)
 
                 // 未入力時のタップガイド（マップ中央下部）
                 if recordedPRs.isEmpty {
@@ -131,7 +136,8 @@ struct PRInputPage: View {
                         ForEach(defaultExercises, id: \.id) { exercise in
                             PRCompactGifCard(
                                 exercise: exercise,
-                                recordedWeight: nil
+                                recordedWeight: nil,
+                                cardSize: gifCardSize
                             ) {
                                 selectedExercise = exercise
                                 HapticManager.lightTap()
@@ -142,7 +148,8 @@ struct PRInputPage: View {
                             if let def = ExerciseStore.shared.exercise(for: exerciseId) {
                                 PRCompactGifCard(
                                     exercise: def,
-                                    recordedWeight: weight
+                                    recordedWeight: weight,
+                                    cardSize: gifCardSize
                                 ) {
                                     selectedExercise = def
                                     HapticManager.lightTap()
@@ -161,7 +168,7 @@ struct PRInputPage: View {
                                     .font(.system(size: 12, weight: .bold))
                             }
                             .foregroundStyle(Color.mmOnboardingTextSub)
-                            .frame(width: 140, height: 140)
+                            .frame(width: gifCardSize, height: gifCardSize)
                             .background(Color.mmOnboardingCard)
                             .clipShape(RoundedRectangle(cornerRadius: 12))
                         }
@@ -274,6 +281,7 @@ struct PRInputPage: View {
             .padding(.bottom, 32)
             .opacity(appeared ? 1 : 0)
         }
+        } // GeometryReader
         .onAppear {
             isProceeding = false
             ExerciseStore.shared.loadIfNeeded()
@@ -611,6 +619,7 @@ private struct WeightInputSheet: View {
 private struct PRCompactGifCard: View {
     let exercise: ExerciseDefinition
     let recordedWeight: Double?
+    var cardSize: CGFloat = 170
     let onTap: () -> Void
 
     var body: some View {
@@ -653,7 +662,7 @@ private struct PRCompactGifCard: View {
                     )
                 )
             }
-            .frame(width: 140, height: 140)
+            .frame(width: cardSize, height: cardSize)
             .clipShape(RoundedRectangle(cornerRadius: 12))
         }
         .buttonStyle(.plain)

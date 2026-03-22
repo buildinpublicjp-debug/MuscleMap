@@ -106,6 +106,10 @@ private struct GifImageView: UIViewRepresentable {
     let gifData: Data
     var useFill: Bool = false
 
+    func makeCoordinator() -> Coordinator {
+        Coordinator()
+    }
+
     func makeUIView(context: Context) -> UIImageView {
         let imageView = UIImageView()
         imageView.contentMode = useFill ? .scaleAspectFill : .scaleAspectFit
@@ -120,6 +124,7 @@ private struct GifImageView: UIViewRepresentable {
         if let animatedImage = UIImage.gif(data: gifData) {
             imageView.image = animatedImage
         }
+        context.coordinator.currentData = gifData
         return imageView
     }
 
@@ -129,6 +134,18 @@ private struct GifImageView: UIViewRepresentable {
         if imageView.contentMode != expectedMode {
             imageView.contentMode = expectedMode
         }
+
+        // gifDataが変わった場合にアニメーション画像を更新
+        if context.coordinator.currentData != gifData {
+            context.coordinator.currentData = gifData
+            if let animatedImage = UIImage.gif(data: gifData) {
+                imageView.image = animatedImage
+            }
+        }
+    }
+
+    class Coordinator {
+        var currentData: Data?
     }
 
     /// 画面外でアニメーションを停止しメモリ解放

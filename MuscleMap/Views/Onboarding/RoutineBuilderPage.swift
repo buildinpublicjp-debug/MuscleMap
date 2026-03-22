@@ -11,6 +11,7 @@ struct RoutineBuilderPage: View {
     @State private var headerAppeared = false
     @State private var selectedExerciseDefinition: ExerciseDefinition?
     @State private var showingExercisePicker = false
+    @Namespace private var tabNamespace
 
     private let maxExercisesPerDay = 6
 
@@ -33,6 +34,11 @@ struct RoutineBuilderPage: View {
     }
 
     var body: some View {
+        GeometryReader { geo in
+            let h = geo.size.height
+            let mapHeight = min(max(h * 0.17, 120), 180)
+            let exerciseCardHeight = min(max(h * 0.19, 140), 190)
+
         VStack(spacing: 0) {
             Spacer().frame(height: 16)
 
@@ -73,9 +79,16 @@ struct RoutineBuilderPage: View {
 
             Spacer().frame(height: 6)
 
-            // 種目プレビュー
-            if days.indices.contains(selectedDayIndex) {
-                exercisePreview
+            // 種目プレビュー（スワイプ切替対応）
+            if !days.isEmpty {
+                TabView(selection: $selectedDayIndex) {
+                    ForEach(days.indices, id: \.self) { index in
+                        exercisePreviewForDay(days[index], dayIndex: index, mapHeight: mapHeight, exerciseCardHeight: exerciseCardHeight)
+                            .tag(index)
+                    }
+                }
+                .tabViewStyle(.page(indexDisplayMode: .never))
+                .animation(.easeInOut(duration: 0.25), value: selectedDayIndex)
             }
 
             Spacer(minLength: 0)
@@ -131,6 +144,7 @@ struct RoutineBuilderPage: View {
             .padding(.horizontal, 24)
             .padding(.bottom, 32)
         }
+        } // GeometryReader
         .onAppear {
             initializeDays()
             withAnimation(.easeOut(duration: 0.5)) {
@@ -157,112 +171,125 @@ struct RoutineBuilderPage: View {
         }
     }
 
-    // MARK: - Day タブバー（閲覧のみ）
+    // MARK: - Day タブバー
 
     private var dayTabBar: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 6) {
-                ForEach(days.indices, id: \.self) { index in
-                    Button {
-                        withAnimation(.easeInOut(duration: 0.2)) {
-                            selectedDayIndex = index
-                        }
-                        HapticManager.lightTap()
-                    } label: {
-                        VStack(spacing: 2) {
-                            Text("Day \(index + 1)")
-                                .font(.system(size: 12, weight: .bold))
-                            Text(days[index].name)
-                                .font(.system(size: 10))
-                                .lineLimit(1)
-                        }
-                        .foregroundStyle(
-                            selectedDayIndex == index
-                                ? Color.mmOnboardingBg
-                                : Color.mmOnboardingTextMain
-                        )
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 6)
-                        .background(
-                            selectedDayIndex == index
-                                ? Color.mmOnboardingAccent
-                                : Color.mmOnboardingCard
-                        )
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
+        HStack(spacing: 0) {
+            ForEach(days.indices, id: \.self) { index in
+                Button {
+                    withAnimation(.easeInOut(duration: 0.25)) {
+                        selectedDayIndex = index
                     }
-                    .buttonStyle(.plain)
+                    HapticManager.lightTap()
+                } label: {
+                    VStack(spacing: 3) {
+                        Text("Day \(index + 1)")
+                            .font(.system(size: 14, weight: .bold))
+                        Text(days[index].name)
+                            .font(.system(size: 10))
+                            .lineLimit(1)
+                    }
+                    .foregroundStyle(
+                        selectedDayIndex == index
+                            ? Color.mmOnboardingAccent
+                            : Color.mmOnboardingTextSub
+                    )
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 8)
+                    .background {
+                        if selectedDayIndex == index {
+                            RoundedRectangle(cornerRadius: 10)
+                                .fill(Color.mmOnboardingAccent.opacity(0.12))
+                                .matchedGeometryEffect(id: "dayTab", in: tabNamespace)
+                        }
+                    }
                 }
+                .buttonStyle(.plain)
             }
-            .padding(.horizontal, 24)
         }
+        .padding(.horizontal, 20)
+        .padding(.vertical, 4)
+        .background(Color.mmOnboardingCard.opacity(0.5))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .padding(.horizontal, 16)
     }
 
-    // MARK: - 種目プレビュー（読み取り専用）
+    // MARK: - 種目プレビュー（Day別、スワイプ切替対応）
 
-    @ViewBuilder
-    private var exercisePreview: some View {
-        if days.indices.contains(selectedDayIndex) {
-            let day = days[selectedDayIndex]
+    private func exercisePreviewForDay(_ day: RoutineDay, dayIndex: Int, mapHeight: CGFloat, exerciseCardHeight: CGFloat) -> some View {
+        VStack(spacing: 0) {
+            // 教育ヒント
+            Text(educationHint(for: day))
+                .font(.system(size: 11))
+                .foregroundStyle(Color.mmOnboardingAccent.opacity(0.8))
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 5)
+                .background(Color.mmOnboardingAccent.opacity(0.08))
+                .clipShape(RoundedRectangle(cornerRadius: 6))
+                .padding(.horizontal, 24)
+                .padding(.bottom, 4)
 
-            VStack(spacing: 0) {
-                // 教育ヒント
-                Text(educationHint(for: day))
-                    .font(.system(size: 11))
-                    .foregroundStyle(Color.mmOnboardingAccent.opacity(0.8))
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 5)
-                    .background(Color.mmOnboardingAccent.opacity(0.08))
-                    .clipShape(RoundedRectangle(cornerRadius: 6))
+            // 種目グリッド + 筋肉マップ（スクロール可能）
+            ScrollView(.vertical, showsIndicators: false) {
+                VStack(spacing: 10) {
+                    // 筋肉マップ（コンパクト）
+                    MuscleMapView(
+                        muscleStates: muscleStatesForDay(day)
+                    )
+                    .frame(height: mapHeight)
                     .padding(.horizontal, 24)
-                    .padding(.bottom, 4)
 
-                // 種目グリッド + 筋肉マップ（スクロール可能）
-                ScrollView(.vertical, showsIndicators: false) {
-                    VStack(spacing: 10) {
-                        // 筋肉マップ（コンパクト）
-                        MuscleMapView(
-                            muscleStates: muscleStatesForDay(day)
-                        )
-                        .frame(height: 120)
-                        .padding(.horizontal, 24)
-
-                        // 2列GIFグリッド（カード拡大）
-                        let gridColumns = Array(repeating: GridItem(.flexible(), spacing: 10), count: 2)
-                        LazyVGrid(columns: gridColumns, spacing: 10) {
-                            ForEach(day.exercises, id: \.id) { routineExercise in
-                                exerciseCard(routineExercise: routineExercise)
-                            }
-
-                            // 種目追加カード（グリッド末尾）
-                            if day.exercises.count < maxExercisesPerDay {
-                                Button {
-                                    showingExercisePicker = true
-                                    HapticManager.lightTap()
-                                } label: {
-                                    VStack(spacing: 6) {
-                                        Image(systemName: "plus.circle")
-                                            .font(.system(size: 28))
-                                        Text(isJapanese ? "追加" : "Add")
-                                            .font(.system(size: 12, weight: .bold))
-                                    }
-                                    .foregroundStyle(Color.mmOnboardingTextSub)
-                                    .frame(maxWidth: .infinity)
-                                    .frame(height: 150)
-                                    .background(Color.mmOnboardingCard.opacity(0.5))
-                                    .clipShape(RoundedRectangle(cornerRadius: 12))
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 12)
-                                            .strokeBorder(style: StrokeStyle(lineWidth: 1, dash: [5]))
-                                            .foregroundStyle(Color.mmOnboardingTextSub.opacity(0.3))
-                                    )
-                                }
-                                .buttonStyle(.plain)
-                            }
-                        }
-                        .padding(.horizontal, 24)
-                        .padding(.bottom, 16)
+                    // 種目数カウント
+                    HStack(spacing: 4) {
+                        Image(systemName: "figure.strengthtraining.traditional")
+                            .font(.system(size: 11))
+                        Text(isJapanese
+                            ? "\(day.exercises.count)種目"
+                            : "\(day.exercises.count) exercises")
+                            .font(.system(size: 12, weight: .bold))
                     }
+                    .foregroundStyle(Color.mmOnboardingTextSub)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 24)
+
+                    // 2列GIFグリッド（カード拡大）
+                    let gridColumns = Array(repeating: GridItem(.flexible(), spacing: 10), count: 2)
+                    LazyVGrid(columns: gridColumns, spacing: 10) {
+                        ForEach(day.exercises, id: \.id) { routineExercise in
+                            exerciseCard(routineExercise: routineExercise, cardHeight: exerciseCardHeight)
+                                .id(routineExercise.exerciseId)
+                        }
+
+                        // 種目追加カード（グリッド末尾）
+                        if day.exercises.count < maxExercisesPerDay {
+                            Button {
+                                selectedDayIndex = dayIndex
+                                showingExercisePicker = true
+                                HapticManager.lightTap()
+                            } label: {
+                                VStack(spacing: 6) {
+                                    Image(systemName: "plus.circle")
+                                        .font(.system(size: 28))
+                                    Text(isJapanese ? "追加" : "Add")
+                                        .font(.system(size: 12, weight: .bold))
+                                }
+                                .foregroundStyle(Color.mmOnboardingTextSub)
+                                .frame(maxWidth: .infinity)
+                                .frame(height: exerciseCardHeight)
+                                .background(Color.mmOnboardingCard.opacity(0.5))
+                                .clipShape(RoundedRectangle(cornerRadius: 12))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .strokeBorder(style: StrokeStyle(lineWidth: 1, dash: [5]))
+                                        .foregroundStyle(Color.mmOnboardingTextSub.opacity(0.3))
+                                )
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                    .padding(.horizontal, 24)
+                    .padding(.bottom, 16)
                 }
             }
         }
@@ -270,7 +297,7 @@ struct RoutineBuilderPage: View {
 
     // MARK: - 種目カード（2列グリッド用、削除可能）
 
-    private func exerciseCard(routineExercise: RoutineExercise) -> some View {
+    private func exerciseCard(routineExercise: RoutineExercise, cardHeight: CGFloat = 175) -> some View {
         let def = ExerciseStore.shared.exercise(for: routineExercise.exerciseId)
         let name = def?.localizedName ?? routineExercise.exerciseId
         let canDelete = days.indices.contains(selectedDayIndex) && days[selectedDayIndex].exercises.count > 1
@@ -288,7 +315,7 @@ struct RoutineBuilderPage: View {
                         if ExerciseGifView.hasGif(exerciseId: routineExercise.exerciseId) {
                             ExerciseGifView(exerciseId: routineExercise.exerciseId, size: .card)
                                 .scaledToFill()
-                                .frame(height: 150)
+                                .frame(height: cardHeight)
                                 .clipped()
                         } else {
                             ZStack {
@@ -297,7 +324,7 @@ struct RoutineBuilderPage: View {
                                     .font(.system(size: 28))
                                     .foregroundStyle(Color.mmOnboardingTextSub.opacity(0.4))
                             }
-                            .frame(height: 150)
+                            .frame(height: cardHeight)
                         }
 
                         // 名前オーバーレイ（グラデーション上）
@@ -344,7 +371,7 @@ struct RoutineBuilderPage: View {
                     }
                 }
             }
-            .frame(height: 150)
+            .frame(height: cardHeight)
             .clipShape(RoundedRectangle(cornerRadius: 12))
         }
     }
