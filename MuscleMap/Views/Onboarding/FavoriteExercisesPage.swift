@@ -217,7 +217,7 @@ private struct ExerciseSelectRow: View {
                             .foregroundStyle(Color.mmOnboardingTextMain)
                             .lineLimit(1)
 
-                        Text(exercise.equipment)
+                        Text(exercise.localizedEquipment)
                             .font(.caption)
                             .foregroundStyle(Color.mmOnboardingTextSub)
                             .padding(.horizontal, 6)

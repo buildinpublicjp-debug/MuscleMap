@@ -261,11 +261,13 @@ struct WorkoutCompletionView: View {
             PaywallView()
         }
         .onAppear {
-            checkFullBodyConquest()
             markFirstWorkoutCompleted()
-            checkPRUpdates()
-            detectLevelUps()
-            scheduleRecoveryNotification()
+            Task {
+                checkFullBodyConquest()
+                checkPRUpdates()
+                detectLevelUps()
+                scheduleRecoveryNotification()
+            }
         }
         .fullScreenCover(isPresented: $showingFullBodyConquest) {
             FullBodyConquestView(
