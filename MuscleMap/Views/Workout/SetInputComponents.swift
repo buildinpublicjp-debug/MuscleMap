@@ -16,7 +16,7 @@ struct SetInputCard: View {
     private var localization: LocalizationManager { LocalizationManager.shared }
 
     private var isBodyweight: Bool {
-        exercise.equipment == "自重" || exercise.equipment == "Bodyweight"
+        exercise.isBodyweight
     }
 
     private var prWeight: Double? {

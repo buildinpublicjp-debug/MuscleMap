@@ -166,7 +166,7 @@ class WorkoutViewModel {
     func selectExercise(_ exercise: ExerciseDefinition) {
         selectedExercise = exercise
 
-        let isBodyweight = exercise.equipment == "自重" || exercise.equipment == "Bodyweight"
+        let isBodyweight = exercise.isBodyweight
 
         // 使用履歴に記録
         RecentExercisesManager.shared.recordUsage(exercise.id)

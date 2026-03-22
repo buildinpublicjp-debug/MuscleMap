@@ -82,7 +82,7 @@ struct RecordedSetsView: View {
                                     .foregroundStyle(Color.mmTextSecondary)
                                     .frame(width: 50, alignment: .leading)
                                 Spacer()
-                                if (entry.exercise.equipment == "自重" || entry.exercise.equipment == "Bodyweight") && set.weight == 0 {
+                                if entry.exercise.isBodyweight && set.weight == 0 {
                                     Text(L10n.repsOnly(set.reps))
                                         .font(.subheadline.bold().monospaced())
                                         .foregroundStyle(Color.mmTextPrimary)
