@@ -298,17 +298,18 @@ struct WorkoutCompletionView: View {
         let uniqueGroups = Set(groupSetCounts.keys)
 
         // 部位ベースのメッセージ（複数部位 or 単一部位）
+        let isJapanese = localization.currentLanguage == .japanese
         let muscleMessage: String
         if uniqueGroups.count > 2 {
-            muscleMessage = "全身、しっかり追い込んだ"
+            muscleMessage = isJapanese ? "全身、しっかり追い込んだ" : "Full body, crushed it"
         } else if let group = dominantGroup {
             switch group {
-            case .chest: muscleMessage = "胸板、また一段厚くなった"
-            case .back: muscleMessage = "背中の広がり、レベルアップ"
-            case .shoulders: muscleMessage = "肩幅、また一歩広がった"
-            case .lowerBody: muscleMessage = "脚の土台、さらに強固に"
-            case .arms: muscleMessage = "腕、パンプした"
-            case .core: muscleMessage = "体幹、ブレない体へ"
+            case .chest: muscleMessage = isJapanese ? "胸板、また一段厚くなった" : "Chest gains, leveled up"
+            case .back: muscleMessage = isJapanese ? "背中の広がり、レベルアップ" : "Back width, leveled up"
+            case .shoulders: muscleMessage = isJapanese ? "肩幅、また一歩広がった" : "Shoulders, wider than ever"
+            case .lowerBody: muscleMessage = isJapanese ? "脚の土台、さらに強固に" : "Legs, stronger foundation"
+            case .arms: muscleMessage = isJapanese ? "腕、パンプした" : "Arms, fully pumped"
+            case .core: muscleMessage = isJapanese ? "体幹、ブレない体へ" : "Core, unshakable"
             }
         } else {
             return nil

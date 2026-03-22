@@ -21,6 +21,9 @@ struct ExerciseGifView: View {
     let exerciseId: String
     let size: ExerciseGifSize
 
+    /// GIFデータのin-memoryキャッシュ
+    private static let gifCache = NSCache<NSString, NSData>()
+
     var body: some View {
         if let gifData = Self.loadGifData(exerciseId: exerciseId) {
             switch size {
@@ -79,14 +82,28 @@ struct ExerciseGifView: View {
 
     // MARK: - GIFファイル存在チェック
 
-    /// 指定されたexerciseIdに対応するGIFファイルが存在するかチェック
+    /// 指定されたexerciseIdに対応するGIFファイルが存在するかチェック（フルデータ読み込みを回避）
     static func hasGif(exerciseId: String) -> Bool {
-        return loadGifData(exerciseId: exerciseId) != nil
+        guard let url = Bundle.main.url(
+            forResource: exerciseId,
+            withExtension: "gif",
+            subdirectory: "exercises_gif"
+        ) else {
+            return false
+        }
+        return FileManager.default.fileExists(atPath: url.path)
     }
 
-    // MARK: - GIFデータ読み込み
+    // MARK: - GIFデータ読み込み（NSCacheによるin-memoryキャッシュ付き）
 
     private static func loadGifData(exerciseId: String) -> Data? {
+        let cacheKey = exerciseId as NSString
+
+        // キャッシュヒット
+        if let cached = gifCache.object(forKey: cacheKey) {
+            return cached as Data
+        }
+
         // exercises_gif/{exerciseId}.gif を探す
         guard let url = Bundle.main.url(
             forResource: exerciseId,
@@ -96,7 +113,13 @@ struct ExerciseGifView: View {
             return nil
         }
 
-        return try? Data(contentsOf: url)
+        guard let data = try? Data(contentsOf: url) else {
+            return nil
+        }
+
+        // キャッシュに保存
+        gifCache.setObject(data as NSData, forKey: cacheKey)
+        return data
     }
 }
 

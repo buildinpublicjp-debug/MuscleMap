@@ -173,6 +173,7 @@ struct CompletionExerciseList: View {
 /// 完了画面のExerciseListの下に常時表示（isPremium == false 時のみ）
 struct CompletionProBanner: View {
     let onTap: () -> Void
+    private var isJapanese: Bool { LocalizationManager.shared.currentLanguage == .japanese }
 
     var body: some View {
         Button(action: onTap) {
@@ -181,19 +182,19 @@ struct CompletionProBanner: View {
                     Image(systemName: "bolt.shield.fill")
                         .font(.title3)
                         .foregroundStyle(Color.mmAccentPrimary)
-                    Text("90日で体の変化を証明する")
+                    Text(isJapanese ? "90日で体の変化を証明する" : "Prove your progress in 90 days")
                         .font(.subheadline.bold())
                         .foregroundStyle(Color.mmTextPrimary)
                 }
 
-                Text("Strength Map + 種目別グラフで成長を可視化")
+                Text(isJapanese ? "Strength Map + 種目別グラフで成長を可視化" : "Visualize growth with Strength Map + exercise charts")
                     .font(.caption)
                     .foregroundStyle(Color.mmTextSecondary)
 
                 HStack {
                     Spacer()
                     HStack(spacing: 4) {
-                        Text("Proを始める")
+                        Text(isJapanese ? "Proを始める" : "Go Pro")
                             .font(.caption.bold())
                             .foregroundStyle(Color.mmAccentPrimary)
                         Image(systemName: "chevron.right")

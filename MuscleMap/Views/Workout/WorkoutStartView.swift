@@ -101,6 +101,7 @@ struct WorkoutStartView: View {
 
     /// ルーティンモードでワークアウト開始（HomeViewから遷移）
     private func handlePendingRoutineDay() {
+        guard PurchaseManager.shared.canRecordWorkout else { return }
         guard let pendingDay = RoutineManager.shared.pendingStartDay,
               let vm = viewModel else { return }
         RoutineManager.shared.pendingStartDay = nil
@@ -109,6 +110,7 @@ struct WorkoutStartView: View {
 
     /// 種目詳細画面から遷移してきた場合、セッション開始 + 種目選択
     private func handlePendingExercise() {
+        guard PurchaseManager.shared.canRecordWorkout else { return }
         guard let exerciseId = AppState.shared.pendingExerciseId,
               let vm = viewModel,
               let exercise = ExerciseStore.shared.exercise(for: exerciseId) else { return }
@@ -119,6 +121,7 @@ struct WorkoutStartView: View {
 
     /// メニュー自動提案からの遷移: セッション開始 + 提案種目を自動セット
     private func handlePendingRecommendation() {
+        guard PurchaseManager.shared.canRecordWorkout else { return }
         guard let exercises = AppState.shared.pendingRecommendedExercises,
               !exercises.isEmpty,
               let vm = viewModel else { return }

@@ -106,6 +106,10 @@ struct WeightStepperButton: View {
                     stopLongPressTimer()
                 }
             }, perform: {})
+            .onDisappear {
+                longPressTimer?.invalidate()
+                longPressTimer = nil
+            }
     }
 
     private func startLongPressTimer() {
