@@ -350,7 +350,7 @@ struct TodayRecommendationInline: View {
             }
 
             // 「ルーティンを開始する」ボタン
-            if isPremium {
+            if PurchaseManager.shared.canRecordWorkout {
                 Button {
                     HapticManager.lightTap()
                     // ルーティンモードで開始するためにpendingStartDayを設定
@@ -366,8 +366,20 @@ struct TodayRecommendationInline: View {
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
                 .buttonStyle(.plain)
+
+                // 無料ユーザー: 残回数テキスト
+                if !isPremium {
+                    let remaining = max(0, PurchaseManager.weeklyFreeLimit - PurchaseManager.shared.weeklyWorkoutCount)
+                    HStack(spacing: 4) {
+                        Image(systemName: "checkmark.circle")
+                            .font(.system(size: 10))
+                        Text(localization.currentLanguage == .japanese ? "今週あと\(remaining)回無料" : "\(remaining) free this week")
+                            .font(.system(size: 11))
+                    }
+                    .foregroundStyle(Color.mmAccentPrimary)
+                }
             } else {
-                // 無料ユーザー: ロック付きボタン + 残回数テキスト
+                // 無料枠使い切り: ロック付きボタン
                 VStack(spacing: 6) {
                     Button {
                         HapticManager.lightTap()
@@ -397,17 +409,13 @@ struct TodayRecommendationInline: View {
                     }
                     .buttonStyle(.plain)
 
-                    // 無料枠残回数（ボタン直下にインライン表示）
-                    let remaining = max(0, PurchaseManager.weeklyFreeLimit - PurchaseManager.shared.weeklyWorkoutCount)
                     HStack(spacing: 4) {
-                        Image(systemName: remaining > 0 ? "checkmark.circle" : "lock.circle")
+                        Image(systemName: "lock.circle")
                             .font(.system(size: 10))
-                        Text(remaining > 0
-                             ? (localization.currentLanguage == .japanese ? "今週あと\(remaining)回無料" : "\(remaining) free this week")
-                             : (localization.currentLanguage == .japanese ? "今週の無料枠を使い切りました" : "Free workouts used this week"))
+                        Text(localization.currentLanguage == .japanese ? "今週の無料枠を使い切りました" : "Free workouts used this week")
                             .font(.system(size: 11))
                     }
-                    .foregroundStyle(remaining > 0 ? Color.mmAccentPrimary : Color.mmWarning)
+                    .foregroundStyle(Color.mmWarning)
                 }
             }
 

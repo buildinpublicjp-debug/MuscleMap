@@ -165,7 +165,7 @@ struct WorkoutStartView: View {
 }
 
 // MARK: - セッション未開始時および実行中のコンポーネントは別ファイルに分割
-// - WorkoutIdleComponents.swift: WorkoutIdleView, FavoriteExercisesSection, MuscleExercisePickerSheet
+// - WorkoutIdleComponents.swift: WorkoutIdleView, RecentExercisesSection, MuscleExercisePickerSheet
 // - ActiveWorkoutComponents.swift: ActiveWorkoutView, SetEditSheet, EmptyWorkoutGuidance
 // - SetInputComponents.swift: SetInputCard, PRCelebrationOverlay
 // - WorkoutTimerComponents.swift: RestTimerView, CompactTimerBadge

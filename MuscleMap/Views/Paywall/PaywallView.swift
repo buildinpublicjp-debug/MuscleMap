@@ -268,7 +268,7 @@ struct PaywallView: View {
             comparisonSeparator
             comparisonRow(
                 feature: L10n.pwRoutines,
-                freeValue: .cross, proValue: .check
+                freeValue: .limited(isJapanese ? "週2回" : "2/wk"), proValue: .check
             )
             comparisonSeparator
             comparisonRow(

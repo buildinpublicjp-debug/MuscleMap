@@ -12,6 +12,7 @@ struct SetInputCard: View {
     @State private var savedAdditionalWeight: Double = 0
     @State private var showPRCelebration = false
     @State private var recordButtonScale: CGFloat = 1.0
+    @State private var showExerciseDetail = false
     private var localization: LocalizationManager { LocalizationManager.shared }
 
     private var isBodyweight: Bool {
@@ -40,7 +41,7 @@ struct SetInputCard: View {
     var body: some View {
         ScrollView {
         VStack(spacing: 12) {
-            // 種目名 + セット番号（コンパクトヘッダー）
+            // 種目名 + info + セット番号（コンパクトヘッダー）
             HStack {
                 Text(localization.currentLanguage == .japanese ? exercise.nameJA : exercise.nameEN)
                     .font(.headline)
@@ -48,11 +49,26 @@ struct SetInputCard: View {
                     .lineLimit(1)
                     .minimumScaleFactor(0.8)
 
+                Button {
+                    HapticManager.lightTap()
+                    showExerciseDetail = true
+                } label: {
+                    Image(systemName: "info.circle")
+                        .font(.system(size: 16))
+                        .foregroundStyle(Color.mmTextSecondary)
+                }
+                .buttonStyle(.plain)
+
                 Spacer()
 
                 Text(L10n.setNumber(viewModel.currentSetNumber))
                     .font(.subheadline.bold())
                     .foregroundStyle(Color.mmAccentPrimary)
+            }
+            .sheet(isPresented: $showExerciseDetail) {
+                NavigationStack {
+                    ExerciseDetailView(exercise: exercise, hideStartWorkoutButton: true)
+                }
             }
 
             // GIFアニメーション（タイマー・PR オーバーレイ付き）

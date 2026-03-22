@@ -13,6 +13,7 @@ struct RecordedSetsView: View {
 
     @State private var setToDelete: WorkoutSet?
     @State private var showingDeleteConfirm = false
+    @State private var detailExercise: ExerciseDefinition?
 
     private var timeFormatter: DateFormatter {
         let formatter = DateFormatter()
@@ -37,16 +38,33 @@ struct RecordedSetsView: View {
 
             ForEach(exerciseSets, id: \.exercise.id) { entry in
                 VStack(alignment: .leading, spacing: 0) {
-                    // 種目名（タップで遷移）
-                    Button {
-                        HapticManager.lightTap()
-                        onSelectExercise(entry.exercise)
-                    } label: {
-                        HStack {
+                    // 種目名（タップで遷移）+ info
+                    HStack {
+                        Button {
+                            HapticManager.lightTap()
+                            onSelectExercise(entry.exercise)
+                        } label: {
                             Text(localization.currentLanguage == .japanese ? entry.exercise.nameJA : entry.exercise.nameEN)
                                 .font(.subheadline.bold())
                                 .foregroundStyle(Color.mmTextPrimary)
-                            Spacer()
+                        }
+
+                        Button {
+                            HapticManager.lightTap()
+                            detailExercise = entry.exercise
+                        } label: {
+                            Image(systemName: "info.circle")
+                                .font(.system(size: 16))
+                                .foregroundStyle(Color.mmTextSecondary)
+                        }
+                        .buttonStyle(.plain)
+
+                        Spacer()
+
+                        Button {
+                            HapticManager.lightTap()
+                            onSelectExercise(entry.exercise)
+                        } label: {
                             Image(systemName: "plus.circle.fill")
                                 .font(.subheadline)
                                 .foregroundStyle(Color.mmAccentPrimary)
@@ -124,6 +142,11 @@ struct RecordedSetsView: View {
             }
             Button(L10n.cancel, role: .cancel) {
                 setToDelete = nil
+            }
+        }
+        .sheet(item: $detailExercise) { exercise in
+            NavigationStack {
+                ExerciseDetailView(exercise: exercise, hideStartWorkoutButton: true)
             }
         }
     }
