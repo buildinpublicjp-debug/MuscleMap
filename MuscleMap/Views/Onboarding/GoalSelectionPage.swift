@@ -370,6 +370,7 @@ private struct MuscleExerciseSheet: View {
 
     private var exercises: [ExerciseDefinition] {
         ExerciseStore.shared.exercises(targeting: muscle)
+            .filter { ExerciseGifView.hasGif(exerciseId: $0.id) }
     }
 
     private let gridColumns = [
@@ -389,14 +390,8 @@ private struct MuscleExerciseSheet: View {
                             ZStack {
                                 Color.mmOnboardingBg
 
-                                if ExerciseGifView.hasGif(exerciseId: exercise.id) {
-                                    ExerciseGifView(exerciseId: exercise.id, size: .card)
-                                        .scaledToFill()
-                                } else {
-                                    Image(systemName: "dumbbell.fill")
-                                        .font(.system(size: 28))
-                                        .foregroundStyle(Color.mmOnboardingTextSub.opacity(0.4))
-                                }
+                                ExerciseGifView(exerciseId: exercise.id, size: .card)
+                                    .scaledToFill()
 
                                 // オーバーレイ: 種目名（左上）+ 器具名（右下）
                                 VStack {

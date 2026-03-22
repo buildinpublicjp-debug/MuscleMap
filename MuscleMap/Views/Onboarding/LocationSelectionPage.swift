@@ -85,7 +85,7 @@ struct LocationSelectionPage: View {
         case .gym, .both, .none:
             exercises = store.exercises.filter { !Self.gymExcludeIds.contains($0.id) }
         }
-        return Array(exercises.prefix(20))
+        return Array(exercises.filter { ExerciseGifView.hasGif(exerciseId: $0.id) }.prefix(20))
     }
 
     private var topRowExercises: [ExerciseDefinition] {
