@@ -183,6 +183,7 @@ enum L10n {
     static var delete: String { loc("削除", "Delete", zhHans: "删除", ko: "삭제", es: "Eliminar", fr: "Supprimer", de: "Löschen") }
     static var save: String { loc("保存", "Save", zhHans: "保存", ko: "저장", es: "Guardar", fr: "Enregistrer", de: "Speichern") }
     static var next: String { loc("次へ", "Next", zhHans: "下一步", ko: "다음", es: "Siguiente", fr: "Suivant", de: "Weiter") }
+    static var goBackButton: String { loc("戻る", "Back", zhHans: "返回", ko: "뒤로", es: "Atrás", fr: "Retour", de: "Zurück") }
     static var start: String { loc("始める", "Start", zhHans: "开始", ko: "시작", es: "Iniciar", fr: "Commencer", de: "Starten") }
     static var skip: String { loc("スキップ", "Skip", zhHans: "跳过", ko: "건너뛰기", es: "Omitir", fr: "Passer", de: "Überspringen") }
     static var done: String { loc("完了", "Done", zhHans: "完成", ko: "완료", es: "Hecho", fr: "Terminé", de: "Fertig") }

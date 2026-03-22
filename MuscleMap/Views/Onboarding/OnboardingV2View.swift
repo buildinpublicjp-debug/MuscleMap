@@ -57,7 +57,7 @@ struct OnboardingV2View: View {
                             HStack(spacing: 4) {
                                 Image(systemName: "chevron.left")
                                     .font(.system(size: 14, weight: .semibold))
-                                Text(L10n.back)
+                                Text(L10n.goBackButton)
                                     .font(.system(size: 14, weight: .medium))
                             }
                             .foregroundStyle(Color.mmOnboardingTextSub)

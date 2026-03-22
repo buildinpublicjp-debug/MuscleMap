@@ -12,6 +12,7 @@ struct SplashView: View {
     @State private var muscleMapScale: Double = 0.9
     @State private var showContinue: Bool = false
     @State private var glowOpacity: Double = 0.4
+    @State private var splashTask: Task<Void, Never>?
 
     var body: some View {
         ZStack {
@@ -108,32 +109,40 @@ struct SplashView: View {
         .onAppear {
             runSplashAnimation()
         }
+        .onDisappear {
+            splashTask?.cancel()
+            splashTask = nil
+        }
     }
 
     private func runSplashAnimation() {
-        // タイトル（0-0.6秒）
+        splashTask?.cancel()
+
+        // タイトル（即座に開始）
         withAnimation(.easeOut(duration: 0.6)) {
             titleOpacity = 1.0
             titleOffset = 0
         }
 
-        // 筋肉マップ（0.3-1.0秒）
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+        splashTask = Task { @MainActor in
+            // 筋肉マップ（0.3秒後）
+            try? await Task.sleep(for: .milliseconds(300))
+            guard !Task.isCancelled else { return }
             withAnimation(.spring(response: 0.8, dampingFraction: 0.7)) {
                 muscleMapOpacity = 1.0
                 muscleMapScale = 1.0
             }
-        }
 
-        // タグライン（0.8秒）
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+            // タグライン（0.8秒後 = さらに0.5秒後）
+            try? await Task.sleep(for: .milliseconds(500))
+            guard !Task.isCancelled else { return }
             withAnimation(.easeOut(duration: 0.6)) {
                 taglineOpacity = 1.0
             }
-        }
 
-        // 続行ボタン（1.5秒）
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+            // 続行ボタン（1.5秒後 = さらに0.7秒後）
+            try? await Task.sleep(for: .milliseconds(700))
+            guard !Task.isCancelled else { return }
             withAnimation(.easeOut(duration: 0.5)) {
                 showContinue = true
             }
