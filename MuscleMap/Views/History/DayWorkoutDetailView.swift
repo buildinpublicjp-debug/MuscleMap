@@ -218,11 +218,11 @@ private struct SessionDetailCard: View {
                     MiniMuscleMapView(muscleMapping: stimulatedMuscleMapping, showFront: true)
                         .aspectRatio(0.5, contentMode: .fit)
                         .frame(maxWidth: .infinity)
-                        .frame(height: 180)
+                        .frame(height: 234)
                     MiniMuscleMapView(muscleMapping: stimulatedMuscleMapping, showFront: false)
                         .aspectRatio(0.5, contentMode: .fit)
                         .frame(maxWidth: .infinity)
-                        .frame(height: 180)
+                        .frame(height: 234)
                 }
                 .padding(.vertical, 8)
             }
@@ -232,23 +232,46 @@ private struct SessionDetailCard: View {
             // 種目ごとのセット（種目名 + セット数 + 種目ボリューム）
             ForEach(exerciseSets, id: \.exercise.id) { entry in
                 VStack(alignment: .leading, spacing: 6) {
-                    HStack {
-                        Text(localization.currentLanguage == .japanese ? entry.exercise.nameJA : entry.exercise.nameEN)
-                            .font(.subheadline.bold())
-                            .foregroundStyle(Color.mmAccentPrimary)
-                        Spacer()
-                        let exerciseVolume = entry.sets.reduce(0.0) { $0 + $1.weight * Double($1.reps) }
-                        Text("\(entry.sets.count)セット")
-                            .font(.caption)
-                            .foregroundStyle(Color.mmTextSecondary)
-                        if exerciseVolume > 0 {
-                            Text("·")
-                                .font(.caption)
-                                .foregroundStyle(Color.mmTextSecondary)
-                            Text(String(format: "%.0fkg", exerciseVolume))
-                                .font(.caption.bold())
-                                .foregroundStyle(Color.mmTextSecondary)
+                    HStack(spacing: 10) {
+                        // GIFサムネイル（50x50pt）
+                        if ExerciseGifView.hasGif(exerciseId: entry.exercise.id) {
+                            ExerciseGifView(exerciseId: entry.exercise.id, size: .thumbnail)
+                                .frame(width: 50, height: 50)
+                                .clipped()
+                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                        } else {
+                            // GIFなし種目はダンベルアイコンのフォールバック
+                            ZStack {
+                                RoundedRectangle(cornerRadius: 8)
+                                    .fill(Color.mmBgSecondary)
+                                Image(systemName: "dumbbell.fill")
+                                    .font(.system(size: 20))
+                                    .foregroundStyle(Color.mmTextSecondary.opacity(0.5))
+                            }
+                            .frame(width: 50, height: 50)
                         }
+
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(localization.currentLanguage == .japanese ? entry.exercise.nameJA : entry.exercise.nameEN)
+                                .font(.subheadline.bold())
+                                .foregroundStyle(Color.mmAccentPrimary)
+                            HStack(spacing: 4) {
+                                let exerciseVolume = entry.sets.reduce(0.0) { $0 + $1.weight * Double($1.reps) }
+                                Text("\(entry.sets.count)セット")
+                                    .font(.caption)
+                                    .foregroundStyle(Color.mmTextSecondary)
+                                if exerciseVolume > 0 {
+                                    Text("·")
+                                        .font(.caption)
+                                        .foregroundStyle(Color.mmTextSecondary)
+                                    Text(String(format: "%.0fkg", exerciseVolume))
+                                        .font(.caption.bold())
+                                        .foregroundStyle(Color.mmTextSecondary)
+                                }
+                            }
+                        }
+
+                        Spacer()
                     }
 
                     ForEach(entry.sets, id: \.id) { set in

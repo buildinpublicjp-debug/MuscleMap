@@ -207,6 +207,15 @@ private struct DayCell: View {
 
     private let calendar = Calendar.current
 
+    private static let backMuscleIds: Set<String> = [
+        "lats", "traps_upper", "traps_middle_lower", "erector_spinae",
+        "hamstrings", "glutes", "deltoid_posterior", "gastrocnemius", "soleus"
+    ]
+
+    private var hasBackMuscles: Bool {
+        muscleMapping.keys.contains { Self.backMuscleIds.contains($0) }
+    }
+
     var body: some View {
         Button(action: action) {
             VStack(spacing: 1) {
@@ -216,9 +225,20 @@ private struct DayCell: View {
 
                 // ワークアウトした日はミニマッスルマップを表示
                 if hasWorkout && !muscleMapping.isEmpty {
-                    MiniMuscleMapView(muscleMapping: muscleMapping)
-                        .frame(width: 28, height: 36)
+                    if hasBackMuscles {
+                        // 背面筋肉が含まれる場合は前面+背面を横並び表示
+                        HStack(spacing: 1) {
+                            MiniMuscleMapView(muscleMapping: muscleMapping, showFront: true)
+                                .frame(width: 14, height: 36)
+                            MiniMuscleMapView(muscleMapping: muscleMapping, showFront: false)
+                                .frame(width: 14, height: 36)
+                        }
                         .allowsHitTesting(false)
+                    } else {
+                        MiniMuscleMapView(muscleMapping: muscleMapping, showFront: true)
+                            .frame(width: 28, height: 36)
+                            .allowsHitTesting(false)
+                    }
                 } else if hasWorkout {
                     Image(systemName: "dumbbell.fill")
                         .font(.system(size: 10))
