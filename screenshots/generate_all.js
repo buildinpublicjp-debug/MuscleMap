@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * MuscleMap v1.1 App Store Screenshot Generator
+ * MuscleMap v1.1 App Store Screenshot Generator v2
  *
  * 完全自動: HTMLテンプレート生成 → Puppeteerでキャプチャ → 1284×2778px PNG出力
  *
@@ -8,19 +8,10 @@
  *   cd MuscleMap/screenshots
  *   npm install puppeteer
  *   npx puppeteer browsers install chrome
+ *   node generate_all.js          # screens_v11/ の既存スクショから生成
+ *   node generate_all.js --interactive  # シミュレーターから対話キャプチャ
  *
- *   # Step 1: シミュレーターで各画面を表示してスクショを撮る
- *   #   xcrun simctl io booted screenshot screens/shot1_screen.png
- *   #   (画面遷移) → xcrun simctl io booted screenshot screens/shot2_screen.png
- *   #   ... 6画面分
- *
- *   # Step 2: 生成実行
- *   node generate_all.js
- *
- *   # Step 2b: 対話的にシミュレーターからキャプチャしながら生成
- *   node generate_all.js --interactive
- *
- * Output: screenshots/output_v11/shot{N}_{lang}.png
+ * Output: screenshots/output_v11/shot{N}_{lang}.png (1284×2778px)
  */
 
 const puppeteer = require('puppeteer');
@@ -178,7 +169,7 @@ const SHOTS = [
   },
 ];
 
-// ── HTML Template Generator ───────────────────────────────────
+// ── HTML Template Generator v2 ────────────────────────────────
 function generateHTML(shot, lang) {
   const d = shot[lang];
   const headlineHTML = d.headline
@@ -200,7 +191,12 @@ function generateHTML(shot, lang) {
       ? "'Noto Sans JP', 'Hiragino Sans', sans-serif"
       : "'Inter', 'SF Pro Display', sans-serif";
 
-  const headlineFontSize = lang === 'ja' ? '78px' : '82px';
+  const headlineFontSize = lang === 'ja' ? '88px' : '90px';
+
+  // Determine screen source directory
+  const screenDir = fs.existsSync(path.resolve(__dirname, 'screens_v11'))
+    ? 'screens_v11'
+    : 'screens';
 
   return `<!DOCTYPE html>
 <html lang="${lang}">
@@ -214,7 +210,7 @@ function generateHTML(shot, lang) {
   body {
     width: 1284px;
     height: 2778px;
-    background: linear-gradient(170deg, #0C1810 0%, #0A0E0A 30%, #080C08 100%);
+    background: #070A07;
     font-family: ${fontFamily};
     display: flex;
     flex-direction: column;
@@ -223,76 +219,81 @@ function generateHTML(shot, lang) {
     position: relative;
   }
 
-  body::before {
-    content: '';
+  /* === 背景レイヤー === */
+
+  /* グロー（アクセント色、上部） */
+  .bg-glow {
     position: absolute;
-    top: -250px;
+    top: -300px;
     left: 50%;
     transform: translateX(-50%);
-    width: 900px;
-    height: 900px;
-    background: radial-gradient(circle, ${d.accent}12 0%, transparent 70%);
+    width: 1200px;
+    height: 1200px;
+    background: radial-gradient(circle, ${d.accent}0D 0%, transparent 60%);
     pointer-events: none;
   }
 
-  body::after {
-    content: '';
+  /* グリッドパターン */
+  .bg-grid {
     position: absolute;
     inset: 0;
     background-image:
-      linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
-    background-size: 80px 80px;
+      linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+    background-size: 64px 64px;
     pointer-events: none;
   }
 
+  /* === コピーエリア（上部22%） === */
+
   .copy-area {
-    padding: 160px 90px 0;
+    padding: 120px 80px 0;
     text-align: center;
     width: 100%;
     position: relative;
-    z-index: 1;
+    z-index: 2;
+    flex-shrink: 0;
   }
 
   .headline {
     font-size: ${headlineFontSize};
     font-weight: 900;
     color: #FFFFFF;
-    line-height: 1.22;
-    letter-spacing: ${lang === 'ja' ? '3px' : '0'};
+    line-height: 1.18;
+    letter-spacing: ${lang === 'ja' ? '2px' : '-1px'};
   }
 
   .sub-copy {
-    font-size: 34px;
+    font-size: 32px;
     font-weight: 500;
-    color: ${d.accent}AA;
-    margin-top: 24px;
-    letter-spacing: 1px;
+    color: ${d.accent}99;
+    margin-top: 20px;
+    letter-spacing: ${lang === 'ja' ? '2px' : '0.5px'};
   }
 
   .stat-row {
     display: flex;
-    gap: 20px;
+    gap: 14px;
     justify-content: center;
-    margin-top: 40px;
+    margin-top: 28px;
     flex-wrap: wrap;
   }
 
   .stat-chip {
-    padding: 10px 28px;
-    background: ${d.accent}0A;
-    border: 1.5px solid ${d.accent}30;
+    padding: 8px 22px;
+    background: ${d.accent}08;
+    border: 1.5px solid ${d.accent}25;
     border-radius: 40px;
-    color: rgba(255, 255, 255, 0.7);
-    font-size: 24px;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 22px;
     font-weight: 500;
     letter-spacing: 1px;
   }
 
   .stat-chip.solo {
-    color: ${d.accent};
+    color: ${d.accent}CC;
     font-weight: 700;
-    padding: 10px 24px;
+    padding: 8px 20px;
   }
 
   .stat-chip strong {
@@ -300,57 +301,120 @@ function generateHTML(shot, lang) {
     font-weight: 900;
   }
 
-  .screen-area {
+  /* === デバイスエリア（残り78%、下端を突き抜ける） === */
+
+  .device-area {
     flex: 1;
     display: flex;
-    align-items: flex-start;
     justify-content: center;
-    padding: 60px 60px 0;
+    padding-top: 40px;
     width: 100%;
     position: relative;
     z-index: 1;
   }
 
-  .device-frame {
-    width: 640px;
-    border-radius: 56px;
-    overflow: hidden;
-    border: 4px solid rgba(255, 255, 255, 0.06);
+  /* iPhoneフレーム本体 */
+  .iphone {
+    width: 940px;
+    position: relative;
+    /* フレームを下に突き出す — 切れてOK */
+  }
+
+  /* 外側ケーシング（チタン風） */
+  .iphone-body {
+    position: relative;
+    border-radius: 68px;
+    padding: 14px;
+    background: linear-gradient(145deg, #3A3A3C 0%, #1C1C1E 50%, #2C2C2E 100%);
     box-shadow:
-      0 40px 100px ${d.accent}15,
-      0 0 0 1px rgba(255, 255, 255, 0.03),
-      inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+      0 60px 120px rgba(0, 0, 0, 0.8),
+      0 0 0 1px rgba(255,255,255,0.05),
+      0 4px 80px ${d.accent}12,
+      inset 0 1px 0 rgba(255,255,255,0.08);
+  }
+
+  /* スクリーン */
+  .iphone-screen {
+    border-radius: 54px;
+    overflow: hidden;
     background: #000;
     position: relative;
   }
 
-  .device-frame::before {
-    content: '';
+  .iphone-screen img {
+    width: 100%;
+    display: block;
+  }
+
+  /* Dynamic Island */
+  .dynamic-island {
     position: absolute;
-    top: 14px;
+    top: 18px;
     left: 50%;
     transform: translateX(-50%);
-    width: 140px;
-    height: 34px;
+    width: 160px;
+    height: 38px;
     background: #000;
-    border-radius: 17px;
+    border-radius: 19px;
     z-index: 10;
   }
 
-  .device-frame::after {
-    content: '';
+  /* サイドボタン — 右（電源） */
+  .btn-power {
     position: absolute;
-    top: 250px;
-    right: -5px;
-    width: 5px;
-    height: 80px;
-    background: #2C2C2E;
-    border-radius: 0 3px 3px 0;
+    top: 280px;
+    right: -3px;
+    width: 4px;
+    height: 100px;
+    background: linear-gradient(180deg, #4A4A4C, #2C2C2E, #4A4A4C);
+    border-radius: 0 2px 2px 0;
   }
 
-  .device-frame img {
-    width: 100%;
-    display: block;
+  /* サイドボタン — 左（音量上） */
+  .btn-vol-up {
+    position: absolute;
+    top: 240px;
+    left: -3px;
+    width: 4px;
+    height: 55px;
+    background: linear-gradient(180deg, #4A4A4C, #2C2C2E, #4A4A4C);
+    border-radius: 2px 0 0 2px;
+  }
+
+  /* サイドボタン — 左（音量下） */
+  .btn-vol-down {
+    position: absolute;
+    top: 310px;
+    left: -3px;
+    width: 4px;
+    height: 55px;
+    background: linear-gradient(180deg, #4A4A4C, #2C2C2E, #4A4A4C);
+    border-radius: 2px 0 0 2px;
+  }
+
+  /* 上部リフレクション（ガラス感） */
+  .iphone-screen::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 200px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, transparent 100%);
+    pointer-events: none;
+    z-index: 5;
+  }
+
+  /* === ボトムフェード === */
+  .bottom-fade {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 400px;
+    background: linear-gradient(transparent 0%, #070A07 85%);
+    pointer-events: none;
+    z-index: 3;
   }
 
   .placeholder {
@@ -364,21 +428,12 @@ function generateHTML(shot, lang) {
     font-size: 28px;
     font-weight: 500;
   }
-
-  .screen-area::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 300px;
-    background: linear-gradient(transparent, #080C08);
-    pointer-events: none;
-    z-index: 2;
-  }
 </style>
 </head>
 <body>
+  <div class="bg-glow"></div>
+  <div class="bg-grid"></div>
+
   <div class="copy-area">
     <div class="headline">
       ${headlineHTML}
@@ -388,13 +443,24 @@ function generateHTML(shot, lang) {
         ${chipsHTML}
     </div>
   </div>
-  <div class="screen-area">
-    <div class="device-frame">
-      <img src="screens/${shot.file}"
-           alt="Shot ${shot.id}"
-           onerror="this.outerHTML='<div class=placeholder>${shot.file}</div>'">
+
+  <div class="device-area">
+    <div class="iphone">
+      <div class="iphone-body">
+        <div class="btn-power"></div>
+        <div class="btn-vol-up"></div>
+        <div class="btn-vol-down"></div>
+        <div class="iphone-screen">
+          <div class="dynamic-island"></div>
+          <img src="${screenDir}/${shot.file}"
+               alt="Shot ${shot.id}"
+               onerror="this.outerHTML='<div class=placeholder>${shot.file}</div>'">
+        </div>
+      </div>
     </div>
   </div>
+
+  <div class="bottom-fade"></div>
 </body>
 </html>`;
 }
@@ -407,7 +473,7 @@ async function interactiveCapture() {
   });
 
   const ask = (q) => new Promise((resolve) => rl.question(q, resolve));
-  const screensDir = path.resolve(__dirname, 'screens');
+  const screensDir = path.resolve(__dirname, 'screens_v11');
   if (!fs.existsSync(screensDir)) fs.mkdirSync(screensDir, { recursive: true });
 
   console.log('\n🎯 MuscleMap v1.1 Screenshot Capture');
