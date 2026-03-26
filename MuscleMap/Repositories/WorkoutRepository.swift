@@ -139,6 +139,53 @@ class WorkoutRepository {
         }
     }
 
+    /// 指定種目の直近セッションの全セットを取得（前回記録の参照用）
+    func fetchPreviousSessionSets(exerciseId: String) -> [WorkoutSet] {
+        var descriptor = FetchDescriptor<WorkoutSet>(
+            predicate: #Predicate { $0.exerciseId == exerciseId },
+            sortBy: [SortDescriptor(\.completedAt, order: .reverse)]
+        )
+        descriptor.fetchLimit = 1
+        do {
+            guard let latestSet = try modelContext.fetch(descriptor).first,
+                  let session = latestSet.session,
+                  session.endDate != nil else {
+                return []
+            }
+            return session.sets
+                .filter { $0.exerciseId == exerciseId }
+                .sorted { $0.setNumber < $1.setNumber }
+        } catch {
+            #if DEBUG
+            print("[WorkoutRepository] Failed to fetch previous session sets: \(error)")
+            #endif
+            return []
+        }
+    }
+
+    /// 指定種目の直近の重量記録（ユニーク、最大3件）
+    func fetchRecentWeights(exerciseId: String, limit: Int = 3) -> [Double] {
+        var descriptor = FetchDescriptor<WorkoutSet>(
+            predicate: #Predicate { $0.exerciseId == exerciseId },
+            sortBy: [SortDescriptor(\.completedAt, order: .reverse)]
+        )
+        descriptor.fetchLimit = 30
+        do {
+            let sets = try modelContext.fetch(descriptor)
+            var seen = Set<Double>()
+            var result: [Double] = []
+            for s in sets where s.weight > 0 {
+                if seen.insert(s.weight).inserted {
+                    result.append(s.weight)
+                    if result.count >= limit { break }
+                }
+            }
+            return result.sorted()
+        } catch {
+            return []
+        }
+    }
+
     /// セットを削除
     func deleteSet(_ workoutSet: WorkoutSet) {
         modelContext.delete(workoutSet)

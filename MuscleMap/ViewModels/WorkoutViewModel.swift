@@ -30,6 +30,15 @@ class WorkoutViewModel {
     var lastWeight: Double?
     var lastReps: Int?
 
+    // 前回セッションの全セット（参照表示用）
+    var previousSessionSets: [WorkoutSet] = []
+
+    // 最近使用した重量（クイックセット用、最大3件、ソート済み）
+    var recentWeights: [Double] = []
+
+    // 最新記録セットのアニメーション用ID
+    var latestRecordedSetId: UUID?
+
     // MARK: ルーティンモード
 
     /// ルーティンモードか（nil = フリーモード）
@@ -200,6 +209,10 @@ class WorkoutViewModel {
             lastWeight = nil
             lastReps = nil
         }
+
+        // 前回セッションのセットと最近の重量を取得
+        previousSessionSets = workoutRepo.fetchPreviousSessionSets(exerciseId: exercise.id)
+        recentWeights = workoutRepo.fetchRecentWeights(exerciseId: exercise.id)
     }
 
     // 提案種目リスト（メニュー自動提案から受け取った種目）
@@ -249,13 +262,14 @@ class WorkoutViewModel {
         lastSetWasPR = isPR
 
         // セットを保存
-        _ = workoutRepo.addSet(
+        let newSet = workoutRepo.addSet(
             to: session,
             exerciseId: exercise.id,
             setNumber: currentSetNumber,
             weight: validatedWeight,
             reps: currentReps
         )
+        latestRecordedSetId = newSet.id
 
         // 筋肉刺激を記録
         updateMuscleStimulations(exercise: exercise, session: session)

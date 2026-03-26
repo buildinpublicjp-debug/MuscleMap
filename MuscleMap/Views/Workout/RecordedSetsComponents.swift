@@ -9,6 +9,8 @@ struct RecordedSetsView: View {
     let onSelectExercise: (ExerciseDefinition) -> Void
     let onEditSet: (WorkoutSet) -> Void
     let onDeleteSet: (WorkoutSet) -> Void
+    var latestSetId: UUID?
+    var lastSetWasPR: Bool = false
     private var localization: LocalizationManager { LocalizationManager.shared }
 
     @State private var setToDelete: WorkoutSet?
@@ -76,6 +78,8 @@ struct RecordedSetsView: View {
 
                     List {
                         ForEach(entry.sets, id: \.id) { set in
+                            let isLatest = set.id == latestSetId
+                            let isPR = isLatest && lastSetWasPR
                             HStack {
                                 Text(L10n.setNumber(set.setNumber))
                                     .font(.caption)
@@ -91,6 +95,16 @@ struct RecordedSetsView: View {
                                         .font(.subheadline.bold().monospaced())
                                         .foregroundStyle(Color.mmTextPrimary)
                                 }
+                                // PRバッジ（過去最大重量を超えた場合）
+                                if isPR {
+                                    Text(L10n.prBadge)
+                                        .font(.caption2.bold())
+                                        .foregroundStyle(Color.mmPRGold)
+                                        .padding(.horizontal, 6)
+                                        .padding(.vertical, 2)
+                                        .background(Color.mmPRGold.opacity(0.15))
+                                        .clipShape(Capsule())
+                                }
                                 // PRマーク（セッション内最大重量）
                                 if isPRSet(set, in: entry.sets) {
                                     Image(systemName: "trophy.fill")
@@ -102,7 +116,15 @@ struct RecordedSetsView: View {
                                     .foregroundStyle(Color.mmTextSecondary.opacity(0.6))
                                     .padding(.leading, 8)
                             }
-                            .listRowBackground(Color.mmBgCard)
+                            .listRowBackground(
+                                isPR
+                                    ? Color.mmPRGold.opacity(0.08)
+                                    : Color.mmBgCard
+                            )
+                            .transition(.asymmetric(
+                                insertion: .move(edge: .trailing).combined(with: .opacity),
+                                removal: .opacity
+                            ))
                             .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                                 Button(role: .destructive) {
                                     setToDelete = set
@@ -123,6 +145,7 @@ struct RecordedSetsView: View {
                     .listStyle(.plain)
                     .scrollContentBackground(.hidden)
                     .frame(height: CGFloat(entry.sets.count) * 48)
+                    .animation(.spring(response: 0.4, dampingFraction: 0.7), value: entry.sets.count)
                 }
                 .background(Color.mmBgCard)
                 .clipShape(RoundedRectangle(cornerRadius: 12))

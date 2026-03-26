@@ -98,7 +98,9 @@ struct ActiveWorkoutView: View {
                             },
                             onDeleteSet: { set in
                                 viewModel.deleteSet(set)
-                            }
+                            },
+                            latestSetId: viewModel.latestRecordedSetId,
+                            lastSetWasPR: viewModel.lastSetWasPR
                         )
                     }
                 }

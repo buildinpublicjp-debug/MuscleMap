@@ -74,16 +74,19 @@ struct WeightInputView: View {
     }
 }
 
-// MARK: - 重量用+/-ボタン（長押しで0.25kg刻み）
+// MARK: - 重量用+/-ボタン（長押し加速対応）
 
-/// 重量ステッパーボタン（長押し対応）
+/// 重量ステッパーボタン（長押し加速対応）
+/// 長押し開始: 2.5kg刻み → 1秒後: 5kg刻みに加速
 struct WeightStepperButton: View {
     let systemImage: String
     let onTap: () -> Void
     let onLongPress: () -> Void
+    var onAcceleratedPress: (() -> Void)?
 
     @State private var isLongPressing = false
     @State private var longPressTimer: Timer?
+    @State private var longPressStartDate: Date?
 
     var body: some View {
         Image(systemName: systemImage)
@@ -113,9 +116,15 @@ struct WeightStepperButton: View {
     }
 
     private func startLongPressTimer() {
-        longPressTimer = Timer.scheduledTimer(withTimeInterval: 0.15, repeats: true) { [onLongPress] _ in
+        longPressStartDate = Date()
+        longPressTimer = Timer.scheduledTimer(withTimeInterval: 0.15, repeats: true) { [onLongPress, onAcceleratedPress] _ in
             Task { @MainActor in
-                onLongPress()
+                let elapsed = Date().timeIntervalSince(longPressStartDate ?? Date())
+                if elapsed > 1.0, let accelerated = onAcceleratedPress {
+                    accelerated()
+                } else {
+                    onLongPress()
+                }
                 HapticManager.lightTap()
             }
         }
@@ -124,6 +133,7 @@ struct WeightStepperButton: View {
     private func stopLongPressTimer() {
         longPressTimer?.invalidate()
         longPressTimer = nil
+        longPressStartDate = nil
     }
 }
 
@@ -160,11 +170,15 @@ struct WeightStepperButton: View {
                 print("Minus tap")
             }, onLongPress: {
                 print("Minus long press")
+            }, onAcceleratedPress: {
+                print("Minus accelerated")
             })
             WeightStepperButton(systemImage: "plus", onTap: {
                 print("Plus tap")
             }, onLongPress: {
                 print("Plus long press")
+            }, onAcceleratedPress: {
+                print("Plus accelerated")
             })
         }
     }

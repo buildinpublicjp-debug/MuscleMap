@@ -787,6 +787,17 @@ enum L10n {
     static var exercisesDone: String { loc("実施した種目", "Exercises Done", zhHans: "完成的动作", ko: "실시한 종목", es: "Ejercicios realizados", fr: "Exercices effectués", de: "Absolvierte Übungen") }
     static var pr: String { loc("PR", "PR", zhHans: "PR", ko: "PR", es: "PR", fr: "PR", de: "PR") }
     static var volume: String { loc("ボリューム", "Volume", zhHans: "训练量", ko: "볼륨", es: "Volumen", fr: "Volume", de: "Volumen") }
+
+    // MARK: - ワークアウト完了画面（アップグレード）
+    static var beastModeActivated: String { loc("怪物モード発動", "Beast mode activated", zhHans: "怪物模式启动", ko: "비스트 모드 발동", es: "Modo bestia activado", fr: "Mode bête activé", de: "Beast-Modus aktiviert") }
+    static var newRecordsSet: String { loc("自己ベスト更新！", "New records set!", zhHans: "刷新个人纪录！", ko: "자기 최고 기록 갱신!", es: "¡Nuevos récords!", fr: "Nouveaux records !", de: "Neue Rekorde!") }
+    static var solidSession: String { loc("充実のセッション", "Solid session", zhHans: "充实的训练", ko: "충실한 세션", es: "Sesión sólida", fr: "Séance solide", de: "Solides Training") }
+    static var goodWork: String { loc("おつかれさま", "Good work", zhHans: "辛苦了", ko: "수고했어요", es: "Buen trabajo", fr: "Bon travail", de: "Gute Arbeit") }
+    static var newPR: String { loc("NEW PR!", "NEW PR!", zhHans: "NEW PR!", ko: "NEW PR!", es: "¡NUEVO PR!", fr: "NOUVEAU PR !", de: "NEUER PR!") }
+    static var scheduleReminder: String { loc("リマインダーを設定", "Schedule reminder", zhHans: "设置提醒", ko: "리마인더 설정", es: "Programar recordatorio", fr: "Programmer un rappel", de: "Erinnerung planen") }
+    static var reminderScheduled: String { loc("リマインダー設定済み", "Reminder scheduled", zhHans: "提醒已设置", ko: "리마인더 설정 완료", es: "Recordatorio programado", fr: "Rappel programmé", de: "Erinnerung geplant") }
+    static var nextWorkoutSuggestion: String { loc("次のトレーニング", "Next Workout", zhHans: "下次训练", ko: "다음 트레이닝", es: "Próximo entrenamiento", fr: "Prochain entraînement", de: "Nächstes Training") }
+
     static func andMoreCount(_ count: Int) -> String {
         loc("他\(count)種目", "+\(count) more", zhHans: "还有\(count)个", ko: "외 \(count)개", es: "+\(count) más", fr: "+\(count) autres", de: "+\(count) weitere")
     }
@@ -1245,6 +1256,9 @@ enum L10n {
 
     // MARK: - ワークアウトUX改善
     static var copyLastSet: String { loc("同じ", "Same", zhHans: "同上", ko: "동일", es: "Igual", fr: "Idem", de: "Gleich") }
+    static var previousSessionHeader: String { loc("前回の記録", "Previous Session", zhHans: "上次记录", ko: "이전 기록", es: "Sesión anterior", fr: "Session précédente", de: "Letzte Sitzung") }
+    static var currentSessionHeader: String { loc("今回", "Current", zhHans: "本次", ko: "이번", es: "Actual", fr: "Actuelle", de: "Aktuell") }
+    static var prBadge: String { "PR!" }
     static func recommendedWorkout(_ group: String) -> String {
         loc("今日のおすすめ: \(group)（回復済み）", "Recommended: \(group) (recovered)", zhHans: "今日推荐: \(group)（已恢复）", ko: "추천: \(group) (회복됨)", es: "Recomendado: \(group) (recuperado)", fr: "Recommandé : \(group) (récupéré)", de: "Empfohlen: \(group) (erholt)")
     }

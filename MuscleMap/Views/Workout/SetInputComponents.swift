@@ -138,6 +138,14 @@ struct SetInputCard: View {
                 }
             }
 
+            // 前回セッションの全セット参照表示
+            if !viewModel.previousSessionSets.isEmpty {
+                PreviousSessionReference(
+                    sets: viewModel.previousSessionSets,
+                    isBodyweight: isBodyweight
+                )
+            }
+
             // 前回記録（コンパクト表示）+ 「同じ」ボタン
             if let lastW = viewModel.lastWeight, let lastR = viewModel.lastReps {
                 HStack(spacing: 6) {
@@ -239,6 +247,8 @@ struct SetInputCard: View {
                         viewModel.adjustWeight(by: -0.25)
                     } onLongPress: {
                         viewModel.adjustWeight(by: -2.5)
+                    } onAcceleratedPress: {
+                        viewModel.adjustWeight(by: -5.0)
                     }
 
                     WeightInputView(
@@ -251,6 +261,36 @@ struct SetInputCard: View {
                         viewModel.adjustWeight(by: 0.25)
                     } onLongPress: {
                         viewModel.adjustWeight(by: 2.5)
+                    } onAcceleratedPress: {
+                        viewModel.adjustWeight(by: 5.0)
+                    }
+                }
+
+                // クイックセット重量ボタン（直近3つの重量）
+                if !viewModel.recentWeights.isEmpty {
+                    HStack(spacing: 8) {
+                        ForEach(viewModel.recentWeights, id: \.self) { weight in
+                            Button {
+                                viewModel.currentWeight = weight
+                                HapticManager.lightTap()
+                            } label: {
+                                Text(String(format: "%.1f", weight))
+                                    .font(.system(size: 14, weight: .bold, design: .monospaced))
+                                    .foregroundStyle(
+                                        viewModel.currentWeight == weight
+                                            ? Color.mmBgPrimary
+                                            : Color.mmAccentPrimary
+                                    )
+                                    .padding(.horizontal, 14)
+                                    .padding(.vertical, 8)
+                                    .background(
+                                        viewModel.currentWeight == weight
+                                            ? Color.mmAccentPrimary
+                                            : Color.mmAccentPrimary.opacity(0.15)
+                                    )
+                                    .clipShape(Capsule())
+                            }
+                        }
                     }
                 }
             }
@@ -273,6 +313,31 @@ struct SetInputCard: View {
 
                 StepperButton(systemImage: "plus") {
                     viewModel.adjustReps(by: 1)
+                }
+            }
+
+            // レップ数クイックセットピル
+            HStack(spacing: 8) {
+                ForEach([5, 8, 10, 12, 15], id: \.self) { rep in
+                    Button {
+                        viewModel.currentReps = rep
+                        HapticManager.lightTap()
+                    } label: {
+                        Text("\(rep)")
+                            .font(.system(size: 13, weight: .bold))
+                            .foregroundStyle(
+                                viewModel.currentReps == rep
+                                    ? Color.mmBgPrimary
+                                    : Color.mmTextSecondary
+                            )
+                            .frame(width: 40, height: 32)
+                            .background(
+                                viewModel.currentReps == rep
+                                    ? Color.mmAccentPrimary
+                                    : Color.mmBgSecondary
+                            )
+                            .clipShape(Capsule())
+                    }
                 }
             }
 
@@ -327,6 +392,52 @@ struct SetInputCard: View {
                     .transition(.scale.combined(with: .opacity))
             }
         }
+    }
+}
+
+// MARK: - 前回セッション参照表示
+
+/// 前回セッションのセット一覧（ゴースト表示）
+struct PreviousSessionReference: View {
+    let sets: [WorkoutSet]
+    let isBodyweight: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(L10n.previousSessionHeader)
+                .font(.caption)
+                .foregroundStyle(Color.mmTextSecondary.opacity(0.6))
+
+            ForEach(sets, id: \.id) { set in
+                HStack(spacing: 6) {
+                    Text(L10n.setNumber(set.setNumber))
+                        .font(.caption2)
+                        .foregroundStyle(Color.mmTextSecondary.opacity(0.4))
+                        .frame(width: 44, alignment: .leading)
+                    if isBodyweight && set.weight == 0 {
+                        Text(L10n.repsOnly(set.reps))
+                            .font(.caption2.monospaced())
+                            .foregroundStyle(Color.mmTextSecondary.opacity(0.5))
+                    } else {
+                        Text(L10n.weightReps(set.weight, set.reps))
+                            .font(.caption2.monospaced())
+                            .foregroundStyle(Color.mmTextSecondary.opacity(0.5))
+                    }
+                    Image(systemName: "checkmark")
+                        .font(.system(size: 8))
+                        .foregroundStyle(Color.mmTextSecondary.opacity(0.3))
+                    Spacer()
+                }
+            }
+
+            Divider()
+                .overlay(Color.mmTextSecondary.opacity(0.2))
+
+            Text(L10n.currentSessionHeader)
+                .font(.caption)
+                .foregroundStyle(Color.mmTextSecondary.opacity(0.6))
+        }
+        .padding(.vertical, 4)
     }
 }
 
