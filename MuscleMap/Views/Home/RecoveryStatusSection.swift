@@ -48,9 +48,9 @@ struct RecoveryStatusSection: View {
                 )
                 .frame(height: 160)
 
-                // ステータスチップ
-                VStack(spacing: 6) {
-                    ForEach(topGroupStatuses.prefix(4)) { status in
+                // ステータスチップ（最大5グループ＝脚含む）
+                VStack(spacing: 5) {
+                    ForEach(topGroupStatuses.prefix(5)) { status in
                         RecoveryChip(status: status)
                     }
                 }
@@ -142,9 +142,14 @@ private struct RecoveryChip: View {
 
     var body: some View {
         HStack(spacing: 4) {
-            Circle()
-                .fill(status.chipType.color)
-                .frame(width: 6, height: 6)
+            if status.chipType == .neglected {
+                Text("\u{26A0}\u{FE0F}")
+                    .font(.system(size: 8))
+            } else {
+                Circle()
+                    .fill(status.chipType.color)
+                    .frame(width: 6, height: 6)
+            }
 
             VStack(alignment: .leading, spacing: 0) {
                 Text(status.groupName)
@@ -198,10 +203,10 @@ enum RecoveryChipType {
 
     var color: Color {
         switch self {
-        case .fatigued: return .mmMuscleFatigued
-        case .recovering: return .mmMuscleModerate
-        case .recovered: return .mmMuscleRecovered
-        case .neglected: return .mmMuscleNeglected
+        case .fatigued: return .red
+        case .recovering: return .orange
+        case .recovered: return .green
+        case .neglected: return .purple
         }
     }
 

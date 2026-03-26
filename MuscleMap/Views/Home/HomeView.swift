@@ -110,18 +110,9 @@ struct HomeView: View {
                                 onShowPaywall: { showingPaywall = true }
                             )
 
-                            // 5. Strength Map展開エリア（開いている場合）
+                            // 5. Strength Map展開エリア（QuickAccessRowから開いた場合）
                             if showingStrengthMap {
                                 strengthMapSection
-                            }
-
-                            // 6. StrengthMapPreviewBanner（非Proユーザー向け）
-                            if !showingStrengthMap && !PurchaseManager.shared.isPremium {
-                                StrengthMapPreviewBanner {
-                                    HapticManager.lightTap()
-                                    showingPaywall = true
-                                }
-                                .padding(.horizontal)
                             }
                         }
                         .padding(.top, 8)

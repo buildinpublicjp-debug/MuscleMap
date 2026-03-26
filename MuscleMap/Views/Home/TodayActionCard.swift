@@ -15,6 +15,9 @@ struct TodayActionCard: View {
     let onReviewMenu: ((RecommendedWorkout, SuggestedMenu) -> Void)?
     let onStart: () -> Void
 
+    /// Day切替用ステート
+    @State private var selectedDayIndex: Int?
+
     private var isJapanese: Bool {
         LocalizationManager.shared.currentLanguage == .japanese
     }
@@ -33,11 +36,19 @@ struct TodayActionCard: View {
 
     // MARK: - ルーティンカード
 
+    /// 現在選択中のDay（selectedDayIndexまたはtodayRoutineのインデックス）
+    private var activeDay: RoutineDay {
+        let allDays = RoutineManager.shared.routine.days
+        if let idx = selectedDayIndex, idx < allDays.count {
+            return allDays[idx]
+        }
+        return viewModel.todayRoutine ?? allDays.first ?? RoutineDay(id: UUID(), name: "", muscleGroups: [], exercises: [])
+    }
+
     private func routineActionCard(routine: RoutineDay) -> some View {
         let allDays = RoutineManager.shared.routine.days
-        let todayIdx = allDays.firstIndex(where: { $0.id == routine.id }) ?? 0
-        let dayNumber = todayIdx + 1
-        let groupNames = routine.muscleGroups.compactMap { MuscleGroup(rawValue: $0) }
+        let displayDay = activeDay
+        let groupNames = displayDay.muscleGroups.compactMap { MuscleGroup(rawValue: $0) }
             .map { isJapanese ? $0.japaneseName : $0.englishName }
             .joined(separator: " + ")
 
@@ -49,7 +60,7 @@ struct TodayActionCard: View {
                         .font(.system(size: 18, weight: .heavy))
                         .foregroundStyle(.white)
 
-                    Text("\(routine.name) - \(routine.exercises.count)\(isJapanese ? "種目" : " exercises")")
+                    Text("\(displayDay.name) - \(displayDay.exercises.count)\(isJapanese ? "種目" : " exercises")")
                         .font(.system(size: 12))
                         .foregroundStyle(.white.opacity(0.5))
                 }
@@ -60,11 +71,16 @@ struct TodayActionCard: View {
                 streakPill
             }
 
+            // Day切替タブ（2Day以上の場合のみ表示）
+            if allDays.count > 1 {
+                dayPickerTabs(allDays: allDays, todayRoutine: routine)
+            }
+
             // 種目GIFサムネイル横スクロール
-            exerciseThumbnailScroll(exercises: routine.exercises)
+            exerciseThumbnailScroll(exercises: displayDay.exercises)
 
             // CTA: ワークアウト開始
-            startWorkoutButton(routine: routine)
+            startWorkoutButton(routine: displayDay)
         }
         .padding(16)
         .background(
@@ -82,17 +98,59 @@ struct TodayActionCard: View {
         .padding(.horizontal)
     }
 
+    // MARK: - Day切替タブ
+
+    private func dayPickerTabs(allDays: [RoutineDay], todayRoutine: RoutineDay) -> some View {
+        let todayIdx = allDays.firstIndex(where: { $0.id == todayRoutine.id }) ?? 0
+        let currentIdx = selectedDayIndex ?? todayIdx
+
+        return ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                ForEach(Array(allDays.enumerated()), id: \.offset) { idx, day in
+                    let isSelected = idx == currentIdx
+                    Button {
+                        withAnimation(.easeInOut(duration: 0.2)) {
+                            selectedDayIndex = idx
+                        }
+                        HapticManager.lightTap()
+                    } label: {
+                        Text("Day \(idx + 1)")
+                            .font(.system(size: 11, weight: isSelected ? .bold : .medium))
+                            .foregroundStyle(isSelected ? .black : Color.mmTextSecondary)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
+                            .background(isSelected ? Color.mmAccentPrimary : Color.mmBgSecondary)
+                            .clipShape(Capsule())
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+    }
+
     // MARK: - 種目サムネイルスクロール
+
+    /// 括弧以降を省略して表示名を短くする
+    private func shortenedName(_ fullName: String) -> String {
+        if let parenIdx = fullName.firstIndex(of: "（") {
+            return String(fullName[..<parenIdx])
+        }
+        if let parenIdx = fullName.firstIndex(of: "(") {
+            return String(fullName[..<parenIdx])
+        }
+        return fullName
+    }
 
     private func exerciseThumbnailScroll(exercises: [RoutineExercise]) -> some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 8) {
                 ForEach(exercises) { exercise in
                     let def = ExerciseStore.shared.exercise(for: exercise.exerciseId)
-                    let name: String = {
+                    let rawName: String = {
                         guard let d = def else { return exercise.exerciseId }
                         return isJapanese ? d.nameJA : d.nameEN
                     }()
+                    let name = shortenedName(rawName)
 
                     VStack(spacing: 4) {
                         // GIFサムネイル or プレースホルダー
@@ -101,32 +159,34 @@ struct TodayActionCard: View {
                             if ExerciseGifView.hasGif(exerciseId: exercise.exerciseId) {
                                 ExerciseGifView(exerciseId: exercise.exerciseId, size: .thumbnail)
                                     .scaledToFill()
-                                    .frame(width: 62, height: 50)
+                                    .frame(width: 90, height: 70)
                                     .clipped()
                             } else {
                                 Image(systemName: "dumbbell.fill")
-                                    .font(.system(size: 18))
+                                    .font(.system(size: 20))
                                     .foregroundStyle(Color.mmTextSecondary.opacity(0.4))
                             }
                         }
-                        .frame(width: 62, height: 50)
+                        .frame(width: 90, height: 70)
                         .clipShape(RoundedRectangle(cornerRadius: 8))
 
-                        // 種目名
+                        // 種目名（括弧以降省略、9px）
                         Text(name)
-                            .font(.system(size: 10))
+                            .font(.system(size: 9))
                             .foregroundStyle(.white)
                             .lineLimit(1)
-                            .frame(width: 78)
+                            .frame(width: 100)
 
                         // セット × レップ
                         Text("\(exercise.suggestedSets)×\(exercise.suggestedReps)")
                             .font(.system(size: 9))
                             .foregroundStyle(.white.opacity(0.5))
                     }
-                    .frame(width: 82)
+                    .frame(width: 110)
                 }
             }
+            // 右端パディングでスクロール示唆
+            .padding(.trailing, 20)
         }
     }
 
