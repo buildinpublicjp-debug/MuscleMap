@@ -1,7 +1,7 @@
 import SwiftUI
 import SwiftData
 
-// MARK: - ホーム画面
+// MARK: - ホーム画面（Action-First レイアウト v2）
 
 struct HomeView: View {
     @Environment(\.modelContext) private var modelContext
@@ -33,31 +33,49 @@ struct HomeView: View {
                 if let vm = viewModel {
                     ScrollView {
                         VStack(spacing: 16) {
-                            // 1. 週間ストリークバッジ（ワークアウト履歴がない場合は非表示）
-                            WeeklyStreakBadge(
-                                weeks: streakViewModel.currentStreak,
+                            // 1. TodayActionCard（今日のプラン + CTA）— 最上部
+                            TodayActionCard(
+                                viewModel: vm,
+                                streakWeeks: streakViewModel.currentStreak,
                                 isCurrentWeekCompleted: streakViewModel.isCurrentWeekCompleted,
-                                hasWorkoutHistory: hasWorkoutHistory
+                                hasWorkoutHistory: hasWorkoutHistory,
+                                recommendedWorkout: recommendedWorkout,
+                                onShowPaywall: { showingPaywall = true },
+                                onStartWithMenu: { exercises in
+                                    AppState.shared.pendingRecommendedExercises = exercises
+                                    AppState.shared.pendingRecommendationTrigger = UUID()
+                                    AppState.shared.selectedTab = 1
+                                },
+                                onReviewMenu: { rec, menu in
+                                    menuPreviewData = (rec, menu)
+                                    showingMenuPreview = true
+                                },
+                                onStart: {
+                                    HapticManager.lightTap()
+                                    AppState.shared.selectedTab = 1
+                                }
                             )
 
-                            // 2. 90日チャレンジバナー（チャレンジ開始済み or 完了済みの場合のみ表示）
+                            // 90日チャレンジバナー（チャレンジ開始済み or 完了済みの場合のみ表示）
                             if AppState.shared.challengeActive || AppState.shared.challengeCompleted {
                                 ChallengeProgressBanner(showingPaywall: $showingPaywall)
                                     .padding(.horizontal)
                             }
 
-                            // 3. 筋肉マップ（メイン）- ホームの主役
+                            // 2. RecoveryStatusSection（コンパクトマップ + ステータスチップ）
                             ZStack(alignment: .top) {
-                                MuscleMapView(
+                                RecoveryStatusSection(
                                     muscleStates: vm.muscleStates,
+                                    latestStimulations: vm.latestStimulations,
                                     onMuscleTapped: { muscle in
                                         selectedMuscle = muscle
                                     },
-                                    demoMode: showDemo
+                                    onDetailsTapped: {
+                                        showingAnalyticsMenu = true
+                                    }
                                 )
-                                .frame(height: 350)
 
-                                // 初回コーチマーク
+                                // 初回コーチマーク（マップセクション上に表示）
                                 if showCoachMark {
                                     HomeCoachMarkView {
                                         withAnimation(.easeOut(duration: 0.3)) {
@@ -81,95 +99,30 @@ struct HomeView: View {
                                     .zIndex(11)
                                 }
                             }
-                            .padding(.horizontal)
 
-                            // 3. 今日のおすすめインライン（マップ直下）
-                            TodayRecommendationInline(
-                                suggestedMenu: vm.getSuggestedMenu(),
-                                recommendation: recommendedWorkout,
-                                hasWorkoutHistory: hasWorkoutHistory,
-                                isPremium: PurchaseManager.shared.isPremium,
-                                onStart: {
-                                    HapticManager.lightTap()
-                                    AppState.shared.selectedTab = 1
-                                },
-                                onStartWithMenu: { exercises in
-                                    // 提案種目をAppStateに保存してワークアウトタブへ遷移
-                                    AppState.shared.pendingRecommendedExercises = exercises
-                                    AppState.shared.pendingRecommendationTrigger = UUID()
-                                    AppState.shared.selectedTab = 1
-                                },
-                                onShowPaywall: {
-                                    showingPaywall = true
-                                },
-                                onReviewMenu: { rec, menu in
-                                    menuPreviewData = (rec, menu)
-                                    showingMenuPreview = true
-                                },
-                                todayRoutine: vm.todayRoutine,
-                                previousWeightProvider: { exerciseId in
-                                    vm.previousWeight(for: exerciseId)
-                                }
+                            // 3. StatsRow（セッション数 / ボリューム / PR）
+                            HomeStatsRow()
+
+                            // 4. QuickAccessRow（Strength Map / 履歴ショートカット）
+                            QuickAccessRow(
+                                showingStrengthMap: $showingStrengthMap,
+                                onLoadStrengthScores: { loadStrengthScores() },
+                                onShowPaywall: { showingPaywall = true }
                             )
-                            .padding(.horizontal)
 
-                            // 4. Strength Mapエリア
+                            // 5. Strength Map展開エリア（開いている場合）
                             if showingStrengthMap {
-                                VStack(spacing: 8) {
-                                    HStack {
-                                        Label("Strength Map", systemImage: "bolt.shield.fill")
-                                            .font(.caption.bold())
-                                            .foregroundStyle(Color.mmAccentPrimary)
-                                        Spacer()
-                                        Button {
-                                            withAnimation { showingStrengthMap = false }
-                                        } label: {
-                                            Text(L10n.viewRecovery)
-                                                .font(.caption2)
-                                                .foregroundStyle(Color.mmAccentSecondary)
-                                        }
-                                    }
-                                    .padding(.horizontal)
+                                strengthMapSection
+                            }
 
-                                    StrengthMapView(muscleScores: strengthScores)
-                                        .frame(height: 350)
-                                        .padding(.horizontal)
-                                }
-                            } else if !PurchaseManager.shared.isPremium {
+                            // 6. StrengthMapPreviewBanner（非Proユーザー向け）
+                            if !showingStrengthMap && !PurchaseManager.shared.isPremium {
                                 StrengthMapPreviewBanner {
                                     HapticManager.lightTap()
                                     showingPaywall = true
                                 }
                                 .padding(.horizontal)
-                            } else {
-                                Button {
-                                    loadStrengthScores()
-                                    withAnimation { showingStrengthMap = true }
-                                    HapticManager.lightTap()
-                                } label: {
-                                    HStack(spacing: 8) {
-                                        Image(systemName: "bolt.shield.fill")
-                                            .foregroundStyle(Color.mmAccentPrimary)
-                                        VStack(alignment: .leading, spacing: 2) {
-                                            Text("Strength Map")
-                                                .font(.caption.bold())
-                                                .foregroundStyle(Color.mmTextPrimary)
-                                            Text("筋力レベルを見る")
-                                                .font(.caption2)
-                                                .foregroundStyle(Color.mmTextSecondary)
-                                        }
-                                        Spacer()
-                                        Image(systemName: "chevron.right")
-                                            .font(.caption2)
-                                            .foregroundStyle(Color.mmTextSecondary)
-                                    }
-                                    .padding(16)
-                                    .background(Color.mmBgCard)
-                                    .clipShape(RoundedRectangle(cornerRadius: 12))
-                                }
-                                .padding(.horizontal)
                             }
-
                         }
                         .padding(.top, 8)
                         .padding(.bottom, 16)
@@ -225,14 +178,12 @@ struct HomeView: View {
                     // loadMuscleStates完了後にメニュー提案（ルーティン未設定時のみ）
                     if let vm = viewModel, vm.todayRoutine == nil {
                         if hasWorkoutHistory && PurchaseManager.shared.isPremium {
-                            // 通常フロー: 回復データベースの提案
                             let menu = vm.getSuggestedMenu()
                             recommendedWorkout = WorkoutRecommendationEngine.generateRecommendation(
                                 suggestedMenu: menu,
                                 modelContext: modelContext
                             )
                         } else if !hasWorkoutHistory {
-                            // 初回ユーザー: 目標ベースのフォールバック提案
                             recommendedWorkout = WorkoutRecommendationEngine.generateFirstTimeRecommendation(
                                 modelContext: modelContext
                             )
@@ -242,8 +193,6 @@ struct HomeView: View {
 
                 // ストリーク計算
                 streakViewModel.configure(with: modelContext)
-
-                // マイルストーン達成チェック（achievedMilestoneがnon-nilなら自動でsheetが表示される）
 
                 // 初回デモアニメーション
                 if !AppState.shared.hasSeenDemoAnimation {
@@ -317,6 +266,31 @@ struct HomeView: View {
                     .presentationBackground(Color.mmBgSecondary)
                 }
             }
+        }
+    }
+
+    // MARK: - Strength Map展開セクション
+
+    private var strengthMapSection: some View {
+        VStack(spacing: 8) {
+            HStack {
+                Label("Strength Map", systemImage: "bolt.shield.fill")
+                    .font(.caption.bold())
+                    .foregroundStyle(Color.mmAccentPrimary)
+                Spacer()
+                Button {
+                    withAnimation { showingStrengthMap = false }
+                } label: {
+                    Text(L10n.viewRecovery)
+                        .font(.caption2)
+                        .foregroundStyle(Color.mmAccentSecondary)
+                }
+            }
+            .padding(.horizontal)
+
+            StrengthMapView(muscleScores: strengthScores)
+                .frame(height: 350)
+                .padding(.horizontal)
         }
     }
 

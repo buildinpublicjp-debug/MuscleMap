@@ -58,6 +58,9 @@
 		500CF787262050CC495BF14D /* MuscleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FF01BFBC85F09E4AC3175C4 /* MuscleTests.swift */; };
 		572029F9E4BFD847D131AA6A /* ActiveWorkoutComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11352BFB3B6716CD2F0BED28 /* ActiveWorkoutComponents.swift */; };
 		5721C1173EDF84A99951A55C /* HomeHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C97EB7081D911A300E71A50 /* HomeHelpers.swift */; };
+		AA00000000000002 /* TodayActionCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000000000001 /* TodayActionCard.swift */; };
+		AA00000000000004 /* RecoveryStatusSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000000000003 /* RecoveryStatusSection.swift */; };
+		AA00000000000006 /* HomeStatsRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000000000005 /* HomeStatsRow.swift */; };
 		58C4B3B57CDAAB06995959D6 /* MuscleBalanceDiagnosisView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11C0F4511390853FFA62C464 /* MuscleBalanceDiagnosisView.swift */; };
 		592F06EEC6A1A7A42C296BC6 /* WidgetDataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF93A0C1642FBC94B4E365CC /* WidgetDataProvider.swift */; };
 		5B20EB381EF4E9A9A02FCDCD /* OnboardingV2View.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2D7479246A925801D0814DB /* OnboardingV2View.swift */; };
@@ -205,6 +208,9 @@
 		0BE68481B1986B8E34B2034B /* ExerciseMuscleMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseMuscleMapView.swift; sourceTree = "<group>"; };
 		0C736DECFDE0A06C7CA97F4E /* MuscleStimulation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MuscleStimulation.swift; sourceTree = "<group>"; };
 		0C97EB7081D911A300E71A50 /* HomeHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeHelpers.swift; sourceTree = "<group>"; };
+		AA00000000000001 /* TodayActionCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayActionCard.swift; sourceTree = "<group>"; };
+		AA00000000000003 /* RecoveryStatusSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecoveryStatusSection.swift; sourceTree = "<group>"; };
+		AA00000000000005 /* HomeStatsRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeStatsRow.swift; sourceTree = "<group>"; };
 		11352BFB3B6716CD2F0BED28 /* ActiveWorkoutComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActiveWorkoutComponents.swift; sourceTree = "<group>"; };
 		115F934EE7680215C2F165C1 /* MuscleMapWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = MuscleMapWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		11C0F4511390853FFA62C464 /* MuscleBalanceDiagnosisView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MuscleBalanceDiagnosisView.swift; sourceTree = "<group>"; };
@@ -710,7 +716,10 @@
 				5A3B1712E8AF643484F41F3D /* AnalyticsMenuView.swift */,
 				A94472247BEE52A0B88CE22A /* ChallengeProgressBanner.swift */,
 				0C97EB7081D911A300E71A50 /* HomeHelpers.swift */,
+				AA00000000000005 /* HomeStatsRow.swift */,
 				B9DF56A5FF83A4EB8F6A3745 /* HomeNeglectedComponents.swift */,
+				AA00000000000003 /* RecoveryStatusSection.swift */,
+				AA00000000000001 /* TodayActionCard.swift */,
 				0726926B887128DCA36232BC /* HomeStreakComponents.swift */,
 				C975A916E9A16C00A07248A3 /* HomeView.swift */,
 				2A9E42A253BB4D945EC20BBC /* MenuPreviewSheet.swift */,
@@ -969,7 +978,10 @@
 				ED0627432704DF5E78FB158D /* HistoryView.swift in Sources */,
 				210539EBA932CACE31A3BC98 /* HistoryViewModel.swift in Sources */,
 				5721C1173EDF84A99951A55C /* HomeHelpers.swift in Sources */,
+				AA00000000000006 /* HomeStatsRow.swift in Sources */,
 				F32CD475E738146C6B2C0E0F /* HomeNeglectedComponents.swift in Sources */,
+				AA00000000000004 /* RecoveryStatusSection.swift in Sources */,
+				AA00000000000002 /* TodayActionCard.swift in Sources */,
 				8567BABB335B3BCBC4DFBF3D /* HomeStreakComponents.swift in Sources */,
 				61C75BB37FF6157166400E5E /* HomeView.swift in Sources */,
 				9450B2AC9B2EB2FB4943E5C7 /* HomeViewModel.swift in Sources */,
