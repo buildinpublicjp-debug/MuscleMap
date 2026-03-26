@@ -52,6 +52,8 @@ struct WorkoutShareCard: View {
     var currentLevel: StrengthLevel?
     /// レベルアップがあったか
     var didLevelUp: Bool = false
+    /// モチベーショナルテキスト（シェアカードに表示）
+    var motivationalText: String?
 
     // MARK: - 定数
 
@@ -105,6 +107,14 @@ struct WorkoutShareCard: View {
                 // 4. メインスタット: 総ボリューム大表示
                 volumeSection
                     .padding(.top, 8)
+
+                // 4.5. モチベーショナルテキスト
+                if let motivational = motivationalText {
+                    Text(motivational)
+                        .font(.system(size: 10, weight: .bold))
+                        .foregroundStyle(Color.mmAccentPrimary.opacity(0.8))
+                        .padding(.top, 2)
+                }
 
                 // 5. PR更新セクション（ある場合のみ）
                 if !prItems.isEmpty {

@@ -21,6 +21,9 @@ struct WorkoutCompletionView: View {
     @State private var showingStrengthShareSheet = false
     @State private var strengthShareImage: UIImage?
     @State private var showingPaywall = false
+    @State private var showingCamera = false
+    @State private var photoSaved = false
+    @State private var daysSinceLastPhoto: Int?
 
     private var localization: LocalizationManager { LocalizationManager.shared }
 
@@ -181,6 +184,14 @@ struct WorkoutCompletionView: View {
                         }
                         .buttonStyle(.plain)
 
+                        // プログレスフォト撮影ボタン
+                        progressPhotoButton
+
+                        // 7日以上撮影していない場合のリマインダー
+                        if let days = daysSinceLastPhoto, days >= 7, !photoSaved {
+                            photoReminderBanner(days: days)
+                        }
+
                         // レベルアップ祝福（PR更新でレベルが上がった場合）
                         if !levelUpExercises.isEmpty {
                             LevelUpCelebrationSection(levelUps: levelUpExercises)
@@ -260,8 +271,14 @@ struct WorkoutCompletionView: View {
         .sheet(isPresented: $showingPaywall) {
             PaywallView()
         }
+        .sheet(isPresented: $showingCamera) {
+            CameraPickerView { image in
+                saveProgressPhoto(image)
+            }
+        }
         .onAppear {
             markFirstWorkoutCompleted()
+            daysSinceLastPhoto = ProgressPhoto.daysSinceLastPhoto(context: modelContext)
             Task {
                 checkFullBodyConquest()
                 checkPRUpdates()
@@ -548,6 +565,62 @@ struct WorkoutCompletionView: View {
             userName: profile.nickname,
             date: Date()
         )
+    }
+
+    // MARK: - プログレスフォトボタン
+
+    private var progressPhotoButton: some View {
+        let isJapanese = localization.currentLanguage == .japanese
+        return Button {
+            HapticManager.lightTap()
+            showingCamera = true
+        } label: {
+            HStack(spacing: 8) {
+                Image(systemName: photoSaved ? "checkmark.circle.fill" : "camera.fill")
+                Text(photoSaved
+                     ? (isJapanese ? "記録済み" : "Photo Saved")
+                     : (isJapanese ? "体の記録を撮る" : "Take Progress Photo"))
+            }
+            .font(.system(size: 16, weight: .bold))
+            .foregroundStyle(photoSaved ? Color.mmAccentPrimary : Color.mmTextPrimary)
+            .frame(maxWidth: .infinity)
+            .frame(height: 52)
+            .background(photoSaved ? Color.mmAccentPrimary.opacity(0.15) : Color.mmBgSecondary)
+            .clipShape(RoundedRectangle(cornerRadius: 16))
+        }
+        .buttonStyle(.plain)
+        .disabled(photoSaved)
+    }
+
+    /// 7日リマインダーバナー
+    private func photoReminderBanner(days: Int) -> some View {
+        let isJapanese = localization.currentLanguage == .japanese
+        return HStack(spacing: 8) {
+            Image(systemName: "photo.on.rectangle.angled")
+                .font(.subheadline)
+                .foregroundStyle(Color.mmWarning)
+            Text(isJapanese
+                 ? "最後の体の記録から\(days)日経過"
+                 : "It's been \(days) days since your last progress photo")
+                .font(.caption)
+                .foregroundStyle(Color.mmTextSecondary)
+        }
+        .padding(12)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color.mmWarning.opacity(0.1))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+
+    /// カメラで撮影した写真を保存
+    private func saveProgressPhoto(_ image: UIImage) {
+        guard let path = ProgressPhoto.savePhoto(image, sessionId: session.id) else { return }
+        let photo = ProgressPhoto(imagePath: path, sessionId: session.id)
+        modelContext.insert(photo)
+        try? modelContext.save()
+        withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
+            photoSaved = true
+        }
+        HapticManager.success()
     }
 
     @MainActor

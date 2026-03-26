@@ -134,6 +134,11 @@ class AppState {
         set { UserDefaults.standard.set(newValue, forKey: "primaryOnboardingGoal") }
     }
 
+    // 最後に実行したルーティンDayのインデックス（次回提案用）
+    var lastRoutineDayIndex: Int = UserDefaults.standard.integer(forKey: "lastRoutineDayIndex") {
+        didSet { UserDefaults.standard.set(lastRoutineDayIndex, forKey: "lastRoutineDayIndex") }
+    }
+
     // MARK: - 90日チャレンジ
 
     /// チャレンジ開始日（nil = 未開始）

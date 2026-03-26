@@ -1,51 +1,56 @@
 import SwiftUI
 
-// MARK: - 完了アイコン（紙吹雪エフェクト付き）
+// MARK: - 完了アイコン（スプリングスケール + PR時紙吹雪エフェクト）
 
 struct CompletionIcon: View {
+    var hasPR: Bool = false
     @State private var showConfetti = false
+    @State private var iconScale: CGFloat = 0
 
-    // 紙吹雪パーティクル定義（10個、3色、広範囲に散布）
-    private let confettiItems: [(color: Color, offsetX: CGFloat, offsetY: CGFloat, rotation: Double, isRect: Bool)] = [
-        (.mmAccentPrimary, -90, -50, 45, false),
-        (.mmPRGold, 80, -60, -30, true),
-        (.mmAccentSecondary, -70, 40, 60, false),
-        (.mmAccentPrimary, 100, 30, -45, true),
-        (.mmPRGold, -30, -75, 120, false),
-        (.mmAccentSecondary, 50, 65, -60, true),
-        (.mmPRGold, -110, -10, 90, false),
-        (.mmAccentPrimary, 120, -35, -75, true),
-        (.mmAccentSecondary, -60, 70, 30, false),
-        (.mmPRGold, 40, -80, -120, true),
-    ]
+    // 紙吹雪パーティクル定義（30個、3色、広範囲に散布）
+    private let confettiItems: [(color: Color, offsetX: CGFloat, offsetY: CGFloat, rotation: Double, isRect: Bool)] = {
+        var items: [(Color, CGFloat, CGFloat, Double, Bool)] = []
+        let colors: [Color] = [.mmAccentPrimary, .mmPRGold, .mmAccentSecondary]
+        for i in 0..<30 {
+            let angle = Double(i) * (360.0 / 30.0)
+            let radius: CGFloat = CGFloat.random(in: 60...130)
+            let x = cos(angle * .pi / 180) * Double(radius)
+            let y = sin(angle * .pi / 180) * Double(radius)
+            let rot = Double.random(in: -120...120)
+            items.append((colors[i % 3], CGFloat(x), CGFloat(y), rot, i % 2 == 0))
+        }
+        return items
+    }()
 
     var body: some View {
         ZStack {
-            // 紙吹雪パーティクル
-            ForEach(Array(confettiItems.enumerated()), id: \.offset) { index, item in
-                Group {
-                    if item.isRect {
-                        RoundedRectangle(cornerRadius: 2)
-                            .fill(item.color)
-                            .frame(width: 8, height: 5)
-                    } else {
-                        Circle()
-                            .fill(item.color)
-                            .frame(width: 7, height: 7)
+            // PR時の紙吹雪パーティクル
+            if hasPR {
+                ForEach(Array(confettiItems.enumerated()), id: \.offset) { index, item in
+                    Group {
+                        if item.isRect {
+                            RoundedRectangle(cornerRadius: 2)
+                                .fill(item.color)
+                                .frame(width: 8, height: 5)
+                        } else {
+                            Circle()
+                                .fill(item.color)
+                                .frame(width: 7, height: 7)
+                        }
                     }
+                    .rotationEffect(.degrees(showConfetti ? item.rotation : 0))
+                    .offset(
+                        x: showConfetti ? item.offsetX : 0,
+                        y: showConfetti ? item.offsetY : 0
+                    )
+                    .opacity(showConfetti ? 0 : 1)
+                    .scaleEffect(showConfetti ? 0.5 : 0.01)
+                    .animation(
+                        .easeOut(duration: 2.0)
+                        .delay(Double(index) * 0.02),
+                        value: showConfetti
+                    )
                 }
-                .rotationEffect(.degrees(showConfetti ? item.rotation : 0))
-                .offset(
-                    x: showConfetti ? item.offsetX : 0,
-                    y: showConfetti ? item.offsetY : 0
-                )
-                .opacity(showConfetti ? 0 : 1)
-                .scaleEffect(showConfetti ? 0.5 : 0.01)
-                .animation(
-                    .easeOut(duration: 1.5)
-                    .delay(Double(index) * 0.04),
-                    value: showConfetti
-                )
             }
 
             // メインアイコン
@@ -61,46 +66,294 @@ struct CompletionIcon: View {
                 .font(.system(size: 60))
                 .foregroundStyle(Color.mmAccentPrimary)
         }
+        .scaleEffect(iconScale)
         .onAppear {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                showConfetti = true
+            // スプリングスケールアニメーション（0→1）
+            withAnimation(.spring(response: 0.5, dampingFraction: 0.6).delay(0.3)) {
+                iconScale = 1.0
+            }
+            // PR時の紙吹雪（遅延発射）
+            if hasPR {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    showConfetti = true
+                }
             }
         }
     }
 }
 
-// MARK: - 統計カード
+// MARK: - モチベーショナルサマリー
+
+struct MotivationalSummary: View {
+    let totalVolume: Double
+    let hasPR: Bool
+    let exerciseCount: Int
+
+    @State private var summaryScale: CGFloat = 0.8
+    @State private var summaryOpacity: Double = 0
+
+    /// モチベーショナルテキスト
+    var motivationalText: String {
+        if totalVolume > 10000 {
+            return L10n.beastModeActivated
+        } else if hasPR {
+            return L10n.newRecordsSet
+        } else if exerciseCount >= 4 {
+            return L10n.solidSession
+        } else {
+            return L10n.goodWork
+        }
+    }
+
+    var body: some View {
+        Text(motivationalText)
+            .font(.system(size: 22, weight: .bold))
+            .foregroundStyle(Color.mmAccentPrimary)
+            .multilineTextAlignment(.center)
+            .scaleEffect(summaryScale)
+            .opacity(summaryOpacity)
+            .onAppear {
+                withAnimation(.spring(response: 0.5, dampingFraction: 0.7).delay(0.4)) {
+                    summaryScale = 1.0
+                    summaryOpacity = 1.0
+                }
+            }
+    }
+}
+
+// MARK: - PR祝福データモデル
+
+struct PRCelebrationItem: Identifiable {
+    let id = UUID()
+    let exerciseName: String
+    let previousWeight: Double
+    let newWeight: Double
+    let increasePercent: Int
+}
+
+// MARK: - PR祝福セクション（ゴールドグラデーション + スケールアニメーション）
+
+struct PRCelebrationSection: View {
+    let prUpdates: [PRCelebrationItem]
+
+    @State private var appeared = false
+
+    var body: some View {
+        VStack(spacing: 0) {
+            // ゴールドグラデーションヘッダー
+            HStack(spacing: 6) {
+                Image(systemName: "trophy.fill")
+                    .font(.system(size: 14, weight: .bold))
+                Text(L10n.newPR)
+                    .font(.system(size: 16, weight: .heavy))
+                    .tracking(1.5)
+            }
+            .foregroundStyle(.white)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 10)
+            .background(
+                UnevenRoundedRectangle(
+                    topLeadingRadius: 16,
+                    bottomLeadingRadius: 0,
+                    bottomTrailingRadius: 0,
+                    topTrailingRadius: 16
+                )
+                .fill(
+                    LinearGradient(
+                        colors: [Color.mmPRGold, Color.mmWarning],
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    )
+                )
+            )
+
+            // PR行リスト
+            VStack(spacing: 0) {
+                ForEach(Array(prUpdates.enumerated()), id: \.element.id) { index, item in
+                    prCelebrationRow(item: item, index: index)
+
+                    if index < prUpdates.count - 1 {
+                        Divider()
+                            .background(Color.mmBorder.opacity(0.3))
+                            .padding(.horizontal, 16)
+                    }
+                }
+            }
+            .background(
+                UnevenRoundedRectangle(
+                    topLeadingRadius: 0,
+                    bottomLeadingRadius: 16,
+                    bottomTrailingRadius: 16,
+                    topTrailingRadius: 0
+                )
+                .fill(Color.mmBgCard)
+            )
+        }
+        .scaleEffect(appeared ? 1 : 0.9)
+        .opacity(appeared ? 1 : 0)
+        .onAppear {
+            withAnimation(.spring(response: 0.5, dampingFraction: 0.7).delay(0.3)) {
+                appeared = true
+            }
+            // PR達成ハプティクス
+            HapticManager.prAchieved()
+        }
+    }
+
+    private func prCelebrationRow(item: PRCelebrationItem, index: Int) -> some View {
+        HStack(spacing: 8) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(item.exerciseName)
+                    .font(.subheadline.bold())
+                    .foregroundStyle(Color.mmTextPrimary)
+                    .lineLimit(1)
+
+                HStack(spacing: 4) {
+                    Text(formatWeight(item.previousWeight))
+                        .font(.caption)
+                        .foregroundStyle(Color.mmTextSecondary)
+                    Image(systemName: "arrow.right")
+                        .font(.system(size: 8, weight: .bold))
+                        .foregroundStyle(Color.mmTextSecondary)
+                    Text(formatWeight(item.newWeight))
+                        .font(.caption.bold())
+                        .foregroundStyle(Color.mmPRGold)
+                }
+            }
+
+            Spacer()
+
+            // 増加率バッジ
+            Text("↑\(item.increasePercent)%")
+                .font(.caption.bold())
+                .foregroundStyle(.white)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .background(
+                    Capsule()
+                        .fill(Color.green)
+                )
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+        .scaleEffect(appeared ? 1 : 0.8)
+        .animation(
+            .spring(response: 0.5, dampingFraction: 0.7)
+            .delay(0.4 + Double(index) * 0.1),
+            value: appeared
+        )
+    }
+
+    private func formatWeight(_ weight: Double) -> String {
+        if weight.truncatingRemainder(dividingBy: 1) == 0 {
+            return String(format: "%.0fkg", weight)
+        }
+        return String(format: "%.1fkg", weight)
+    }
+}
+
+// MARK: - 統計カード（ボリューム巨大 + 3カード横並びカスケード）
 
 struct CompletionStatsCard: View {
     let totalVolume: Double
     let uniqueExercises: Int
     let totalSets: Int
     let duration: String
+    var animationDelay: Double = 0
+
+    @State private var statsAppeared = false
+
+    /// カンマ区切りフォーマッタ
+    private var formattedVolume: String {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        formatter.maximumFractionDigits = 0
+        return formatter.string(from: NSNumber(value: totalVolume)) ?? "\(Int(totalVolume))"
+    }
 
     var body: some View {
-        HStack(spacing: 0) {
-            StatBox(value: formatVolume(totalVolume), label: L10n.totalVolume, icon: "scalemass")
-            StatBox(value: "\(uniqueExercises)", label: L10n.exercises, icon: "figure.strengthtraining.traditional")
-            StatBox(value: "\(totalSets)", label: L10n.sets, icon: "number")
-            StatBox(value: duration, label: L10n.time, icon: "clock")
+        VStack(spacing: 16) {
+            // メインボリューム表示（48px Heavy）
+            HStack(alignment: .firstTextBaseline, spacing: 4) {
+                Text(formattedVolume)
+                    .font(.system(size: 48, weight: .heavy))
+                    .foregroundStyle(Color.mmAccentPrimary)
+                    .minimumScaleFactor(0.5)
+                    .lineLimit(1)
+                Text("kg")
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundStyle(Color.mmTextSecondary)
+            }
+
+            // 3カード横並び（種目数・セット数・時間）
+            HStack(spacing: 12) {
+                completionStatCard(
+                    value: "\(uniqueExercises)",
+                    label: L10n.exercises,
+                    icon: "figure.strengthtraining.traditional",
+                    delay: 0
+                )
+                completionStatCard(
+                    value: "\(totalSets)",
+                    label: L10n.sets,
+                    icon: "number",
+                    delay: 0.1
+                )
+                completionStatCard(
+                    value: duration,
+                    label: L10n.time,
+                    icon: "clock",
+                    delay: 0.2
+                )
+            }
         }
         .padding()
         .background(Color.mmBgCard)
         .clipShape(RoundedRectangle(cornerRadius: 16))
+        .offset(y: statsAppeared ? 0 : 20)
+        .opacity(statsAppeared ? 1 : 0)
+        .onAppear {
+            withAnimation(.spring(response: 0.5, dampingFraction: 0.8).delay(animationDelay)) {
+                statsAppeared = true
+            }
+        }
     }
 
-    private func formatVolume(_ volume: Double) -> String {
-        if volume >= 1000 {
-            return String(format: "%.1fk", volume / 1000)
+    private func completionStatCard(value: String, label: String, icon: String, delay: Double) -> some View {
+        VStack(spacing: 6) {
+            Image(systemName: icon)
+                .font(.caption)
+                .foregroundStyle(Color.mmAccentPrimary)
+            Text(value)
+                .font(.system(size: 24, weight: .bold))
+                .foregroundStyle(Color.mmTextPrimary)
+                .minimumScaleFactor(0.6)
+                .lineLimit(1)
+            Text(label)
+                .font(.system(size: 10, weight: .medium))
+                .foregroundStyle(Color.mmTextSecondary)
         }
-        return String(format: "%.0f", volume)
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 8)
+        .background(Color.mmBgSecondary)
+        .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 }
 
-// MARK: - 刺激した筋肉セクション
+// MARK: - 刺激した筋肉セクション（パルスグロー + 筋肉名表示）
 
 struct StimulatedMusclesSection: View {
     let muscleMapping: [String: Int]
+
+    @State private var glowPulsing = false
+
+    /// 刺激された筋肉名リスト
+    private var stimulatedMuscleNames: [String] {
+        muscleMapping.compactMap { key, value -> String? in
+            guard value > 0, let muscle = Muscle(rawValue: key) else { return nil }
+            return muscle.localizedName
+        }
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -116,7 +369,7 @@ struct StimulatedMusclesSection: View {
                 )
                 .aspectRatio(0.6, contentMode: .fit)
                 .frame(maxWidth: .infinity)
-                .frame(height: 220)
+                .frame(height: 240)
 
                 // 背面
                 MiniMuscleMapView(
@@ -125,7 +378,34 @@ struct StimulatedMusclesSection: View {
                 )
                 .aspectRatio(0.6, contentMode: .fit)
                 .frame(maxWidth: .infinity)
-                .frame(height: 220)
+                .frame(height: 240)
+            }
+            .shadow(
+                color: Color.mmAccentPrimary.opacity(glowPulsing ? 0.3 : 0.1),
+                radius: glowPulsing ? 12 : 6,
+                x: 0, y: 0
+            )
+            .onAppear {
+                withAnimation(.easeInOut(duration: 1.5).repeatForever(autoreverses: true)) {
+                    glowPulsing = true
+                }
+            }
+
+            // 刺激された筋肉名をアクセントカラーで表示
+            if !stimulatedMuscleNames.isEmpty {
+                FlowLayout(spacing: 6) {
+                    ForEach(stimulatedMuscleNames, id: \.self) { name in
+                        Text(name)
+                            .font(.caption.bold())
+                            .foregroundStyle(Color.mmAccentPrimary)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(
+                                Capsule()
+                                    .fill(Color.mmAccentPrimary.opacity(0.1))
+                            )
+                    }
+                }
             }
         }
         .padding()
@@ -133,6 +413,7 @@ struct StimulatedMusclesSection: View {
         .clipShape(RoundedRectangle(cornerRadius: 16))
     }
 }
+
 
 // MARK: - 完了種目リスト
 
@@ -220,6 +501,10 @@ struct CompletionProBanner: View {
 struct NextRecommendedDaySection: View {
     /// 今回刺激した筋肉 → セッション内セット数
     let stimulatedMuscles: [(muscle: Muscle, totalSets: Int)]
+    /// 次回ルーティンDay名（あれば）
+    var nextRoutineName: String?
+
+    @State private var reminderScheduled = false
 
     /// 今日の刺激部位のうち最も回復が遅いものの完全回復日
     private var recommendedDate: Date {
@@ -260,7 +545,7 @@ struct NextRecommendedDaySection: View {
                     .font(.headline)
                     .foregroundStyle(Color.mmAccentSecondary)
 
-                Text(L10n.nextRecommendedDay)
+                Text(L10n.nextWorkoutSuggestion)
                     .font(.headline)
                     .foregroundStyle(Color.mmTextPrimary)
             }
@@ -277,9 +562,49 @@ struct NextRecommendedDaySection: View {
                 }
             }
 
+            // 次回ルーティンDay名
+            if let routineName = nextRoutineName {
+                HStack(spacing: 4) {
+                    Image(systemName: "dumbbell")
+                        .font(.caption)
+                        .foregroundStyle(Color.mmAccentSecondary)
+                    Text(routineName)
+                        .font(.subheadline.bold())
+                        .foregroundStyle(Color.mmTextPrimary)
+                }
+            }
+
             Text(L10n.basedOnRecoveryPrediction)
                 .font(.caption)
                 .foregroundStyle(Color.mmTextSecondary)
+
+            // リマインダー設定CTA
+            Button {
+                HapticManager.lightTap()
+                NotificationManager.shared.scheduleRecoveryReminder(
+                    nextPartName: nextRoutineName ?? "トレーニング",
+                    recoveryDate: recommendedDate
+                )
+                withAnimation {
+                    reminderScheduled = true
+                }
+            } label: {
+                HStack(spacing: 6) {
+                    Image(systemName: reminderScheduled ? "checkmark.circle.fill" : "bell.badge")
+                        .font(.subheadline)
+                    Text(reminderScheduled ? L10n.reminderScheduled : L10n.scheduleReminder)
+                        .font(.subheadline.bold())
+                }
+                .foregroundStyle(reminderScheduled ? Color.mmAccentPrimary : Color.mmBgPrimary)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 12)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(reminderScheduled ? Color.mmAccentPrimary.opacity(0.15) : Color.mmAccentPrimary)
+                )
+            }
+            .buttonStyle(.plain)
+            .disabled(reminderScheduled)
         }
         .padding()
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -337,7 +662,7 @@ struct StrengthMapShareSection: View {
     }
 }
 
-// MARK: - 完了ボタンセクション（レガシー互換用、新レイアウトではWorkoutCompletionViewで直接配置）
+// MARK: - 完了ボタンセクション（レガシー互換用）
 
 struct CompletionButtonSection: View {
     let onShare: () -> Void
@@ -532,7 +857,7 @@ struct LevelUpCelebrationSection: View {
 #Preview("Completion Icon") {
     ZStack {
         Color.mmBgPrimary.ignoresSafeArea()
-        CompletionIcon()
+        CompletionIcon(hasPR: true)
     }
 }
 
@@ -540,11 +865,30 @@ struct LevelUpCelebrationSection: View {
     ZStack {
         Color.mmBgPrimary.ignoresSafeArea()
         CompletionStatsCard(
-            totalVolume: 5250,
+            totalVolume: 12450,
             uniqueExercises: 5,
             totalSets: 20,
-            duration: "45分"
+            duration: "45分",
+            animationDelay: 0
         )
         .padding()
+    }
+}
+
+#Preview("PR Celebration") {
+    ZStack {
+        Color.mmBgPrimary.ignoresSafeArea()
+        PRCelebrationSection(prUpdates: [
+            PRCelebrationItem(exerciseName: "ベンチプレス", previousWeight: 80, newWeight: 90, increasePercent: 13),
+            PRCelebrationItem(exerciseName: "スクワット", previousWeight: 100, newWeight: 110, increasePercent: 10)
+        ])
+        .padding()
+    }
+}
+
+#Preview("Motivational Summary") {
+    ZStack {
+        Color.mmBgPrimary.ignoresSafeArea()
+        MotivationalSummary(totalVolume: 15000, hasPR: true, exerciseCount: 6)
     }
 }
