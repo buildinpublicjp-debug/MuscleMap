@@ -159,23 +159,23 @@ struct TodayActionCard: View {
                             if ExerciseGifView.hasGif(exerciseId: exercise.exerciseId) {
                                 ExerciseGifView(exerciseId: exercise.exerciseId, size: .thumbnail)
                                     .scaledToFill()
-                                    .frame(width: 90, height: 70)
+                                    .frame(width: 110, height: 80)
                                     .clipped()
                             } else {
                                 Image(systemName: "dumbbell.fill")
-                                    .font(.system(size: 20))
+                                    .font(.system(size: 22))
                                     .foregroundStyle(Color.mmTextSecondary.opacity(0.4))
                             }
                         }
-                        .frame(width: 90, height: 70)
+                        .frame(width: 110, height: 80)
                         .clipShape(RoundedRectangle(cornerRadius: 8))
 
-                        // 種目名（括弧以降省略、9px）
+                        // 種目名（括弧以降省略）
                         Text(name)
-                            .font(.system(size: 9))
+                            .font(.system(size: 10))
                             .foregroundStyle(.white)
                             .lineLimit(1)
-                            .frame(width: 100)
+                            .frame(width: 110)
 
                         // セット × レップ
                         Text("\(exercise.suggestedSets)×\(exercise.suggestedReps)")

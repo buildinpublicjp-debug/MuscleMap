@@ -109,11 +109,6 @@ struct HomeView: View {
                                 onLoadStrengthScores: { loadStrengthScores() },
                                 onShowPaywall: { showingPaywall = true }
                             )
-
-                            // 5. Strength Map展開エリア（QuickAccessRowから開いた場合）
-                            if showingStrengthMap {
-                                strengthMapSection
-                            }
                         }
                         .padding(.top, 8)
                         .padding(.bottom, 16)
@@ -257,31 +252,6 @@ struct HomeView: View {
                     .presentationBackground(Color.mmBgSecondary)
                 }
             }
-        }
-    }
-
-    // MARK: - Strength Map展開セクション
-
-    private var strengthMapSection: some View {
-        VStack(spacing: 8) {
-            HStack {
-                Label("Strength Map", systemImage: "bolt.shield.fill")
-                    .font(.caption.bold())
-                    .foregroundStyle(Color.mmAccentPrimary)
-                Spacer()
-                Button {
-                    withAnimation { showingStrengthMap = false }
-                } label: {
-                    Text(L10n.viewRecovery)
-                        .font(.caption2)
-                        .foregroundStyle(Color.mmAccentSecondary)
-                }
-            }
-            .padding(.horizontal)
-
-            StrengthMapView(muscleScores: strengthScores)
-                .frame(height: 350)
-                .padding(.horizontal)
         }
     }
 
