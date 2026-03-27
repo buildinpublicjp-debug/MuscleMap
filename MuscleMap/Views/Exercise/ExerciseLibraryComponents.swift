@@ -21,34 +21,40 @@ struct LibraryFavoritesRow: View {
                     .padding(.horizontal)
 
                 ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 8) {
+                    HStack(spacing: 10) {
                         ForEach(favoriteExercises) { exercise in
                             Button {
                                 HapticManager.lightTap()
                                 onSelect(exercise)
                             } label: {
-                                HStack(spacing: 6) {
-                                    if ExerciseGifView.hasGif(exerciseId: exercise.id) {
-                                        ExerciseGifView(exerciseId: exercise.id, size: .thumbnail)
-                                            .frame(width: 32, height: 32)
-                                            .clipShape(RoundedRectangle(cornerRadius: 6))
-                                    } else {
-                                        Image(systemName: "figure.strengthtraining.traditional")
-                                            .font(.caption)
-                                            .foregroundStyle(Color.mmAccentPrimary)
-                                            .frame(width: 32, height: 32)
-                                            .background(Color.mmBgCard)
-                                            .clipShape(RoundedRectangle(cornerRadius: 6))
+                                VStack(spacing: 0) {
+                                    // GIFサムネイル（100x70pt）
+                                    ZStack {
+                                        Color.mmBgCard
+                                        if ExerciseGifView.hasGif(exerciseId: exercise.id) {
+                                            ExerciseGifView(exerciseId: exercise.id, size: .thumbnail)
+                                                .scaledToFill()
+                                                .frame(width: 100, height: 70)
+                                                .clipped()
+                                        } else {
+                                            Image(systemName: "dumbbell.fill")
+                                                .font(.system(size: 18))
+                                                .foregroundStyle(Color.mmTextSecondary.opacity(0.4))
+                                        }
                                     }
+                                    .frame(width: 100, height: 70)
 
+                                    // 種目名
                                     Text(localization.currentLanguage == .japanese ? exercise.nameJA : exercise.nameEN)
-                                        .font(.caption2.bold())
+                                        .font(.system(size: 10, weight: .bold))
                                         .foregroundStyle(Color.mmTextPrimary)
                                         .lineLimit(1)
+                                        .frame(width: 96)
+                                        .padding(.vertical, 6)
                                 }
-                                .padding(.trailing, 8)
+                                .frame(width: 100)
                                 .background(Color.mmBgSecondary)
-                                .clipShape(Capsule())
+                                .clipShape(RoundedRectangle(cornerRadius: 10))
                             }
                         }
                     }
@@ -104,13 +110,14 @@ private struct LibraryGridCard: View {
     var body: some View {
         Button(action: onTap) {
             VStack(alignment: .leading, spacing: 0) {
-                // GIF or ミニマップ（上部120px）
+                // GIF or ミニマップ（上部120px、全体表示）
                 ZStack(alignment: .topTrailing) {
                     if ExerciseGifView.hasGif(exerciseId: exercise.id) {
                         ExerciseGifView(exerciseId: exercise.id, size: .previewCard)
+                            .scaledToFit()
                             .frame(maxWidth: .infinity)
                             .frame(height: 120)
-                            .clipped()
+                            .background(Color.mmBgPrimary.opacity(0.5))
                     } else {
                         MiniMuscleMapView(muscleMapping: exercise.muscleMapping)
                             .frame(maxWidth: .infinity)
@@ -133,7 +140,7 @@ private struct LibraryGridCard: View {
                     .padding(6)
                 }
 
-                // 種目情報
+                // 種目情報（2行: 種目名 + 筋肉バッジ）
                 VStack(alignment: .leading, spacing: 4) {
                     Text(localization.currentLanguage == .japanese ? exercise.nameJA : exercise.nameEN)
                         .font(.caption.bold())
@@ -149,14 +156,6 @@ private struct LibraryGridCard: View {
                             )
                         }
                     }
-
-                    HStack(spacing: 4) {
-                        Image(systemName: "dumbbell")
-                        Text(exercise.localizedEquipment)
-                    }
-                    .font(.caption2)
-                    .foregroundStyle(Color.mmTextSecondary)
-                    .lineLimit(1)
                 }
                 .padding(8)
             }

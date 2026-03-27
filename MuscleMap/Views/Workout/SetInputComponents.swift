@@ -41,29 +41,48 @@ struct SetInputCard: View {
     var body: some View {
         ScrollView {
         VStack(spacing: 12) {
-            // 種目名 + info + セット番号（コンパクトヘッダー）
-            HStack {
-                Text(localization.currentLanguage == .japanese ? exercise.nameJA : exercise.nameEN)
-                    .font(.headline)
-                    .foregroundStyle(Color.mmTextPrimary)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.8)
+            // 種目名 + info + レベルバッジ + セット番号
+            VStack(alignment: .leading, spacing: 4) {
+                HStack {
+                    Text(localization.currentLanguage == .japanese ? exercise.nameJA : exercise.nameEN)
+                        .font(.headline)
+                        .foregroundStyle(Color.mmTextPrimary)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
 
-                Button {
-                    HapticManager.lightTap()
-                    showExerciseDetail = true
-                } label: {
-                    Image(systemName: "info.circle")
-                        .font(.system(size: 16))
-                        .foregroundStyle(Color.mmTextSecondary)
+                    Button {
+                        HapticManager.lightTap()
+                        showExerciseDetail = true
+                    } label: {
+                        Image(systemName: "info.circle")
+                            .font(.system(size: 16))
+                            .foregroundStyle(Color.mmTextSecondary)
+                    }
+                    .buttonStyle(.plain)
+
+                    Spacer()
+
+                    Text(L10n.setNumber(viewModel.currentSetNumber))
+                        .font(.subheadline.bold())
+                        .foregroundStyle(Color.mmAccentPrimary)
                 }
-                .buttonStyle(.plain)
 
-                Spacer()
-
-                Text(L10n.setNumber(viewModel.currentSetNumber))
-                    .font(.subheadline.bold())
-                    .foregroundStyle(Color.mmAccentPrimary)
+                // レベルバッジ（種目名の下に配置）
+                if let info = strengthLevelInfo {
+                    HStack(spacing: 4) {
+                        Text(info.level.emoji)
+                            .font(.caption2)
+                        Text(info.level.localizedName)
+                            .font(.caption2.bold())
+                            .foregroundStyle(info.level.color)
+                        if let kgToNext = info.kgToNext,
+                           let nextLevel = info.nextLevel {
+                            Text("→ \(nextLevel.localizedName)まで\(Int(ceil(kgToNext)))kg")
+                                .font(.system(size: 9))
+                                .foregroundStyle(Color.mmTextSecondary)
+                        }
+                    }
+                }
             }
             .sheet(isPresented: $showExerciseDetail) {
                 NavigationStack {
@@ -78,40 +97,20 @@ struct SetInputCard: View {
                         ExerciseGifView(exerciseId: exercise.id, size: .fullWidth)
                             .frame(maxHeight: 150)
 
-                        // PR表示 + レベルバッジ（GIF右下にオーバーレイ）
+                        // PR表示（GIF右下にオーバーレイ）
                         if let pr = prWeight, !isBodyweight {
-                            VStack(alignment: .trailing, spacing: 4) {
-                                HStack(spacing: 2) {
-                                    Image(systemName: "trophy.fill")
-                                        .font(.caption2)
-                                        .foregroundStyle(Color.mmPRGold)
-                                    Text("\(pr, specifier: "%.1f")kg")
-                                        .font(.caption2.bold())
-                                        .foregroundStyle(Color.mmTextPrimary)
-                                    if let info = strengthLevelInfo {
-                                        Text(info.level.emoji + " " + info.level.localizedName)
-                                            .font(.caption2.bold())
-                                            .foregroundStyle(info.level.color)
-                                    }
-                                }
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 4)
-                                .background(Color.mmBgPrimary.opacity(0.6))
-                                .clipShape(Capsule())
-
-                                // 次レベルまでの距離
-                                if let info = strengthLevelInfo,
-                                   let kgToNext = info.kgToNext,
-                                   let nextLevel = info.nextLevel {
-                                    Text(L10n.levelUpKgToNext(Int(ceil(kgToNext)), nextLevel.localizedName))
-                                        .font(.system(size: 9))
-                                        .foregroundStyle(nextLevel.color.opacity(0.8))
-                                        .padding(.horizontal, 6)
-                                        .padding(.vertical, 2)
-                                        .background(Color.mmBgPrimary.opacity(0.6))
-                                        .clipShape(Capsule())
-                                }
+                            HStack(spacing: 2) {
+                                Image(systemName: "trophy.fill")
+                                    .font(.caption2)
+                                    .foregroundStyle(Color.mmPRGold)
+                                Text("\(pr, specifier: "%.1f")kg")
+                                    .font(.caption2.bold())
+                                    .foregroundStyle(Color.mmTextPrimary)
                             }
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(Color.mmBgPrimary.opacity(0.6))
+                            .clipShape(Capsule())
                             .padding(8)
                         }
                     }
@@ -186,7 +185,7 @@ struct SetInputCard: View {
                 }
             }
 
-            // 重量の提案チップ
+            // 重量の提案（控えめテキスト）
             if let lastW = viewModel.lastWeight, lastW > 0, !isBodyweight {
                 let suggested = lastW + 2.5
                 Button {
@@ -194,16 +193,12 @@ struct SetInputCard: View {
                     HapticManager.lightTap()
                 } label: {
                     HStack(spacing: 4) {
-                        Image(systemName: "arrow.up.circle.fill")
-                            .font(.caption)
+                        Image(systemName: "arrow.up.right")
+                            .font(.caption2)
                         Text(L10n.tryHeavier(lastW, suggested))
                             .font(.caption)
                     }
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 6)
-                    .background(Color.mmAccentPrimary.opacity(0.15))
-                    .foregroundStyle(Color.mmAccentPrimary)
-                    .clipShape(Capsule())
+                    .foregroundStyle(Color.mmTextSecondary)
                 }
             }
 

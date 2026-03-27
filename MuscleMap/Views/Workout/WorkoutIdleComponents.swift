@@ -124,55 +124,56 @@ struct RecentExercisesSection: View {
             .padding(.horizontal)
 
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 12) {
+                HStack(spacing: 10) {
                     ForEach(exercises) { exercise in
                         Button {
                             HapticManager.lightTap()
                             onSelect(exercise)
                         } label: {
-                            VStack(alignment: .leading, spacing: 6) {
-                                // GIFサムネイル（50x50）
-                                if ExerciseGifView.hasGif(exerciseId: exercise.id) {
-                                    ExerciseGifView(exerciseId: exercise.id, size: .thumbnail)
-                                        .frame(width: 50, height: 50)
-                                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                                } else {
-                                    RoundedRectangle(cornerRadius: 8)
-                                        .fill(Color.mmBgSecondary)
-                                        .frame(width: 50, height: 50)
-                                        .overlay(
-                                            Image(systemName: "dumbbell.fill")
-                                                .font(.system(size: 18))
-                                                .foregroundStyle(Color.mmTextSecondary.opacity(0.5))
-                                        )
+                            VStack(alignment: .leading, spacing: 0) {
+                                // GIFサムネイル（グリッドカード統一スタイル）
+                                ZStack {
+                                    Color.mmBgPrimary.opacity(0.5)
+                                    if ExerciseGifView.hasGif(exerciseId: exercise.id) {
+                                        ExerciseGifView(exerciseId: exercise.id, size: .previewCard)
+                                            .scaledToFit()
+                                            .frame(maxWidth: .infinity)
+                                            .frame(height: 100)
+                                    } else {
+                                        Image(systemName: "dumbbell.fill")
+                                            .font(.system(size: 22))
+                                            .foregroundStyle(Color.mmTextSecondary.opacity(0.4))
+                                    }
                                 }
+                                .frame(width: 140, height: 100)
 
-                                Text(localization.currentLanguage == .japanese ? exercise.nameJA : exercise.nameEN)
-                                    .font(.subheadline.bold())
-                                    .foregroundStyle(Color.mmTextPrimary)
-                                    .lineLimit(1)
-                                    .minimumScaleFactor(0.6)
+                                // 種目名 + 筋肉バッジ
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(localization.currentLanguage == .japanese ? exercise.nameJA : exercise.nameEN)
+                                        .font(.caption.bold())
+                                        .foregroundStyle(Color.mmTextPrimary)
+                                        .lineLimit(1)
 
-                                HStack(spacing: 4) {
-                                    Image(systemName: "dumbbell")
-                                    Text(exercise.localizedEquipment)
-                                }
-                                .font(.caption2)
-                                .foregroundStyle(Color.mmTextSecondary)
-
-                                if let primary = exercise.primaryMuscle {
-                                    Text(primary.localizedName)
-                                        .font(.caption2)
+                                    if let primary = exercise.primaryMuscle {
+                                        HStack(spacing: 3) {
+                                            Circle()
+                                                .fill(Color.mmAccentPrimary)
+                                                .frame(width: 6, height: 6)
+                                            Text(primary.localizedName)
+                                                .lineLimit(1)
+                                        }
+                                        .font(.caption2.bold())
+                                        .foregroundStyle(Color.mmAccentPrimary)
                                         .padding(.horizontal, 6)
                                         .padding(.vertical, 2)
                                         .background(Color.mmAccentPrimary.opacity(0.15))
-                                        .foregroundStyle(Color.mmAccentPrimary)
                                         .clipShape(Capsule())
+                                    }
                                 }
+                                .padding(8)
                             }
-                            .frame(width: 140, alignment: .leading)
-                            .padding(12)
-                            .background(Color.mmBgCard)
+                            .frame(width: 140)
+                            .background(Color.mmBgSecondary)
                             .clipShape(RoundedRectangle(cornerRadius: 12))
                         }
                     }

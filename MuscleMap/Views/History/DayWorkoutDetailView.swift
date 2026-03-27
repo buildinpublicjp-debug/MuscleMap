@@ -212,19 +212,18 @@ private struct SessionDetailCard: View {
                 Spacer()
             }
 
-            // ミニ筋肉マップ（アスペクト比を維持・サイズ拡大）
+            // ミニ筋肉マップ（大きめ表示）
             if !stimulatedMuscleMapping.isEmpty {
                 HStack(spacing: 12) {
                     MiniMuscleMapView(muscleMapping: stimulatedMuscleMapping, showFront: true)
                         .aspectRatio(0.5, contentMode: .fit)
                         .frame(maxWidth: .infinity)
-                        .frame(height: 234)
+                        .frame(height: 280)
                     MiniMuscleMapView(muscleMapping: stimulatedMuscleMapping, showFront: false)
                         .aspectRatio(0.5, contentMode: .fit)
                         .frame(maxWidth: .infinity)
-                        .frame(height: 234)
+                        .frame(height: 280)
                 }
-                .padding(.vertical, 8)
             }
 
             Divider().background(Color.mmBgSecondary)
@@ -233,23 +232,22 @@ private struct SessionDetailCard: View {
             ForEach(exerciseSets, id: \.exercise.id) { entry in
                 VStack(alignment: .leading, spacing: 6) {
                     HStack(spacing: 10) {
-                        // GIFサムネイル（50x50pt）
-                        if ExerciseGifView.hasGif(exerciseId: entry.exercise.id) {
-                            ExerciseGifView(exerciseId: entry.exercise.id, size: .thumbnail)
-                                .frame(width: 50, height: 50)
-                                .clipped()
-                                .clipShape(RoundedRectangle(cornerRadius: 8))
-                        } else {
-                            // GIFなし種目はダンベルアイコンのフォールバック
-                            ZStack {
-                                RoundedRectangle(cornerRadius: 8)
-                                    .fill(Color.mmBgSecondary)
+                        // GIFサムネイル（50x50pt、mmBgCard角丸）
+                        ZStack {
+                            Color.mmBgCard
+                            if ExerciseGifView.hasGif(exerciseId: entry.exercise.id) {
+                                ExerciseGifView(exerciseId: entry.exercise.id, size: .thumbnail)
+                                    .scaledToFill()
+                                    .frame(width: 50, height: 50)
+                                    .clipped()
+                            } else {
                                 Image(systemName: "dumbbell.fill")
                                     .font(.system(size: 20))
                                     .foregroundStyle(Color.mmTextSecondary.opacity(0.5))
                             }
-                            .frame(width: 50, height: 50)
                         }
+                        .frame(width: 50, height: 50)
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
 
                         VStack(alignment: .leading, spacing: 2) {
                             Text(localization.currentLanguage == .japanese ? entry.exercise.nameJA : entry.exercise.nameEN)
@@ -324,7 +322,7 @@ private struct SessionDetailCard: View {
                         }
                     }
                 }
-                .padding(.vertical, 4)
+                .padding(.vertical, 2)
             }
         }
         .padding()

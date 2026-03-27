@@ -145,13 +145,12 @@ struct WorkoutCompletionView: View {
                             .font(.largeTitle.weight(.heavy))
                             .foregroundStyle(Color.mmTextPrimary)
 
-                        // 目標連動コピー
-                        if let goalCopy = completionGoalCopy {
-                            Text(goalCopy)
-                                .font(.subheadline)
-                                .foregroundStyle(Color.mmTextSecondary)
-                                .multilineTextAlignment(.center)
-                        }
+                        // 汎用モチベーションテキスト
+                        MotivationalSummary(
+                            totalVolume: totalVolume,
+                            hasPR: hasPRUpdate,
+                            exerciseCount: uniqueExercises
+                        )
 
                         // 90日チャレンジ Day完了（チャレンジ進行中の場合のみ）
                         if AppState.shared.challengeActive {
@@ -293,48 +292,6 @@ struct WorkoutCompletionView: View {
                 onDismiss: { showingFullBodyConquest = false }
             )
         }
-    }
-
-    // MARK: - 目標連動コピー
-
-    /// オンボーディング目標+今回の実際の刺激部位に基づく完了コピー
-    private var completionGoalCopy: String? {
-        guard let goalRaw = AppState.shared.primaryOnboardingGoal,
-              let goal = OnboardingGoal(rawValue: goalRaw) else { return nil }
-
-        // 今回のセッションで各グループに何セット行ったかを集計
-        var groupSetCounts: [MuscleGroup: Int] = [:]
-        for set in session.sets {
-            guard let exercise = ExerciseStore.shared.exercise(for: set.exerciseId) else { continue }
-            // primaryMuscle（最も刺激度が高い筋肉）のグループをカウント
-            if let primary = exercise.primaryMuscle {
-                groupSetCounts[primary.group, default: 0] += 1
-            }
-        }
-
-        // 最もセット数が多いグループを特定
-        let dominantGroup = groupSetCounts.max(by: { $0.value < $1.value })?.key
-        let uniqueGroups = Set(groupSetCounts.keys)
-
-        // 部位ベースのメッセージ（複数部位 or 単一部位）
-        let isJapanese = localization.currentLanguage == .japanese
-        let muscleMessage: String
-        if uniqueGroups.count > 2 {
-            muscleMessage = isJapanese ? "全身、しっかり追い込んだ" : "Full body, solid session"
-        } else if let group = dominantGroup {
-            switch group {
-            case .chest: muscleMessage = isJapanese ? "胸板、また一段厚くなった" : "Chest is getting thicker"
-            case .back: muscleMessage = isJapanese ? "背中の厚みが増した" : "Back is getting wider"
-            case .shoulders: muscleMessage = isJapanese ? "肩幅が広がった" : "Shoulders are broadening"
-            case .lowerBody: muscleMessage = isJapanese ? "下半身が安定した" : "Lower body is getting stronger"
-            case .arms: muscleMessage = isJapanese ? "腕が太くなった" : "Arms are growing"
-            case .core: muscleMessage = isJapanese ? "体幹が締まった" : "Core is tightening up"
-            }
-        } else {
-            return nil
-        }
-
-        return "\(goal.localizedName) → \(muscleMessage)"
     }
 
     // MARK: - ヘルパーメソッド
