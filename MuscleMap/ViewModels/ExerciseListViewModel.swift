@@ -7,6 +7,7 @@ import Foundation
 class ExerciseListViewModel {
     private let exerciseStore: ExerciseStore
     private var isBatchUpdating = false
+    private let recentSearchesKey = "recentExerciseSearches"
 
     var exercises: [ExerciseDefinition] = []
     var filteredExercises: [ExerciseDefinition] = []
@@ -33,8 +34,26 @@ class ExerciseListViewModel {
         didSet { if !isBatchUpdating { applyFilters() } }
     }
 
+    /// 最近の検索ワード（最大3件）
+    var recentSearches: [String] {
+        UserDefaults.standard.stringArray(forKey: recentSearchesKey) ?? []
+    }
+
     init() {
         self.exerciseStore = ExerciseStore.shared
+    }
+
+    /// 検索履歴を記録（最大3件、重複排除）
+    func recordSearch(_ query: String) {
+        let trimmed = query.trimmingCharacters(in: .whitespaces)
+        guard !trimmed.isEmpty else { return }
+        var searches = recentSearches
+        searches.removeAll { $0 == trimmed }
+        searches.insert(trimmed, at: 0)
+        if searches.count > 3 {
+            searches = Array(searches.prefix(3))
+        }
+        UserDefaults.standard.set(searches, forKey: recentSearchesKey)
     }
 
     /// データ読み込み
@@ -93,13 +112,39 @@ class ExerciseListViewModel {
             result = result.filter { $0.equipment == equipment }
         }
 
-        // テキスト検索
+        // テキスト検索（強化版：筋肉名、ローカライズ器具名、筋肉グループ名も対象）
         if !searchText.isEmpty {
             let query = searchText.lowercased()
-            result = result.filter {
-                $0.nameJA.lowercased().contains(query) ||
-                $0.nameEN.lowercased().contains(query) ||
-                $0.equipment.lowercased().contains(query)
+            result = result.filter { exercise in
+                // 種目名（日英）
+                if exercise.nameJA.lowercased().contains(query) { return true }
+                if exercise.nameEN.lowercased().contains(query) { return true }
+
+                // 器具名（raw + localized）
+                if exercise.equipment.lowercased().contains(query) { return true }
+                if exercise.localizedEquipment.lowercased().contains(query) { return true }
+
+                // ターゲット筋肉名で検索
+                for muscleId in exercise.muscleMapping.keys {
+                    if let muscle = Muscle(rawValue: muscleId) {
+                        if muscle.japaneseName.lowercased().contains(query) { return true }
+                        if muscle.englishName.lowercased().contains(query) { return true }
+                    }
+                }
+
+                // 筋肉グループ名で検索
+                for group in MuscleGroup.allCases {
+                    let matchesGroup = group.japaneseName.lowercased().contains(query) ||
+                        group.englishName.lowercased().contains(query)
+                    if matchesGroup {
+                        let groupMuscleIds = Set(group.muscles.map { $0.rawValue })
+                        if !exercise.muscleMapping.keys.filter({ groupMuscleIds.contains($0) }).isEmpty {
+                            return true
+                        }
+                    }
+                }
+
+                return false
             }
         }
 

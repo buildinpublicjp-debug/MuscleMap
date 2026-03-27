@@ -8,6 +8,7 @@ struct ExerciseLibraryView: View {
     @ObservedObject private var recentManager = RecentExercisesManager.shared
     @State private var searchText = ""
     @State private var selectedExercise: ExerciseDefinition?
+    @AppStorage("exerciseLibraryGridView") private var isGridView = true
     private var localization: LocalizationManager { LocalizationManager.shared }
 
     var body: some View {
@@ -15,8 +16,26 @@ struct ExerciseLibraryView: View {
             Color.mmBgPrimary.ignoresSafeArea()
 
             VStack(spacing: 0) {
-                // フィルターチップ
-                filterChipsSection
+                // フィルターチップ（回復ドットなし版 — muscleStates空で渡す）
+                PickerFilterChipsSection(
+                    viewModel: viewModel,
+                    muscleStates: [:]
+                )
+
+                // お気に入り横スクロール行
+                LibraryFavoritesRow(
+                    exercises: viewModel.exercises
+                ) { exercise in
+                    selectedExercise = exercise
+                }
+
+                // 最近の検索
+                PickerRecentSearchesRow(
+                    searches: viewModel.recentSearches
+                ) { query in
+                    searchText = query
+                    viewModel.searchText = query
+                }
 
                 // 種目数
                 HStack {
@@ -28,7 +47,7 @@ struct ExerciseLibraryView: View {
                 .padding(.horizontal)
                 .padding(.bottom, 4)
 
-                // 種目リスト or EmptyState
+                // 種目リスト/グリッド or EmptyState
                 contentSection
             }
         }
@@ -36,6 +55,16 @@ struct ExerciseLibraryView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbarColorScheme(.dark, for: .navigationBar)
         .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                // グリッド/リスト切替
+                Button {
+                    isGridView.toggle()
+                    HapticManager.lightTap()
+                } label: {
+                    Image(systemName: isGridView ? "list.bullet" : "square.grid.2x2")
+                        .foregroundStyle(Color.mmAccentPrimary)
+                }
+            }
             ToolbarItem(placement: .principal) {
                 Text(L10n.exerciseLibrary)
                     .font(.headline.bold())
@@ -43,6 +72,9 @@ struct ExerciseLibraryView: View {
             }
         }
         .searchable(text: $searchText, prompt: L10n.searchExercises)
+        .onSubmit(of: .search) {
+            viewModel.recordSearch(searchText)
+        }
         .onChange(of: searchText) { _, newValue in
             viewModel.searchText = newValue
         }
@@ -54,263 +86,35 @@ struct ExerciseLibraryView: View {
         }
     }
 
-    // MARK: - フィルターチップセクション
-
-    private var filterChipsSection: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 8) {
-                // 最近使った種目フィルター
-                FilterChip(
-                    title: "⏱ \(L10n.recent)",
-                    isSelected: viewModel.showRecentOnly
-                ) {
-                    viewModel.showRecentOnly.toggle()
-                    if viewModel.showRecentOnly {
-                        viewModel.showFavoritesOnly = false
-                        viewModel.selectedCategory = nil
-                        viewModel.selectedEquipment = nil
-                    }
-                }
-
-                // お気に入りフィルター
-                FilterChip(
-                    title: "★ \(L10n.favorites)",
-                    isSelected: viewModel.showFavoritesOnly
-                ) {
-                    viewModel.showFavoritesOnly.toggle()
-                    if viewModel.showFavoritesOnly {
-                        viewModel.showRecentOnly = false
-                        viewModel.selectedCategory = nil
-                        viewModel.selectedEquipment = nil
-                    }
-                }
-
-                // すべて
-                FilterChip(
-                    title: L10n.all,
-                    isSelected: !viewModel.showRecentOnly && !viewModel.showFavoritesOnly && viewModel.selectedCategory == nil && viewModel.selectedEquipment == nil
-                ) {
-                    viewModel.clearAllFilters()
-                }
-
-                // カテゴリフィルター
-                ForEach(viewModel.categories, id: \.self) { category in
-                    FilterChip(
-                        title: L10n.localizedCategory(category),
-                        isSelected: viewModel.selectedCategory == category
-                    ) {
-                        viewModel.showRecentOnly = false
-                        viewModel.showFavoritesOnly = false
-                        viewModel.selectedEquipment = nil
-                        viewModel.selectedCategory = category
-                    }
-                }
-
-                // 器具フィルター
-                ForEach(viewModel.equipmentList, id: \.self) { equipment in
-                    FilterChip(
-                        title: L10n.localizedEquipment(equipment),
-                        isSelected: viewModel.selectedEquipment == equipment
-                    ) {
-                        viewModel.showRecentOnly = false
-                        viewModel.showFavoritesOnly = false
-                        viewModel.selectedCategory = nil
-                        viewModel.selectedEquipment = equipment
-                    }
-                }
-            }
-            .padding(.horizontal)
-            .padding(.vertical, 8)
-        }
-    }
-
     // MARK: - コンテンツセクション
 
     @ViewBuilder
     private var contentSection: some View {
         if viewModel.showRecentOnly && viewModel.filteredExercises.isEmpty {
-            RecentEmptyState()
+            PickerEmptyState(
+                icon: "clock.arrow.circlepath",
+                title: L10n.noRecentExercises,
+                subtitle: L10n.recentExercisesHint
+            )
         } else if viewModel.showFavoritesOnly && viewModel.filteredExercises.isEmpty {
-            FavoritesEmptyState()
+            PickerEmptyState(
+                icon: "star.slash",
+                title: L10n.noFavorites,
+                subtitle: L10n.addFavoritesHint
+            )
+        } else if isGridView {
+            LibraryGridContent(
+                exercises: viewModel.filteredExercises
+            ) { exercise in
+                selectedExercise = exercise
+            }
         } else {
-            List(viewModel.filteredExercises) { exercise in
-                Button {
-                    HapticManager.lightTap()
-                    selectedExercise = exercise
-                } label: {
-                    ExerciseLibraryRow(exercise: exercise)
-                }
-                .listRowBackground(Color.mmBgSecondary)
+            LibraryListContent(
+                exercises: viewModel.filteredExercises
+            ) { exercise in
+                selectedExercise = exercise
             }
-            .listStyle(.plain)
-            .scrollContentBackground(.hidden)
         }
-    }
-}
-
-// MARK: - フィルターチップ
-
-private struct FilterChip: View {
-    let title: String
-    let isSelected: Bool
-    let action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            Text(title)
-                .font(.caption.bold())
-                .padding(.horizontal, 12)
-                .padding(.vertical, 6)
-                .background(isSelected ? Color.mmAccentPrimary : Color.mmBgCard)
-                .foregroundStyle(isSelected ? Color.mmBgPrimary : Color.mmTextSecondary)
-                .clipShape(Capsule())
-        }
-    }
-}
-
-// MARK: - 最近使った種目EmptyState
-
-private struct RecentEmptyState: View {
-    var body: some View {
-        VStack(spacing: 16) {
-            Spacer()
-            Image(systemName: "clock.arrow.circlepath")
-                .font(.system(size: 48))
-                .foregroundStyle(Color.mmTextSecondary.opacity(0.5))
-            Text(L10n.noRecentExercises)
-                .font(.headline)
-                .foregroundStyle(Color.mmTextPrimary)
-            Text(L10n.recentExercisesHint)
-                .font(.subheadline)
-                .foregroundStyle(Color.mmTextSecondary)
-                .multilineTextAlignment(.center)
-            Spacer()
-        }
-        .frame(maxWidth: .infinity)
-    }
-}
-
-// MARK: - お気に入りEmptyState
-
-private struct FavoritesEmptyState: View {
-    var body: some View {
-        VStack(spacing: 16) {
-            Spacer()
-            Image(systemName: "star.slash")
-                .font(.system(size: 48))
-                .foregroundStyle(Color.mmTextSecondary.opacity(0.5))
-            Text(L10n.noFavorites)
-                .font(.headline)
-                .foregroundStyle(Color.mmTextPrimary)
-            Text(L10n.addFavoritesHint)
-                .font(.subheadline)
-                .foregroundStyle(Color.mmTextSecondary)
-                .multilineTextAlignment(.center)
-            Spacer()
-        }
-        .frame(maxWidth: .infinity)
-    }
-}
-
-// MARK: - 種目行（リッチUI）
-
-private struct ExerciseLibraryRow: View {
-    let exercise: ExerciseDefinition
-    private var localization: LocalizationManager { LocalizationManager.shared }
-
-    /// 主要ターゲットの筋肉（刺激度が最も高い筋肉）
-    private var primaryMuscle: Muscle? {
-        guard let maxEntry = exercise.muscleMapping.max(by: { $0.value < $1.value }) else {
-            return nil
-        }
-        return Muscle(rawValue: maxEntry.key) ?? Muscle(snakeCase: maxEntry.key)
-    }
-
-    var body: some View {
-        HStack(spacing: 12) {
-            // GIFサムネイル（存在する場合）またはミニ筋肉マップ
-            if ExerciseGifView.hasGif(exerciseId: exercise.id) {
-                ExerciseGifView(exerciseId: exercise.id, size: .thumbnail)
-            } else {
-                MiniMuscleMapView(muscleMapping: exercise.muscleMapping)
-                    .frame(width: 100, height: 75)
-                    .background(Color.mmBgPrimary.opacity(0.5))
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-            }
-
-            // 種目情報
-            VStack(alignment: .leading, spacing: 4) {
-                Text(localization.currentLanguage == .japanese ? exercise.nameJA : exercise.nameEN)
-                    .font(.subheadline.bold())
-                    .foregroundStyle(Color.mmTextPrimary)
-                    .lineLimit(2)
-                    .fixedSize(horizontal: false, vertical: true)
-
-                // 筋肉名 + 器具タグ
-                HStack(spacing: 6) {
-                    if let muscle = primaryMuscle {
-                        PrimaryMuscleTag(
-                            muscleName: localization.currentLanguage == .japanese
-                                ? muscle.japaneseName
-                                : muscle.englishName
-                        )
-                    }
-                    ExerciseTag(text: exercise.localizedEquipment, icon: "dumbbell")
-                }
-            }
-
-            Spacer(minLength: 4)
-
-            Image(systemName: "chevron.right")
-                .font(.caption)
-                .foregroundStyle(Color.mmTextSecondary)
-        }
-        .padding(.vertical, 6)
-    }
-}
-
-// MARK: - 主要筋肉タグ
-
-private struct PrimaryMuscleTag: View {
-    let muscleName: String
-
-    var body: some View {
-        HStack(spacing: 3) {
-            Circle()
-                .fill(Color.mmAccentPrimary)
-                .frame(width: 6, height: 6)
-            Text(muscleName)
-                .lineLimit(1)
-        }
-        .font(.caption2.bold())
-        .foregroundStyle(Color.mmAccentPrimary)
-        .padding(.horizontal, 6)
-        .padding(.vertical, 2)
-        .background(Color.mmAccentPrimary.opacity(0.15))
-        .clipShape(Capsule())
-        .fixedSize()
-    }
-}
-
-// MARK: - 種目タグ
-
-private struct ExerciseTag: View {
-    let text: String
-    let icon: String
-
-    var body: some View {
-        HStack(spacing: 3) {
-            Image(systemName: icon)
-            Text(text)
-                .lineLimit(1)
-        }
-        .font(.caption2)
-        .foregroundStyle(Color.mmTextSecondary)
-        .padding(.horizontal, 6)
-        .padding(.vertical, 2)
-        .background(Color.mmBgCard)
-        .clipShape(Capsule())
-        .fixedSize()
     }
 }
 

@@ -199,6 +199,16 @@ enum L10n {
     static var workout: String { loc("ワークアウト", "Workout", zhHans: "训练", ko: "운동", es: "Entrenamiento", fr: "Entraînement", de: "Training") }
     static var exerciseLibrary: String { loc("種目辞典", "Exercise Library", zhHans: "动作库", ko: "운동 도감", es: "Biblioteca", fr: "Bibliothèque", de: "Übungsbibliothek") }
     static var browseExercises: String { loc("種目を探す", "Browse Exercises", zhHans: "浏览动作", ko: "운동 찾기", es: "Buscar ejercicios", fr: "Parcourir les exercices", de: "Übungen durchsuchen") }
+    static var favoritesSection: String { loc("お気に入り", "Favorites", zhHans: "收藏", ko: "즐겨찾기", es: "Favoritos", fr: "Favoris", de: "Favoriten") }
+    static var recentSearches: String { loc("最近の検索", "Recent Searches", zhHans: "最近搜索", ko: "최근 검색", es: "Búsquedas recientes", fr: "Recherches récentes", de: "Letzte Suchen") }
+    static var addToWorkout: String { loc("ワークアウトに追加", "Add to Workout", zhHans: "添加到训练", ko: "운동에 추가", es: "Añadir al entrenamiento", fr: "Ajouter à l'entraînement", de: "Zum Training hinzufügen") }
+    static var fatigued: String { loc("疲労", "Fatigued", zhHans: "疲劳", ko: "피로", es: "Fatigado", fr: "Fatigué", de: "Ermüdet") }
+    static var gridView: String { loc("グリッド", "Grid", zhHans: "网格", ko: "그리드", es: "Cuadrícula", fr: "Grille", de: "Raster") }
+    static var listViewLabel: String { loc("リスト", "List", zhHans: "列表", ko: "목록", es: "Lista", fr: "Liste", de: "Liste") }
+    static var neglectedLabel: String { loc("未刺激", "Neglected", zhHans: "未刺激", ko: "미자극", es: "Descuidado", fr: "Négligé", de: "Vernachlässigt") }
+    static var noPerformanceData: String { loc("記録なし", "No records", zhHans: "无记录", ko: "기록 없음", es: "Sin registros", fr: "Aucun enregistrement", de: "Keine Aufzeichnungen") }
+    static var previousPerformance: String { loc("過去のパフォーマンス", "Previous Performance", zhHans: "历史表现", ko: "이전 퍼포먼스", es: "Rendimiento anterior", fr: "Performance précédente", de: "Vorherige Leistung") }
+    static var recovered: String { loc("回復済", "Recovered", zhHans: "已恢复", ko: "회복됨", es: "Recuperado", fr: "Récupéré", de: "Erholt") }
     static var history: String { loc("履歴", "History", zhHans: "历史", ko: "기록", es: "Historial", fr: "Historique", de: "Verlauf") }
     static var settings: String { loc("設定", "Settings", zhHans: "设置", ko: "설정", es: "Ajustes", fr: "Réglages", de: "Einstellungen") }
 
