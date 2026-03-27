@@ -25,7 +25,8 @@ struct MuscleMapApp: App {
         .modelContainer(for: [
             WorkoutSession.self,
             WorkoutSet.self,
-            MuscleStimulation.self
+            MuscleStimulation.self,
+            ProgressPhoto.self
         ])
     }
 

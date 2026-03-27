@@ -339,6 +339,24 @@ struct SettingsView: View {
 
     private var aboutSection: some View {
         Section {
+            // 体の記録（プログレスフォトギャラリー）
+            NavigationLink {
+                ProgressPhotoGalleryView()
+            } label: {
+                HStack(spacing: 12) {
+                    Image(systemName: "camera.fill")
+                        .foregroundStyle(Color.mmAccentPrimary)
+                    Text(LocalizationManager.shared.currentLanguage == .japanese ? "体の記録" : "Progress Photos")
+                        .font(.subheadline)
+                        .foregroundStyle(Color.mmTextPrimary)
+                    Spacer()
+                    Image(systemName: "chevron.right")
+                        .font(.caption2)
+                        .foregroundStyle(Color.mmTextSecondary)
+                }
+            }
+            .listRowBackground(Color.mmBgCard)
+
             // 種目辞典
             Button {
                 showingExerciseLibrary = true
