@@ -1,346 +1,205 @@
-# MuscleMap Design System v1.0
+# MuscleMap Design System v2.0
 
 > このファイルはCLAUDE.mdの補助ドキュメント。全てのUI実装・修正時に必ず参照すること。
-> 具体的なピクセル値・比率・パターンを定義。曖昧な「いい感じに」は禁止。
 
 ---
 
-## 1. GIFカードの統一ルール（最重要）
+## ⚠️ このドキュメントの読み方（最重要）
 
-GIFはMuscleMapの最大差別化要素。全画面で統一された見せ方をすること。
+このデザインシステムの数値は**デフォルト値であり、絶対ルールではない。**
 
-### GIFカードの2パターン
+**絶対ルール = 「原則」**。これは状況に関係なく守ること。
+**デフォルト値 = 「まずこの値で試す」**。結果を見て、おかしければ調整すること。
 
-**A. グリッドカード（種目辞典・ピッカーのグリッド表示）**
-```
-幅: 画面幅の47%（2列グリッド、gap: 12pt）
-GIF高さ: カード幅の75%（アスペクト比 4:3）
-角丸: 12pt
-背景: .mmBgCard (#2A2A2A)
-GIF部分: 角丸の上側のみ（.clipShape(UnevenRoundedRectangle)）
-テキスト部分: GIFの下、パディング 8pt
-  - 種目名: .caption.bold(), .mmTextPrimary, .lineLimit(1)
-  - 筋肉バッジ: .caption2, アクセントカラー背景ピル
-  - 器具: .caption2, .mmTextSecondary
-お気に入り: 右上にハートアイコン（24pt）
-```
+### CCの最大の失敗パターン
+「マップ高さ160ptと書いてあるから160ptにしよう」→ コンテンツが少なくてマップの下に巨大な余白が生まれる → でもルールだからそのまま → ゴミ
 
-**B. コンパクトカード（ホームのTodayActionCard・ワークアウトの最近使った種目）**
-```
-幅: 110pt（横スクロール、showsIndicators: false）
-GIF高さ: 80pt
-角丸: 10pt
-背景: .mmBgCard (#2A2A2A)
-テキスト部分: パディング 6pt
-  - 種目名: .system(size: 10, weight: .semibold), .lineLimit(1)
-  - セット×レップ: .system(size: 9), .mmTextSecondary
-スクロール: 最後のカードが画面端で途切れてスクロール示唆
-```
+### 正しい判断プロセス
+1. デフォルト値で配置する
+2. **シミュレーターでスクショを撮って目視確認する**（sips -Z 800でリサイズ）
+3. 不自然な余白がないか、要素が窮屈すぎないか確認
+4. 問題があればデフォルト値を調整して再確認
+5. 問題なければ次へ
 
-### GIFの表示ルール
-- GIFの背景は白。ダークUIで浮かないよう、GIFカード全体を.mmBgCard背景で包む
-- GIFコンテナ自体にborderは付けない（カード全体の角丸で処理）
-- GIFのロード中: .mmBgCard背景 + 中央にスピナー（ProgressView）
-- GIF未対応の種目: ダンベルアイコン（SF Symbol: "dumbbell.fill"）を.mmTextSecondary色で中央配置
+**数値を盲目的に適用するな。必ず目で見て判断しろ。**
 
 ---
 
-## 2. 筋肉マップの表示サイズガイド
+## 原則（絶対ルール — 全画面に適用）
 
-マップは画面の目的によってサイズを変える。
+### 原則1: 死んだ余白を作るな
+画面のどこにも「何もない大きな空間」を作らない。余白が目立ったらそれはバグ。
+- コンテンツが少ない → コンテンツを大きくする or セクションを追加する
+- マップの下が空く → マップを大きくする or 下のセクションを上に詰める
+- **余白で「呼吸感」を出そうとするな。** ダークUIでは余白=真っ黒な穴。情報で埋めろ。
 
-| 画面 | マップ高さ | 用途 |
+### 原則2: 情報の優先順位を画面に反映しろ
+ユーザーが最も知りたい情報を最も大きく、最も上に表示する。
+- ホーム → 「今日何やるか」が最上部
+- セット入力 → 重量の数値が最も大きい
+- 完了画面 → 総ボリュームが最も大きい
+- 種目辞典 → GIFが最も大きい
+
+### 原則3: GIFは最大の武器
+92種目のGIFアニメーションは競合にない差別化。見せ方で手を抜くな。
+- GIFは常にダークカード(mmBgCard)で包む（白背景が浮かないように）
+- GIFは「何の種目か一目でわかる」サイズにする。サムネイルとして意味がないサイズにするな
+- 種目辞典のグリッドカードが品質基準。他の画面のGIF表示がこれより明らかに劣っていたら修正しろ
+
+### 原則4: 画面を埋めろ
+iPhone 16 Pro Maxの画面は広い。コンテンツが画面の60%しか使ってないなら、それは設計ミス。
+- HStackで並べた要素が画面幅の70%しか使ってない → 要素を広げるか、もう1列追加
+- マップが画面の30%しか使ってない → 残りのスペースにステータスチップ等の情報を追加
+- **ただし詰め込みすぎもNG。** 1つの画面に5つ以上のセクションがファーストビューに入ってたらごちゃついてる
+
+### 原則5: 統一感が洗練を作る
+同じ種類のUIコンポーネントは全画面で同じ見た目にする。
+- GIFカードの見た目がホームと種目辞典で違う → NG
+- CTAボタンの高さがホームとワークアウトで違う → NG
+- 角丸がカードによって8ptだったり16ptだったり → NG（意図的な差別化を除く）
+
+### 原則6: 実装したら必ず目で確認しろ
+コードを書いたら終わりではない。シミュレーターで確認してから完了とする。
+```bash
+xcrun simctl io booted screenshot /tmp/check.png
+sips -Z 800 /tmp/check.png --out /tmp/check_small.png
+# /tmp/check_small.png を読んで目視確認
+```
+確認せずにpushするな。
+
+---
+
+## デフォルト値リファレンス（調整可能）
+
+以下は「まずこの値で試す」デフォルト。結果を見ておかしければ調整すること。
+
+### 筋肉マップの高さ
+| コンテキスト | デフォルト | 調整の判断基準 |
 |:---|:---|:---|
-| ワークアウトタブ（待機中） | 280pt | 筋肉タップで種目フィルター |
-| ホーム RecoveryStatusSection | 160pt | 回復状態の確認（コンパクト） |
-| ワークアウト完了 StimulatedMusclesSection | 200pt | 刺激した部位のハイライト |
-| 履歴 ワークアウト詳細シート | 160pt | その日に鍛えた部位 |
-| カレンダー ミニアイコン | 28pt | 日ごとの部位サマリー |
-| シェアカード | 140pt | SNS共有用 |
+| メイン画面の主役として | 280-350pt | 他のセクションが十分入るか確認。入らなければ小さくする |
+| 情報セクションの一部として | 150-200pt | 横に配置するチップ等と高さが揃うか確認。揃わなければ調整 |
+| ワークアウト詳細・完了画面 | 180-240pt | セクション全体のバランスで判断。下が空くなら大きくする |
+| カレンダーのミニアイコン | 24-32pt | カレンダーのセルサイズに合わせる |
+| シェアカード | 120-160pt | カードの総サイズに合わせる |
 
-### マップ周りの余白
-- マップの上下: 各 8pt
-- マップとテキストセクション間: 12pt
-- 前面・背面の間隔: 16pt（HStack spacing）
+**マップの下に不自然な余白が生まれたら → マップを大きくするか、下のコンテンツを上に詰める。マップの高さを「守る」ために余白を放置するな。**
 
----
+### GIFカード
 
-## 3. カードのデザインパターン
+**グリッドカード（種目辞典・ピッカー）**
+- 幅: 2列グリッド、各カード画面幅の約47%（gap含む）
+- GIFのアスペクト比: 約4:3
+- 角丸: 12pt
+- 背景: .mmBgCard
+- テキスト: 種目名 .caption.bold() + 筋肉バッジ + 器具
 
-### 情報カード（StatsRow等）
-```swift
-背景: .mmBgSecondary (#1E1E1E)
-角丸: 12pt
-パディング: 12pt
-数値: .system(size: 22, weight: .heavy), .mmTextPrimary
-ラベル: .caption, .mmTextSecondary
-テキスト配置: center
-```
+**コンパクトカード（ホーム・ワークアウト待機中）**
+- 幅: 100-120pt（横スクロール）
+- GIF高さ: カード幅の70-80%
+- 角丸: 10pt
+- 背景: .mmBgCard
+- **種目名が読めること。読めないほど小さければカード幅を上げる**
 
-### アクションカード（TodayActionCard等）
-```swift
-背景: LinearGradient(
-    colors: [Color(red: 0.05, green: 0.16, blue: 0.09), .mmBgSecondary],
-    startPoint: .topLeading, endPoint: .bottomTrailing
-)
-ボーダー: .mmAccentPrimary.opacity(0.15), 1pt
-角丸: 16pt
-パディング: 16pt
-```
+### CTAボタン
+- プライマリ: 高さ48-56pt、.mmAccentPrimary背景、黒テキスト Heavy
+- セカンダリ: 高さ44-52pt、.mmBgSecondary背景
+- **画面の最も重要なアクションのCTAは、他のどのテキストより目立つこと**
 
-### ステータスチップ（回復ステータス等）
-```swift
-背景: ステータス色.opacity(0.12)
-角丸: 10pt
-パディング: 8pt horizontal, 10pt vertical
-部位名: .system(size: 12, weight: .bold), ステータス色
-詳細: .system(size: 10), ステータス色.opacity(0.6)
-```
+### カード
+- 背景: .mmBgSecondary or .mmBgCard（コンテキストによる）
+- 角丸: 12-16pt
+- パディング: 12-16pt
+- **カードの中に十分なコンテンツがない場合、カードにする必要があるか再考する**
 
-### ショートカットカード（QuickAccessRow等）
-```swift
-背景: .mmBgSecondary (#1E1E1E)
-角丸: 12pt
-パディング: 12pt
-タイトル: .system(size: 14, weight: .bold), .mmTextPrimary
-サブ: .system(size: 11), .mmTextSecondary
-アイコン: 20pt, SF Symbol
-```
+### セクション間スペーシング
+- デフォルト: 12-16pt
+- **隣接セクションの視覚的区別がつかなければ広げる**
+- **余白が目立つなら狭める**
 
 ---
 
-## 4. CTAボタンのデザイン
+## パターンカタログ（「こういう場面ではこう」）
 
-### プライマリCTA（「ワークアウトを開始」「種目を追加して始める」等）
-```swift
-高さ: 52pt
-角丸: 14pt
-背景: .mmAccentPrimary (#00FFB3)
-テキスト: .system(size: 17, weight: .heavy), Color.black
-フルwidth（パディング horizontal: 16pt で制御）
+### ホーム画面
 ```
+[TodayActionCard] — 「今日: 部位名」+ Day切替 + 種目GIF + CTA
+[RecoveryStatusSection] — マップ前後 + ステータスチップ
+[StatsRow] — セッション / ボリューム / PRs
+[QuickAccessRow] — Strength Map / 履歴
+```
+TodayActionCardが最も目立つ。CTAが画面上部にある。マップはその下で補助的な役割。
 
-### セカンダリCTA（「トレーニングをシェア」「体の記録を撮る」等）
-```swift
-高さ: 48pt
-角丸: 12pt
-背景: .mmBgSecondary (#1E1E1E)
-ボーダー: .mmAccentPrimary.opacity(0.2), 1pt（シェア系のみ）
-テキスト: .system(size: 15, weight: .bold), .mmTextPrimary
+### セット入力
 ```
+[種目名 + GIF（上部）]
+[前回の記録（参照、控えめ）]
+[重量入力（最も大きい数値）]
+[クイック重量ボタン]
+[レップ入力 + レップピル]
+[セット記録CTA]
+```
+重量の数値が最も視覚的に支配的。他の要素は重量入力を邪魔しない。
 
-### テキストボタン（「詳細 →」「閉じる」等）
-```swift
-テキスト: .caption or .body, .mmAccentSecondary or .mmTextSecondary
-パディング: 8pt
+### ワークアウト完了
 ```
+[チェックマーク + タイトル]
+[ボリューム（巨大な数値）]
+[スタッツカード3枚]
+[筋肉マップハイライト]
+[PR祝福（ある場合）]
+[シェアCTA + 体の記録CTA]
+[次回おすすめ]
+```
+ボリューム数値が最も大きい。PR祝福はゴールドで目立たせる。
+
+### 種目辞典
+```
+[検索バー]
+[フィルターチップ（部位 + 器具）]
+[お気に入り行（横スクロール）]
+[2列グリッド（GIF大きめ）]
+```
+GIFが主役。テキストは最小限。
 
 ---
 
-## 5. セット入力画面のルール
+## よくある失敗と対策
 
-### 重量表示
-```swift
-数値: .system(size: 56, weight: .heavy, design: .rounded), .mmTextPrimary
-単位(kg): .system(size: 16), .mmTextSecondary
-+/-ボタン: 48pt四角, .mmBgCard背景, SF Symbol "minus"/"plus"
-```
+### 失敗1: マップの固定高さを遵守して余白が生まれる
+対策: マップの高さはコンテンツ量に応じて調整する。「160ptルール」ではなく「このスペースにマップ+チップが収まるように」で考える
 
-### クイック重量ボタン
-```swift
-高さ: 36pt
-角丸: 18pt（ピル型）
-背景（非選択）: .mmBgCard
-背景（選択）: .mmAccentPrimary.opacity(0.2)
-テキスト: .system(size: 14, weight: .semibold)
-ボーダー（選択）: .mmAccentPrimary, 1pt
-最大3個、HStack(spacing: 8)
-```
+### 失敗2: GIFカードが小さすぎて何の種目かわからない
+対策: GIFカードのサイズは「種目が識別できる」が最低ライン。識別できなければ大きくする
 
-### レップピル
-```swift
-高さ: 32pt
-幅: 44pt
-角丸: 16pt（ピル型）
-背景（非選択）: .mmBgCard
-背景（選択）: .mmAccentPrimary
-テキスト色（選択）: Color.black
-テキスト: .system(size: 14, weight: .bold)
-HStack(spacing: 6), 表示する値: [5, 8, 10, 12, 15]
-```
+### 失敗3: 情報を詰め込みすぎてごちゃつく
+対策: 1つのビューに5つ以上の異なるUI要素タイプ（テキスト、ボタン、バッジ、GIF、マップ…）が混在してたら多すぎ。グルーピングするか分割する
 
-### 前回の記録参照
-```swift
-ヘッダー: "前回の記録" .caption.bold(), .mmTextSecondary
-各セット: "セット1: 80.0kg × 10" .caption, .mmTextSecondary.opacity(0.6)
-背景: なし（セパレータ line 0.5pt .mmBgCard で区切り）
-位置: 入力エリアの上
-```
+### 失敗4: 前回の記録参照やプログレッシブオーバーロードの提案が目立ちすぎる
+対策: 補助情報は控えめに。mmTextSecondary色で、メインの入力要素より明確に小さくする。緑バッジの「挑戦？」は情報過多の原因になりやすい
 
-### セット記録ボタン
-```swift
-高さ: 52pt
-角丸: 14pt
-背景: .mmAccentPrimary
-テキスト: .system(size: 17, weight: .heavy), Color.black
-タップ時: scale(0.95) → 1.0 spring animation + haptic medium
-```
+### 失敗5: 全てのカードが同じ見た目で視覚的階層がない
+対策: 最重要カード（TodayActionCard等）だけにグラデーション背景+ボーダーを使う。他は.mmBgSecondaryの単色。全部光ってたら何も目立たない
+
+### 失敗6: 「デカくなりたい → 背中の厚みが増した」のような生テキスト
+対策: オンボーディングの入力をそのまま見せるな。抽象化した表現にする（「充実のセッション」「自己ベスト更新」等）
 
 ---
 
-## 6. ワークアウト完了画面のルール
+## セルフレビューチェックリスト
 
-### ヒーローセクション
-```swift
-チェックマーク: 80pt, .mmAccentPrimary, spring scale animation
-タイトル "ワークアウト完了！": .title.bold(), .mmTextPrimary
-サブテキスト（モチベーション）: .body, .mmTextSecondary
-```
-
-### ボリューム表示
-```swift
-数値: .system(size: 48, weight: .heavy), .mmAccentPrimary
-単位 "kg": .system(size: 18), .mmTextSecondary
-フォーマット: カンマ区切り（NumberFormatter.decimal）
-```
-
-### スタッツカード（種目数 / セット数 / 時間）
-```swift
-HStack(spacing: 8), 各カード均等幅
-背景: .mmBgCard
-角丸: 12pt
-数値: .system(size: 24, weight: .heavy)
-ラベル: .caption, .mmTextSecondary
-アイコン: 16pt, .mmAccentPrimary
-```
-
-### PR祝福セクション
-```swift
-ヘッダー背景: LinearGradient(colors: [#FFD700, #FFA500])
-角丸: 12pt
-テキスト "NEW PR!": .system(size: 14, weight: .heavy), Color.black
-各PRアイテム:
-  種目名: .body.bold(), .mmTextPrimary
-  "前回 → 今回": .caption, .mmTextSecondary
-  増加率バッジ: 背景 .green.opacity(0.15), テキスト .green, 角丸 8pt
-```
-
----
-
-## 7. ペイウォールのルール
-
-### ヘッダー
-```swift
-タイトル: .title2.bold(), .mmTextPrimary
-サブタイトル: .body, .mmAccentPrimary
-目標テキスト: .caption, .mmTextSecondary
-目標の表示: "あなたの目標に最適化" — オンボーディング目標をそのまま表示するのはNG
-```
-
-### GIFカルーセル
-```swift
-1段のみ（2段にしない — 情報過多になる）
-カード幅: 160pt
-GIF高さ: 120pt
-角丸: 12pt
-横スクロール、showsIndicators: false
-```
-
-### 比較テーブル
-```swift
-背景: .mmBgCard
-角丸: 16pt
-パディング: 16pt
-ヘッダー行: "機能" / "無料" / "Pro"
-Pro列: .mmAccentPrimary色
-チェック: SF Symbol "checkmark" .mmAccentPrimary
-クロス: SF Symbol "xmark" .mmTextSecondary.opacity(0.3)
-制限値: .mmWarning色 ("週2回" 等)
-```
-
-### 価格ボタン
-```swift
-プライマリ（月額）:
-  高さ: 56pt, 角丸: 16pt
-  背景: .mmAccentPrimary
-  テキスト: .system(size: 18, weight: .heavy), Color.black
-
-セカンダリ（年額）:
-  高さ: 52pt, 角丸: 16pt
-  背景: .mmBgCard
-  ボーダー: .mmAccentPrimary.opacity(0.3), 1pt
-  テキスト: .system(size: 16, weight: .bold), .mmTextPrimary
-  割引バッジ: 背景 .mmAccentPrimary, テキスト Color.black, 角丸 8pt
-```
-
----
-
-## 8. 情報密度のルール
-
-### 画面の情報量制限
-- ファーストビュー（スクロールなしで見える範囲）に**最大3つのセクション**
-- 各セクションのコントラスト: 背景色を変える or 明確なセパレータを入れる
-- テキストだけのセクションは禁止。必ずビジュアル要素（マップ、GIF、アイコン、バッジ）を含める
-
-### 余白のルール
-- セクション間: 12pt（コンパクト）or 16pt（標準）
-- カード内パディング: 12-16pt
-- 画面端からのパディング: 16pt（.padding(.horizontal)）
-- **余白が目立つ場合**: コンテンツを大きくするか、セクションを追加する。余白で埋めない
-
-### テキストの切れ対策
-- 種目名は必ず .lineLimit(1) + テキストが長い場合は括弧以降を省略
-- 種目名の表示優先: メイン名称 > 括弧内の補足
-- 例: "バーベルベンチプレス" ○ / "バーベルベンチプレス（インクライン）" → "バーベルベンチプレス（イン…" ×
-  → 代わりに "インクラインベンチプレス" と表示名自体を短くする
-
----
-
-## 9. アニメーションのルール
-
-### 許可するアニメーション
-```swift
-// 画面遷移
-.transition(.opacity.combined(with: .scale(scale: 0.95)))
-
-// ボタンタップ
-.scaleEffect(isPressed ? 0.95 : 1.0)
-.animation(.spring(response: 0.3, dampingFraction: 0.6), value: isPressed)
-
-// カードの出現（リストアイテム）
-.transition(.asymmetric(
-    insertion: .move(edge: .trailing).combined(with: .opacity),
-    removal: .opacity
-))
-
-// 数値変化
-.contentTransition(.numericText())
-
-// PR祝福のconfetti
-// 30粒、2秒、ランダムカラー（mmAccentPrimary, mmPRGold, mmAccentSecondary）
-```
-
-### 禁止するアニメーション
-- 3秒以上のアニメーション（confetti除く）
-- 常時ループするアニメーション（ユーザーの注意を散らす）
-- バウンスが3回以上のspring
-- 回転アニメーション
-
----
-
-## 10. セルフレビューチェックリスト
-
-CCが実装完了後、pushする前に必ず確認すること:
+実装完了後、pushする前に必ず**シミュレーターのスクショを撮って**確認:
 
 ```
-□ GIFカードはパターンA or Bに従っているか
-□ 筋肉マップのサイズは上記テーブルに従っているか
-□ CTAボタンは52pt高 + 14pt角丸 + mmAccentPrimary背景か
-□ 数値の強調（2倍以上のフォントサイズ）が適用されているか
-□ セクション間の余白は12-16ptか
-□ テキストが切れていないか（.lineLimit + 短縮表示）
-□ ダークモードで全テキストが読めるか（白背景GIFの上に白テキストを置いていないか）
-□ ファーストビューに3つ以上のセクションが詰まっていないか
+□ 不自然な大きい余白がないか（原則1）
+□ 最も重要な情報が最も大きく表示されているか（原則2）
+□ GIFが「何の種目か」わかるサイズか（原則3）
+□ 画面の80%以上をコンテンツが使っているか（原則4）
+□ 同じUIコンポーネントが全画面で統一されているか（原則5）
+□ テキストが切れていないか
+□ ダークモードで全テキストが読めるか
+□ ごちゃついていないか（要素タイプ5つ以上は多い）
 □ 200行を超えるViewはないか
 □ L10n（isJapanese パターン）が全テキストに適用されているか
 ```
+
+**チェックリストをパスしたら、スクショをユーザーに共有して承認を得ること。**
