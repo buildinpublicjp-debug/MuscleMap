@@ -484,9 +484,10 @@ private struct RoutineEditExercisePickerSheet: View {
                 .padding(.horizontal, 16)
                 .padding(.top, 8)
 
-                // 種目リスト
+                // 種目グリッド
                 ScrollView(.vertical, showsIndicators: false) {
-                    LazyVStack(spacing: 8) {
+                    let gridColumns = Array(repeating: GridItem(.flexible(), spacing: 10), count: 2)
+                    LazyVGrid(columns: gridColumns, spacing: 10) {
                         ForEach(filteredExercises) { exercise in
                             let isAdded = addedIds.contains(exercise.id)
                             Button {
@@ -494,49 +495,51 @@ private struct RoutineEditExercisePickerSheet: View {
                                 onAdd(exercise)
                                 dismiss()
                             } label: {
-                                HStack(spacing: 12) {
-                                    // GIFサムネイル
-                                    if ExerciseGifView.hasGif(exerciseId: exercise.id) {
-                                        ExerciseGifView(exerciseId: exercise.id, size: .thumbnail)
-                                            .frame(width: 40, height: 40)
-                                            .clipShape(RoundedRectangle(cornerRadius: 8))
-                                    } else {
-                                        ZStack {
-                                            RoundedRectangle(cornerRadius: 8)
-                                                .fill(Color.mmBgSecondary)
-                                                .frame(width: 40, height: 40)
-                                            Image(systemName: "dumbbell.fill")
-                                                .font(.system(size: 16))
-                                                .foregroundStyle(Color.mmTextSecondary.opacity(0.4))
+                                VStack(spacing: 0) {
+                                    ZStack(alignment: .topTrailing) {
+                                        if ExerciseGifView.hasGif(exerciseId: exercise.id) {
+                                            ExerciseGifView(exerciseId: exercise.id, size: .gridCard)
+                                                .frame(height: 130)
+                                                .frame(maxWidth: .infinity)
+                                                .clipped()
+                                        } else {
+                                            ZStack {
+                                                Color.mmBgSecondary
+                                                Image(systemName: "dumbbell.fill")
+                                                    .font(.system(size: 28))
+                                                    .foregroundStyle(Color.mmTextSecondary.opacity(0.4))
+                                            }
+                                            .frame(height: 130)
+                                        }
+
+                                        if isAdded {
+                                            Image(systemName: "checkmark.circle.fill")
+                                                .font(.system(size: 22))
+                                                .foregroundStyle(Color.mmAccentPrimary.opacity(0.6))
+                                                .padding(6)
+                                        } else {
+                                            Image(systemName: "plus.circle.fill")
+                                                .font(.system(size: 22))
+                                                .foregroundStyle(Color.mmAccentPrimary)
+                                                .padding(6)
                                         }
                                     }
 
-                                    VStack(alignment: .leading, spacing: 2) {
+                                    VStack(spacing: 2) {
                                         Text(exercise.localizedName)
-                                            .font(.system(size: 16, weight: .medium))
+                                            .font(.system(size: 12, weight: .bold))
                                             .foregroundStyle(Color.mmTextPrimary)
                                             .lineLimit(1)
-
-                                        Text(exercise.equipment)
-                                            .font(.caption)
+                                        Text(exercise.localizedEquipment)
+                                            .font(.system(size: 10))
                                             .foregroundStyle(Color.mmTextSecondary)
                                     }
-
-                                    Spacer()
-
-                                    if isAdded {
-                                        Text(L10n.routineAlreadyAdded)
-                                            .font(.caption)
-                                            .foregroundStyle(Color.mmTextSecondary)
-                                    } else {
-                                        Image(systemName: "plus.circle.fill")
-                                            .font(.system(size: 22))
-                                            .foregroundStyle(Color.mmAccentPrimary)
-                                    }
+                                    .padding(.vertical, 6)
+                                    .frame(maxWidth: .infinity)
+                                    .background(Color.mmBgCard)
                                 }
-                                .padding(12)
-                                .background(isAdded ? Color.mmBgCard.opacity(0.5) : Color.mmBgCard)
                                 .clipShape(RoundedRectangle(cornerRadius: 12))
+                                .opacity(isAdded ? 0.5 : 1.0)
                             }
                             .buttonStyle(.plain)
                             .disabled(isAdded)

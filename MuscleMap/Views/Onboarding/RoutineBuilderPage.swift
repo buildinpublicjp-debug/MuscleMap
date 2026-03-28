@@ -358,8 +358,7 @@ struct RoutineBuilderPage: View {
                 } label: {
                     ZStack(alignment: .bottom) {
                         if ExerciseGifView.hasGif(exerciseId: routineExercise.exerciseId) {
-                            ExerciseGifView(exerciseId: routineExercise.exerciseId, size: .card)
-                                .scaledToFill()
+                            ExerciseGifView(exerciseId: routineExercise.exerciseId, size: .gridCard)
                                 .frame(height: cardHeight)
                                 .clipped()
                         } else {
@@ -805,63 +804,62 @@ struct RoutineExercisePickerSheet: View {
                 .padding(.top, 8)
 
                 ScrollView(.vertical, showsIndicators: false) {
-                    LazyVStack(spacing: 8) {
+                    let gridColumns = Array(repeating: GridItem(.flexible(), spacing: 10), count: 2)
+                    LazyVGrid(columns: gridColumns, spacing: 10) {
                         ForEach(filteredExercises) { exercise in
                             let isAdded = currentExerciseIds.contains(exercise.id)
                             Button {
                                 guard !isAdded else { return }
                                 onAdd(exercise)
                             } label: {
-                                HStack(spacing: 12) {
-                                    if ExerciseGifView.hasGif(exerciseId: exercise.id) {
-                                        ExerciseGifView(exerciseId: exercise.id, size: .thumbnail)
-                                            .frame(width: 40, height: 40)
-                                            .clipShape(RoundedRectangle(cornerRadius: 8))
-                                    } else {
-                                        ZStack {
-                                            RoundedRectangle(cornerRadius: 8)
-                                                .fill(Color.mmOnboardingBg)
-                                                .frame(width: 40, height: 40)
-                                            Image(systemName: "dumbbell.fill")
-                                                .font(.system(size: 16))
-                                                .foregroundStyle(Color.mmOnboardingTextSub.opacity(0.4))
+                                VStack(spacing: 0) {
+                                    ZStack(alignment: .topTrailing) {
+                                        if ExerciseGifView.hasGif(exerciseId: exercise.id) {
+                                            ExerciseGifView(exerciseId: exercise.id, size: .gridCard)
+                                                .frame(height: 130)
+                                                .frame(maxWidth: .infinity)
+                                                .clipped()
+                                        } else {
+                                            ZStack {
+                                                Color.mmOnboardingBg
+                                                Image(systemName: "dumbbell.fill")
+                                                    .font(.system(size: 28))
+                                                    .foregroundStyle(Color.mmOnboardingTextSub.opacity(0.4))
+                                            }
+                                            .frame(height: 130)
+                                        }
+
+                                        if isAdded {
+                                            Image(systemName: "checkmark.circle.fill")
+                                                .font(.system(size: 22))
+                                                .foregroundStyle(Color.mmOnboardingAccent.opacity(0.6))
+                                                .padding(6)
+                                        } else {
+                                            Image(systemName: "plus.circle.fill")
+                                                .font(.system(size: 22))
+                                                .foregroundStyle(Color.mmOnboardingAccent)
+                                                .padding(6)
                                         }
                                     }
 
-                                    VStack(alignment: .leading, spacing: 2) {
+                                    VStack(spacing: 2) {
                                         Text(exercise.localizedName)
-                                            .font(.system(size: 16, weight: .medium))
-                                            .foregroundStyle(isAdded ? Color.mmOnboardingTextSub : Color.mmOnboardingTextMain)
+                                            .font(.system(size: 12, weight: .bold))
+                                            .foregroundStyle(Color.mmOnboardingTextMain)
                                             .lineLimit(1)
-
                                         Text(exercise.localizedEquipment)
-                                            .font(.caption)
+                                            .font(.system(size: 10))
                                             .foregroundStyle(Color.mmOnboardingTextSub)
                                     }
-
-                                    Spacer()
-
-                                    if isAdded {
-                                        HStack(spacing: 4) {
-                                            Image(systemName: "checkmark.circle.fill")
-                                                .font(.system(size: 14))
-                                            Text(L10n.addedLabel)
-                                                .font(.caption.bold())
-                                        }
-                                        .foregroundStyle(Color.mmOnboardingAccent.opacity(0.6))
-                                    } else {
-                                        Image(systemName: "plus.circle.fill")
-                                            .font(.system(size: 22))
-                                            .foregroundStyle(Color.mmOnboardingAccent)
-                                    }
+                                    .padding(.vertical, 6)
+                                    .frame(maxWidth: .infinity)
+                                    .background(Color.mmOnboardingCard)
                                 }
-                                .padding(12)
-                                .background(isAdded ? Color.mmOnboardingCard.opacity(0.5) : Color.mmOnboardingCard)
                                 .clipShape(RoundedRectangle(cornerRadius: 12))
+                                .opacity(isAdded ? 0.5 : 1.0)
                             }
                             .buttonStyle(.plain)
                             .disabled(isAdded)
-                            .animation(.easeInOut(duration: 0.2), value: isAdded)
                         }
                     }
                     .padding(.horizontal, 16)
