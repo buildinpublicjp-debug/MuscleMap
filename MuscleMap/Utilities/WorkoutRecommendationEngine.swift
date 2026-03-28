@@ -26,7 +26,8 @@ struct RecommendedExercise: Identifiable {
 
 /// 分割法の1パート（例: "Push" → 胸・肩前部・三頭）
 struct SplitPart {
-    let name: String
+    let name: String        // 日本語名（既存コードとの互換性維持）
+    let nameEN: String      // 英語名
     let muscleGroups: [MuscleGroup]
     /// 日本語の説明（例: 「押す動作の筋肉をまとめて効率UP」）
     let descriptionJA: String
@@ -34,6 +35,10 @@ struct SplitPart {
     let descriptionEN: String
     /// 難易度: "beginner" / "intermediate" / "advanced"
     let difficulty: String
+
+    @MainActor var localizedName: String {
+        LocalizationManager.shared.currentLanguage == .japanese ? name : nameEN
+    }
 
     @MainActor var localizedDescription: String {
         LocalizationManager.shared.currentLanguage == .japanese ? descriptionJA : descriptionEN
@@ -212,6 +217,7 @@ struct WorkoutRecommendationEngine {
             return [
                 SplitPart(
                     name: "上半身",
+                    nameEN: "Upper Body",
                     muscleGroups: [.chest, .back, .shoulders, .arms],
                     descriptionJA: "胸・背中・肩・腕をまとめて鍛える",
                     descriptionEN: "Train chest, back, shoulders & arms together",
@@ -219,6 +225,7 @@ struct WorkoutRecommendationEngine {
                 ),
                 SplitPart(
                     name: "下半身",
+                    nameEN: "Lower Body",
                     muscleGroups: [.lowerBody, .core],
                     descriptionJA: "脚と体幹を集中的に鍛える",
                     descriptionEN: "Focus on legs and core",
@@ -230,6 +237,7 @@ struct WorkoutRecommendationEngine {
             return [
                 SplitPart(
                     name: "Push",
+                    nameEN: "Push",
                     muscleGroups: [.chest, .shoulders],
                     descriptionJA: "押す動作の筋肉をまとめて効率UP",
                     descriptionEN: "Push muscles grouped for efficiency",
@@ -237,6 +245,7 @@ struct WorkoutRecommendationEngine {
                 ),
                 SplitPart(
                     name: "Pull",
+                    nameEN: "Pull",
                     muscleGroups: [.back, .arms],
                     descriptionJA: "引く動作の筋肉を集中トレーニング",
                     descriptionEN: "Pull muscles trained in one session",
@@ -244,6 +253,7 @@ struct WorkoutRecommendationEngine {
                 ),
                 SplitPart(
                     name: "Legs",
+                    nameEN: "Legs",
                     muscleGroups: [.lowerBody, .core],
                     descriptionJA: "下半身と体幹で土台を作る",
                     descriptionEN: "Build your foundation with legs & core",
@@ -255,6 +265,7 @@ struct WorkoutRecommendationEngine {
             return [
                 SplitPart(
                     name: "胸・肩・三頭",
+                    nameEN: "Chest · Shoulders · Triceps",
                     muscleGroups: [.chest, .shoulders],
                     descriptionJA: "ベンチプレス系で胸と肩を追い込む",
                     descriptionEN: "Chest & shoulders with pressing movements",
@@ -262,6 +273,7 @@ struct WorkoutRecommendationEngine {
                 ),
                 SplitPart(
                     name: "背中・二頭",
+                    nameEN: "Back · Biceps",
                     muscleGroups: [.back, .arms],
                     descriptionJA: "ロウ・プル系で背中と二頭を連動",
                     descriptionEN: "Back & biceps with rowing & pulling",
@@ -269,6 +281,7 @@ struct WorkoutRecommendationEngine {
                 ),
                 SplitPart(
                     name: "脚",
+                    nameEN: "Legs",
                     muscleGroups: [.lowerBody, .core],
                     descriptionJA: "スクワット中心で脚全体を強化",
                     descriptionEN: "Squat-focused leg development",
@@ -276,6 +289,7 @@ struct WorkoutRecommendationEngine {
                 ),
                 SplitPart(
                     name: "肩・腕",
+                    nameEN: "Shoulders · Arms",
                     muscleGroups: [.shoulders, .arms],
                     descriptionJA: "肩と腕のアイソレーション重視",
                     descriptionEN: "Isolation work for shoulders & arms",
@@ -287,6 +301,7 @@ struct WorkoutRecommendationEngine {
             return [
                 SplitPart(
                     name: "胸",
+                    nameEN: "Chest",
                     muscleGroups: [.chest],
                     descriptionJA: "胸だけに集中して徹底的に追い込む",
                     descriptionEN: "Dedicated chest session for maximum volume",
@@ -294,6 +309,7 @@ struct WorkoutRecommendationEngine {
                 ),
                 SplitPart(
                     name: "背中",
+                    nameEN: "Back",
                     muscleGroups: [.back],
                     descriptionJA: "広背筋・僧帽筋をフル刺激",
                     descriptionEN: "Full stimulation for lats & traps",
@@ -301,6 +317,7 @@ struct WorkoutRecommendationEngine {
                 ),
                 SplitPart(
                     name: "脚",
+                    nameEN: "Legs",
                     muscleGroups: [.lowerBody, .core],
                     descriptionJA: "脚と体幹を高ボリュームで鍛える",
                     descriptionEN: "High-volume legs & core training",
@@ -308,6 +325,7 @@ struct WorkoutRecommendationEngine {
                 ),
                 SplitPart(
                     name: "肩",
+                    nameEN: "Shoulders",
                     muscleGroups: [.shoulders],
                     descriptionJA: "三角筋の前部・側部・後部を個別攻略",
                     descriptionEN: "Target all three deltoid heads",
@@ -315,6 +333,7 @@ struct WorkoutRecommendationEngine {
                 ),
                 SplitPart(
                     name: "腕",
+                    nameEN: "Arms",
                     muscleGroups: [.arms],
                     descriptionJA: "二頭・三頭・前腕をバランスよく強化",
                     descriptionEN: "Balanced biceps, triceps & forearms",
@@ -367,6 +386,7 @@ struct WorkoutRecommendationEngine {
             let isJa = LocalizationManager.shared.currentLanguage == .japanese
             return SplitPart(
                 name: isJa ? "\(leastGroup.japaneseName)強化" : "\(leastGroup.englishName) Focus",
+                nameEN: "\(leastGroup.englishName) Focus",
                 muscleGroups: [leastGroup],
                 descriptionJA: "\(leastGroup.japaneseName)のボリュームを増やして弱点克服",
                 descriptionEN: "Extra volume for \(leastGroup.englishName.lowercased()) to address weak point",
@@ -380,9 +400,11 @@ struct WorkoutRecommendationEngine {
         let name = isJa
             ? sortedUncovered.map { $0.japaneseName }.joined(separator: "・")
             : sortedUncovered.map { $0.englishName }.joined(separator: " & ")
+        let nameEN = sortedUncovered.map { $0.englishName }.joined(separator: " & ")
 
         return SplitPart(
             name: name,
+            nameEN: nameEN,
             muscleGroups: sortedUncovered,
             descriptionJA: "カバーされていない部位を補完する追加Day",
             descriptionEN: "Additional day to cover untrained muscle groups",
@@ -393,33 +415,35 @@ struct WorkoutRecommendationEngine {
     // MARK: - 分割法の曜日×部位テキスト（オンボーディング表示用）
 
     /// 頻度に応じた曜日と部位の組み合わせを返す
+    @MainActor
     static func splitDescription(for frequency: Int) -> [(day: String, part: String)] {
+        let isJa = LocalizationManager.shared.currentLanguage == .japanese
         switch frequency {
         case 2:
             return [
-                ("月", "上半身（胸・肩・腕）"),
-                ("木", "下半身（脚・体幹）"),
+                (isJa ? "月" : "Mon", isJa ? "上半身（胸・肩・腕）" : "Upper Body (Chest, Shoulders, Arms)"),
+                (isJa ? "木" : "Thu", isJa ? "下半身（脚・体幹）" : "Lower Body (Legs, Core)"),
             ]
         case 3:
             return [
-                ("月", "プッシュ（胸・肩・三頭）"),
-                ("水", "プル（背中・二頭）"),
-                ("金", "脚（脚・体幹）"),
+                (isJa ? "月" : "Mon", isJa ? "プッシュ（胸・肩・三頭）" : "Push (Chest, Shoulders, Triceps)"),
+                (isJa ? "水" : "Wed", isJa ? "プル（背中・二頭）" : "Pull (Back, Biceps)"),
+                (isJa ? "金" : "Fri", isJa ? "脚（脚・体幹）" : "Legs (Legs, Core)"),
             ]
         case 4:
             return [
-                ("月", "胸・肩・三頭"),
-                ("火", "背中・二頭"),
-                ("木", "脚"),
-                ("金", "肩・腕"),
+                (isJa ? "月" : "Mon", isJa ? "胸・肩・三頭" : "Chest · Shoulders · Triceps"),
+                (isJa ? "火" : "Tue", isJa ? "背中・二頭" : "Back · Biceps"),
+                (isJa ? "木" : "Thu", isJa ? "脚" : "Legs"),
+                (isJa ? "金" : "Fri", isJa ? "肩・腕" : "Shoulders · Arms"),
             ]
         default:
             return [
-                ("月", "胸"),
-                ("火", "背中"),
-                ("水", "脚"),
-                ("木", "肩"),
-                ("金", "腕"),
+                (isJa ? "月" : "Mon", isJa ? "胸" : "Chest"),
+                (isJa ? "火" : "Tue", isJa ? "背中" : "Back"),
+                (isJa ? "水" : "Wed", isJa ? "脚" : "Legs"),
+                (isJa ? "木" : "Thu", isJa ? "肩" : "Shoulders"),
+                (isJa ? "金" : "Fri", isJa ? "腕" : "Arms"),
             ]
         }
     }
