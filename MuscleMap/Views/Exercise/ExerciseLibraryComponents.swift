@@ -23,37 +23,39 @@ struct LibraryFavoritesRow: View {
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 10) {
                         ForEach(favoriteExercises) { exercise in
+                            let name = localization.currentLanguage == .japanese ? exercise.nameJA : exercise.nameEN
                             Button {
                                 HapticManager.lightTap()
                                 onSelect(exercise)
                             } label: {
-                                VStack(spacing: 0) {
-                                    // GIFサムネイル（100x70pt）
-                                    ZStack {
-                                        Color.mmBgCard
-                                        if ExerciseGifView.hasGif(exerciseId: exercise.id) {
-                                            ExerciseGifView(exerciseId: exercise.id, size: .thumbnail)
-                                                .scaledToFill()
-                                                .frame(width: 100, height: 70)
-                                                .clipped()
-                                        } else {
-                                            Image(systemName: "dumbbell.fill")
-                                                .font(.system(size: 18))
-                                                .foregroundStyle(Color.mmTextSecondary.opacity(0.4))
-                                        }
+                                ZStack(alignment: .bottomLeading) {
+                                    // GIF（元の比率のまま）
+                                    if ExerciseGifView.hasGif(exerciseId: exercise.id) {
+                                        ExerciseGifView(exerciseId: exercise.id, size: .thumbnail)
+                                            .aspectRatio(contentMode: .fit)
+                                    } else {
+                                        Image(systemName: "dumbbell.fill")
+                                            .font(.system(size: 18))
+                                            .foregroundStyle(Color.mmTextSecondary.opacity(0.4))
+                                            .frame(maxWidth: .infinity, maxHeight: .infinity)
                                     }
-                                    .frame(width: 100, height: 70)
 
-                                    // 種目名
-                                    Text(localization.currentLanguage == .japanese ? exercise.nameJA : exercise.nameEN)
+                                    // 下部グラデーション
+                                    LinearGradient(
+                                        colors: [.clear, .black.opacity(0.8)],
+                                        startPoint: .center,
+                                        endPoint: .bottom
+                                    )
+
+                                    // テキスト
+                                    Text(name)
                                         .font(.system(size: 10, weight: .bold))
-                                        .foregroundStyle(Color.mmTextPrimary)
+                                        .foregroundStyle(.white)
                                         .lineLimit(1)
-                                        .frame(width: 96)
-                                        .padding(.vertical, 6)
+                                        .padding(6)
                                 }
-                                .frame(width: 100)
-                                .background(Color.mmBgSecondary)
+                                .frame(width: 110, height: 80)
+                                .background(Color.mmBgCard)
                                 .clipShape(RoundedRectangle(cornerRadius: 10))
                             }
                         }
@@ -108,58 +110,69 @@ private struct LibraryGridCard: View {
     }
 
     var body: some View {
+        let name = localization.currentLanguage == .japanese ? exercise.nameJA : exercise.nameEN
+        let muscleName: String? = {
+            guard let m = primaryMuscle else { return nil }
+            return localization.currentLanguage == .japanese ? m.japaneseName : m.englishName
+        }()
+
         Button(action: onTap) {
-            VStack(alignment: .leading, spacing: 0) {
-                // GIF or ミニマップ（上部120px、全体表示）
-                ZStack(alignment: .topTrailing) {
+            ZStack(alignment: .topTrailing) {
+                ZStack(alignment: .bottomLeading) {
+                    // GIF or ミニマップ（元の比率のまま）
                     if ExerciseGifView.hasGif(exerciseId: exercise.id) {
                         ExerciseGifView(exerciseId: exercise.id, size: .previewCard)
-                            .scaledToFit()
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 120)
-                            .background(Color.mmBgPrimary.opacity(0.5))
+                            .aspectRatio(contentMode: .fit)
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
                     } else {
                         MiniMuscleMapView(muscleMapping: exercise.muscleMapping)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 120)
-                            .background(Color.mmBgPrimary.opacity(0.5))
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
                     }
 
-                    // お気に入りハートアイコン
-                    Button {
-                        HapticManager.lightTap()
-                        favorites.toggle(exercise.id)
-                    } label: {
-                        Image(systemName: favorites.isFavorite(exercise.id) ? "heart.fill" : "heart")
-                            .font(.caption)
-                            .foregroundStyle(favorites.isFavorite(exercise.id) ? Color.mmDestructive : Color.mmTextSecondary)
-                            .padding(6)
-                            .background(Color.mmBgPrimary.opacity(0.7))
-                            .clipShape(Circle())
-                    }
-                    .padding(6)
-                }
+                    // 下部グラデーションオーバーレイ
+                    LinearGradient(
+                        colors: [.clear, .black.opacity(0.85)],
+                        startPoint: .center,
+                        endPoint: .bottom
+                    )
 
-                // 種目情報（2行: 種目名 + 筋肉バッジ）
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(localization.currentLanguage == .japanese ? exercise.nameJA : exercise.nameEN)
-                        .font(.caption.bold())
-                        .foregroundStyle(Color.mmTextPrimary)
-                        .lineLimit(2)
+                    // テキスト（グラデーションの上）
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(name)
+                            .font(.caption.bold())
+                            .foregroundStyle(.white)
+                            .lineLimit(1)
 
-                    HStack(spacing: 4) {
-                        if let muscle = primaryMuscle {
-                            LibraryPrimaryMuscleTag(
-                                muscleName: localization.currentLanguage == .japanese
-                                    ? muscle.japaneseName
-                                    : muscle.englishName
-                            )
+                        if let muscleName {
+                            HStack(spacing: 3) {
+                                Circle()
+                                    .fill(Color.mmAccentPrimary)
+                                    .frame(width: 5, height: 5)
+                                Text(muscleName)
+                                    .font(.caption2.bold())
+                                    .foregroundStyle(Color.mmAccentPrimary)
+                            }
                         }
                     }
+                    .padding(8)
                 }
-                .padding(8)
+
+                // お気に入りハートアイコン
+                Button {
+                    HapticManager.lightTap()
+                    favorites.toggle(exercise.id)
+                } label: {
+                    Image(systemName: favorites.isFavorite(exercise.id) ? "heart.fill" : "heart")
+                        .font(.caption)
+                        .foregroundStyle(favorites.isFavorite(exercise.id) ? Color.mmDestructive : Color.mmTextSecondary)
+                        .padding(6)
+                        .background(Color.mmBgPrimary.opacity(0.7))
+                        .clipShape(Circle())
+                }
+                .padding(6)
             }
-            .background(Color.mmBgSecondary)
+            .aspectRatio(0.85, contentMode: .fill)
+            .background(Color.mmBgCard)
             .clipShape(RoundedRectangle(cornerRadius: 12))
         }
         .buttonStyle(.plain)

@@ -152,37 +152,41 @@ struct TodayActionCard: View {
                     }()
                     let name = shortenedName(rawName)
 
-                    VStack(spacing: 4) {
-                        // GIFサムネイル or プレースホルダー
-                        ZStack {
-                            Color.mmBgPrimary
-                            if ExerciseGifView.hasGif(exerciseId: exercise.exerciseId) {
-                                ExerciseGifView(exerciseId: exercise.exerciseId, size: .thumbnail)
-                                    .scaledToFill()
-                                    .frame(width: 110, height: 80)
-                                    .clipped()
-                            } else {
-                                Image(systemName: "dumbbell.fill")
-                                    .font(.system(size: 22))
-                                    .foregroundStyle(Color.mmTextSecondary.opacity(0.4))
-                            }
+                    ZStack(alignment: .bottomLeading) {
+                        // GIF（元の比率のまま）
+                        if ExerciseGifView.hasGif(exerciseId: exercise.exerciseId) {
+                            ExerciseGifView(exerciseId: exercise.exerciseId, size: .thumbnail)
+                                .aspectRatio(contentMode: .fit)
+                                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        } else {
+                            Image(systemName: "dumbbell.fill")
+                                .font(.system(size: 22))
+                                .foregroundStyle(Color.mmTextSecondary.opacity(0.4))
+                                .frame(maxWidth: .infinity, maxHeight: .infinity)
                         }
-                        .frame(width: 110, height: 80)
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
 
-                        // 種目名（括弧以降省略）
-                        Text(name)
-                            .font(.system(size: 10))
-                            .foregroundStyle(.white)
-                            .lineLimit(1)
-                            .frame(width: 110)
+                        // 下部グラデーション
+                        LinearGradient(
+                            colors: [.clear, .black.opacity(0.8)],
+                            startPoint: .center,
+                            endPoint: .bottom
+                        )
 
-                        // セット × レップ
-                        Text("\(exercise.suggestedSets)×\(exercise.suggestedReps)")
-                            .font(.system(size: 9))
-                            .foregroundStyle(.white.opacity(0.5))
+                        // テキスト（種目名 + セット×レップ）
+                        VStack(alignment: .leading, spacing: 1) {
+                            Text(name)
+                                .font(.system(size: 10, weight: .bold))
+                                .foregroundStyle(.white)
+                                .lineLimit(1)
+                            Text("\(exercise.suggestedSets)×\(exercise.suggestedReps)")
+                                .font(.system(size: 9))
+                                .foregroundStyle(.white.opacity(0.6))
+                        }
+                        .padding(6)
                     }
-                    .frame(width: 110)
+                    .frame(width: 110, height: 80)
+                    .background(Color.mmBgCard)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
                 }
             }
             // 右端パディングでスクロール示唆
