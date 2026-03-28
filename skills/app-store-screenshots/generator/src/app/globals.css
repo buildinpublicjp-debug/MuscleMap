@@ -1,0 +1,92 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --mm-bg: #070A07;
+  --mm-green: #00FFB3;
+  --mm-blue: #00D4FF;
+  --mm-gold: #FFD700;
+  --mm-card: #1C1C1E;
+  --mm-secondary: #2C2C2E;
+}
+
+body {
+  background: var(--mm-bg);
+  margin: 0;
+  padding: 0;
+}
+
+/* iPhone frame styles */
+.iphone-body {
+  position: relative;
+  border-radius: 68px;
+  padding: 14px;
+  background: linear-gradient(145deg, #3A3A3C 0%, #1C1C1E 50%, #2C2C2E 100%);
+  box-shadow:
+    0 60px 120px rgba(0, 0, 0, 0.8),
+    0 0 0 1px rgba(255, 255, 255, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.iphone-screen {
+  border-radius: 54px;
+  overflow: hidden;
+  background: #000;
+  position: relative;
+}
+
+.iphone-screen::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 200px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0%, transparent 100%);
+  pointer-events: none;
+  z-index: 5;
+}
+
+.dynamic-island {
+  position: absolute;
+  top: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 160px;
+  height: 38px;
+  background: #000;
+  border-radius: 19px;
+  z-index: 10;
+}
+
+/* Side buttons */
+.btn-power {
+  position: absolute;
+  top: 280px;
+  right: -3px;
+  width: 4px;
+  height: 100px;
+  background: linear-gradient(180deg, #4A4A4C, #2C2C2E, #4A4A4C);
+  border-radius: 0 2px 2px 0;
+}
+
+.btn-vol-up {
+  position: absolute;
+  top: 240px;
+  left: -3px;
+  width: 4px;
+  height: 55px;
+  background: linear-gradient(180deg, #4A4A4C, #2C2C2E, #4A4A4C);
+  border-radius: 2px 0 0 2px;
+}
+
+.btn-vol-down {
+  position: absolute;
+  top: 310px;
+  left: -3px;
+  width: 4px;
+  height: 55px;
+  background: linear-gradient(180deg, #4A4A4C, #2C2C2E, #4A4A4C);
+  border-radius: 2px 0 0 2px;
+}
