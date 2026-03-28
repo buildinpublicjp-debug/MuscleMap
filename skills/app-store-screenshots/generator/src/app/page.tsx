@@ -7,11 +7,11 @@ import { SHOTS, EXPORT_SIZES, type Lang, type ShotDef } from '@/copy';
 // ─── Constants ────────────────────────────────────────────
 const CANVAS_W = 1320;
 const CANVAS_H = 2868;
-const PHONE_W = 940; // ~71% of canvas width
-const COPY_AREA_PAD_TOP = 120;
-const COPY_AREA_PAD_X = 80;
-const COPY_DEVICE_GAP = 40;
-const BOTTOM_FADE_H = 400;
+const PHONE_W = 1060; // ~80% of canvas width (was 940/71%)
+const COPY_AREA_PAD_TOP = 72; // tighter top (was 120)
+const COPY_AREA_PAD_X = 60; // tighter sides (was 80)
+const COPY_DEVICE_GAP = 20; // tighter gap (was 40)
+const BOTTOM_FADE_H = 350; // slightly smaller (was 400)
 
 // ─── Screenshot Slide ─────────────────────────────────────
 function ScreenshotSlide({
@@ -51,7 +51,7 @@ function ScreenshotSlide({
           transform: 'translateX(-50%)',
           width: 1200,
           height: 1200,
-          background: `radial-gradient(circle, ${shot.accent}0D 0%, transparent 60%)`,
+          background: `radial-gradient(circle, ${shot.accent}14 0%, transparent 55%)`,
           pointerEvents: 'none',
         }}
       />
@@ -84,10 +84,10 @@ function ScreenshotSlide({
         {/* Headline */}
         <div
           style={{
-            fontSize: isJa ? 88 : 90,
+            fontSize: isJa ? 82 : 84,
             fontWeight: 900,
             color: '#FFFFFF',
-            lineHeight: 1.18,
+            lineHeight: 1.15,
             letterSpacing: isJa ? 2 : -1,
           }}
         >
@@ -99,10 +99,10 @@ function ScreenshotSlide({
         {/* Sub copy */}
         <div
           style={{
-            fontSize: 32,
+            fontSize: 28,
             fontWeight: 500,
             color: `${shot.accent}99`,
-            marginTop: 20,
+            marginTop: 14,
             letterSpacing: isJa ? 2 : 0.5,
           }}
         >
@@ -113,9 +113,9 @@ function ScreenshotSlide({
         <div
           style={{
             display: 'flex',
-            gap: 14,
+            gap: 12,
             justifyContent: 'center',
-            marginTop: 28,
+            marginTop: 18,
             flexWrap: 'wrap' as const,
           }}
         >
@@ -123,14 +123,14 @@ function ScreenshotSlide({
             <span
               key={i}
               style={{
-                padding: '8px 22px',
+                padding: '6px 18px',
                 background: `${shot.accent}08`,
                 border: `1.5px solid ${shot.accent}25`,
                 borderRadius: 40,
                 color: chip.desc
                   ? 'rgba(255,255,255,0.6)'
                   : `${shot.accent}CC`,
-                fontSize: 22,
+                fontSize: 20,
                 fontWeight: chip.desc ? 500 : 700,
                 letterSpacing: 1,
               }}
@@ -213,7 +213,7 @@ function ScreenshotSlide({
           left: 0,
           right: 0,
           height: BOTTOM_FADE_H,
-          background: 'linear-gradient(transparent 0%, #070A07 85%)',
+          background: 'linear-gradient(transparent 0%, #070A07 80%)',
           pointerEvents: 'none',
           zIndex: 3,
         }}
