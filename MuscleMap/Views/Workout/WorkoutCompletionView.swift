@@ -494,7 +494,8 @@ struct WorkoutCompletionView: View {
 
         // 次のパート名を取得
         let nextPart = WorkoutRecommendationEngine.todaysPart(modelContext: modelContext)
-        let partName = nextPart?.name ?? "トレーニング"
+        let isJa = LocalizationManager.shared.currentLanguage == .japanese
+        let partName = nextPart?.localizedName ?? (isJa ? "トレーニング" : "Training")
 
         NotificationManager.shared.scheduleRecoveryReminder(
             nextPartName: partName,

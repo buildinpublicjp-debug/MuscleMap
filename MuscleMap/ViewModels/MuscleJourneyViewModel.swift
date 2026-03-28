@@ -263,25 +263,26 @@ class MuscleJourneyViewModel {
     }
 
     var progressText: String {
+        let isJa = LocalizationManager.shared.currentLanguage == .japanese
         switch selectedPeriod {
         case .oneMonth:
-            return "1 MONTH OF PROGRESS"
+            return isJa ? "1ヶ月の成長" : "1 MONTH OF PROGRESS"
         case .threeMonths:
-            return "3 MONTHS OF PROGRESS"
+            return isJa ? "3ヶ月の成長" : "3 MONTHS OF PROGRESS"
         case .sixMonths:
-            return "6 MONTHS OF PROGRESS"
+            return isJa ? "6ヶ月の成長" : "6 MONTHS OF PROGRESS"
         case .oneYear:
-            return "1 YEAR OF PROGRESS"
+            return isJa ? "1年の成長" : "1 YEAR OF PROGRESS"
         case .custom:
             let days = Calendar.current.dateComponents([.day], from: comparisonDate, to: Date()).day ?? 0
             if days < 30 {
-                return "\(days) DAYS OF PROGRESS"
+                return isJa ? "\(days)日間の成長" : "\(days) DAYS OF PROGRESS"
             } else if days < 365 {
                 let months = days / 30
-                return "\(months) MONTH\(months > 1 ? "S" : "") OF PROGRESS"
+                return isJa ? "\(months)ヶ月の成長" : "\(months) MONTH\(months > 1 ? "S" : "") OF PROGRESS"
             } else {
                 let years = days / 365
-                return "\(years) YEAR\(years > 1 ? "S" : "") OF PROGRESS"
+                return isJa ? "\(years)年の成長" : "\(years) YEAR\(years > 1 ? "S" : "") OF PROGRESS"
             }
         }
     }

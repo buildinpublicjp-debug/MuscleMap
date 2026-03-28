@@ -13,6 +13,10 @@ struct RoutineEditView: View {
     /// 1日あたりの最大種目数
     private let maxExercisesPerDay = 8
 
+    private var isJapanese: Bool {
+        LocalizationManager.shared.currentLanguage == .japanese
+    }
+
     var body: some View {
         ZStack {
             Color.mmBgPrimary.ignoresSafeArea()
@@ -20,9 +24,9 @@ struct RoutineEditView: View {
             if days.isEmpty {
                 // ルーティン未設定時（通常は到達しない）
                 ContentUnavailableView(
-                    "ルーティンがありません",
+                    isJapanese ? "ルーティンがありません" : "No Routine",
                     systemImage: "list.bullet.clipboard",
-                    description: Text("オンボーディングでルーティンを作成してください")
+                    description: Text(isJapanese ? "オンボーディングでルーティンを作成してください" : "Create a routine in onboarding")
                 )
             } else {
                 VStack(spacing: 0) {
@@ -42,7 +46,7 @@ struct RoutineEditView: View {
                 }
             }
         }
-        .navigationTitle("マイルーティン")
+        .navigationTitle(isJapanese ? "マイルーティン" : "My Routine")
         .navigationBarTitleDisplayMode(.inline)
         .toolbarColorScheme(.dark, for: .navigationBar)
         .onAppear {
@@ -309,7 +313,7 @@ private struct RoutineExerciseEditSheet: View {
 
                     // セット数
                     VStack(spacing: 8) {
-                        Text("セット数")
+                        Text(LocalizationManager.shared.currentLanguage == .japanese ? "セット数" : "Sets")
                             .font(.subheadline)
                             .foregroundStyle(Color.mmTextSecondary)
                         HStack(spacing: 16) {
@@ -340,7 +344,7 @@ private struct RoutineExerciseEditSheet: View {
 
                     // レップ数
                     VStack(spacing: 8) {
-                        Text("レップ数")
+                        Text(LocalizationManager.shared.currentLanguage == .japanese ? "レップ数" : "Reps")
                             .font(.subheadline)
                             .foregroundStyle(Color.mmTextSecondary)
                         HStack(spacing: 16) {
@@ -372,7 +376,7 @@ private struct RoutineExerciseEditSheet: View {
                     Spacer()
                 }
             }
-            .navigationTitle("セット・レップ編集")
+            .navigationTitle(LocalizationManager.shared.currentLanguage == .japanese ? "セット・レップ編集" : "Edit Sets & Reps")
             .navigationBarTitleDisplayMode(.inline)
             .toolbarColorScheme(.dark, for: .navigationBar)
             .toolbar {

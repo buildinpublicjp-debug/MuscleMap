@@ -197,7 +197,7 @@ struct StrengthShareCard: View {
     private var rankingSection: some View {
         VStack(alignment: .leading, spacing: 0) {
             // セクションタイトル
-            Text("STRENGTH RANKING")
+            Text(LocalizationManager.shared.currentLanguage == .japanese ? "筋力ランキング" : "STRENGTH RANKING")
                 .font(.system(size: 10, weight: .heavy))
                 .foregroundStyle(Color.mmTextSecondary)
                 .tracking(1.5)
@@ -208,7 +208,7 @@ struct StrengthShareCard: View {
             ForEach(Array(topMuscles.prefix(3).enumerated()), id: \.offset) { index, entry in
                 rankRow(
                     medal: medals[index],
-                    name: muscleJapaneseName(entry.muscle),
+                    name: entry.muscle.localizedName,
                     score: entry.score
                 )
             }
@@ -283,7 +283,7 @@ struct StrengthShareCard: View {
                     .clipShape(Capsule())
                 }
 
-                Text("Overall Grade")
+                Text(LocalizationManager.shared.currentLanguage == .japanese ? "総合グレード" : "Overall Grade")
                     .font(.system(size: 11, weight: .regular))
                     .foregroundStyle(Color.mmTextSecondary)
             }
@@ -310,33 +310,7 @@ struct StrengthShareCard: View {
         .background(Color.mmBgPrimary)
     }
 
-    // MARK: - 筋肉名日本語マッピング（シェアカード用）
-
-    private func muscleJapaneseName(_ muscle: Muscle) -> String {
-        switch muscle {
-        case .chestUpper:       return "大胸筋（上部）"
-        case .chestLower:       return "大胸筋（下部）"
-        case .lats:             return "広背筋"
-        case .trapsUpper:       return "僧帽筋（上部）"
-        case .trapsMiddleLower: return "僧帽筋（中下部）"
-        case .erectorSpinae:    return "脊柱起立筋"
-        case .deltoidAnterior:  return "三角筋（前部）"
-        case .deltoidLateral:   return "三角筋（側部）"
-        case .deltoidPosterior: return "三角筋（後部）"
-        case .biceps:           return "上腕二頭筋"
-        case .triceps:          return "上腕三頭筋"
-        case .forearms:         return "前腕"
-        case .rectusAbdominis:  return "腹直筋"
-        case .obliques:         return "腹斜筋"
-        case .glutes:           return "大臀筋"
-        case .quadriceps:       return "大腿四頭筋"
-        case .hamstrings:       return "ハムストリングス"
-        case .adductors:        return "内転筋"
-        case .hipFlexors:       return "腸腰筋"
-        case .gastrocnemius:    return "腓腹筋"
-        case .soleus:           return "ヒラメ筋"
-        }
-    }
+    // muscleJapaneseName は削除 — muscle.localizedName を使用
 }
 
 // MARK: - シェア画像生成

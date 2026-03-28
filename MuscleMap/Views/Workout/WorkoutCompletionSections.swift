@@ -582,7 +582,7 @@ struct NextRecommendedDaySection: View {
             Button {
                 HapticManager.lightTap()
                 NotificationManager.shared.scheduleRecoveryReminder(
-                    nextPartName: nextRoutineName ?? "トレーニング",
+                    nextPartName: nextRoutineName ?? (LocalizationManager.shared.currentLanguage == .japanese ? "トレーニング" : "Training"),
                     recoveryDate: recommendedDate
                 )
                 withAnimation {

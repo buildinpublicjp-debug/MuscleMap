@@ -194,7 +194,7 @@ private struct SessionDetailCard: View {
                     Text("\(exerciseSets.count)")
                         .font(.title3.bold())
                         .foregroundStyle(Color.mmTextPrimary)
-                    Text("種目")
+                    Text(localization.currentLanguage == .japanese ? "種目" : "exercises")
                         .font(.caption)
                         .foregroundStyle(Color.mmTextSecondary)
                 }
@@ -255,7 +255,7 @@ private struct SessionDetailCard: View {
                                 .foregroundStyle(Color.mmAccentPrimary)
                             HStack(spacing: 4) {
                                 let exerciseVolume = entry.sets.reduce(0.0) { $0 + $1.weight * Double($1.reps) }
-                                Text("\(entry.sets.count)セット")
+                                Text(localization.currentLanguage == .japanese ? "\(entry.sets.count)セット" : "\(entry.sets.count) sets")
                                     .font(.caption)
                                     .foregroundStyle(Color.mmTextSecondary)
                                 if exerciseVolume > 0 {

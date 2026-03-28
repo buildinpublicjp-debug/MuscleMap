@@ -17,6 +17,10 @@ struct AnalyticsMenuView: View {
     @State private var totalVolume: Double = 0
     @State private var activeMuscleCount: Int = 0
 
+    private var isJapanese: Bool {
+        LocalizationManager.shared.currentLanguage == .japanese
+    }
+
     var body: some View {
         NavigationStack {
             ZStack {
@@ -29,13 +33,13 @@ struct AnalyticsMenuView: View {
                         summaryCard
 
                         // ── 無料分析 ──
-                        sectionHeader("データ分析", isProRequired: false)
+                        sectionHeader(isJapanese ? "データ分析" : "DATA ANALYSIS", isProRequired: false)
 
                         AnalyticsMenuItem(
                             icon: "calendar.badge.checkmark",
                             iconColor: .mmAccentPrimary,
-                            title: "週間サマリー",
-                            description: "今週どこを鍛えたか、ボリューム推移を確認",
+                            title: isJapanese ? "週間サマリー" : "Weekly Summary",
+                            description: isJapanese ? "今週どこを鍛えたか、ボリューム推移を確認" : "See which muscles you trained this week and volume trends",
                             badge: nil,
                             isPro: false
                         ) {
@@ -45,8 +49,8 @@ struct AnalyticsMenuView: View {
                         AnalyticsMenuItem(
                             icon: "chart.bar.xaxis",
                             iconColor: Color(red: 0.2, green: 0.8, blue: 0.5),
-                            title: "トレーニング頻度マップ",
-                            description: "過去90日間でどの部位を何回鍛えたか一目でわかる",
+                            title: isJapanese ? "トレーニング頻度マップ" : "Training Frequency Map",
+                            description: isJapanese ? "過去90日間でどの部位を何回鍛えたか一目でわかる" : "See how many times you trained each muscle over the past 90 days",
                             badge: nil,
                             isPro: false
                         ) {
@@ -54,13 +58,13 @@ struct AnalyticsMenuView: View {
                         }
 
                         // ── AI診断 ──
-                        sectionHeader("AI診断", isProRequired: false)
+                        sectionHeader(isJapanese ? "AI診断" : "AI DIAGNOSIS", isProRequired: false)
 
                         AnalyticsMenuItem(
                             icon: "scale.3d",
                             iconColor: .mmWarning,
-                            title: "筋肉バランス診断",
-                            description: "4軸・8タイプで体のアンバランスを可視化。どこを強化すべきか即わかる",
+                            title: isJapanese ? "筋肉バランス診断" : "Muscle Balance Diagnosis",
+                            description: isJapanese ? "4軸・8タイプで体のアンバランスを可視化。どこを強化すべきか即わかる" : "Visualize imbalances across 4 axes and 8 types. Know what to strengthen",
                             badge: nil,
                             isPro: false
                         ) {
@@ -70,8 +74,8 @@ struct AnalyticsMenuView: View {
                         AnalyticsMenuItem(
                             icon: "clock.arrow.2.circlepath",
                             iconColor: .mmAccentSecondary,
-                            title: "マッスル・ジャーニー",
-                            description: "記録開始からの筋肉変化の全記録。成長の軌跡を振り返る",
+                            title: isJapanese ? "マッスル・ジャーニー" : "Muscle Journey",
+                            description: isJapanese ? "記録開始からの筋肉変化の全記録。成長の軌跡を振り返る" : "A complete record of muscle changes from day one. Retrace your growth",
                             badge: nil,
                             isPro: false
                         ) {
@@ -79,13 +83,13 @@ struct AnalyticsMenuView: View {
                         }
 
                         // ── Pro専用 ──
-                        sectionHeader("Pro機能", isProRequired: true)
+                        sectionHeader(isJapanese ? "Pro機能" : "PRO FEATURES", isProRequired: true)
 
                         AnalyticsMenuItem(
                             icon: "bolt.shield.fill",
                             iconColor: .mmAccentPrimary,
                             title: "Strength Map",
-                            description: "全21筋肉の発達レベルをスコア化。体重比で客観的に強さを証明する",
+                            description: isJapanese ? "全21筋肉の発達レベルをスコア化。体重比で客観的に強さを証明する" : "Score all 21 muscles. Prove your strength objectively with bodyweight ratios",
                             badge: "Pro",
                             isPro: true
                         ) {
@@ -103,9 +107,9 @@ struct AnalyticsMenuView: View {
                         AnalyticsMenuItem(
                             icon: "video.badge.checkmark",
                             iconColor: Color(red: 0.6, green: 0.4, blue: 1.0),
-                            title: "90日 Recap（近日公開）",
-                            description: "90日間の変化をまとめた動画を自動生成。シェアして成長を証明",
-                            badge: "近日公開",
+                            title: isJapanese ? "90日 Recap（近日公開）" : "90-Day Recap (Coming Soon)",
+                            description: isJapanese ? "90日間の変化をまとめた動画を自動生成。シェアして成長を証明" : "Auto-generate a video of your 90-day transformation. Share and prove your growth",
+                            badge: isJapanese ? "近日公開" : "Soon",
                             isPro: true
                         ) {
                             showingPaywall = true
@@ -116,7 +120,7 @@ struct AnalyticsMenuView: View {
                     .padding()
                 }
             }
-            .navigationTitle("分析")
+            .navigationTitle(isJapanese ? "分析" : "Analytics")
             .navigationBarTitleDisplayMode(.inline)
             .toolbarColorScheme(.dark, for: .navigationBar)
             .toolbar {
@@ -145,7 +149,7 @@ struct AnalyticsMenuView: View {
         HStack(spacing: 0) {
             SummaryStatBox(
                 value: "\(totalSessions)",
-                label: "ワークアウト",
+                label: isJapanese ? "ワークアウト" : "Workouts",
                 icon: "figure.strengthtraining.traditional"
             )
             Divider()
@@ -153,7 +157,7 @@ struct AnalyticsMenuView: View {
                 .background(Color.mmTextSecondary.opacity(0.2))
             SummaryStatBox(
                 value: formatVolume(totalVolume),
-                label: "総ボリューム",
+                label: isJapanese ? "総ボリューム" : "Total Volume",
                 icon: "scalemass"
             )
             Divider()
@@ -161,7 +165,7 @@ struct AnalyticsMenuView: View {
                 .background(Color.mmTextSecondary.opacity(0.2))
             SummaryStatBox(
                 value: "\(activeMuscleCount)/21",
-                label: "活性筋肉部位",
+                label: isJapanese ? "活性筋肉部位" : "Active Muscles",
                 icon: "bolt.fill"
             )
         }
@@ -286,7 +290,7 @@ struct AnalyticsMenuItem: View {
                                 .font(.caption2.bold())
                                 .foregroundStyle(
                                     badge == "Pro" ? Color.mmAccentPrimary :
-                                    badge == "近日公開" ? Color.mmTextSecondary :
+                                    isPro ? Color.mmTextSecondary :
                                     Color.mmAccentPrimary
                                 )
                                 .padding(.horizontal, 6)
@@ -331,7 +335,7 @@ struct AnalyticsMenuItem: View {
                         lineWidth: 1
                     )
             )
-            .opacity(badge == "近日公開" ? 0.6 : 1.0)
+            .opacity(badge != nil && badge != "Pro" ? 0.6 : 1.0)
         }
         .buttonStyle(.plain)
     }

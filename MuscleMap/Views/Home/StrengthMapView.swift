@@ -66,7 +66,7 @@ struct StrengthMapView: View {
                 ShareLink(
                     item: Image(uiImage: image),
                     preview: SharePreview(
-                        "私の筋力マップ",
+                        LocalizationManager.shared.currentLanguage == .japanese ? "私の筋力マップ" : "My Strength Map",
                         image: Image(uiImage: image)
                     )
                 ) {
@@ -154,7 +154,7 @@ struct StrengthMapView: View {
     private var gradeBadgeSection: some View {
         HStack(spacing: 12) {
             VStack(alignment: .leading, spacing: 2) {
-                Text("Overall Grade")
+                Text(LocalizationManager.shared.currentLanguage == .japanese ? "総合グレード" : "Overall Grade")
                     .font(.system(size: 11, weight: .regular))
                     .foregroundStyle(Color.mmTextSecondary)
 

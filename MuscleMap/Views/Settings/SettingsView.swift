@@ -87,10 +87,17 @@ struct SettingsView: View {
                 }
             }
             #if DEBUG
-            .alert("オンボーディングをリセットしました", isPresented: $showingResetAlert) {
+            .alert(
+                LocalizationManager.shared.currentLanguage == .japanese
+                    ? "オンボーディングをリセットしました"
+                    : "Onboarding Reset",
+                isPresented: $showingResetAlert
+            ) {
                 Button("OK") {}
             } message: {
-                Text("アプリを再起動すると、オンボーディングが再表示されます。")
+                Text(LocalizationManager.shared.currentLanguage == .japanese
+                    ? "アプリを再起動すると、オンボーディングが再表示されます。"
+                    : "Restart the app to see the onboarding again.")
             }
             #endif
         }
@@ -386,7 +393,7 @@ struct SettingsView: View {
                         .font(.subheadline)
                         .foregroundStyle(Color.mmTextPrimary)
                     Spacer()
-                    Text("Coming Soon")
+                    Text(LocalizationManager.shared.currentLanguage == .japanese ? "近日公開" : "Coming Soon")
                         .font(.caption2.bold())
                         .foregroundStyle(Color.mmBgPrimary)
                         .padding(.horizontal, 8)
@@ -497,7 +504,7 @@ struct SettingsView: View {
                 HStack(spacing: 12) {
                     Image(systemName: "arrow.counterclockwise")
                         .foregroundStyle(Color.mmDestructive)
-                    Text("オンボーディングをリセット")
+                    Text(LocalizationManager.shared.currentLanguage == .japanese ? "オンボーディングをリセット" : "Reset Onboarding")
                         .font(.subheadline)
                         .foregroundStyle(Color.mmDestructive)
                 }
