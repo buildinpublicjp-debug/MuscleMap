@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 77;
+	objectVersion = 63;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -147,6 +147,7 @@
 		D98FB7DFBCA93817700A8555 /* WatchDataProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10C5AF96B355CD63FFC6655 /* WatchDataProcessor.swift */; };
 		DB64902AE897C34A9EE76F7C /* StreakViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B2BE0B2B21DB8674ED88EE5 /* StreakViewModel.swift */; };
 		DBC8FBC72233FA8143835BF4 /* WatchExerciseStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44EAEE589ADAB9963DECFFA6 /* WatchExerciseStore.swift */; };
+		DD9D6BFDA5F4F54FFC4335D7 /* RecoveryDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B98C2C145C27F278D8C1DA1 /* RecoveryDetailView.swift */; };
 		DF796617F303D8007A723F6F /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7665A2A3A6E18C8037F80DD /* OnboardingView.swift */; };
 		E10A055E0FFA049A2DF90EC3 /* MusclePathData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31B33A3A61D3A9D162BDD741 /* MusclePathData.swift */; };
 		E7852DA6B42B8F29063D5287 /* WorkoutCompletionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36BBC597C6AB7DF2637FFB6A /* WorkoutCompletionView.swift */; };
@@ -217,7 +218,7 @@
 		0C736DECFDE0A06C7CA97F4E /* MuscleStimulation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MuscleStimulation.swift; sourceTree = "<group>"; };
 		0C97EB7081D911A300E71A50 /* HomeHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeHelpers.swift; sourceTree = "<group>"; };
 		11352BFB3B6716CD2F0BED28 /* ActiveWorkoutComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActiveWorkoutComponents.swift; sourceTree = "<group>"; };
-		115F934EE7680215C2F165C1 /* MuscleMapWidgetExtension.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = MuscleMapWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		115F934EE7680215C2F165C1 /* MuscleMapWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = MuscleMapWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		11C0F4511390853FFA62C464 /* MuscleBalanceDiagnosisView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MuscleBalanceDiagnosisView.swift; sourceTree = "<group>"; };
 		140B0C98AB5ACFF562CD3FDC /* MuscleBalanceDiagnosisViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MuscleBalanceDiagnosisViewModel.swift; sourceTree = "<group>"; };
 		15716239666A23DA22D539B5 /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
@@ -259,7 +260,7 @@
 		413DA42F1C96CFED86465E68 /* GoalSelectionPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalSelectionPage.swift; sourceTree = "<group>"; };
 		425E0F04AD8D6A3DCBAABB7F /* TodayActionCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayActionCard.swift; sourceTree = "<group>"; };
 		42984B18286E34E98E8085B0 /* WeeklySummaryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeeklySummaryViewModel.swift; sourceTree = "<group>"; };
-		42E895571E0BA26A49A45A33 /* MuscleMap.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = MuscleMap.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		42E895571E0BA26A49A45A33 /* MuscleMap.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MuscleMap.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4349BDA9F7FC0FA6D523B7D5 /* AppConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppConstants.swift; sourceTree = "<group>"; };
 		444C450E35C1A503F767B1DD /* PhoneSessionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneSessionManager.swift; sourceTree = "<group>"; };
 		44EAEE589ADAB9963DECFFA6 /* WatchExerciseStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchExerciseStore.swift; sourceTree = "<group>"; };
@@ -299,6 +300,7 @@
 		84B6ECF4BB0C771763C5DAC9 /* FrequencySelectionPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrequencySelectionPage.swift; sourceTree = "<group>"; };
 		866A6D2DF55D637F1472E630 /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
 		89A9EA1E9DFFB578BEBE8BBF /* RecoveryStatusSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecoveryStatusSection.swift; sourceTree = "<group>"; };
+		8B98C2C145C27F278D8C1DA1 /* RecoveryDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecoveryDetailView.swift; sourceTree = "<group>"; };
 		8F49E2D1636F7157790215EB /* ColorCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorCalculator.swift; sourceTree = "<group>"; };
 		9098D5CD12276919C4D8E50B /* WidgetSharedTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetSharedTypes.swift; sourceTree = "<group>"; };
 		9187A392CBD9DEF1D3234FC1 /* MenuGeneratingPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuGeneratingPage.swift; sourceTree = "<group>"; };
@@ -748,6 +750,7 @@
 				A44DE5CA13E258DEF0077BD0 /* MuscleJourneyView.swift */,
 				EBAB10D6B486880EC3819BFF /* MuscleMapView.swift */,
 				31B33A3A61D3A9D162BDD741 /* MusclePathData.swift */,
+				8B98C2C145C27F278D8C1DA1 /* RecoveryDetailView.swift */,
 				89A9EA1E9DFFB578BEBE8BBF /* RecoveryStatusSection.swift */,
 				7981DEE76C6608778650F0C0 /* StrengthMapView.swift */,
 				29BD07835A588859EBF97F44 /* StrengthShareCard.swift */,
@@ -922,7 +925,6 @@
 			packageReferences = (
 				F914E26445D7D75CB9550B62 /* XCRemoteSwiftPackageReference "purchases-ios" */,
 			);
-			preferredProjectObjectVersion = 77;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -1064,6 +1066,7 @@
 				1A8C4925B1A20E8513EF6D40 /* RecentExercisesManager.swift in Sources */,
 				C0356C77919DC27A4E1132FD /* RecordedSetsComponents.swift in Sources */,
 				CEB8E5A272EE81B64A0B086B /* RecoveryCalculator.swift in Sources */,
+				DD9D6BFDA5F4F54FFC4335D7 /* RecoveryDetailView.swift in Sources */,
 				D2395AF38DE44DB68CE188AC /* RecoveryStatusSection.swift in Sources */,
 				C999EE8DAE05249956B7DE3A /* RoutineBuilderPage.swift in Sources */,
 				3BDEC598963DCB3DDB786351 /* RoutineCompletionPage.swift in Sources */,
@@ -1233,6 +1236,7 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = MuscleMapWidget/MuscleMapWidgetExtension.entitlements;
 				CURRENT_PROJECT_VERSION = 4;
+				DEVELOPMENT_TEAM = CSQ9X74Y5Z;
 				INFOPLIST_FILE = MuscleMapWidget/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1270,6 +1274,7 @@
 				CODE_SIGN_ENTITLEMENTS = MuscleMap/MuscleMap.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 4;
+				DEVELOPMENT_TEAM = CSQ9X74Y5Z;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MuscleMap/Info.plist;
 				INFOPLIST_GENERATION_ENABLED = YES;
@@ -1329,6 +1334,7 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = MuscleMapWidget/MuscleMapWidgetExtension.entitlements;
 				CURRENT_PROJECT_VERSION = 4;
+				DEVELOPMENT_TEAM = CSQ9X74Y5Z;
 				INFOPLIST_FILE = MuscleMapWidget/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1350,6 +1356,7 @@
 				CODE_SIGN_ENTITLEMENTS = MuscleMap/MuscleMap.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 4;
+				DEVELOPMENT_TEAM = CSQ9X74Y5Z;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MuscleMap/Info.plist;
 				INFOPLIST_GENERATION_ENABLED = YES;

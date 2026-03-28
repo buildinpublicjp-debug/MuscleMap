@@ -16,6 +16,7 @@ struct HomeView: View {
     @State private var showCoachMark = false
     @State private var showMapExplanation = false
     @State private var showingExerciseLibrary = false
+    @State private var showingRecoveryDetail = false
     @State private var recommendedWorkout: RecommendedWorkout?
     @State private var showingMenuPreview = false
     @State private var menuPreviewData: (RecommendedWorkout, SuggestedMenu)?
@@ -71,7 +72,7 @@ struct HomeView: View {
                                         selectedMuscle = muscle
                                     },
                                     onDetailsTapped: {
-                                        showingAnalyticsMenu = true
+                                        showingRecoveryDetail = true
                                     }
                                 )
 
@@ -227,6 +228,14 @@ struct HomeView: View {
             .sheet(isPresented: $showingExerciseLibrary) {
                 NavigationStack {
                     ExerciseLibraryView()
+                }
+            }
+            .sheet(isPresented: $showingRecoveryDetail) {
+                if let vm = viewModel {
+                    RecoveryDetailView(
+                        muscleStates: vm.muscleStates,
+                        latestStimulations: vm.latestStimulations
+                    )
                 }
             }
             .sheet(isPresented: $showingAnalyticsMenu) {
