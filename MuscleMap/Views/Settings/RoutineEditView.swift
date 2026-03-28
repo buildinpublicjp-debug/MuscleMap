@@ -495,49 +495,64 @@ private struct RoutineEditExercisePickerSheet: View {
                                 onAdd(exercise)
                                 dismiss()
                             } label: {
-                                VStack(spacing: 0) {
-                                    ZStack(alignment: .topTrailing) {
-                                        if ExerciseGifView.hasGif(exerciseId: exercise.id) {
-                                            ExerciseGifView(exerciseId: exercise.id, size: .gridCard)
-                                                .frame(height: 130)
-                                                .frame(maxWidth: .infinity)
-                                                .clipped()
-                                        } else {
-                                            ZStack {
-                                                Color.mmBgSecondary
-                                                Image(systemName: "dumbbell.fill")
-                                                    .font(.system(size: 28))
-                                                    .foregroundStyle(Color.mmTextSecondary.opacity(0.4))
-                                            }
-                                            .frame(height: 130)
+                                ZStack {
+                                    if ExerciseGifView.hasGif(exerciseId: exercise.id) {
+                                        ExerciseGifView(exerciseId: exercise.id, size: .gridCard)
+                                            .frame(height: 170)
+                                            .frame(maxWidth: .infinity)
+                                            .clipped()
+                                    } else {
+                                        ZStack {
+                                            Color.mmBgSecondary
+                                            Image(systemName: "dumbbell.fill")
+                                                .font(.system(size: 28))
+                                                .foregroundStyle(Color.mmTextSecondary.opacity(0.4))
                                         }
+                                        .frame(height: 170)
+                                    }
 
-                                        if isAdded {
-                                            Image(systemName: "checkmark.circle.fill")
-                                                .font(.system(size: 22))
-                                                .foregroundStyle(Color.mmAccentPrimary.opacity(0.6))
-                                                .padding(6)
-                                        } else {
-                                            Image(systemName: "plus.circle.fill")
-                                                .font(.system(size: 22))
+                                    VStack {
+                                        Spacer()
+                                        LinearGradient(
+                                            colors: [.clear, .black.opacity(0.75)],
+                                            startPoint: .top,
+                                            endPoint: .bottom
+                                        )
+                                        .frame(height: 60)
+                                    }
+
+                                    VStack {
+                                        Spacer()
+                                        VStack(spacing: 2) {
+                                            Text(exercise.localizedName)
+                                                .font(.system(size: 12, weight: .bold))
+                                                .foregroundStyle(.white)
+                                                .lineLimit(1)
+                                            Text(exercise.localizedEquipment)
+                                                .font(.system(size: 10))
                                                 .foregroundStyle(Color.mmAccentPrimary)
-                                                .padding(6)
                                         }
+                                        .padding(.bottom, 8)
                                     }
 
-                                    VStack(spacing: 2) {
-                                        Text(exercise.localizedName)
-                                            .font(.system(size: 12, weight: .bold))
-                                            .foregroundStyle(Color.mmTextPrimary)
-                                            .lineLimit(1)
-                                        Text(exercise.localizedEquipment)
-                                            .font(.system(size: 10))
-                                            .foregroundStyle(Color.mmTextSecondary)
+                                    VStack {
+                                        HStack {
+                                            Spacer()
+                                            if isAdded {
+                                                Image(systemName: "checkmark.circle.fill")
+                                                    .font(.system(size: 22))
+                                                    .foregroundStyle(Color.mmAccentPrimary.opacity(0.6))
+                                            } else {
+                                                Image(systemName: "plus.circle.fill")
+                                                    .font(.system(size: 22))
+                                                    .foregroundStyle(Color.mmAccentPrimary)
+                                            }
+                                        }
+                                        .padding(6)
+                                        Spacer()
                                     }
-                                    .padding(.vertical, 6)
-                                    .frame(maxWidth: .infinity)
-                                    .background(Color.mmBgCard)
                                 }
+                                .frame(height: 170)
                                 .clipShape(RoundedRectangle(cornerRadius: 12))
                                 .opacity(isAdded ? 0.5 : 1.0)
                             }
