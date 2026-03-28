@@ -109,10 +109,9 @@ struct PaywallView: View {
                     headlineSection
                         .frame(height: h * 0.10)
 
-                    // 2. マーキーGIF（1行、大きいカード）
-                    let largeCardSize = min(max(h * 0.25, 160), 220)
-                    marqueeArea(cardSize: largeCardSize)
-                        .frame(height: largeCardSize)
+                    // 2. マーキーGIF（2行、スクロールするカード）
+                    marqueeArea(cardSize: cardSize)
+                        .frame(height: cardSize * 2 + 8)
 
                     // 3. Free vs Pro 比較テーブル（ボタン直前配置）
                     featureListSection
@@ -215,7 +214,12 @@ struct PaywallView: View {
     // MARK: - マーキーセクション（2行、レスポンシブカードサイズ）
 
     private func marqueeArea(cardSize: CGFloat) -> some View {
-        PaywallMarqueeRow(exercises: marqueeExercises, cardSize: cardSize, speed: 25, reversed: false)
+        VStack(spacing: 8) {
+            PaywallMarqueeRow(exercises: marqueeRow1Exercises, cardSize: cardSize, speed: 25, reversed: false)
+                .frame(height: cardSize)
+            PaywallMarqueeRow(exercises: marqueeRow2Exercises, cardSize: cardSize, speed: 20, reversed: true)
+                .frame(height: cardSize)
+        }
     }
 
     // MARK: - Free vs Pro 比較テーブル
