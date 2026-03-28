@@ -1,6 +1,6 @@
 # MuscleMap - Claude Code Rules
 
-> **v7.0 | 2026-03-20**
+> **v8.0 | 2026-03-28**
 > 筋肉の回復状態と筋力レベルを可視化し、最適なトレーニングを導くiOSアプリ
 > **ステータス:** App Store提出準備完了（v1.0）
 
@@ -53,6 +53,8 @@
 
 1. `CLAUDE.md`（このファイル） — **最も重要。全ルールが入っている**
 2. `docs/PRD/MuscleMap_PRD_v2.1.md` — 詳細仕様
+3. `docs/DESIGN_SYSTEM.md` — UIデザイン原則v2.0（6原則+デフォルト値リファレンス）
+4. `docs/CC_LESSONS.md` — CC自己改善ルール（蓄積された教訓）
 
 ---
 
@@ -104,14 +106,19 @@
 ### ホーム画面
 - **ユーザーの期待**: 「今日どこ鍛えればいい？」が一目でわかること
 - **焦点**: 筋肉マップ + 今日のおすすめ + ストリーク。**最低3つの情報セクション**
+- **現在の構成（上→下）:**
+  1. **TodayActionCard** — 「今日: 部位名」+ Day切替 + 種目GIF(140x120) + info + CTA
+  2. **RecoveryStatusSection** — HStack（マップ前後 + ステータスミニチップ右寄せ）
+  3. **WeeklyVolumeChart** — 週間ボリュームバーチャート
+  4. **QuickAccessRow** — Strength Map / 履歴 等のショートカット
 - **絶対条件**:
   - 人体図は頭から足先まで完全に表示。切れてはいけない
-  - 「今日のおすすめ」は筋肉マップと同等以上の視覚的存在感を持たせる
+  - TodayActionCardが最も目立つ。CTAが画面上部にある
   - 画面を開いて3秒以内に「今日やること」が理解できる状態
   - 無料ユーザー: FreeWorkoutLimitBadge表示（残回数 or 使い切り状態）
 - **NGパターン**:
   - 筋肉マップだけの画面（情報不足）
-  - 「今日のおすすめ」がスクロールしないと見えない（優先度違反）
+  - TodayActionCardがスクロールしないと見えない（優先度違反）
 
 ### Strength Map画面（Pro）
 - **ユーザーの期待**: 「自分の筋力レベルが一目でわかる。自慢したい」
@@ -606,9 +613,9 @@ MuscleMap/
 │   ├── Components/                # 共通コンポーネント（4ファイル）
 │   │   ├── MiniMuscleMapView.swift
 │   │   ├── MicroBodyMapView.swift
-│   │   ├── ExerciseGifView.swift
+│   │   ├── ExerciseGifView.swift      # ExerciseGifSize: .gridCard=アニメーション(グリッド用), .card=静止画。アニメ必要なら.gridCard
 │   │   └── ShareCardTemplate.swift
-│   ├── Home/                      # ホーム画面（14ファイル）
+│   ├── Home/                      # ホーム画面（16ファイル）
 │   │   ├── HomeView.swift
 │   │   ├── HomeHelpers.swift          # HomeCoachMarkView + FreeWorkoutLimitBadge + goalLinkedCopy含む
 │   │   ├── HomeStreakComponents.swift
@@ -623,7 +630,9 @@ MuscleMap/
 │   │   ├── MuscleBalanceDiagnosisView.swift
 │   │   ├── MuscleHeatmapView.swift
 │   │   ├── MuscleJourneyView.swift
-│   │   └── ChallengeProgressBanner.swift
+│   │   ├── ChallengeProgressBanner.swift
+│   │   ├── WeeklyVolumeChart.swift        # NEW: 週間ボリュームバーチャート
+│   │   └── RecoveryDetailView.swift       # NEW: フルスクリーン回復マップ
 │   ├── Workout/                   # ワークアウト記録（13ファイル）
 │   │   ├── WorkoutStartView.swift
 │   │   ├── WorkoutIdleComponents.swift
@@ -711,8 +720,12 @@ MuscleMapWidget/                   # Widget extension
 Shared/                            # iOS/Watch共有コード
 scripts/
 └── screenshots/                   # App Storeスクショ自動生成パイプライン（準備中）
+.claude/
+└── commands/                      # CC用カスタムコマンド（screenshot, design-check, build-verify）
 docs/
 ├── PRD/                           # 製品要件ドキュメント
+├── DESIGN_SYSTEM.md               # UIデザイン原則v2.0
+├── CC_LESSONS.md                  # CC自己改善ルール（蓄積された教訓）
 ├── audit/                         # 監査レポート（17レポート）
 └── appstore/                      # App Store説明文・キーワード
 ```
