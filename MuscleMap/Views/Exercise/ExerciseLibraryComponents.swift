@@ -119,14 +119,16 @@ private struct LibraryGridCard: View {
         Button(action: onTap) {
             ZStack(alignment: .topTrailing) {
                 ZStack(alignment: .bottomLeading) {
-                    // GIF or ミニマップ（元の比率のまま）
+                    // GIF（AspectFitで全体表示、切れない）
                     if ExerciseGifView.hasGif(exerciseId: exercise.id) {
-                        ExerciseGifView(exerciseId: exercise.id, size: .previewCard)
-                            .aspectRatio(contentMode: .fit)
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        ExerciseGifView(exerciseId: exercise.id, size: .gridCard)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 160)
+                            .clipped()
                     } else {
                         MiniMuscleMapView(muscleMapping: exercise.muscleMapping)
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 160)
                     }
 
                     // 下部グラデーションオーバーレイ
@@ -135,6 +137,7 @@ private struct LibraryGridCard: View {
                         startPoint: .center,
                         endPoint: .bottom
                     )
+                    .frame(height: 60)
 
                     // テキスト（グラデーションの上）
                     VStack(alignment: .leading, spacing: 2) {
@@ -171,7 +174,6 @@ private struct LibraryGridCard: View {
                 }
                 .padding(6)
             }
-            .aspectRatio(0.85, contentMode: .fill)
             .background(Color.mmBgCard)
             .clipShape(RoundedRectangle(cornerRadius: 12))
         }
