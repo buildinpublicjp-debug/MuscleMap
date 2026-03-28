@@ -88,7 +88,7 @@ struct PickerContentSection: View {
     }
 }
 
-// MARK: - グリッドカード
+// MARK: - グリッドカード（Netflixスタイル — GIF + グラデーションオーバーレイ）
 
 private struct PickerGridCard: View {
     let exercise: ExerciseDefinition
@@ -105,67 +105,88 @@ private struct PickerGridCard: View {
         )
     }
 
+    /// 主要ターゲットの筋肉
+    private var primaryMuscle: Muscle? {
+        guard let maxEntry = exercise.muscleMapping.max(by: { $0.value < $1.value }) else {
+            return nil
+        }
+        return Muscle(rawValue: maxEntry.key) ?? Muscle(snakeCase: maxEntry.key)
+    }
+
     var body: some View {
+        let name = localization.currentLanguage == .japanese ? exercise.nameJA : exercise.nameEN
+        let muscleName: String? = {
+            guard let m = primaryMuscle else { return nil }
+            return localization.currentLanguage == .japanese ? m.japaneseName : m.englishName
+        }()
+
         Button(action: onSelect) {
-            VStack(alignment: .leading, spacing: 0) {
-                // GIF or ミニマップ（上部120px）
-                ZStack(alignment: .topTrailing) {
+            ZStack(alignment: .topTrailing) {
+                ZStack(alignment: .bottomLeading) {
+                    // GIF or ミニマップ（元の比率のまま）
                     if ExerciseGifView.hasGif(exerciseId: exercise.id) {
                         ExerciseGifView(exerciseId: exercise.id, size: .previewCard)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 120)
-                            .clipped()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
                     } else {
                         MiniMuscleMapView(muscleMapping: exercise.muscleMapping)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 120)
-                            .background(Color.mmBgPrimary.opacity(0.5))
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
                     }
 
-                    // お気に入りハートアイコン
-                    Button {
-                        HapticManager.lightTap()
-                        favorites.toggle(exercise.id)
-                    } label: {
-                        Image(systemName: favorites.isFavorite(exercise.id) ? "heart.fill" : "heart")
-                            .font(.caption)
-                            .foregroundStyle(favorites.isFavorite(exercise.id) ? Color.mmDestructive : Color.mmTextSecondary)
-                            .padding(6)
-                            .background(Color.mmBgPrimary.opacity(0.7))
-                            .clipShape(Circle())
+                    // 下部グラデーションオーバーレイ
+                    LinearGradient(
+                        colors: [.clear, .black.opacity(0.85)],
+                        startPoint: .center,
+                        endPoint: .bottom
+                    )
+
+                    // テキスト（グラデーションの上）
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(name)
+                            .font(.caption.bold())
+                            .foregroundStyle(.white)
+                            .lineLimit(2)
+
+                        if let muscleName {
+                            HStack(spacing: 3) {
+                                Circle()
+                                    .fill(Color.mmAccentPrimary)
+                                    .frame(width: 5, height: 5)
+                                Text(muscleName)
+                                    .font(.caption2.bold())
+                                    .foregroundStyle(Color.mmAccentPrimary)
+                            }
+                        }
+
+                        // 適合性バッジ
+                        if let badge = compatibility.badge {
+                            Text(badge.text)
+                                .font(.system(size: 9, weight: .bold))
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 2)
+                                .background(badge.color.opacity(0.2))
+                                .foregroundStyle(badge.color)
+                                .clipShape(Capsule())
+                        }
                     }
-                    .padding(6)
+                    .padding(8)
                 }
 
-                // 種目情報
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(localization.currentLanguage == .japanese ? exercise.nameJA : exercise.nameEN)
-                        .font(.caption.bold())
-                        .foregroundStyle(Color.mmTextPrimary)
-                        .lineLimit(2)
-
-                    HStack(spacing: 4) {
-                        Image(systemName: "dumbbell")
-                        Text(exercise.localizedEquipment)
-                    }
-                    .font(.caption2)
-                    .foregroundStyle(Color.mmTextSecondary)
-                    .lineLimit(1)
-
-                    // 適合性バッジ
-                    if let badge = compatibility.badge {
-                        Text(badge.text)
-                            .font(.system(size: 9, weight: .bold))
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 2)
-                            .background(badge.color.opacity(0.15))
-                            .foregroundStyle(badge.color)
-                            .clipShape(Capsule())
-                    }
+                // 追加ボタン
+                Button {
+                    HapticManager.lightTap()
+                    onSelect()
+                } label: {
+                    Image(systemName: "plus.circle.fill")
+                        .font(.title3)
+                        .foregroundStyle(Color.mmAccentPrimary)
+                        .background(Color.mmBgPrimary.opacity(0.7))
+                        .clipShape(Circle())
                 }
-                .padding(8)
+                .padding(6)
             }
-            .background(Color.mmBgSecondary)
+            .aspectRatio(0.85, contentMode: .fill)
+            .background(Color.mmBgCard)
             .clipShape(RoundedRectangle(cornerRadius: 12))
         }
         .buttonStyle(.plain)
