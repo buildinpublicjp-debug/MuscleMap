@@ -36,7 +36,7 @@ struct RecoveryStatusSection: View {
                 }
             }
 
-            // マップ（フル幅表示）
+            // マップ（フル幅・中央配置）
             MuscleMapView(
                 muscleStates: muscleStates,
                 onMuscleTapped: { muscle in
@@ -44,7 +44,8 @@ struct RecoveryStatusSection: View {
                 },
                 demoMode: false
             )
-            .frame(height: 160)
+            .frame(maxWidth: .infinity)
+            .frame(height: 180)
 
             // ミニチップ（横flow wrap）
             RecoveryFlowLayout(spacing: 6) {
