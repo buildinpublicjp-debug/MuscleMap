@@ -100,8 +100,8 @@ struct HomeView: View {
                                 }
                             }
 
-                            // 3. StatsRow（セッション数 / ボリューム / PR）
-                            HomeStatsRow()
+                            // 3. Weekly Volume Chart
+                            WeeklyVolumeChart()
 
                             // 4. QuickAccessRow（Strength Map / 履歴ショートカット）
                             QuickAccessRow(
