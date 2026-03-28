@@ -3,7 +3,8 @@ import SwiftData
 
 // MARK: - セット入力関連コンポーネント
 
-/// セット入力カード
+/// セット入力カード（リファクタ版）
+/// 核: 重量入力 + レップ入力 + 記録ボタン
 struct SetInputCard: View {
     @Bindable var viewModel: WorkoutViewModel
     let exercise: ExerciseDefinition
@@ -13,10 +14,16 @@ struct SetInputCard: View {
     @State private var showPRCelebration = false
     @State private var recordButtonScale: CGFloat = 1.0
     @State private var showExerciseDetail = false
+    @State private var showPreviousSession = false
     private var localization: LocalizationManager { LocalizationManager.shared }
 
     private var isBodyweight: Bool {
         exercise.isBodyweight
+    }
+
+    /// ダンベル種目かどうか
+    private var isDumbbell: Bool {
+        exercise.equipment == "ダンベル"
     }
 
     private var prWeight: Double? {
@@ -38,51 +45,49 @@ struct SetInputCard: View {
         )
     }
 
+    /// 前回記録から値が変更されていないか（ゴースト表示判定用）
+    private var isWeightGhost: Bool {
+        guard let lastW = viewModel.lastWeight else { return false }
+        return viewModel.currentWeight == lastW
+    }
+
+    private var isRepsGhost: Bool {
+        guard let lastR = viewModel.lastReps else { return false }
+        return viewModel.currentReps == lastR
+    }
+
     var body: some View {
         ScrollView {
         VStack(spacing: 12) {
-            // 種目名 + info + レベルバッジ + セット番号
-            VStack(alignment: .leading, spacing: 4) {
-                HStack {
-                    Text(localization.currentLanguage == .japanese ? exercise.nameJA : exercise.nameEN)
-                        .font(.headline)
-                        .foregroundStyle(Color.mmTextPrimary)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.8)
+            // 種目名 + info + レベルアイコン + セット番号
+            HStack {
+                Text(localization.currentLanguage == .japanese ? exercise.nameJA : exercise.nameEN)
+                    .font(.headline)
+                    .foregroundStyle(Color.mmTextPrimary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
 
-                    Button {
-                        HapticManager.lightTap()
-                        showExerciseDetail = true
-                    } label: {
-                        Image(systemName: "info.circle")
-                            .font(.system(size: 16))
-                            .foregroundStyle(Color.mmTextSecondary)
-                    }
-                    .buttonStyle(.plain)
-
-                    Spacer()
-
-                    Text(L10n.setNumber(viewModel.currentSetNumber))
-                        .font(.subheadline.bold())
-                        .foregroundStyle(Color.mmAccentPrimary)
+                Button {
+                    HapticManager.lightTap()
+                    showExerciseDetail = true
+                } label: {
+                    Image(systemName: "info.circle")
+                        .font(.system(size: 16))
+                        .foregroundStyle(Color.mmTextSecondary)
                 }
+                .buttonStyle(.plain)
 
-                // レベルバッジ（種目名の下に配置）
+                // レベルアイコンのみ（種目名横）
                 if let info = strengthLevelInfo {
-                    HStack(spacing: 4) {
-                        Text(info.level.emoji)
-                            .font(.caption2)
-                        Text(info.level.localizedName)
-                            .font(.caption2.bold())
-                            .foregroundStyle(info.level.color)
-                        if let kgToNext = info.kgToNext,
-                           let nextLevel = info.nextLevel {
-                            Text("→ \(nextLevel.localizedName)まで\(Int(ceil(kgToNext)))kg")
-                                .font(.system(size: 9))
-                                .foregroundStyle(Color.mmTextSecondary)
-                        }
-                    }
+                    Text(info.level.emoji)
+                        .font(.caption)
                 }
+
+                Spacer()
+
+                Text(L10n.setNumber(viewModel.currentSetNumber))
+                    .font(.subheadline.bold())
+                    .foregroundStyle(Color.mmAccentPrimary)
             }
             .sheet(isPresented: $showExerciseDetail) {
                 NavigationStack {
@@ -90,14 +95,50 @@ struct SetInputCard: View {
                 }
             }
 
-            // GIFアニメーション（タイマー・PR オーバーレイ付き）
+            // GIF: 初回セットのみフル表示、2セット目以降はミニサムネ
             if ExerciseGifView.hasGif(exerciseId: exercise.id) {
-                ZStack(alignment: .topTrailing) {
-                    ZStack(alignment: .bottomTrailing) {
-                        ExerciseGifView(exerciseId: exercise.id, size: .fullWidth)
-                            .frame(maxHeight: 150)
+                if viewModel.currentSetNumber == 1 {
+                    // フル表示（タイマー・PRオーバーレイ付き）
+                    ZStack(alignment: .topTrailing) {
+                        ZStack(alignment: .bottomTrailing) {
+                            ExerciseGifView(exerciseId: exercise.id, size: .fullWidth)
+                                .frame(maxHeight: 150)
 
-                        // PR表示（GIF右下にオーバーレイ）
+                            // PR表示（GIF右下にオーバーレイ）
+                            if let pr = prWeight, !isBodyweight {
+                                HStack(spacing: 2) {
+                                    Image(systemName: "trophy.fill")
+                                        .font(.caption2)
+                                        .foregroundStyle(Color.mmPRGold)
+                                    Text("\(pr, specifier: "%.1f")kg")
+                                        .font(.caption2.bold())
+                                        .foregroundStyle(Color.mmTextPrimary)
+                                }
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4)
+                                .background(Color.mmBgPrimary.opacity(0.6))
+                                .clipShape(Capsule())
+                                .padding(8)
+                            }
+                        }
+
+                        // タイマー（GIF右上にオーバーレイ）
+                        if viewModel.isRestTimerRunning {
+                            CompactTimerBadge(
+                                seconds: viewModel.restTimerSeconds,
+                                isOvertime: viewModel.isRestTimerOvertime,
+                                onStop: { viewModel.stopRestTimer() }
+                            )
+                            .padding(8)
+                        }
+                    }
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                } else {
+                    // 2セット目以降: ミニサムネ + タイマー横並び
+                    HStack(spacing: 8) {
+                        ExerciseGifView(exerciseId: exercise.id, size: .thumbnail)
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
+
                         if let pr = prWeight, !isBodyweight {
                             HStack(spacing: 2) {
                                 Image(systemName: "trophy.fill")
@@ -105,27 +146,21 @@ struct SetInputCard: View {
                                     .foregroundStyle(Color.mmPRGold)
                                 Text("\(pr, specifier: "%.1f")kg")
                                     .font(.caption2.bold())
-                                    .foregroundStyle(Color.mmTextPrimary)
+                                    .foregroundStyle(Color.mmTextSecondary)
                             }
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 4)
-                            .background(Color.mmBgPrimary.opacity(0.6))
-                            .clipShape(Capsule())
-                            .padding(8)
+                        }
+
+                        Spacer()
+
+                        if viewModel.isRestTimerRunning {
+                            CompactTimerBadge(
+                                seconds: viewModel.restTimerSeconds,
+                                isOvertime: viewModel.isRestTimerOvertime,
+                                onStop: { viewModel.stopRestTimer() }
+                            )
                         }
                     }
-
-                    // タイマー（GIF右上にオーバーレイ）
-                    if viewModel.isRestTimerRunning {
-                        CompactTimerBadge(
-                            seconds: viewModel.restTimerSeconds,
-                            isOvertime: viewModel.isRestTimerOvertime,
-                            onStop: { viewModel.stopRestTimer() }
-                        )
-                        .padding(8)
-                    }
                 }
-                .clipShape(RoundedRectangle(cornerRadius: 12))
             } else {
                 // GIFがない場合のタイマー表示
                 if viewModel.isRestTimerRunning {
@@ -137,69 +172,13 @@ struct SetInputCard: View {
                 }
             }
 
-            // 前回セッションの全セット参照表示
+            // 前回セッション参照（折りたたみ式、デフォルト閉じ）
             if !viewModel.previousSessionSets.isEmpty {
                 PreviousSessionReference(
                     sets: viewModel.previousSessionSets,
-                    isBodyweight: isBodyweight
+                    isBodyweight: isBodyweight,
+                    isExpanded: $showPreviousSession
                 )
-            }
-
-            // 前回記録（コンパクト表示）+ 「同じ」ボタン
-            if let lastW = viewModel.lastWeight, let lastR = viewModel.lastReps {
-                HStack(spacing: 6) {
-                    Image(systemName: "clock.arrow.circlepath")
-                        .font(.caption)
-                        .foregroundStyle(Color.mmAccentSecondary)
-
-                    if isBodyweight && lastW == 0 {
-                        Text(L10n.previousRepsOnly(lastR))
-                            .font(.caption.bold())
-                            .foregroundStyle(Color.mmTextSecondary)
-                    } else {
-                        Text(L10n.previousRecord(lastW, lastR))
-                            .font(.caption.bold())
-                            .foregroundStyle(Color.mmTextSecondary)
-                    }
-
-                    Spacer()
-
-                    // 前回と同じボタン
-                    Button {
-                        viewModel.currentWeight = lastW
-                        viewModel.currentReps = lastR
-                        HapticManager.lightTap()
-                    } label: {
-                        HStack(spacing: 4) {
-                            Image(systemName: "doc.on.doc")
-                                .font(.caption2)
-                            Text(L10n.copyLastSet)
-                                .font(.caption.bold())
-                        }
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 5)
-                        .background(Color.mmAccentSecondary.opacity(0.15))
-                        .foregroundStyle(Color.mmAccentSecondary)
-                        .clipShape(Capsule())
-                    }
-                }
-            }
-
-            // 重量の提案（控えめテキスト）
-            if let lastW = viewModel.lastWeight, lastW > 0, !isBodyweight {
-                let suggested = lastW + 2.5
-                Button {
-                    viewModel.currentWeight = suggested
-                    HapticManager.lightTap()
-                } label: {
-                    HStack(spacing: 4) {
-                        Image(systemName: "arrow.up.right")
-                            .font(.caption2)
-                        Text(L10n.tryHeavier(lastW, suggested))
-                            .font(.caption)
-                    }
-                    .foregroundStyle(Color.mmTextSecondary)
-                }
             }
 
             // 自重種目の場合
@@ -225,11 +204,9 @@ struct SetInputCard: View {
                 .padding(.horizontal, 8)
                 .onChange(of: useAdditionalWeight) { _, newValue in
                     if !newValue {
-                        // トグルOFF: 現在の加重を保存してからゼロにする
                         savedAdditionalWeight = viewModel.currentWeight
                         viewModel.currentWeight = 0
                     } else {
-                        // トグルON: 保存していた加重を復元
                         viewModel.currentWeight = savedAdditionalWeight
                     }
                 }
@@ -237,6 +214,17 @@ struct SetInputCard: View {
 
             // 重量入力（通常種目 or 加重時）
             if !isBodyweight || useAdditionalWeight {
+                // ダンベル片手ラベル
+                if isDumbbell {
+                    HStack(spacing: 4) {
+                        Image(systemName: "hand.raised.fill")
+                            .font(.caption2)
+                        Text(localization.currentLanguage == .japanese ? "片手" : "Per hand")
+                            .font(.caption.bold())
+                    }
+                    .foregroundStyle(Color.mmAccentSecondary)
+                }
+
                 HStack(spacing: 16) {
                     WeightStepperButton(systemImage: "minus") {
                         viewModel.adjustWeight(by: -0.25)
@@ -248,7 +236,8 @@ struct SetInputCard: View {
 
                     WeightInputView(
                         weight: $viewModel.currentWeight,
-                        label: isBodyweight ? L10n.kgAdditional : L10n.kg
+                        label: isBodyweight ? L10n.kgAdditional : L10n.kg,
+                        isGhost: isWeightGhost
                     )
                     .frame(minWidth: 100)
 
@@ -299,7 +288,7 @@ struct SetInputCard: View {
                 VStack(spacing: 2) {
                     Text("\(viewModel.currentReps)")
                         .font(.system(size: 36, weight: .bold, design: .monospaced))
-                        .foregroundStyle(Color.mmTextPrimary)
+                        .foregroundStyle(isRepsGhost ? Color.mmTextSecondary.opacity(0.5) : Color.mmTextPrimary)
                     Text(L10n.reps)
                         .font(.caption)
                         .foregroundStyle(Color.mmTextSecondary)
@@ -308,31 +297,6 @@ struct SetInputCard: View {
 
                 StepperButton(systemImage: "plus") {
                     viewModel.adjustReps(by: 1)
-                }
-            }
-
-            // レップ数クイックセットピル
-            HStack(spacing: 8) {
-                ForEach([5, 8, 10, 12, 15], id: \.self) { rep in
-                    Button {
-                        viewModel.currentReps = rep
-                        HapticManager.lightTap()
-                    } label: {
-                        Text("\(rep)")
-                            .font(.system(size: 13, weight: .bold))
-                            .foregroundStyle(
-                                viewModel.currentReps == rep
-                                    ? Color.mmBgPrimary
-                                    : Color.mmTextSecondary
-                            )
-                            .frame(width: 40, height: 32)
-                            .background(
-                                viewModel.currentReps == rep
-                                    ? Color.mmAccentPrimary
-                                    : Color.mmBgSecondary
-                            )
-                            .clipShape(Capsule())
-                    }
                 }
             }
 
@@ -348,32 +312,35 @@ struct SetInputCard: View {
                     }
                 }
 
-                let isPR = viewModel.recordSet()
-                if isPR {
-                    HapticManager.prAchieved()
-                    withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
-                        showPRCelebration = true
-                    }
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-                        withAnimation(.easeOut(duration: 0.3)) {
-                            showPRCelebration = false
-                        }
-                    }
+                // ダンベル種目: 内部的に×2で記録
+                if isDumbbell && !isBodyweight {
+                    let perHand = viewModel.currentWeight
+                    viewModel.currentWeight = perHand * 2
+                    let isPR = viewModel.recordSet()
+                    viewModel.currentWeight = perHand // 表示を片手に戻す
+                    handlePRResult(isPR)
                 } else {
-                    HapticManager.setCompleted()
+                    let isPR = viewModel.recordSet()
+                    handlePRResult(isPR)
                 }
             } label: {
-                Text(L10n.recordSet)
-                    .font(.headline)
-                    .foregroundStyle(Color.mmBgPrimary)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 60)
-                    .background(Color.mmAccentPrimary)
-                    .clipShape(RoundedRectangle(cornerRadius: 16))
+                HStack(spacing: 6) {
+                    Text(L10n.recordSet)
+                        .font(.headline)
+                    if isDumbbell && !isBodyweight {
+                        Text("(\(String(format: "%.1f", viewModel.currentWeight * 2))kg)")
+                            .font(.caption.bold())
+                            .opacity(0.7)
+                    }
+                }
+                .foregroundStyle(Color.mmBgPrimary)
+                .frame(maxWidth: .infinity)
+                .frame(height: 60)
+                .background(Color.mmAccentPrimary)
+                .clipShape(RoundedRectangle(cornerRadius: 16))
             }
             .scaleEffect(recordButtonScale)
             .buttonStyle(.plain)
-
 
         }
         .padding()
@@ -388,49 +355,86 @@ struct SetInputCard: View {
             }
         }
     }
+
+    // MARK: - PR結果ハンドリング
+
+    private func handlePRResult(_ isPR: Bool) {
+        if isPR {
+            HapticManager.prAchieved()
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
+                showPRCelebration = true
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                withAnimation(.easeOut(duration: 0.3)) {
+                    showPRCelebration = false
+                }
+            }
+        } else {
+            HapticManager.setCompleted()
+        }
+    }
 }
 
-// MARK: - 前回セッション参照表示
+// MARK: - 前回セッション参照表示（折りたたみ式）
 
-/// 前回セッションのセット一覧（ゴースト表示）
+/// 前回セッションのセット一覧（デフォルト閉じ）
 struct PreviousSessionReference: View {
     let sets: [WorkoutSet]
     let isBodyweight: Bool
+    @Binding var isExpanded: Bool
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text(L10n.previousSessionHeader)
-                .font(.caption)
-                .foregroundStyle(Color.mmTextSecondary.opacity(0.6))
-
-            ForEach(sets, id: \.id) { set in
+            // ヘッダー（タップで開閉）
+            Button {
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    isExpanded.toggle()
+                }
+                HapticManager.lightTap()
+            } label: {
                 HStack(spacing: 6) {
-                    Text(L10n.setNumber(set.setNumber))
+                    Image(systemName: "clock.arrow.circlepath")
+                        .font(.caption)
+                        .foregroundStyle(Color.mmAccentSecondary)
+                    Text(L10n.previousSessionHeader)
+                        .font(.caption)
+                        .foregroundStyle(Color.mmTextSecondary.opacity(0.6))
+                    Text("(\(sets.count))")
                         .font(.caption2)
                         .foregroundStyle(Color.mmTextSecondary.opacity(0.4))
-                        .frame(width: 44, alignment: .leading)
-                    if isBodyweight && set.weight == 0 {
-                        Text(L10n.repsOnly(set.reps))
-                            .font(.caption2.monospaced())
-                            .foregroundStyle(Color.mmTextSecondary.opacity(0.5))
-                    } else {
-                        Text(L10n.weightReps(set.weight, set.reps))
-                            .font(.caption2.monospaced())
-                            .foregroundStyle(Color.mmTextSecondary.opacity(0.5))
-                    }
-                    Image(systemName: "checkmark")
-                        .font(.system(size: 8))
-                        .foregroundStyle(Color.mmTextSecondary.opacity(0.3))
                     Spacer()
+                    Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
+                        .font(.caption2)
+                        .foregroundStyle(Color.mmTextSecondary.opacity(0.4))
                 }
             }
+            .buttonStyle(.plain)
 
-            Divider()
-                .overlay(Color.mmTextSecondary.opacity(0.2))
-
-            Text(L10n.currentSessionHeader)
-                .font(.caption)
-                .foregroundStyle(Color.mmTextSecondary.opacity(0.6))
+            // セット一覧（展開時のみ）
+            if isExpanded {
+                ForEach(sets, id: \.id) { set in
+                    HStack(spacing: 6) {
+                        Text(L10n.setNumber(set.setNumber))
+                            .font(.caption2)
+                            .foregroundStyle(Color.mmTextSecondary.opacity(0.4))
+                            .frame(width: 44, alignment: .leading)
+                        if isBodyweight && set.weight == 0 {
+                            Text(L10n.repsOnly(set.reps))
+                                .font(.caption2.monospaced())
+                                .foregroundStyle(Color.mmTextSecondary.opacity(0.5))
+                        } else {
+                            Text(L10n.weightReps(set.weight, set.reps))
+                                .font(.caption2.monospaced())
+                                .foregroundStyle(Color.mmTextSecondary.opacity(0.5))
+                        }
+                        Image(systemName: "checkmark")
+                            .font(.system(size: 8))
+                            .foregroundStyle(Color.mmTextSecondary.opacity(0.3))
+                        Spacer()
+                    }
+                }
+                .transition(.opacity.combined(with: .move(edge: .top)))
+            }
         }
         .padding(.vertical, 4)
     }

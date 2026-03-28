@@ -28,6 +28,7 @@ struct StepperButton: View {
 struct WeightInputView: View {
     @Binding var weight: Double
     let label: String
+    var isGhost: Bool = false
 
     @State private var isEditing = false
     @State private var inputText = ""
@@ -49,7 +50,7 @@ struct WeightInputView: View {
             } else {
                 Text("\(weight, specifier: "%.2f")")
                     .font(.system(size: 36, weight: .bold, design: .monospaced))
-                    .foregroundStyle(Color.mmTextPrimary)
+                    .foregroundStyle(isGhost ? Color.mmTextSecondary.opacity(0.5) : Color.mmTextPrimary)
                     .onTapGesture {
                         inputText = ""  // 空にしてから編集開始（追記バグ修正）
                         isEditing = true
