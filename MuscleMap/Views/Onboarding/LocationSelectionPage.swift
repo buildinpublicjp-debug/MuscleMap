@@ -181,7 +181,7 @@ struct LocationSelectionPage: View {
                 .clipped()
                 .opacity(appeared ? 1 : 0)
 
-                Spacer().frame(height: 6)
+                Spacer().frame(height: 14)
 
                 VStack(spacing: 7) {
                     ForEach(Array(TrainingLocation.allCases.enumerated()), id: \.element) { index, location in
@@ -204,7 +204,7 @@ struct LocationSelectionPage: View {
                 }
                 .padding(.horizontal, 24)
 
-                Spacer(minLength: 4)
+                Spacer().frame(height: 16)
 
                 Button {
                     guard !isProceeding, let loc = selected else { return }
