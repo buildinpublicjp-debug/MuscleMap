@@ -153,16 +153,16 @@ struct TodayActionCard: View {
                     let name = shortenedName(rawName)
 
                     ZStack(alignment: .bottomLeading) {
-                        // GIF（元の比率のまま）
+                        // GIF（アニメーション、アスペクトフィル）
                         if ExerciseGifView.hasGif(exerciseId: exercise.exerciseId) {
-                            ExerciseGifView(exerciseId: exercise.exerciseId, size: .thumbnail)
-                                .aspectRatio(contentMode: .fit)
-                                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            ExerciseGifView(exerciseId: exercise.exerciseId, size: .gridCard)
+                                .frame(width: 130, height: 100)
+                                .clipped()
                         } else {
                             Image(systemName: "dumbbell.fill")
                                 .font(.system(size: 22))
                                 .foregroundStyle(Color.mmTextSecondary.opacity(0.4))
-                                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                .frame(width: 130, height: 100)
                         }
 
                         // 下部グラデーション
@@ -184,9 +184,9 @@ struct TodayActionCard: View {
                         }
                         .padding(6)
                     }
-                    .frame(width: 110, height: 80)
+                    .frame(width: 130, height: 100)
                     .background(Color.mmBgCard)
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
                 }
             }
             // 右端パディングでスクロール示唆

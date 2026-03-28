@@ -2,7 +2,7 @@ import SwiftUI
 
 // MARK: - 回復ステータスセクション（コンパクトマップ + ステータスチップ）
 
-/// 前面・背面マップを160ptでコンパクト表示し、横にステータスチップを並べるセクション
+/// 前面・背面マップを160ptでフル幅表示し、下にミニチップを横並びで配置するセクション
 struct RecoveryStatusSection: View {
     let muscleStates: [Muscle: MuscleVisualState]
     let latestStimulations: [Muscle: MuscleStimulation]
@@ -36,25 +36,21 @@ struct RecoveryStatusSection: View {
                 }
             }
 
-            // マップ（前面+背面同時表示）+ チップ
-            HStack(spacing: 10) {
-                // MuscleMapViewは前面・背面を同時にHStackで表示する
-                MuscleMapView(
-                    muscleStates: muscleStates,
-                    onMuscleTapped: { muscle in
-                        onMuscleTapped(muscle)
-                    },
-                    demoMode: false
-                )
-                .frame(height: 160)
+            // マップ（フル幅表示）
+            MuscleMapView(
+                muscleStates: muscleStates,
+                onMuscleTapped: { muscle in
+                    onMuscleTapped(muscle)
+                },
+                demoMode: false
+            )
+            .frame(height: 160)
 
-                // ステータスチップ（最大5グループ＝脚含む）
-                VStack(spacing: 5) {
-                    ForEach(topGroupStatuses.prefix(5)) { status in
-                        RecoveryChip(status: status)
-                    }
+            // ミニチップ（横flow wrap）
+            RecoveryFlowLayout(spacing: 6) {
+                ForEach(topGroupStatuses.prefix(5)) { status in
+                    RecoveryMiniChip(status: status)
                 }
-                .frame(width: 110)
             }
         }
         .padding(14)
@@ -131,7 +127,7 @@ struct RecoveryStatusSection: View {
     }
 }
 
-// MARK: - 回復ステータスチップ
+// MARK: - 回復ステータスチップ（既存 — 他で参照される可能性あり）
 
 private struct RecoveryChip: View {
     let status: GroupRecoveryStatus
@@ -218,6 +214,89 @@ enum RecoveryChipType {
         case .neglected: return 2
         case .recovered: return 3
         }
+    }
+}
+
+// MARK: - ミニ回復チップ（横並び用）
+
+private struct RecoveryMiniChip: View {
+    let status: GroupRecoveryStatus
+
+    var body: some View {
+        HStack(spacing: 4) {
+            if status.chipType == .neglected {
+                Text("\u{26A0}\u{FE0F}")
+                    .font(.system(size: 8))
+            } else {
+                Circle()
+                    .fill(status.chipType.color)
+                    .frame(width: 5, height: 5)
+            }
+
+            Text(chipLabel)
+                .font(.system(size: 9, weight: .medium))
+                .foregroundStyle(Color.mmTextSecondary)
+                .lineLimit(1)
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
+        .background(status.chipType.color.opacity(0.08))
+        .clipShape(Capsule())
+    }
+
+    private var chipLabel: String {
+        switch status.chipType {
+        case .recovered:
+            return status.groupName
+        case .recovering:
+            let pct = Int(status.progress * 100)
+            return "\(status.groupName) \(pct)%"
+        case .fatigued:
+            let h = Int(status.hoursAgo)
+            return "\(status.groupName) \(h)h"
+        case .neglected:
+            return status.groupName
+        }
+    }
+}
+
+// MARK: - Recovery Flow Layout（横並びで折り返し）
+
+private struct RecoveryFlowLayout: Layout {
+    var spacing: CGFloat = 6
+
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+        let result = arrange(proposal: proposal, subviews: subviews)
+        return result.size
+    }
+
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        let result = arrange(proposal: ProposedViewSize(width: bounds.width, height: nil), subviews: subviews)
+        for (index, position) in result.positions.enumerated() {
+            subviews[index].place(at: CGPoint(x: bounds.minX + position.x, y: bounds.minY + position.y), proposal: .unspecified)
+        }
+    }
+
+    private func arrange(proposal: ProposedViewSize, subviews: Subviews) -> (size: CGSize, positions: [CGPoint]) {
+        let maxWidth = proposal.width ?? .infinity
+        var positions: [CGPoint] = []
+        var x: CGFloat = 0
+        var y: CGFloat = 0
+        var rowHeight: CGFloat = 0
+
+        for subview in subviews {
+            let size = subview.sizeThatFits(.unspecified)
+            if x + size.width > maxWidth && x > 0 {
+                x = 0
+                y += rowHeight + spacing
+                rowHeight = 0
+            }
+            positions.append(CGPoint(x: x, y: y))
+            rowHeight = max(rowHeight, size.height)
+            x += size.width + spacing
+        }
+
+        return (CGSize(width: maxWidth, height: y + rowHeight), positions)
     }
 }
 
