@@ -2,8 +2,6 @@ import SwiftUI
 
 // MARK: - 今日のアクションカード（ホーム画面トップ）
 
-/// ホーム画面の最上部に表示する「今日何をやるか」カード
-/// ルーティン設定済み → ルーティンカード / 初回ユーザー → 目標ベース提案 / フォールバック → ルーティン作成導線
 struct TodayActionCard: View {
     let viewModel: HomeViewModel
     let streakWeeks: Int
@@ -15,28 +13,32 @@ struct TodayActionCard: View {
     let onReviewMenu: ((RecommendedWorkout, SuggestedMenu) -> Void)?
     let onStart: () -> Void
 
-    /// Day切替用ステート
     @State private var selectedDayIndex: Int?
+    @State private var selectedExerciseDetail: ExerciseDefinition?
 
     private var isJapanese: Bool {
         LocalizationManager.shared.currentLanguage == .japanese
     }
 
     var body: some View {
-        if let routine = viewModel.todayRoutine, !routine.exercises.isEmpty {
-            routineActionCard(routine: routine)
-        } else if RoutineManager.shared.hasRoutine {
-            restDayActionCard
-        } else if !hasWorkoutHistory, let rec = recommendedWorkout, !rec.exercises.isEmpty {
-            firstTimeActionCard(recommendation: rec)
-        } else {
-            setupRoutineCard
+        Group {
+            if let routine = viewModel.todayRoutine, !routine.exercises.isEmpty {
+                routineActionCard(routine: routine)
+            } else if RoutineManager.shared.hasRoutine {
+                restDayActionCard
+            } else if !hasWorkoutHistory, let rec = recommendedWorkout, !rec.exercises.isEmpty {
+                firstTimeActionCard(recommendation: rec)
+            } else {
+                setupRoutineCard
+            }
+        }
+        .sheet(item: $selectedExerciseDetail) { exercise in
+            ExerciseDetailView(exercise: exercise, hideStartWorkoutButton: true)
         }
     }
 
     // MARK: - ルーティンカード
 
-    /// 現在選択中のDay（selectedDayIndexまたはtodayRoutineのインデックス）
     private var activeDay: RoutineDay {
         let allDays = RoutineManager.shared.routine.days
         if let idx = selectedDayIndex, idx < allDays.count {
@@ -53,33 +55,25 @@ struct TodayActionCard: View {
             .joined(separator: " + ")
 
         return VStack(alignment: .leading, spacing: 12) {
-            // ヘッダー行: タイトル + ストリークピル
             HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("\(isJapanese ? "今日:" : "Today:") \(groupNames)")
                         .font(.system(size: 18, weight: .heavy))
                         .foregroundStyle(.white)
-
                     Text("\(displayDay.name) - \(displayDay.exercises.count)\(isJapanese ? "種目" : " exercises")")
                         .font(.system(size: 12))
                         .foregroundStyle(.white.opacity(0.5))
                 }
-
                 Spacer()
-
-                // ストリークピル
                 streakPill
             }
 
-            // Day切替タブ（2Day以上の場合のみ表示）
             if allDays.count > 1 {
                 dayPickerTabs(allDays: allDays, todayRoutine: routine)
             }
 
-            // 種目GIFサムネイル横スクロール
             exerciseThumbnailScroll(exercises: displayDay.exercises)
 
-            // CTA: ワークアウト開始
             startWorkoutButton(routine: displayDay)
         }
         .padding(16)
@@ -130,7 +124,6 @@ struct TodayActionCard: View {
 
     // MARK: - 種目サムネイルスクロール
 
-    /// 括弧以降を省略して表示名を短くする
     private func shortenedName(_ fullName: String) -> String {
         if let parenIdx = fullName.firstIndex(of: "（") {
             return String(fullName[..<parenIdx])
@@ -152,44 +145,73 @@ struct TodayActionCard: View {
                     }()
                     let name = shortenedName(rawName)
 
-                    ZStack(alignment: .bottomLeading) {
-                        // GIF（アニメーション、アスペクトフィル）
+                    ZStack {
+                        // GIF（アニメーション）
                         if ExerciseGifView.hasGif(exerciseId: exercise.exerciseId) {
                             ExerciseGifView(exerciseId: exercise.exerciseId, size: .gridCard)
-                                .frame(width: 130, height: 100)
+                                .frame(width: 140, height: 120)
                                 .clipped()
                         } else {
                             Image(systemName: "dumbbell.fill")
                                 .font(.system(size: 22))
                                 .foregroundStyle(Color.mmTextSecondary.opacity(0.4))
-                                .frame(width: 130, height: 100)
+                                .frame(width: 140, height: 120)
                         }
 
-                        // 下部グラデーション
-                        LinearGradient(
-                            colors: [.clear, .black.opacity(0.8)],
-                            startPoint: .center,
-                            endPoint: .bottom
-                        )
-
-                        // テキスト（種目名 + セット×レップ）
-                        VStack(alignment: .leading, spacing: 1) {
-                            Text(name)
-                                .font(.system(size: 10, weight: .bold))
-                                .foregroundStyle(.white)
-                                .lineLimit(1)
-                            Text("\(exercise.suggestedSets)×\(exercise.suggestedReps)")
-                                .font(.system(size: 9))
-                                .foregroundStyle(.white.opacity(0.6))
+                        // 下部グラデーション + テキスト
+                        VStack {
+                            Spacer()
+                            LinearGradient(
+                                colors: [.clear, .black.opacity(0.8)],
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
+                            .frame(height: 50)
                         }
-                        .padding(6)
+
+                        VStack {
+                            Spacer()
+                            HStack {
+                                VStack(alignment: .leading, spacing: 1) {
+                                    Text(name)
+                                        .font(.system(size: 10, weight: .bold))
+                                        .foregroundStyle(.white)
+                                        .lineLimit(1)
+                                    Text("\(exercise.suggestedSets)×\(exercise.suggestedReps)")
+                                        .font(.system(size: 9))
+                                        .foregroundStyle(.white.opacity(0.6))
+                                }
+                                Spacer()
+                            }
+                            .padding(6)
+                        }
+
+                        // 右上 info ボタン
+                        VStack {
+                            HStack {
+                                Spacer()
+                                Button {
+                                    if let d = def {
+                                        HapticManager.lightTap()
+                                        selectedExerciseDetail = d
+                                    }
+                                } label: {
+                                    Image(systemName: "info.circle.fill")
+                                        .font(.system(size: 18))
+                                        .foregroundStyle(.white.opacity(0.7))
+                                        .background(Circle().fill(Color.black.opacity(0.3)).frame(width: 22, height: 22))
+                                }
+                                .buttonStyle(.plain)
+                            }
+                            .padding(5)
+                            Spacer()
+                        }
                     }
-                    .frame(width: 130, height: 100)
+                    .frame(width: 140, height: 120)
                     .background(Color.mmBgCard)
                     .clipShape(RoundedRectangle(cornerRadius: 10))
                 }
             }
-            // 右端パディングでスクロール示唆
             .padding(.trailing, 20)
         }
     }
@@ -282,7 +304,6 @@ struct TodayActionCard: View {
                 .clipShape(RoundedRectangle(cornerRadius: 8))
             }
 
-            // それでもトレーニングする
             Button {
                 HapticManager.lightTap()
                 onStart()
@@ -329,7 +350,6 @@ struct TodayActionCard: View {
                 Spacer()
             }
 
-            // 種目サムネイル
             let routineExercises = recommendation.exercises.map { ex in
                 RoutineExercise(
                     id: UUID(),
@@ -454,8 +474,6 @@ struct TodayActionCard: View {
         }
     }
 }
-
-// MARK: - Preview
 
 #Preview {
     ZStack {
