@@ -149,8 +149,9 @@ struct TodayActionCard: View {
                         // GIF（アニメーション）
                         if ExerciseGifView.hasGif(exerciseId: exercise.exerciseId) {
                             ExerciseGifView(exerciseId: exercise.exerciseId, size: .gridCard)
+                                .aspectRatio(contentMode: .fit)
                                 .frame(width: 140, height: 120)
-                                .clipped()
+                                .background(Color.white)
                         } else {
                             Image(systemName: "dumbbell.fill")
                                 .font(.system(size: 22))

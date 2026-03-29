@@ -113,7 +113,7 @@ struct LibraryGridCard: View {
                             .aspectRatio(contentMode: .fit)
                             .frame(maxWidth: .infinity)
                             .frame(height: 160)
-                            .background(Color.mmBgCard)
+                            .background(Color.white)
                     } else {
                         MiniMuscleMapView(muscleMapping: exercise.muscleMapping)
                             .frame(maxWidth: .infinity)

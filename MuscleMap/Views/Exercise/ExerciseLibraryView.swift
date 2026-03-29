@@ -87,7 +87,7 @@ struct ExerciseLibraryView: View {
     // MARK: - コンパクトヘッダー（マップ左 + フィルター右）
 
     private var compactHeader: some View {
-        HStack(alignment: .top, spacing: 12) {
+        HStack(alignment: .top, spacing: 8) {
             // 左: ミニ筋肉マップ（前面+背面）
             CompactLibraryMuscleMap(
                 selectedGroup: Binding(
@@ -100,7 +100,7 @@ struct ExerciseLibraryView: View {
                     }
                 )
             )
-            .frame(width: 140, height: 180)
+            .frame(width: 120, height: 120)
 
             // 右: フィルターチップ + 種目数
             VStack(alignment: .leading, spacing: 6) {
