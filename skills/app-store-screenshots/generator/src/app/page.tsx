@@ -6,9 +6,9 @@ import { SHOTS, type Lang, type ShotDef } from '@/copy';
 
 const W = 1320;
 const H = 2868;
-const COPY_TOP = 100;
-const PHONE_TOP = 700;
-const PHONE_W = 900;
+const COPY_TOP = 80;
+const PHONE_TOP = 620;
+const PHONE_W = 1000;
 const PHONE_X = (W - PHONE_W) / 2;
 
 function CompositeSlide({
@@ -24,132 +24,137 @@ function CompositeSlide({
 
   return (
     <div ref={slideRef} style={{
-      width: W, height: H, background: '#030504',
+      width: W, height: H, background: '#020303',
       position: 'relative', overflow: 'hidden',
       fontFamily: isJa
         ? "'Noto Sans JP', 'Hiragino Sans', sans-serif"
         : "'Inter', 'SF Pro Display', -apple-system, sans-serif",
     }}>
 
-      {/* ═══ BG: Base gradient with green tint ═══ */}
+      {/* ═══ BG: Green-tinted base ═══ */}
       <div style={{
         position: 'absolute', inset: 0,
-        background: `linear-gradient(175deg, #060C08 0%, #030504 30%, #040806 60%, #030504 100%)`,
+        background: `linear-gradient(175deg, #081410 0%, #030504 30%, #061008 60%, #020303 100%)`,
       }} />
 
-      {/* ═══ BG: Main aurora glow — STRONG ═══ */}
+      {/* ═══ BG: MASSIVE aurora — clearly visible ═══ */}
       <div style={{
-        position: 'absolute', top: -300, left: '50%', transform: 'translateX(-50%)',
-        width: 1600, height: 1200,
-        background: `radial-gradient(ellipse 70% 50%, ${a}30 0%, ${a}15 25%, ${a}08 45%, transparent 65%)`,
-        filter: 'blur(40px)',
+        position: 'absolute', top: -200, left: '50%', transform: 'translateX(-50%)',
+        width: 1800, height: 1400,
+        background: `radial-gradient(ellipse 65% 45%, ${a}44 0%, ${a}22 30%, ${a}0C 55%, transparent 70%)`,
+        filter: 'blur(80px)',
       }} />
 
-      {/* ═══ BG: Bottom warm glow ═══ */}
+      {/* ═══ BG: Bottom pool of light ═══ */}
       <div style={{
-        position: 'absolute', bottom: -200, left: '50%', transform: 'translateX(-50%)',
-        width: 1400, height: 800,
-        background: `radial-gradient(ellipse, ${a}12 0%, transparent 60%)`,
+        position: 'absolute', bottom: -100, left: '50%', transform: 'translateX(-50%)',
+        width: 1200, height: 600,
+        background: `radial-gradient(ellipse, ${a}20 0%, ${a}08 40%, transparent 70%)`,
         filter: 'blur(60px)',
       }} />
 
-      {/* ═══ BG: Muscle fiber lines — VISIBLE ═══ */}
+      {/* ═══ BG: Side accent glows ═══ */}
+      <div style={{
+        position: 'absolute', top: '30%', left: -200, width: 500, height: 800,
+        background: `radial-gradient(circle, ${a}10 0%, transparent 60%)`,
+        filter: 'blur(40px)',
+      }} />
+      <div style={{
+        position: 'absolute', top: '50%', right: -200, width: 500, height: 800,
+        background: `radial-gradient(circle, ${a}0C 0%, transparent 60%)`,
+        filter: 'blur(40px)',
+      }} />
+
+      {/* ═══ BG: Muscle fiber SVG — STRONG ═══ */}
       <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}
         viewBox={`0 0 ${W} ${H}`} fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
-        {/* Horizontal flowing fibers */}
-        {Array.from({ length: 30 }).map((_, i) => {
-          const y = 96 * i;
-          const wave = Math.sin(i * 0.5) * 60;
-          const wave2 = Math.cos(i * 0.3) * 40;
+        {Array.from({ length: 35 }).map((_, i) => {
+          const y = 82 * i;
+          const w1 = Math.sin(i * 0.4) * 80;
+          const w2 = Math.cos(i * 0.6) * 60;
           return (
             <path key={`h${i}`}
-              d={`M-50 ${y + wave} Q${330} ${y + wave2 + 30}, ${660} ${y - wave + 15} T${W + 50} ${y + wave2}`}
+              d={`M-80 ${y + w1} Q${W * 0.25} ${y + w2 + 40}, ${W * 0.5} ${y - w1 + 20} T${W + 80} ${y + w2}`}
               stroke={a}
-              strokeWidth={0.8 + (i % 4) * 0.3}
-              opacity={0.06 + (i % 3) * 0.03}
+              strokeWidth={0.6 + (i % 5) * 0.4}
+              opacity={0.12 + (i % 4) * 0.05}
             />
           );
         })}
-        {/* Vertical structure lines */}
-        {Array.from({ length: 10 }).map((_, i) => {
-          const x = 132 * i;
-          const sway = Math.sin(i * 0.7) * 50;
+        {Array.from({ length: 12 }).map((_, i) => {
+          const x = 110 * i;
+          const s = Math.sin(i * 0.8) * 60;
           return (
             <path key={`v${i}`}
-              d={`M${x + sway} -50 Q${x - sway + 30} ${H * 0.33}, ${x + sway - 20} ${H * 0.66} T${x - sway} ${H + 50}`}
+              d={`M${x + s} -80 Q${x - s + 40} ${H * 0.3}, ${x + s - 30} ${H * 0.6} T${x - s + 10} ${H + 80}`}
               stroke={a}
-              strokeWidth={0.5}
-              opacity={0.04 + (i % 3) * 0.02}
+              strokeWidth={0.4 + (i % 3) * 0.3}
+              opacity={0.06 + (i % 3) * 0.04}
             />
           );
         })}
       </svg>
 
-      {/* ═══ BG: Concentric anatomy rings ═══ */}
+      {/* ═══ BG: Anatomy rings — VISIBLE ═══ */}
       <div style={{
-        position: 'absolute', top: 200, left: '50%', transform: 'translateX(-50%)',
-        width: 1000, height: 1000,
-        borderRadius: '50%',
-        border: `1.5px solid ${a}`,
-        opacity: 0.07,
-        boxShadow: `0 0 80px ${a}15, inset 0 0 80px ${a}08`,
+        position: 'absolute', top: 150, left: '50%', transform: 'translateX(-50%)',
+        width: 1100, height: 1100, borderRadius: '50%',
+        border: `2px solid ${a}`,
+        opacity: 0.12,
+        boxShadow: `0 0 100px ${a}20, inset 0 0 60px ${a}0A`,
       }} />
       <div style={{
-        position: 'absolute', top: 320, left: '50%', transform: 'translateX(-50%)',
-        width: 760, height: 760,
-        borderRadius: '50%',
+        position: 'absolute', top: 290, left: '50%', transform: 'translateX(-50%)',
+        width: 820, height: 820, borderRadius: '50%',
+        border: `1.5px solid ${a}`,
+        opacity: 0.07,
+      }} />
+      <div style={{
+        position: 'absolute', top: 430, left: '50%', transform: 'translateX(-50%)',
+        width: 540, height: 540, borderRadius: '50%',
         border: `1px solid ${a}`,
         opacity: 0.04,
       }} />
-      <div style={{
-        position: 'absolute', top: 440, left: '50%', transform: 'translateX(-50%)',
-        width: 520, height: 520,
-        borderRadius: '50%',
-        border: `0.5px solid ${a}`,
-        opacity: 0.03,
-      }} />
 
-      {/* ═══ BG: Scatter particles ═══ */}
+      {/* ═══ BG: Particles ═══ */}
       <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}
         viewBox={`0 0 ${W} ${H}`} xmlns="http://www.w3.org/2000/svg">
-        {Array.from({ length: 60 }).map((_, i) => (
+        {Array.from({ length: 80 }).map((_, i) => (
           <circle key={i}
-            cx={60 + (i * 293 + i * i * 7) % (W - 120)}
-            cy={50 + (i * 487 + i * i * 3) % (H - 100)}
-            r={1 + (i % 4) * 0.8}
+            cx={50 + (i * 293 + i * i * 7) % (W - 100)}
+            cy={40 + (i * 487 + i * i * 3) % (H - 80)}
+            r={0.8 + (i % 5) * 0.6}
             fill={a}
-            opacity={0.08 + (i % 5) * 0.04}
+            opacity={0.15 + (i % 4) * 0.08}
           />
         ))}
       </svg>
 
-      {/* ═══ BG: Noise texture ═══ */}
+      {/* ═══ BG: Noise ═══ */}
       <div style={{
-        position: 'absolute', inset: 0, opacity: 0.5, mixBlendMode: 'overlay' as const,
-        backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E")`,
+        position: 'absolute', inset: 0, opacity: 0.6, mixBlendMode: 'overlay' as const,
+        backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.08'/%3E%3C/svg%3E")`,
         backgroundRepeat: 'repeat',
       }} />
 
-      {/* ═══ BG: Edge accents ═══ */}
-      {/* Top */}
+      {/* ═══ BG: Edges ═══ */}
       <div style={{
         position: 'absolute', top: 0, left: '5%', right: '5%', height: 2,
-        background: `linear-gradient(90deg, transparent, ${a}50, transparent)`,
+        background: `linear-gradient(90deg, transparent, ${a}60, transparent)`,
       }} />
-      {/* Sides */}
       <div style={{
         position: 'absolute', top: '5%', bottom: '5%', left: 0, width: 1,
-        background: `linear-gradient(180deg, transparent 0%, ${a}18 30%, ${a}10 70%, transparent 100%)`,
+        background: `linear-gradient(180deg, transparent, ${a}25, ${a}15, transparent)`,
       }} />
       <div style={{
         position: 'absolute', top: '5%', bottom: '5%', right: 0, width: 1,
-        background: `linear-gradient(180deg, transparent 0%, ${a}18 30%, ${a}10 70%, transparent 100%)`,
+        background: `linear-gradient(180deg, transparent, ${a}25, ${a}15, transparent)`,
       }} />
 
       {/* ═══ COPY ═══ */}
       <div style={{
         position: 'absolute', top: COPY_TOP, left: 0, right: 0,
-        textAlign: 'center', zIndex: 2, padding: '0 70px',
+        textAlign: 'center', zIndex: 2, padding: '0 60px',
       }}>
         <div style={{
           fontSize: isJa ? 100 : 104,
@@ -157,38 +162,37 @@ function CompositeSlide({
           lineHeight: 1.05,
           letterSpacing: isJa ? 8 : -3,
           fontFeatureSettings: "'palt' 1",
-          textShadow: `0 0 80px ${a}25, 0 0 160px ${a}10, 0 4px 20px rgba(0,0,0,0.6)`,
+          textShadow: `0 0 60px ${a}30, 0 0 120px ${a}15, 0 4px 20px rgba(0,0,0,0.7)`,
         }}>
           {lines.map((l, i) => <div key={i}>{l}</div>)}
         </div>
 
         <div style={{
           fontSize: 26, fontWeight: 400,
-          color: `${a}60`,
-          marginTop: 22, letterSpacing: isJa ? 3 : 1,
+          color: `${a}65`,
+          marginTop: 20, letterSpacing: isJa ? 3 : 1,
           fontFeatureSettings: "'palt' 1",
-          textShadow: `0 0 40px ${a}15`,
+          textShadow: `0 0 30px ${a}20`,
         }}>
           {copy.sub}
         </div>
 
         <div style={{
           display: 'flex', gap: 8, justifyContent: 'center',
-          marginTop: 26, flexWrap: 'wrap' as const,
+          marginTop: 22, flexWrap: 'wrap' as const,
         }}>
           {copy.chips.map((c, i) => (
             <span key={i} style={{
               padding: '5px 14px',
-              background: `${a}08`,
-              border: `1px solid ${a}18`,
+              background: `${a}0C`,
+              border: `1px solid ${a}20`,
               borderRadius: 100,
-              color: c.desc ? 'rgba(255,255,255,0.35)' : `${a}80`,
+              color: c.desc ? 'rgba(255,255,255,0.4)' : `${a}90`,
               fontSize: 15, fontWeight: c.desc ? 400 : 700,
-              letterSpacing: 0.5,
-              boxShadow: `0 0 20px ${a}06`,
+              boxShadow: `0 0 15px ${a}08`,
             }}>
               {c.desc
-                ? <><strong style={{ color: `${a}BB`, fontWeight: 700 }}>{c.label}</strong> {c.desc}</>
+                ? <><strong style={{ color: `${a}CC`, fontWeight: 700 }}>{c.label}</strong> {c.desc}</>
                 : c.label}
             </span>
           ))}
@@ -199,56 +203,51 @@ function CompositeSlide({
       <div style={{
         position: 'absolute', top: PHONE_TOP, left: PHONE_X, width: PHONE_W, zIndex: 1,
       }}>
-        {/* Phone underglow */}
         <div style={{
-          position: 'absolute', top: -50, left: -100, right: -100, bottom: -50,
-          background: `radial-gradient(ellipse 70% 50%, ${a}10 0%, transparent 60%)`,
-          filter: 'blur(30px)',
-          pointerEvents: 'none',
-        }} />
-
-        {/* Top reflection arc */}
-        <div style={{
-          position: 'absolute', top: -20, left: '10%', right: '10%', height: 40,
-          background: `radial-gradient(ellipse, ${a}18 0%, transparent 70%)`,
-          filter: 'blur(15px)',
-          pointerEvents: 'none',
+          position: 'absolute', top: -60, left: -120, right: -120, bottom: -60,
+          background: `radial-gradient(ellipse 60% 40%, ${a}15 0%, transparent 60%)`,
+          filter: 'blur(40px)',
         }} />
 
         <div style={{
-          position: 'relative', borderRadius: 56, padding: 11,
+          position: 'absolute', top: -15, left: '8%', right: '8%', height: 30,
+          background: `radial-gradient(ellipse, ${a}25 0%, transparent 70%)`,
+          filter: 'blur(12px)',
+        }} />
+
+        <div style={{
+          position: 'relative', borderRadius: 54, padding: 10,
           background: 'linear-gradient(155deg, #606062 0%, #3A3A3C 10%, #1C1C1E 50%, #3A3A3C 90%, #606062 100%)',
           boxShadow: `
             0 40px 80px rgba(0,0,0,0.9),
             0 0 0 0.5px rgba(255,255,255,0.12),
-            0 20px 60px ${a}08,
+            0 20px 60px ${a}0A,
             inset 0 0.5px 0 rgba(255,255,255,0.2),
             inset 0 -0.5px 0 rgba(255,255,255,0.06)
           `,
         }}>
-          {/* Buttons */}
-          <div style={{ position: 'absolute', top: 195, right: -2, width: 3, height: 75,
+          <div style={{ position: 'absolute', top: 185, right: -2, width: 3, height: 70,
             background: 'linear-gradient(180deg, #707072, #3A3A3C, #707072)', borderRadius: '0 1.5px 1.5px 0' }} />
-          <div style={{ position: 'absolute', top: 165, left: -2, width: 3, height: 38,
+          <div style={{ position: 'absolute', top: 155, left: -2, width: 3, height: 35,
             background: 'linear-gradient(180deg, #707072, #3A3A3C, #707072)', borderRadius: '1.5px 0 0 1.5px' }} />
-          <div style={{ position: 'absolute', top: 215, left: -2, width: 3, height: 38,
+          <div style={{ position: 'absolute', top: 202, left: -2, width: 3, height: 35,
             background: 'linear-gradient(180deg, #707072, #3A3A3C, #707072)', borderRadius: '1.5px 0 0 1.5px' }} />
 
           <div style={{
-            borderRadius: 45, overflow: 'hidden', background: '#000', position: 'relative',
+            borderRadius: 44, overflow: 'hidden', background: '#000', position: 'relative',
           }}>
             <div style={{
-              position: 'absolute', top: 11, left: '50%', transform: 'translateX(-50%)',
-              width: 120, height: 28, background: '#000', borderRadius: 14, zIndex: 10,
+              position: 'absolute', top: 10, left: '50%', transform: 'translateX(-50%)',
+              width: 115, height: 26, background: '#000', borderRadius: 13, zIndex: 10,
             }} />
             <div style={{
-              position: 'absolute', inset: 0, borderRadius: 45,
+              position: 'absolute', inset: 0, borderRadius: 44,
               boxShadow: 'inset 0 0 0 0.5px rgba(255,255,255,0.1)',
               pointerEvents: 'none', zIndex: 8,
             }} />
             <div style={{
-              position: 'absolute', top: 0, left: 0, right: 0, height: 150,
-              background: 'linear-gradient(180deg, rgba(255,255,255,0.025) 0%, transparent 100%)',
+              position: 'absolute', top: 0, left: 0, right: 0, height: 140,
+              background: 'linear-gradient(180deg, rgba(255,255,255,0.03) 0%, transparent 100%)',
               pointerEvents: 'none', zIndex: 5,
             }} />
 
@@ -262,10 +261,10 @@ function CompositeSlide({
               }}>
                 <div style={{
                   width: 44, height: 44, borderRadius: 11,
-                  border: `1.5px dashed ${a}15`,
+                  border: `1.5px dashed ${a}18`,
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                 }}>
-                  <span style={{ fontSize: 18, color: a, opacity: 0.15 }}>+</span>
+                  <span style={{ fontSize: 18, color: a, opacity: 0.2 }}>+</span>
                 </div>
               </div>
             )}
@@ -273,17 +272,15 @@ function CompositeSlide({
         </div>
       </div>
 
-      {/* ═══ BOTTOM FADE ═══ */}
+      {/* ═══ BOTTOM ═══ */}
       <div style={{
-        position: 'absolute', bottom: 0, left: 0, right: 0, height: 500,
-        background: 'linear-gradient(transparent 0%, #030504 65%)',
+        position: 'absolute', bottom: 0, left: 0, right: 0, height: 450,
+        background: 'linear-gradient(transparent 0%, #020303 60%)',
         pointerEvents: 'none', zIndex: 3,
       }} />
-
-      {/* Bottom brand bar */}
       <div style={{
-        position: 'absolute', bottom: 45, left: '25%', right: '25%', height: 2,
-        background: `linear-gradient(90deg, transparent, ${a}35, transparent)`,
+        position: 'absolute', bottom: 40, left: '20%', right: '20%', height: 2,
+        background: `linear-gradient(90deg, transparent, ${a}40, transparent)`,
         zIndex: 4, borderRadius: 1,
       }} />
     </div>
@@ -298,7 +295,7 @@ export default function Page() {
   const [exporting, setExporting] = useState(false);
 
   const LANGS: Lang[] = ['ja', 'en', 'zh', 'ko', 'es', 'de', 'fr'];
-  const S = 340 / W;
+  const S = 380 / W; // bigger preview
 
   const setImg = useCallback((id: number, d: string) => setImages(p => ({ ...p, [id]: d })), []);
 
@@ -375,28 +372,28 @@ export default function Page() {
 
       <div style={{
         display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)',
-        gap: 6, padding: '10px 6px',
+        gap: 8, padding: '12px 8px',
       }}>
         {SHOTS.map(shot => (
           <div key={shot.id}>
             <div style={{
               display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-              marginBottom: 3, padding: '0 4px',
+              marginBottom: 4, padding: '0 4px',
             }}>
-              <span style={{ fontSize: 9, color: '#333', fontWeight: 600, letterSpacing: 0.8, textTransform: 'uppercase' }}>
+              <span style={{ fontSize: 10, color: '#3a3a3a', fontWeight: 600, letterSpacing: 0.5 }}>
                 {shot.id}. {shot.copy[lang].headline.split('\n')[0]}
               </span>
               <div style={{ display: 'flex', gap: 3 }}>
                 {images[shot.id] && (
                   <button onClick={() => pick(shot.id)} style={{
-                    padding: '1px 6px', background: 'transparent', color: '#2a2a2a',
-                    border: '1px solid #1a1a1a', borderRadius: 2, cursor: 'pointer', fontSize: 8,
+                    padding: '2px 7px', background: 'transparent', color: '#333',
+                    border: '1px solid #1a1a1a', borderRadius: 2, cursor: 'pointer', fontSize: 9,
                   }}>↻</button>
                 )}
                 <button onClick={() => exp1(shot.id)} disabled={!images[shot.id]} style={{
-                  padding: '1px 6px', background: images[shot.id] ? '#00E676' : '#0a0a0a',
+                  padding: '2px 7px', background: images[shot.id] ? '#00E676' : '#0a0a0a',
                   color: images[shot.id] ? '#000' : '#1a1a1a', border: 'none', borderRadius: 2,
-                  cursor: images[shot.id] ? 'pointer' : 'not-allowed', fontSize: 8, fontWeight: 700,
+                  cursor: images[shot.id] ? 'pointer' : 'not-allowed', fontSize: 9, fontWeight: 700,
                 }}>↓</button>
               </div>
             </div>
@@ -407,7 +404,7 @@ export default function Page() {
               onClick={() => { if (!images[shot.id]) pick(shot.id); }}
               style={{
                 width: W * S, height: H * S, overflow: 'hidden',
-                borderRadius: 5, border: images[shot.id] ? '1px solid #151515' : '1px dashed #181818',
+                borderRadius: 6, border: images[shot.id] ? '1px solid #181818' : '1px dashed #1f1f1f',
                 cursor: images[shot.id] ? 'default' : 'pointer',
               }}
             >
