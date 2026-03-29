@@ -303,15 +303,15 @@ private struct SessionDetailCard: View {
                         .font(.caption.bold())
                         .foregroundStyle(Color.mmTextSecondary)
 
-                    HStack(spacing: 8) {
+                    HStack(spacing: 4) {
                         MiniMuscleMapView(muscleMapping: stimulatedMuscleMapping, showFront: true)
                             .aspectRatio(0.5, contentMode: .fit)
                             .frame(maxWidth: .infinity)
-                            .frame(height: 160)
+                            .frame(height: 200)
                         MiniMuscleMapView(muscleMapping: stimulatedMuscleMapping, showFront: false)
                             .aspectRatio(0.5, contentMode: .fit)
                             .frame(maxWidth: .infinity)
-                            .frame(height: 160)
+                            .frame(height: 200)
                     }
                 }
                 .padding(12)
