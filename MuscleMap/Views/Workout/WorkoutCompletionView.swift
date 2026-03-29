@@ -2,7 +2,7 @@ import SwiftUI
 import SwiftData
 import UIKit
 
-// MARK: - ワークアウト完了画面
+// MARK: - ワークアウト完了画面（種目フォーカス版）
 
 struct WorkoutCompletionView: View {
     @Environment(\.modelContext) private var modelContext
@@ -24,6 +24,7 @@ struct WorkoutCompletionView: View {
     @State private var showingCamera = false
     @State private var photoSaved = false
     @State private var daysSinceLastPhoto: Int?
+    @State private var prUpdatesMap: [String: PRUpdate] = [:]
 
     private var localization: LocalizationManager { LocalizationManager.shared }
 
@@ -45,10 +46,9 @@ struct WorkoutCompletionView: View {
         Set(session.sets.map(\.exerciseId)).count
     }
 
-    private var duration: String {
-        guard let end = session.endDate else { return "--" }
-        let minutes = Int(end.timeIntervalSince(session.startDate) / 60)
-        return L10n.minutes(minutes)
+    private var durationMinutes: Int {
+        guard let end = session.endDate else { return 0 }
+        return Int(end.timeIntervalSince(session.startDate) / 60)
     }
 
     private var exercisesDone: [ExerciseDefinition] {
@@ -75,7 +75,14 @@ struct WorkoutCompletionView: View {
         return muscleIntensity
     }
 
-    /// 今回刺激した筋肉とセッション内の推定セット数（回復予測用）
+    /// 刺激された筋肉名リスト
+    private var stimulatedMuscleNames: [String] {
+        stimulatedMuscleMapping.compactMap { key, value -> String? in
+            guard value > 0, let muscle = Muscle(rawValue: key) else { return nil }
+            return muscle.localizedName
+        }
+    }
+
     private var stimulatedMusclesWithSets: [(muscle: Muscle, totalSets: Int)] {
         var muscleSets: [Muscle: Int] = [:]
         for set in session.sets {
@@ -88,6 +95,14 @@ struct WorkoutCompletionView: View {
         return muscleSets.map { ($0.key, $0.value) }
     }
 
+    /// 種目ごとのセッション内最大重量セット
+    private func bestSet(for exerciseId: String) -> WorkoutSet? {
+        session.sets
+            .filter { $0.exerciseId == exerciseId }
+            .max(by: { $0.weight < $1.weight })
+    }
+
+    /// 種目ごとのセット数
     private func setsCount(for exerciseId: String) -> Int {
         session.sets.filter { $0.exerciseId == exerciseId }.count
     }
@@ -100,34 +115,30 @@ struct WorkoutCompletionView: View {
         volume >= 1000 ? String(format: "%.1fk", volume / 1000) : String(format: "%.0f", volume)
     }
 
-    private var durationMinutes: Int {
-        guard let end = session.endDate else { return 0 }
-        return Int(end.timeIntervalSince(session.startDate) / 60)
-    }
-
     private var shareText: String {
         if localization.currentLanguage == .japanese {
             return """
-            今日のワークアウト完了 💪
-            \(uniqueExercises)種目 | \(totalSets)セット | \(formatVolume(totalVolume))kg
-            MuscleMap で記録 💪
+            今日のワークアウト完了
+            \(uniqueExercises)種目 · \(totalSets)セット · \(durationMinutes)分
+            MuscleMap で記録
             \(AppConstants.shareHashtag)
             \(AppConstants.appStoreURL)
             """
         } else {
             return """
-            Workout Complete 💪
-            \(uniqueExercises) exercises | \(totalSets) sets | \(formatVolume(totalVolume))kg
-            Tracked with MuscleMap 💪
+            Workout Complete
+            \(uniqueExercises) exercises · \(totalSets) sets · \(durationMinutes)min
+            Tracked with MuscleMap
             \(AppConstants.shareHashtag)
             \(AppConstants.appStoreURL)
             """
         }
     }
 
+    // MARK: - Body
+
     var body: some View {
         ZStack {
-            // 微細グラデーション背景
             LinearGradient(
                 colors: [Color.mmBgPrimary, Color.mmBgSecondary.opacity(0.6)],
                 startPoint: .top,
@@ -137,34 +148,37 @@ struct WorkoutCompletionView: View {
 
             VStack(spacing: 0) {
                 ScrollView {
-                    VStack(spacing: 24) {
-                        CompletionIcon()
-                            .padding(.top, 24)
+                    VStack(spacing: 16) {
+                        // 1. 筋肉マップ（ヒーロー）
+                        muscleMapHero
+                            .padding(.top, 16)
 
-                        Text(L10n.workoutComplete)
-                            .font(.largeTitle.weight(.heavy))
-                            .foregroundStyle(Color.mmTextPrimary)
+                        // 2. 種目カードリスト（メインコンテンツ）
+                        exerciseCardList
 
-                        // 汎用モチベーションテキスト
-                        MotivationalSummary(
-                            totalVolume: totalVolume,
-                            hasPR: hasPRUpdate,
-                            exerciseCount: uniqueExercises
-                        )
+                        // 3. サマリー（1行）
+                        compactSummary
 
-                        // 90日チャレンジ Day完了（チャレンジ進行中の場合のみ）
-                        if AppState.shared.challengeActive {
-                            ChallengeDayCompleteBanner()
+                        // レベルアップ（PR更新でレベルが上がった場合）
+                        if !levelUpExercises.isEmpty {
+                            LevelUpCelebrationSection(levelUps: levelUpExercises)
                         }
 
-                        CompletionStatsCard(
-                            totalVolume: totalVolume,
-                            uniqueExercises: uniqueExercises,
-                            totalSets: totalSets,
-                            duration: duration
-                        )
+                        // 4. プログレスフォト
+                        progressPhotoButton
 
-                        // シェアボタン（StatsCard直下に配置、視認性強化）
+                        if let days = daysSinceLastPhoto, days >= 7, !photoSaved {
+                            photoReminderBanner(days: days)
+                        }
+
+                        // 5. 次回推奨
+                        if !stimulatedMusclesWithSets.isEmpty {
+                            NextRecommendedDaySection(
+                                stimulatedMuscles: stimulatedMusclesWithSets
+                            )
+                        }
+
+                        // 6. シェアボタン
                         Button {
                             HapticManager.lightTap()
                             prepareShareImage()
@@ -174,64 +188,20 @@ struct WorkoutCompletionView: View {
                                 Image(systemName: "square.and.arrow.up")
                                 Text(L10n.shareWorkout)
                             }
-                            .font(.system(size: 18, weight: .bold))
+                            .font(.system(size: 16, weight: .bold))
                             .foregroundStyle(Color.mmBgPrimary)
                             .frame(maxWidth: .infinity)
-                            .frame(height: 56)
+                            .frame(height: 52)
                             .background(Color.mmAccentPrimary)
                             .clipShape(RoundedRectangle(cornerRadius: 16))
                         }
                         .buttonStyle(.plain)
-
-                        // プログレスフォト撮影ボタン
-                        progressPhotoButton
-
-                        // 7日以上撮影していない場合のリマインダー
-                        if let days = daysSinceLastPhoto, days >= 7, !photoSaved {
-                            photoReminderBanner(days: days)
-                        }
-
-                        // レベルアップ祝福（PR更新でレベルが上がった場合）
-                        if !levelUpExercises.isEmpty {
-                            LevelUpCelebrationSection(levelUps: levelUpExercises)
-                        }
-
-                        StimulatedMusclesSection(muscleMapping: stimulatedMuscleMapping)
-
-                        // 次回おすすめ日
-                        if !stimulatedMusclesWithSets.isEmpty {
-                            NextRecommendedDaySection(
-                                stimulatedMuscles: stimulatedMusclesWithSets
-                            )
-                        }
-
-                        // PR更新時のみStrength Mapシェア導線
-                        if hasPRUpdate {
-                            StrengthMapShareSection(
-                                onShareStrengthMap: {
-                                    prepareStrengthShareImage()
-                                    showingStrengthShareSheet = true
-                                }
-                            )
-                        }
-
-                        CompletionExerciseList(
-                            exercises: exercisesDone,
-                            setsCountProvider: setsCount
-                        )
-
-                        // 非ProへのPaywall誘導
-                        if !PurchaseManager.shared.isPremium {
-                            CompletionProBanner(onTap: {
-                                showingPaywall = true
-                            })
-                        }
                     }
                     .padding(.horizontal)
                     .padding(.bottom, 16)
                 }
 
-                // 閉じるボタンのみ下部固定
+                // 閉じるボタン（下部固定）
                 Button {
                     HapticManager.lightTap()
                     onDismiss()
@@ -280,6 +250,7 @@ struct WorkoutCompletionView: View {
             daysSinceLastPhoto = ProgressPhoto.daysSinceLastPhoto(context: modelContext)
             Task {
                 checkFullBodyConquest()
+                loadPRUpdates()
                 checkPRUpdates()
                 detectLevelUps()
                 scheduleRecoveryNotification()
@@ -294,11 +265,222 @@ struct WorkoutCompletionView: View {
         }
     }
 
+    // MARK: - 1. 筋肉マップヒーロー
+
+    private var muscleMapHero: some View {
+        VStack(spacing: 8) {
+            // 「WORKOUT COMPLETE」ラベル
+            Text("WORKOUT COMPLETE")
+                .font(.system(size: 11, weight: .heavy))
+                .tracking(2)
+                .foregroundStyle(Color.mmAccentPrimary)
+
+            // 筋肉マップ（グロー付き）
+            ZStack {
+                Circle()
+                    .fill(Color.mmAccentPrimary.opacity(0.03))
+                    .frame(width: 300, height: 300)
+                    .blur(radius: 30)
+
+                ShareMuscleMapView(
+                    muscleMapping: stimulatedMuscleMapping,
+                    mapHeight: 240,
+                    glowEnabled: true
+                )
+            }
+
+            // 刺激部位チップ
+            if !stimulatedMuscleNames.isEmpty {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 6) {
+                        ForEach(stimulatedMuscleNames, id: \.self) { name in
+                            Text(name)
+                                .font(.system(size: 10, weight: .bold))
+                                .foregroundStyle(Color.mmAccentPrimary)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4)
+                                .background(Color.mmAccentPrimary.opacity(0.1))
+                                .clipShape(Capsule())
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // MARK: - 2. 種目カードリスト
+
+    private var exerciseCardList: some View {
+        VStack(spacing: 8) {
+            ForEach(exercisesDone) { exercise in
+                exerciseCard(exercise)
+            }
+        }
+    }
+
+    private func exerciseCard(_ exercise: ExerciseDefinition) -> some View {
+        let name = localization.currentLanguage == .japanese ? exercise.nameJA : exercise.nameEN
+        let sets = setsCount(for: exercise.id)
+        let best = bestSet(for: exercise.id)
+        let prUpdate = prUpdatesMap[exercise.id]
+
+        return VStack(spacing: 0) {
+            HStack(spacing: 12) {
+                // GIFサムネイル
+                if ExerciseGifView.hasGif(exerciseId: exercise.id) {
+                    ExerciseGifView(exerciseId: exercise.id, size: .gridCard)
+                        .frame(width: 80, height: 80)
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                } else {
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(Color.mmBgPrimary)
+                        .frame(width: 80, height: 80)
+                        .overlay(
+                            Image(systemName: "dumbbell.fill")
+                                .font(.title3)
+                                .foregroundStyle(Color.mmTextSecondary.opacity(0.4))
+                        )
+                }
+
+                VStack(alignment: .leading, spacing: 4) {
+                    // 種目名
+                    Text(name)
+                        .font(.subheadline.bold())
+                        .foregroundStyle(Color.mmTextPrimary)
+                        .lineLimit(1)
+
+                    // 重量推移（前回 → 今回）
+                    if let best, best.weight > 0 {
+                        if let pr = prUpdate {
+                            HStack(spacing: 4) {
+                                Text(formatWeight(pr.previousWeight))
+                                    .font(.caption.monospaced())
+                                    .foregroundStyle(Color.mmTextSecondary)
+                                Image(systemName: "arrow.right")
+                                    .font(.system(size: 8))
+                                    .foregroundStyle(Color.mmTextSecondary)
+                                Text("\(formatWeight(best.weight))×\(best.reps)")
+                                    .font(.caption.bold().monospaced())
+                                    .foregroundStyle(Color.mmTextPrimary)
+                            }
+                        } else {
+                            Text("\(formatWeight(best.weight))×\(best.reps)")
+                                .font(.caption.bold().monospaced())
+                                .foregroundStyle(Color.mmTextPrimary)
+                        }
+                    }
+
+                    // セット数
+                    Text(L10n.setsLabel(sets))
+                        .font(.caption)
+                        .foregroundStyle(Color.mmTextSecondary)
+                }
+
+                Spacer()
+            }
+            .padding(12)
+
+            // PRライン（PRの場合のみ）
+            if let pr = prUpdate {
+                HStack(spacing: 6) {
+                    Rectangle()
+                        .fill(Color.mmPRGold.opacity(0.3))
+                        .frame(height: 0.5)
+                    Image(systemName: "trophy.fill")
+                        .font(.system(size: 10))
+                        .foregroundStyle(Color.mmPRGold)
+                    Text("PR ↑\(pr.increasePercent)%")
+                        .font(.system(size: 10, weight: .bold))
+                        .foregroundStyle(Color.mmPRGold)
+                    Rectangle()
+                        .fill(Color.mmPRGold.opacity(0.3))
+                        .frame(height: 0.5)
+                }
+                .padding(.horizontal, 12)
+                .padding(.bottom, 10)
+            }
+        }
+        .background(Color.mmBgSecondary)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+
+    // MARK: - 3. サマリー（1行）
+
+    private var compactSummary: some View {
+        let isJapanese = localization.currentLanguage == .japanese
+        let text = isJapanese
+            ? "\(uniqueExercises)種目 · \(totalSets)セット · \(durationMinutes)分"
+            : "\(uniqueExercises) exercises · \(totalSets) sets · \(durationMinutes)min"
+
+        return Text(text)
+            .font(.caption)
+            .foregroundStyle(Color.mmTextSecondary)
+            .frame(maxWidth: .infinity)
+    }
+
+    // MARK: - プログレスフォトボタン
+
+    private var progressPhotoButton: some View {
+        let isJapanese = localization.currentLanguage == .japanese
+        return Button {
+            HapticManager.lightTap()
+            showingCamera = true
+        } label: {
+            HStack(spacing: 8) {
+                Image(systemName: photoSaved ? "checkmark.circle.fill" : "camera.fill")
+                Text(photoSaved
+                     ? (isJapanese ? "記録済み" : "Photo Saved")
+                     : (isJapanese ? "体の記録を撮る" : "Take Progress Photo"))
+            }
+            .font(.system(size: 16, weight: .bold))
+            .foregroundStyle(photoSaved ? Color.mmAccentPrimary : Color.mmTextPrimary)
+            .frame(maxWidth: .infinity)
+            .frame(height: 52)
+            .background(photoSaved ? Color.mmAccentPrimary.opacity(0.15) : Color.mmBgSecondary)
+            .clipShape(RoundedRectangle(cornerRadius: 16))
+        }
+        .buttonStyle(.plain)
+        .disabled(photoSaved)
+    }
+
+    private func photoReminderBanner(days: Int) -> some View {
+        let isJapanese = localization.currentLanguage == .japanese
+        return HStack(spacing: 8) {
+            Image(systemName: "photo.on.rectangle.angled")
+                .font(.subheadline)
+                .foregroundStyle(Color.mmWarning)
+            Text(isJapanese
+                 ? "最後の体の記録から\(days)日経過"
+                 : "It's been \(days) days since your last progress photo")
+                .font(.caption)
+                .foregroundStyle(Color.mmTextSecondary)
+        }
+        .padding(12)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color.mmWarning.opacity(0.1))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+
     // MARK: - ヘルパーメソッド
+
+    private func formatWeight(_ weight: Double) -> String {
+        if weight.truncatingRemainder(dividingBy: 1) == 0 {
+            return String(format: "%.0fkg", weight)
+        }
+        return String(format: "%.1fkg", weight)
+    }
 
     private func markFirstWorkoutCompleted() {
         if !appState.hasCompletedFirstWorkout {
             appState.hasCompletedFirstWorkout = true
+        }
+    }
+
+    /// PR更新情報を種目IDでマップに変換
+    private func loadPRUpdates() {
+        let updates = PRManager.shared.getSessionPRUpdates(session: session, context: modelContext)
+        for update in updates {
+            prUpdatesMap[update.exerciseId] = update
         }
     }
 
@@ -347,9 +529,7 @@ struct WorkoutCompletionView: View {
 
     @MainActor
     private func prepareShareImage() {
-        // PR更新情報を取得
-        let prUpdates = PRManager.shared.getSessionPRUpdates(session: session, context: modelContext)
-        let prItems: [SharePRItem] = prUpdates.prefix(2).compactMap { update in
+        let prItems: [SharePRItem] = prUpdatesMap.values.prefix(3).compactMap { update in
             guard let exercise = ExerciseStore.shared.exercise(for: update.exerciseId) else { return nil }
             let name = localization.currentLanguage == .japanese ? exercise.nameJA : exercise.nameEN
             return SharePRItem(
@@ -360,26 +540,21 @@ struct WorkoutCompletionView: View {
             )
         }
 
-        // 総合レベルを算出（直近1000件に制限）
-        var allSetsDescriptor = FetchDescriptor<WorkoutSet>(
-            sortBy: [SortDescriptor(\.completedAt, order: .reverse)]
-        )
-        allSetsDescriptor.fetchLimit = 1000
-        let allSets = (try? modelContext.fetch(allSetsDescriptor)) ?? []
-        let bodyweight = AppState.shared.userProfile.weightKg
-        let level = StrengthScoreCalculator.shared.overallLevel(allSets: allSets, bodyweightKg: bodyweight)
-        let hasLevelUp = !levelUpExercises.isEmpty
+        // 種目ごとの最大重量×レップ（シェアカード用）
+        let exerciseEntries: [ShareExerciseEntry] = exercisesDone.prefix(3).compactMap { exercise in
+            guard let best = bestSet(for: exercise.id), best.weight > 0 else { return nil }
+            let name = localization.currentLanguage == .japanese ? exercise.nameJA : exercise.nameEN
+            return ShareExerciseEntry(exerciseName: name, weight: best.weight, reps: best.reps)
+        }
 
         let shareView = WorkoutShareCard(
-            totalVolume: totalVolume,
+            exerciseEntries: exerciseEntries,
             totalSets: totalSets,
             exerciseCount: uniqueExercises,
             date: session.startDate,
             muscleMapping: stimulatedMuscleMapping,
             prItems: prItems,
-            durationMinutes: durationMinutes,
-            currentLevel: level,
-            didLevelUp: hasLevelUp
+            durationMinutes: durationMinutes
         )
         let renderer = ImageRenderer(content: shareView)
         renderer.scale = 3.0
@@ -388,51 +563,22 @@ struct WorkoutCompletionView: View {
         }
     }
 
-    /// 今回のセッションにPR更新が含まれるかチェック
     private func checkPRUpdates() {
-        var exerciseMaxInSession: [String: Double] = [:]
-        for set in session.sets {
-            let w = set.weight
-            if w > (exerciseMaxInSession[set.exerciseId] ?? 0) {
-                exerciseMaxInSession[set.exerciseId] = w
-            }
-        }
-
-        for (exerciseId, maxWeight) in exerciseMaxInSession {
-            let descriptor = FetchDescriptor<WorkoutSet>(
-                predicate: #Predicate {
-                    $0.exerciseId == exerciseId
-                },
-                sortBy: [SortDescriptor(\.weight, order: .reverse)]
-            )
-            guard let allSets = try? modelContext.fetch(descriptor) else { continue }
-
-            let previousMax = allSets
-                .filter { $0.session?.id != session.id }
-                .first?.weight ?? 0
-
-            if maxWeight > previousMax && previousMax > 0 {
-                hasPRUpdate = true
-                return
-            }
-        }
+        hasPRUpdate = !prUpdatesMap.isEmpty
     }
 
-    /// レベルアップ検出: PR更新種目の前後レベルを比較
     private func detectLevelUps() {
-        let prUpdates = PRManager.shared.getSessionPRUpdates(session: session, context: modelContext)
+        let prUpdates = Array(prUpdatesMap.values)
         guard !prUpdates.isEmpty else { return }
 
         let bodyweight = AppState.shared.userProfile.weightKg
 
         var results: [LevelUpInfo] = []
         for update in prUpdates {
-            // セッション前の推定1RM（前回最大重量ベース、reps=1で概算）
             let previous1RM = PRManager.shared.effectiveEstimated1RM(
                 weight: update.previousWeight, reps: 1,
                 exerciseId: update.exerciseId, bodyweightKg: bodyweight
             )
-            // セッション後の推定1RM（今回の最大重量で、セッション内最大repsを考慮）
             let sessionSets = session.sets.filter { $0.exerciseId == update.exerciseId }
             let best1RMInSession = sessionSets.map {
                 PRManager.shared.effectiveEstimated1RM(
@@ -455,7 +601,6 @@ struct WorkoutCompletionView: View {
                 bodyweightKg: bodyweight
             )
 
-            // レベルが上がった場合のみ追加
             if newResult.level != previousResult.level {
                 let exerciseName: String
                 if let def = ExerciseStore.shared.exercise(for: update.exerciseId) {
@@ -477,11 +622,9 @@ struct WorkoutCompletionView: View {
         levelUpExercises = results
     }
 
-    /// 回復完了通知をスケジュール
     private func scheduleRecoveryNotification() {
         guard !stimulatedMusclesWithSets.isEmpty else { return }
 
-        // 最も遅い回復完了時刻を計算
         var maxHours: Double = 0
         for entry in stimulatedMusclesWithSets {
             let hours = RecoveryCalculator.adjustedRecoveryHours(
@@ -492,7 +635,6 @@ struct WorkoutCompletionView: View {
         }
         let recoveryDate = Date().addingTimeInterval(maxHours * 3600)
 
-        // 次のパート名を取得
         let nextPart = WorkoutRecommendationEngine.todaysPart(modelContext: modelContext)
         let isJa = LocalizationManager.shared.currentLanguage == .japanese
         let partName = nextPart?.localizedName ?? (isJa ? "トレーニング" : "Training")
@@ -503,73 +645,6 @@ struct WorkoutCompletionView: View {
         )
     }
 
-    /// Strength Mapシェア画像を生成
-    @MainActor
-    private func prepareStrengthShareImage() {
-        var allSetsDescriptor = FetchDescriptor<WorkoutSet>(
-            sortBy: [SortDescriptor(\.completedAt, order: .reverse)]
-        )
-        allSetsDescriptor.fetchLimit = 1000
-        guard let allSets = try? modelContext.fetch(allSetsDescriptor) else { return }
-
-        let profile = UserProfile.load()
-        let scores = StrengthScoreCalculator.shared.muscleStrengthScores(
-            allSets: allSets,
-            bodyweightKg: profile.weightKg
-        )
-
-        strengthShareImage = generateStrengthShareImage(
-            scores: scores,
-            userName: profile.nickname,
-            date: Date()
-        )
-    }
-
-    // MARK: - プログレスフォトボタン
-
-    private var progressPhotoButton: some View {
-        let isJapanese = localization.currentLanguage == .japanese
-        return Button {
-            HapticManager.lightTap()
-            showingCamera = true
-        } label: {
-            HStack(spacing: 8) {
-                Image(systemName: photoSaved ? "checkmark.circle.fill" : "camera.fill")
-                Text(photoSaved
-                     ? (isJapanese ? "記録済み" : "Photo Saved")
-                     : (isJapanese ? "体の記録を撮る" : "Take Progress Photo"))
-            }
-            .font(.system(size: 16, weight: .bold))
-            .foregroundStyle(photoSaved ? Color.mmAccentPrimary : Color.mmTextPrimary)
-            .frame(maxWidth: .infinity)
-            .frame(height: 52)
-            .background(photoSaved ? Color.mmAccentPrimary.opacity(0.15) : Color.mmBgSecondary)
-            .clipShape(RoundedRectangle(cornerRadius: 16))
-        }
-        .buttonStyle(.plain)
-        .disabled(photoSaved)
-    }
-
-    /// 7日リマインダーバナー
-    private func photoReminderBanner(days: Int) -> some View {
-        let isJapanese = localization.currentLanguage == .japanese
-        return HStack(spacing: 8) {
-            Image(systemName: "photo.on.rectangle.angled")
-                .font(.subheadline)
-                .foregroundStyle(Color.mmWarning)
-            Text(isJapanese
-                 ? "最後の体の記録から\(days)日経過"
-                 : "It's been \(days) days since your last progress photo")
-                .font(.caption)
-                .foregroundStyle(Color.mmTextSecondary)
-        }
-        .padding(12)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color.mmWarning.opacity(0.1))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-    }
-
-    /// カメラで撮影した写真を保存
     private func saveProgressPhoto(_ image: UIImage) {
         guard let path = ProgressPhoto.savePhoto(image, sessionId: session.id) else { return }
         let photo = ProgressPhoto(imagePath: path, sessionId: session.id)
