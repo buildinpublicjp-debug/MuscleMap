@@ -132,11 +132,12 @@ struct RecentExercisesSection: View {
                             onSelect(exercise)
                         } label: {
                             ZStack(alignment: .bottomLeading) {
-                                // GIF（固定サイズ + clipped）
+                                // GIF（固定サイズ + fit）
                                 if ExerciseGifView.hasGif(exerciseId: exercise.id) {
                                     ExerciseGifView(exerciseId: exercise.id, size: .gridCard)
+                                        .aspectRatio(contentMode: .fit)
                                         .frame(width: 140, height: 120)
-                                        .clipped()
+                                        .background(Color.mmBgCard)
                                 } else {
                                     Image(systemName: "dumbbell.fill")
                                         .font(.system(size: 22))
@@ -294,12 +295,13 @@ struct MuscleExercisePickerSheet: View {
             onSelect(exercise)
         } label: {
             ZStack(alignment: .bottomLeading) {
-                // GIF or フォールバック（固定height + clipped）
+                // GIF or フォールバック（固定height + fit）
                 if ExerciseGifView.hasGif(exerciseId: exercise.id) {
                     ExerciseGifView(exerciseId: exercise.id, size: .gridCard)
+                        .aspectRatio(contentMode: .fit)
                         .frame(maxWidth: .infinity)
                         .frame(height: 160)
-                        .clipped()
+                        .background(Color.mmBgCard)
                 } else {
                     MiniMuscleMapView(muscleMapping: exercise.muscleMapping)
                         .frame(maxWidth: .infinity)

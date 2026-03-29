@@ -54,18 +54,6 @@ struct ExerciseDetailView: View {
                             }
                         }
 
-                        // 強さレベルプログレスバー
-                        if let info = strengthLevelInfo {
-                            DetailStrengthLevelProgressSection(
-                                currentLevel: info.level,
-                                kgToNext: info.kgToNext,
-                                nextLevel: info.nextLevel
-                            )
-                        }
-
-                        // 過去3回のパフォーマンス
-                        ExercisePerformanceSection(exerciseId: exercise.id)
-
                         // ターゲット筋肉（マップ + 刺激度バー統合セクション）
                         VStack(alignment: .leading, spacing: 12) {
                             Text(L10n.targetMuscles)
@@ -90,6 +78,18 @@ struct ExerciseDetailView: View {
                                 }
                             }
                         }
+
+                        // 強さレベルプログレスバー
+                        if let info = strengthLevelInfo {
+                            DetailStrengthLevelProgressSection(
+                                currentLevel: info.level,
+                                kgToNext: info.kgToNext,
+                                nextLevel: info.nextLevel
+                            )
+                        }
+
+                        // 過去3回のパフォーマンス
+                        ExercisePerformanceSection(exerciseId: exercise.id)
 
                         // 動画で見る（YouTubeボタン）
                         Button {

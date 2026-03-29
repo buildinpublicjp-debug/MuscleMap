@@ -110,9 +110,10 @@ struct LibraryGridCard: View {
                     // GIF or フォールバック
                     if ExerciseGifView.hasGif(exerciseId: exercise.id) {
                         ExerciseGifView(exerciseId: exercise.id, size: .gridCard)
+                            .aspectRatio(contentMode: .fit)
                             .frame(maxWidth: .infinity)
                             .frame(height: 160)
-                            .clipped()
+                            .background(Color.mmBgCard)
                     } else {
                         MiniMuscleMapView(muscleMapping: exercise.muscleMapping)
                             .frame(maxWidth: .infinity)

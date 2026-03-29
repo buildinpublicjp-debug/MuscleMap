@@ -100,7 +100,7 @@ struct ExerciseLibraryView: View {
                     }
                 )
             )
-            .frame(width: 120, height: 130)
+            .frame(width: 140, height: 180)
 
             // 右: フィルターチップ + 種目数
             VStack(alignment: .leading, spacing: 6) {
