@@ -7,8 +7,8 @@ import { SHOTS, type Lang, type ShotDef } from '@/copy';
 // ─── Canvas & Layout Constants ───
 const W = 1320;
 const H = 2868;
-const COPY_AREA_TOP = 40;      // Top padding for copy area
-const COPY_AREA_BOTTOM = 428;  // Where phone starts (= PHONE_TOP)
+const COPY_AREA_TOP = 40;
+const COPY_AREA_BOTTOM = 428;
 const PHONE_TOP = 428;
 const PHONE_W = 1200;
 const PHONE_X = (W - PHONE_W) / 2;
@@ -40,11 +40,15 @@ function PhoneFrame({ accent, imageDataUrl }: { accent: string; imageDataUrl: st
         <div style={{ position: 'absolute', top: 80, left: 0, width: 1, bottom: 80, background: 'linear-gradient(180deg, transparent, rgba(255,255,255,0.06), rgba(255,255,255,0.04), transparent)' }} />
         <div style={{ position: 'absolute', top: 80, right: 0, width: 1, bottom: 80, background: 'linear-gradient(180deg, transparent, rgba(255,255,255,0.04), rgba(255,255,255,0.03), transparent)' }} />
 
-        {/* Physical buttons */}
-        <div style={{ position: 'absolute', top: 280, right: -3, width: 4, height: 100, background: 'linear-gradient(180deg, #707072, #505052, #3A3A3C, #505052, #707072)', borderRadius: '0 2px 2px 0', boxShadow: '1px 0 2px rgba(0,0,0,0.4)' }} />
-        <div style={{ position: 'absolute', top: 200, left: -3, width: 4, height: 45, background: 'linear-gradient(180deg, #707072, #505052, #3A3A3C, #505052, #707072)', borderRadius: '2px 0 0 2px', boxShadow: '-1px 0 2px rgba(0,0,0,0.4)' }} />
-        <div style={{ position: 'absolute', top: 270, left: -3, width: 4, height: 55, background: 'linear-gradient(180deg, #707072, #505052, #3A3A3C, #505052, #707072)', borderRadius: '2px 0 0 2px', boxShadow: '-1px 0 2px rgba(0,0,0,0.4)' }} />
-        <div style={{ position: 'absolute', top: 340, left: -3, width: 4, height: 55, background: 'linear-gradient(180deg, #707072, #505052, #3A3A3C, #505052, #707072)', borderRadius: '2px 0 0 2px', boxShadow: '-1px 0 2px rgba(0,0,0,0.4)' }} />
+        {/* Physical buttons — positions matched to iPhone 16 Pro proportions */}
+        {/* Power button (right side, ~22% from top) */}
+        <div style={{ position: 'absolute', top: 560, right: -3, width: 4, height: 105, background: 'linear-gradient(180deg, #707072, #505052, #3A3A3C, #505052, #707072)', borderRadius: '0 2px 2px 0', boxShadow: '1px 0 2px rgba(0,0,0,0.4)' }} />
+        {/* Action button (left side, ~17% from top) */}
+        <div style={{ position: 'absolute', top: 430, left: -3, width: 4, height: 48, background: 'linear-gradient(180deg, #707072, #505052, #3A3A3C, #505052, #707072)', borderRadius: '2px 0 0 2px', boxShadow: '-1px 0 2px rgba(0,0,0,0.4)' }} />
+        {/* Volume Up (left side, ~22% from top) */}
+        <div style={{ position: 'absolute', top: 555, left: -3, width: 4, height: 58, background: 'linear-gradient(180deg, #707072, #505052, #3A3A3C, #505052, #707072)', borderRadius: '2px 0 0 2px', boxShadow: '-1px 0 2px rgba(0,0,0,0.4)' }} />
+        {/* Volume Down (left side, ~26% from top) */}
+        <div style={{ position: 'absolute', top: 630, left: -3, width: 4, height: 58, background: 'linear-gradient(180deg, #707072, #505052, #3A3A3C, #505052, #707072)', borderRadius: '2px 0 0 2px', boxShadow: '-1px 0 2px rgba(0,0,0,0.4)' }} />
 
         {/* Screen */}
         <div style={{ borderRadius: SCREEN_R, overflow: 'hidden', background: '#000', position: 'relative' }}>
@@ -128,57 +132,29 @@ function SlideCopy({ shot, lang }: { shot: ShotDef; lang: Lang }) {
 
   return (
     <div style={{
-      position: 'absolute',
-      top: COPY_AREA_TOP,
-      left: 0,
-      right: 0,
-      height: copyAreaH,
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      textAlign: 'center',
-      zIndex: 2,
-      padding: '0 60px',
+      position: 'absolute', top: COPY_AREA_TOP, left: 0, right: 0, height: copyAreaH,
+      display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+      textAlign: 'center', zIndex: 2, padding: '0 60px',
     }}>
-      {/* Headline */}
       <div style={{
-        fontSize: isJa ? 100 : 104,
-        fontWeight: 900,
-        color: '#FFF',
-        lineHeight: 1.05,
-        letterSpacing: isJa ? 8 : -3,
-        fontFeatureSettings: "'palt' 1",
+        fontSize: isJa ? 100 : 104, fontWeight: 900, color: '#FFF', lineHeight: 1.05,
+        letterSpacing: isJa ? 8 : -3, fontFeatureSettings: "'palt' 1",
         textShadow: `0 0 60px ${a}30, 0 0 120px ${a}15, 0 4px 20px rgba(0,0,0,0.7)`,
       }}>
         {lines.map((l, i) => <div key={i}>{l}</div>)}
       </div>
-
-      {/* Sub */}
       <div style={{
-        fontSize: 28,
-        fontWeight: 400,
-        color: `${a}70`,
-        marginTop: 20,
-        letterSpacing: isJa ? 4 : 1,
-        fontFeatureSettings: "'palt' 1",
-        textShadow: `0 0 30px ${a}20`,
+        fontSize: 28, fontWeight: 400, color: `${a}70`, marginTop: 20,
+        letterSpacing: isJa ? 4 : 1, fontFeatureSettings: "'palt' 1", textShadow: `0 0 30px ${a}20`,
       }}>
         {copy.sub}
       </div>
-
-      {/* Chips */}
       <div style={{ display: 'flex', gap: 10, justifyContent: 'center', marginTop: 20, flexWrap: 'wrap' as const }}>
         {copy.chips.map((c, i) => (
           <span key={i} style={{
-            padding: '6px 16px',
-            background: `${a}0C`,
-            border: `1px solid ${a}20`,
-            borderRadius: 100,
-            color: c.desc ? 'rgba(255,255,255,0.45)' : `${a}90`,
-            fontSize: 16,
-            fontWeight: c.desc ? 400 : 700,
-            boxShadow: `0 0 15px ${a}08`,
+            padding: '6px 16px', background: `${a}0C`, border: `1px solid ${a}20`, borderRadius: 100,
+            color: c.desc ? 'rgba(255,255,255,0.45)' : `${a}90`, fontSize: 16,
+            fontWeight: c.desc ? 400 : 700, boxShadow: `0 0 15px ${a}08`,
           }}>
             {c.desc ? <><strong style={{ color: `${a}CC`, fontWeight: 700 }}>{c.label}</strong> {c.desc}</> : c.label}
           </span>
@@ -228,20 +204,13 @@ export default function Page() {
 
   return (
     <div style={{ background: '#060606', minHeight: '100vh', color: '#fff' }}>
-      {/* Hidden full-size slides for export */}
       <div style={{ position: 'absolute', left: -99999, top: 0, pointerEvents: 'none' }} aria-hidden="true">
         {SHOTS.map(shot => (
-          <CompositeSlide
-            key={`export-${shot.id}`}
-            shot={shot}
-            lang={lang}
-            imageDataUrl={images[shot.id] || null}
-            slideRef={{ set current(el) { exportRefs.current[shot.id] = el; }, get current() { return exportRefs.current[shot.id] || null; } }}
-          />
+          <CompositeSlide key={`export-${shot.id}`} shot={shot} lang={lang} imageDataUrl={images[shot.id] || null}
+            slideRef={{ set current(el) { exportRefs.current[shot.id] = el; }, get current() { return exportRefs.current[shot.id] || null; } }} />
         ))}
       </div>
 
-      {/* Toolbar */}
       <div style={{ padding: '12px 20px', borderBottom: '1px solid #151515', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, background: 'rgba(6,6,6,0.92)', backdropFilter: 'blur(16px)', zIndex: 50 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
           <span style={{ fontSize: 13, fontWeight: 700, color: '#555', letterSpacing: 2, textTransform: 'uppercase' }}>Screenshots</span>
@@ -256,7 +225,6 @@ export default function Page() {
         </div>
       </div>
 
-      {/* Grid */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, padding: '12px 8px' }}>
         {SHOTS.map(shot => (
           <div key={shot.id}>
