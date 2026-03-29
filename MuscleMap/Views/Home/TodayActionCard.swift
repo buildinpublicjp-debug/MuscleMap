@@ -15,6 +15,7 @@ struct TodayActionCard: View {
 
     @State private var selectedDayIndex: Int?
     @State private var selectedExerciseDetail: ExerciseDefinition?
+    @State private var showingRoutineEdit = false
 
     private var isJapanese: Bool {
         LocalizationManager.shared.currentLanguage == .japanese
@@ -34,6 +35,11 @@ struct TodayActionCard: View {
         }
         .sheet(item: $selectedExerciseDetail) { exercise in
             ExerciseDetailView(exercise: exercise, hideStartWorkoutButton: true)
+        }
+        .sheet(isPresented: $showingRoutineEdit) {
+            NavigationStack {
+                RoutineEditView()
+            }
         }
     }
 
@@ -65,7 +71,7 @@ struct TodayActionCard: View {
                         .foregroundStyle(.white.opacity(0.5))
                 }
                 Spacer()
-                streakPill
+                routineEditButton
             }
 
             if allDays.count > 1 {
@@ -242,24 +248,21 @@ struct TodayActionCard: View {
         .buttonStyle(.plain)
     }
 
-    // MARK: - ストリークピル
+    // MARK: - ルーティン編集ボタン
 
-    @ViewBuilder
-    private var streakPill: some View {
-        if hasWorkoutHistory && streakWeeks > 0 {
-            HStack(spacing: 4) {
-                Image(systemName: "flame.fill")
-                    .font(.system(size: 10))
-                    .foregroundStyle(Color.mmWarning)
-                Text(L10n.weekStreak(streakWeeks))
-                    .font(.system(size: 10, weight: .bold))
-                    .foregroundStyle(.white)
-            }
-            .padding(.horizontal, 8)
-            .padding(.vertical, 4)
-            .background(Color.white.opacity(0.1))
-            .clipShape(Capsule())
+    private var routineEditButton: some View {
+        Button {
+            HapticManager.lightTap()
+            showingRoutineEdit = true
+        } label: {
+            Image(systemName: "slider.horizontal.3")
+                .font(.system(size: 14))
+                .foregroundStyle(Color.mmTextSecondary)
+                .padding(6)
+                .background(Color.white.opacity(0.1))
+                .clipShape(Circle())
         }
+        .buttonStyle(.plain)
     }
 
     // MARK: - 休息日カード
@@ -286,7 +289,7 @@ struct TodayActionCard: View {
                         .foregroundStyle(.white.opacity(0.5))
                 }
                 Spacer()
-                streakPill
+                routineEditButton
             }
 
             if let next = nextDay {
@@ -399,8 +402,6 @@ struct TodayActionCard: View {
 
     // MARK: - ルーティン未設定カード
 
-    @State private var showRoutineEdit = false
-
     private var setupRoutineCard: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
@@ -420,12 +421,11 @@ struct TodayActionCard: View {
                         .foregroundStyle(.white.opacity(0.5))
                 }
                 Spacer()
-                streakPill
             }
 
             Button {
                 HapticManager.lightTap()
-                showRoutineEdit = true
+                showingRoutineEdit = true
             } label: {
                 Text(isJapanese ? "ルーティンを作成" : "Create Routine")
                     .font(.system(size: 16, weight: .heavy))
@@ -468,11 +468,6 @@ struct TodayActionCard: View {
                 .stroke(Color.mmAccentPrimary.opacity(0.15), lineWidth: 1)
         )
         .padding(.horizontal)
-        .sheet(isPresented: $showRoutineEdit) {
-            NavigationStack {
-                RoutineEditView()
-            }
-        }
     }
 }
 
