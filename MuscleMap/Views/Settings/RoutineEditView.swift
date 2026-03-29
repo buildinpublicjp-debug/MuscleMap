@@ -269,8 +269,11 @@ private struct RoutineEditExerciseRow: View {
     @ViewBuilder
     private var exerciseThumbnail: some View {
         if ExerciseGifView.hasGif(exerciseId: exercise.id) {
-            ExerciseGifView(exerciseId: exercise.id, size: .previewCard)
+            ExerciseGifView(exerciseId: exercise.id, size: .gridCard)
+                .aspectRatio(contentMode: .fit)
                 .frame(width: 100, height: 100)
+                .background(Color.white)
+                .clipped()
                 .clipShape(RoundedRectangle(cornerRadius: 14))
         } else {
             ZStack {
@@ -502,8 +505,10 @@ private struct RoutineEditExercisePickerSheet: View {
                                 ZStack {
                                     if ExerciseGifView.hasGif(exerciseId: exercise.id) {
                                         ExerciseGifView(exerciseId: exercise.id, size: .gridCard)
-                                            .frame(height: 170)
+                                            .aspectRatio(contentMode: .fit)
                                             .frame(maxWidth: .infinity)
+                                            .frame(height: 170)
+                                            .background(Color.white)
                                             .clipped()
                                     } else {
                                         ZStack {

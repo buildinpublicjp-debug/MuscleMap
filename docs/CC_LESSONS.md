@@ -14,7 +14,7 @@
 - シミュレーターのスクショは1290×2796pxで巨大。必ず `sips -Z 800` でリサイズしてからAPIに送る
 - 固定ピクセル値を盲目的に適用しない。必ずシミュレーターで目視確認してから判断する
 - RecoveryStatusSectionでマップを中央配置すると両サイドに死んだ余白ができる。HStack（マップ左+チップ右）が正しいレイアウト
-- `.aspectRatio(contentMode: .fit)` + `.frame(maxHeight: .infinity)` はGIFカードで白余白を作る。`.frame(height: 固定)` + `.clipped()` を使え
+- GIF表示の正しいパターン: `.aspectRatio(.fit)` + `.frame(height: 固定)` + `.background(.white)` + `.clipped()`。`.scaledToFill()`は使うな（拡大されすぎて頭が切れる）。余白は必ず白（GIF自体の背景が白だから自然に馴染む）
 - セット記録前後でGIFサイズが変わるとUXが悪い。`.gridCard` で統一し、セット1は150pt、2以降は120ptで高さだけ変える
 - 横スクロールの `.padding(.horizontal)` は親VStackとの二重適用に注意。`.padding(.leading, 16)` + `.padding(.trailing, 20)` でスクロール示唆
 - PR祝福は全画面オーバーレイではなくカード上部バナーにする。操作を妨げない
@@ -24,7 +24,7 @@
 - 成長率は%だけ。サブテキストは足さない。情報過多にしない
 - エリアチャート（塗りつぶし）は折れ線より高級感が出る。opacity(0.08)で控えめに
 
-- GIFカードは`.clipped()`でAspectFillすると頭が切れる。`.aspectRatio(.fit)` + 背景色で全体表示が安全
+- `.scaledToFill()` は全面禁止。GIFが拡大されて頭・手足が切れる原因。代わりに `.aspectRatio(.fit)` + `.background(.white)` + `.clipped()`
 - 種目詳細は「どこに効くか」が最重要。対象筋肉マップをGIFの直後に配置
 - ウィジェットは情報を削ぎ落とすほど良くなる。マップだけで伝わる
 - ウィジェットにテキストラベルやバッジは不要。iOSがアプリ名を表示してくれる

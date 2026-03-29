@@ -138,6 +138,7 @@ struct RecentExercisesSection: View {
                                         .aspectRatio(contentMode: .fit)
                                         .frame(width: 140, height: 120)
                                         .background(Color.white)
+                                        .clipped()
                                 } else {
                                     Image(systemName: "dumbbell.fill")
                                         .font(.system(size: 22))
@@ -302,6 +303,7 @@ struct MuscleExercisePickerSheet: View {
                         .frame(maxWidth: .infinity)
                         .frame(height: 160)
                         .background(Color.white)
+                        .clipped()
                 } else {
                     MiniMuscleMapView(muscleMapping: exercise.muscleMapping)
                         .frame(maxWidth: .infinity)

@@ -158,6 +158,7 @@ struct TodayActionCard: View {
                                 .aspectRatio(contentMode: .fit)
                                 .frame(width: 140, height: 120)
                                 .background(Color.white)
+                                .clipped()
                         } else {
                             Image(systemName: "dumbbell.fill")
                                 .font(.system(size: 22))

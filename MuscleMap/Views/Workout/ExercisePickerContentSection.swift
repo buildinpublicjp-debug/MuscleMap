@@ -125,12 +125,16 @@ private struct PickerGridCard: View {
                 ZStack(alignment: .bottomLeading) {
                     // GIF or ミニマップ（元の比率のまま）
                     if ExerciseGifView.hasGif(exerciseId: exercise.id) {
-                        ExerciseGifView(exerciseId: exercise.id, size: .previewCard)
+                        ExerciseGifView(exerciseId: exercise.id, size: .gridCard)
                             .aspectRatio(contentMode: .fit)
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 160)
+                            .background(Color.white)
+                            .clipped()
                     } else {
                         MiniMuscleMapView(muscleMapping: exercise.muscleMapping)
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 160)
                     }
 
                     // 下部グラデーションオーバーレイ

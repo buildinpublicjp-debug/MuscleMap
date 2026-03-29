@@ -79,8 +79,10 @@ struct SetInputCard: View {
                 ZStack(alignment: .topTrailing) {
                     ZStack(alignment: .bottomTrailing) {
                         ExerciseGifView(exerciseId: exercise.id, size: .gridCard)
+                            .aspectRatio(contentMode: .fit)
                             .frame(maxWidth: .infinity)
                             .frame(height: viewModel.currentSetNumber == 1 ? 150 : 120)
+                            .background(Color.white)
                             .clipped()
 
                         // PR表示（GIF右下にオーバーレイ）

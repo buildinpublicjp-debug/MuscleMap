@@ -114,6 +114,7 @@ struct LibraryGridCard: View {
                             .frame(maxWidth: .infinity)
                             .frame(height: 160)
                             .background(Color.white)
+                            .clipped()
                     } else {
                         MiniMuscleMapView(muscleMapping: exercise.muscleMapping)
                             .frame(maxWidth: .infinity)
