@@ -8,37 +8,43 @@ npm install
 npm run dev
 ```
 
-Open http://localhost:3000
+⚠ **Chrome で開くこと** → http://localhost:3000
+Safariではエクスポートに問題が出る（html-to-imageがSafari非対応）。
 
 ## How to use
 
-1. Capture simulator screenshots into `public/screenshots/`:
-   ```bash
-   xcrun simctl io booted screenshot ./public/screenshots/shot1_screen.png
-   ```
+1. ブラウザで localhost:3000 を開く
+2. 各ショットにシミュレーターのスクショをドラッグ＆ドロップ
+3. 言語を切り替えてプレビュー確認（JA/EN/ZH/KO/ES/DE/FR）
+4. 「Export All」→ 6枚の1320×2868 PNGがダウンロードされる
+5. App Store Connect にアップロード
 
-2. Open the dev server, select language, preview all 6 shots
+## Shot順序（v4）
 
-3. Click "Export All Sizes" on any shot → downloads 4 PNGs (6.9", 6.5", 6.3", 6.1")
+| # | ヘッドライン | 画面 | アクセント |
+|---|---|---|---|
+| 1 | 筋肉が、見える。 | Recovery Map | #00E676 |
+| 2 | 全部、ここに。 | Home Dashboard | #00E676 |
+| 3 | 迷わない。 | Auto Plan | #00E676 |
+| 4 | 92種目。全部動く。 | Exercise Library | #00D4FF |
+| 5 | 記録する。あとは自動。 | Workout + PR | #FFD700 |
+| 6 | 1部位ずつ、深く知る。 | Muscle Detail | #00D4FF |
 
-4. Upload to App Store Connect
+## 技術メモ
 
-## File naming
+- iPhoneフレーム: CSS only（チタングラデ + Dynamic Island + ボタン4個）
+- エクスポート: `html-to-image` の `toPng()` を2回呼ぶ（既知バグ対策）
+- 画像表示: `<img>` ではなく CSS `background-image` を使用（クローン時のデコード問題回避）
+- 出力サイズ: 1320×2868px（6.9"のみ。他は App Store Connect が自動スケール）
 
-- Input: `shot{N}_screen.png` (from simulator)
-- Output: `shot{N}_{lang}_{size}.png`
+## ファイル構成
 
-## iPhone mockup
+- `src/copy.ts` — 6ショット×7言語のコピーテキスト
+- `src/app/page.tsx` — レイアウト、フレーム、エクスポートロジック
+- `src/app/globals.css` — 基本スタイル
 
-The iPhone frame is rendered via CSS (see `globals.css`).
-For a real mockup.png overlay, download from:
-- [ParthJadhav/app-store-screenshots](https://github.com/ParthJadhav/app-store-screenshots) (`mockup.png`)
-- [Figma Community iPhone 16 Pro mockup](https://www.figma.com/community/file/1428256954098627497)
+## 既知の制約
 
-Place as `public/mockup.png` and update `page.tsx` to use image overlay instead of CSS frame.
-
-## Customization
-
-- Edit `src/copy.ts` for headlines, sub-copy, and chips
-- Edit `src/app/globals.css` for iPhone frame styling
-- Edit `src/app/page.tsx` for layout, sizing, and export logic
+- Safari非対応（html-to-imageの制限）
+- エクスポートPNGのフォントはブラウザにインストール済みのフォントに依存
+- Noto Sans JP が必要（macOSのヒラギノでもフォールバックする）
