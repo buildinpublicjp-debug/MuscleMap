@@ -1,7 +1,8 @@
 import SwiftUI
 import SwiftData
+import Charts
 
-// MARK: - 部位詳細画面
+// MARK: - 部位詳細画面（リデザイン版）
 
 struct MuscleDetailView: View {
     let muscle: Muscle
@@ -9,7 +10,8 @@ struct MuscleDetailView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
     @State private var viewModel: MuscleDetailViewModel?
-    private var localization: LocalizationManager { LocalizationManager.shared }
+    @State private var selectedExercise: ExerciseDefinition?
+    private var isJapanese: Bool { LocalizationManager.shared.currentLanguage == .japanese }
 
     var body: some View {
         NavigationStack {
@@ -18,49 +20,43 @@ struct MuscleDetailView: View {
 
                 if let vm = viewModel {
                     ScrollView {
-                        VStack(spacing: 8) {
-                            // 1. 回復ゲージ（最上部）
-                            RecoveryGaugeCard(viewModel: vm)
+                        VStack(spacing: 16) {
+                            // 1. 2Dマップハイライト + 筋肉名
+                            muscleHeaderSection(vm: vm)
+
+                            // 2. 回復状態バナー
+                            RecoveryBannerView(viewModel: vm)
                                 .padding(.horizontal)
 
-                            // 2. 2Dマップハイライト
-                            Muscle3DView(
-                                muscle: muscle,
-                                visualState: vm.recoveryStatus.visualState
+                            // 3. 期間チップ
+                            DetailPeriodPicker(selected: Bindable(vm).selectedPeriod)
+                                .padding(.horizontal)
+
+                            // 4. 期間サマリーカード
+                            PeriodSummaryCards(viewModel: vm)
+                                .padding(.horizontal)
+
+                            // 5. エリアチャート
+                            DetailAreaChart(
+                                entries: vm.weightHistory,
+                                period: vm.selectedPeriod
                             )
                             .padding(.horizontal)
 
-                            // 筋肉名テキスト（日本語 22pt bold + 英語 14pt）
-                            VStack(spacing: 4) {
-                                Text(muscle.japaneseName)
-                                    .font(.system(size: 22, weight: .bold))
-                                    .foregroundStyle(Color.mmTextPrimary)
-                                Text(muscle.englishName)
-                                    .font(.system(size: 14))
-                                    .foregroundStyle(Color.mmTextSecondary)
-                            }
-                            .padding(.horizontal)
-
-                            // 3. 関連種目（GIF拡大）
-                            if !vm.allRelatedExercises.isEmpty {
-                                RelatedExercisesSection(
-                                    muscle: muscle,
-                                    viewModel: vm
+                            // 6. 種目Netflixグリッド
+                            if !vm.exerciseCards.isEmpty {
+                                DetailExerciseGrid(
+                                    cards: vm.exerciseCards,
+                                    selectedExercise: $selectedExercise
                                 )
-                            }
-
-                            // 4. 直近の履歴
-                            if !vm.recentSets.isEmpty {
-                                RecentHistorySection(
-                                    recentSets: vm.recentSets
-                                )
+                                .padding(.horizontal)
                             }
                         }
                         .padding(.vertical, 8)
                     }
                 }
             }
-            .navigationTitle(localization.currentLanguage == .japanese ? muscle.japaneseName : muscle.englishName)
+            .navigationTitle(isJapanese ? muscle.japaneseName : muscle.englishName)
             .navigationBarTitleDisplayMode(.inline)
             .toolbarColorScheme(.dark, for: .navigationBar)
             .toolbar {
@@ -75,449 +71,479 @@ struct MuscleDetailView: View {
                 }
                 viewModel?.load()
             }
+            .sheet(item: $selectedExercise) { exercise in
+                ExerciseDetailView(exercise: exercise)
+            }
+        }
+    }
+
+    // MARK: - マップ + 筋肉名ヘッダー
+
+    private func muscleHeaderSection(vm: MuscleDetailViewModel) -> some View {
+        VStack(spacing: 4) {
+            Muscle3DView(
+                muscle: muscle,
+                visualState: vm.recoveryStatus.visualState
+            )
+            .padding(.horizontal)
+
+            VStack(spacing: 2) {
+                Text(muscle.japaneseName)
+                    .font(.system(size: 22, weight: .bold))
+                    .foregroundStyle(Color.mmTextPrimary)
+                Text(muscle.englishName)
+                    .font(.system(size: 14))
+                    .foregroundStyle(Color.mmTextSecondary)
+            }
         }
     }
 }
 
-// MARK: - 回復ゲージカード（最上部に配置）
+// MARK: - 回復状態バナー
 
-private struct RecoveryGaugeCard: View {
+private struct RecoveryBannerView: View {
     let viewModel: MuscleDetailViewModel
-    private var localization: LocalizationManager { LocalizationManager.shared }
+    private var isJapanese: Bool { LocalizationManager.shared.currentLanguage == .japanese }
 
     var body: some View {
-        if viewModel.lastStimulationDate != nil {
-            // 刺激記録あり → 回復ゲージ表示
-            VStack(spacing: 8) {
-                HStack {
-                    // 回復ステータスアイコン
-                    statusIcon
-                    Text(statusText)
-                        .font(.subheadline.bold())
-                        .foregroundStyle(Color.mmTextPrimary)
-
-                    Spacer()
-
-                    Text(recoveryDetailText)
-                        .font(.caption)
-                        .foregroundStyle(Color.mmTextSecondary)
-                }
-
-                // プログレスバー
-                GeometryReader { geo in
-                    ZStack(alignment: .leading) {
-                        RoundedRectangle(cornerRadius: 4)
-                            .fill(Color.mmBgCard)
-                            .frame(height: 8)
-                        RoundedRectangle(cornerRadius: 4)
-                            .fill(progressColor)
-                            .frame(width: geo.size.width * viewModel.recoveryProgress, height: 8)
-                    }
-                }
-                .frame(height: 8)
-
-                // 詳細情報
-                HStack(spacing: 24) {
-                    if let date = viewModel.lastStimulationDate {
-                        DetailItem(
-                            label: L10n.lastStimulation,
-                            value: formatDate(date)
-                        )
-                    }
-
-                    if viewModel.lastTotalSets > 0 {
-                        DetailItem(
-                            label: L10n.setCount,
-                            value: L10n.setsLabel(viewModel.lastTotalSets)
-                        )
-                    }
-
-                    if let recoveryDate = viewModel.estimatedRecoveryDate {
-                        DetailItem(
-                            label: L10n.estimatedRecovery,
-                            value: formatDate(recoveryDate)
-                        )
-                    }
-                }
+        HStack(spacing: 12) {
+            // 左: ステータステキスト
+            HStack(spacing: 6) {
+                statusIcon
+                Text(statusText)
+                    .font(.subheadline.bold())
+                    .foregroundStyle(Color.mmTextPrimary)
             }
-            .padding(16)
-            .background(Color.mmBgSecondary)
-            .clipShape(RoundedRectangle(cornerRadius: 16))
-        } else {
-            // 未刺激 → フォールバック表示
-            HStack(spacing: 8) {
-                Image(systemName: "info.circle")
-                    .foregroundStyle(Color.mmTextSecondary)
-                Text(L10n.noRecord)
-                    .font(.subheadline)
-                    .foregroundStyle(Color.mmTextSecondary)
-                Spacer()
-            }
-            .padding(16)
-            .background(Color.mmBgSecondary)
-            .clipShape(RoundedRectangle(cornerRadius: 16))
+
+            Spacer()
+
+            // 右: 残り時間 or ステータス
+            Text(detailText)
+                .font(.caption.bold())
+                .foregroundStyle(Color.mmTextSecondary)
         }
+
+        // プログレスバー
+        GeometryReader { geo in
+            ZStack(alignment: .leading) {
+                RoundedRectangle(cornerRadius: 3)
+                    .fill(Color.mmBgCard)
+                    .frame(height: 6)
+                RoundedRectangle(cornerRadius: 3)
+                    .fill(barColor)
+                    .frame(width: geo.size.width * viewModel.recoveryProgress, height: 6)
+            }
+        }
+        .frame(height: 6)
+        .padding(.horizontal)
+        .padding(.bottom, 12)
+        .padding(.top, -4)
+        .background(Color.mmBgSecondary)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 
+    private var barColor: Color {
+        let p = viewModel.recoveryProgress
+        if p < 0.3 { return Color.mmMuscleFatigued }
+        if p < 0.7 { return Color.mmMuscleModerate }
+        return Color.mmMuscleRecovered
+    }
+
+    @ViewBuilder
     private var statusIcon: some View {
-        Group {
-            switch viewModel.recoveryStatus {
-            case .recovering:
-                Image(systemName: "clock.fill")
-                    .foregroundStyle(progressColor)
-            case .fullyRecovered:
-                Image(systemName: "checkmark.circle.fill")
-                    .foregroundStyle(Color.mmMuscleBioGreen)
-            case .neglected:
-                Image(systemName: "exclamationmark.triangle.fill")
-                    .foregroundStyle(Color.mmMuscleNeglected)
-            case .neglectedSevere:
-                Image(systemName: "exclamationmark.triangle.fill")
-                    .foregroundStyle(Color.mmMuscleNeglected)
-            }
+        switch viewModel.recoveryStatus {
+        case .recovering:
+            Image(systemName: "clock.fill")
+                .foregroundStyle(barColor)
+        case .fullyRecovered:
+            Image(systemName: "checkmark.circle.fill")
+                .foregroundStyle(Color.mmMuscleRecovered)
+        case .neglected, .neglectedSevere:
+            Image(systemName: "exclamationmark.triangle.fill")
+                .foregroundStyle(Color.mmMuscleNeglected)
         }
-        .font(.subheadline)
     }
 
     private var statusText: String {
+        if viewModel.lastStimulationDate == nil {
+            return isJapanese ? "記録なし" : "No Record"
+        }
         switch viewModel.recoveryStatus {
-        case .recovering(let progress):
-            if progress < 0.3 { return L10n.highLoadRestNeeded }
-            if progress < 0.7 { return L10n.recovering }
-            return L10n.almostRecovered
+        case .recovering(let p):
+            let pct = Int(p * 100)
+            return isJapanese ? "回復中 \(pct)%" : "Recovering \(pct)%"
         case .fullyRecovered:
-            return L10n.fullyRecoveredTrainable
+            return isJapanese ? "回復済み" : "Recovered"
         case .neglected:
-            return L10n.neglected7Days
+            return isJapanese ? "7日以上未トレーニング" : "7d+ No Training"
         case .neglectedSevere:
-            return L10n.neglected14Days
+            return isJapanese ? "14日以上未トレーニング" : "14d+ No Training"
         }
     }
 
-    private var recoveryDetailText: String {
+    private var detailText: String {
+        if viewModel.lastStimulationDate == nil {
+            return ""
+        }
         if let remaining = viewModel.remainingHours {
-            return formatRemainingTime(remaining)
+            let h = Int(remaining)
+            if h >= 24 {
+                return isJapanese ? "残り\(h/24)日\(h%24)時間" : "\(h/24)d \(h%24)h left"
+            }
+            return isJapanese ? "残り\(h)時間" : "\(h)h left"
         }
-        return L10n.recoveryComplete
-    }
-
-    private var progressColor: Color {
-        viewModel.recoveryStatus.visualState.color == .clear
-            ? Color.mmMuscleBioGreen
-            : viewModel.recoveryStatus.visualState.color
-    }
-
-    private func formatRemainingTime(_ hours: Double) -> String {
-        let h = Int(hours)
-        if h >= 24 {
-            let days = h / 24
-            let remainingHours = h % 24
-            return localization.currentLanguage == .japanese
-                ? "残り\(days)日\(remainingHours)時間"
-                : "\(days)d \(remainingHours)h remaining"
-        }
-        return localization.currentLanguage == .japanese
-            ? "残り\(h)時間"
-            : "\(h)h remaining"
-    }
-
-    private func formatDate(_ date: Date) -> String {
-        let formatter = RelativeDateTimeFormatter()
-        formatter.locale = localization.currentLanguage == .japanese
-            ? Locale(identifier: "ja_JP")
-            : Locale(identifier: "en_US")
-        formatter.unitsStyle = .short
-        return formatter.localizedString(for: date, relativeTo: Date())
+        return isJapanese ? "✅ 回復済み" : "✅ Recovered"
     }
 }
 
-// MARK: - 詳細項目
+// MARK: - 期間チップピッカー
 
-private struct DetailItem: View {
-    let label: String
-    let value: String
-
-    var body: some View {
-        VStack(spacing: 2) {
-            Text(label)
-                .font(.caption2)
-                .foregroundStyle(Color.mmTextSecondary)
-            Text(value)
-                .font(.caption.bold())
-                .foregroundStyle(Color.mmTextPrimary)
-        }
-    }
-}
-
-// MARK: - 筋肉基本情報カード
-
-private struct MuscleInfoCard: View {
-    let muscle: Muscle
-    private var localization: LocalizationManager { LocalizationManager.shared }
+private struct DetailPeriodPicker: View {
+    @Binding var selected: DetailPeriod
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text(L10n.basicInfo)
-                .font(.headline)
-                .foregroundStyle(Color.mmTextPrimary)
-
-            HStack(spacing: 16) {
-                InfoBlock(
-                    icon: "figure.stand",
-                    label: L10n.muscleGroup,
-                    value: muscle.group.localizedName
-                )
-
-                InfoBlock(
-                    icon: "clock",
-                    label: L10n.baseRecovery,
-                    value: L10n.hoursUnit(muscle.baseRecoveryHours)
-                )
-
-                InfoBlock(
-                    icon: "scalemass",
-                    label: L10n.size,
-                    value: muscleSizeLabel
-                )
-            }
-        }
-        .padding()
-        .background(Color.mmBgCard)
-        .clipShape(RoundedRectangle(cornerRadius: 16))
-    }
-
-    private var muscleSizeLabel: String {
-        switch muscle.baseRecoveryHours {
-        case 72: return L10n.largeMuscle
-        case 48: return L10n.mediumMuscle
-        default: return L10n.smallMuscle
-        }
-    }
-}
-
-private struct InfoBlock: View {
-    let icon: String
-    let label: String
-    let value: String
-
-    var body: some View {
-        VStack(spacing: 6) {
-            Image(systemName: icon)
-                .font(.title3)
-                .foregroundStyle(Color.mmAccentSecondary)
-
-            Text(label)
-                .font(.caption2)
-                .foregroundStyle(Color.mmTextSecondary)
-
-            Text(value)
-                .font(.caption.bold())
-                .foregroundStyle(Color.mmTextPrimary)
-        }
-        .frame(maxWidth: .infinity)
-    }
-}
-
-// MARK: - 関連種目セクション（2カラムGIFグリッド + 器具フィルター）
-
-private struct RelatedExercisesSection: View {
-    let muscle: Muscle
-    @Bindable var viewModel: MuscleDetailViewModel
-    @State private var selectedExercise: ExerciseDefinition?
-    private var isJapanese: Bool { LocalizationManager.shared.currentLanguage == .japanese }
-
-    private let gridColumns = [
-        GridItem(.flexible(), spacing: 8),
-        GridItem(.flexible(), spacing: 8),
-    ]
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            // セクションヘッダー
-            HStack {
-                Text(L10n.relatedExercises)
-                    .font(.headline)
-                    .foregroundStyle(Color.mmTextPrimary)
-                Spacer()
-                Text("\(viewModel.filteredExercises.count)\(L10n.exerciseUnit)")
-                    .font(.caption)
-                    .foregroundStyle(Color.mmTextSecondary)
-                    .contentTransition(.numericText())
-                    .animation(.snappy(duration: 0.2), value: viewModel.filteredExercises.count)
-            }
-            .padding(.horizontal)
-
-            // 器具フィルターチップ（横スクロール）
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 6) {
-                    // すべて
-                    equipmentChip(
-                        text: L10n.all,
-                        isSelected: viewModel.selectedEquipment == nil
-                    ) {
-                        viewModel.selectedEquipment = nil
-                    }
-
-                    // 器具別
-                    ForEach(EquipmentFilter.allFilters) { filter in
-                        equipmentChip(
-                            text: filter.localizedLabel,
-                            isSelected: viewModel.selectedEquipment == filter.id
-                        ) {
-                            viewModel.selectedEquipment = viewModel.selectedEquipment == filter.id ? nil : filter.id
-                        }
-                    }
-                }
-                .padding(.horizontal, 16)
-            }
-
-            // 2カラムGIFグリッド
-            if viewModel.filteredExercises.isEmpty {
-                Text(L10n.noExercisesForLocation)
-                    .font(.caption)
-                    .foregroundStyle(Color.mmTextSecondary)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 24)
-            } else {
-                LazyVGrid(columns: gridColumns, spacing: 8) {
-                    ForEach(viewModel.filteredExercises) { exercise in
-                        Button {
-                            HapticManager.lightTap()
-                            selectedExercise = exercise
-                        } label: {
-                            exerciseGifCard(exercise)
-                        }
-                        .buttonStyle(.plain)
-                    }
-                }
-                .padding(.horizontal, 16)
-            }
-        }
-        .sheet(item: $selectedExercise) { exercise in
-            ExerciseDetailView(exercise: exercise)
-        }
-    }
-
-    // MARK: - 器具フィルターチップ
-
-    @ViewBuilder
-    private func equipmentChip(text: String, isSelected: Bool, action: @escaping () -> Void) -> some View {
-        Button {
-            HapticManager.lightTap()
-            action()
-        } label: {
-            Text(text)
-                .font(.system(size: 12, weight: .bold))
-                .foregroundStyle(isSelected ? Color.mmBgPrimary : Color.mmTextSecondary)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 6)
-                .background(isSelected ? Color.mmAccentPrimary : Color.mmBgCard)
-                .clipShape(Capsule())
-        }
-        .buttonStyle(.plain)
-    }
-
-    // MARK: - 種目GIFカード
-
-    @ViewBuilder
-    private func exerciseGifCard(_ exercise: ExerciseDefinition) -> some View {
-        ZStack(alignment: .bottom) {
-            // GIF or プレースホルダー
-            if ExerciseGifView.hasGif(exerciseId: exercise.id) {
-                ExerciseGifView(exerciseId: exercise.id, size: .card)
-                    .scaledToFill()
-            } else {
-                Color.mmBgSecondary
-                Image(systemName: "dumbbell.fill")
-                    .font(.system(size: 24))
-                    .foregroundStyle(Color.mmTextSecondary.opacity(0.3))
-            }
-
-            // グラデーション + 種目名 + 器具
-            VStack(alignment: .leading, spacing: 2) {
-                Text(exercise.localizedName)
-                    .font(.system(size: 12, weight: .bold))
-                    .foregroundStyle(.white)
-                    .lineLimit(1)
-                HStack(spacing: 4) {
-                    Text(exercise.localizedEquipment)
-                        .font(.system(size: 9))
-                        .foregroundStyle(.white.opacity(0.7))
-                    if let primary = exercise.primaryMuscle {
-                        Text(primary.localizedName)
-                            .font(.system(size: 9, weight: .bold))
-                            .foregroundStyle(Color.mmAccentPrimary)
-                            .padding(.horizontal, 4)
-                            .padding(.vertical, 1)
-                            .background(Color.mmAccentPrimary.opacity(0.2))
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 6) {
+                ForEach(DetailPeriod.allCases) { period in
+                    Button {
+                        HapticManager.lightTap()
+                        selected = period
+                    } label: {
+                        Text(period.localizedLabel)
+                            .font(.system(size: 12, weight: .bold))
+                            .foregroundStyle(selected == period ? Color.mmBgPrimary : Color.mmTextSecondary)
+                            .padding(.horizontal, 14)
+                            .padding(.vertical, 7)
+                            .background(selected == period ? Color.mmAccentPrimary : Color.mmBgCard)
                             .clipShape(Capsule())
                     }
+                    .buttonStyle(.plain)
                 }
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(8)
-            .background(
-                LinearGradient(
-                    colors: [Color.clear, Color.black.opacity(0.75)],
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
+        }
+    }
+}
+
+// MARK: - 期間サマリーカード（3枚）
+
+private struct PeriodSummaryCards: View {
+    let viewModel: MuscleDetailViewModel
+    private var isJapanese: Bool { LocalizationManager.shared.currentLanguage == .japanese }
+
+    var body: some View {
+        HStack(spacing: 8) {
+            // 最終
+            summaryCard(
+                icon: "calendar",
+                iconColor: Color.mmAccentSecondary,
+                label: isJapanese ? "最終" : "Last",
+                value: lastDateText,
+                sub: relativeDateText
+            )
+
+            // ベスト
+            summaryCard(
+                icon: "trophy.fill",
+                iconColor: Color.mmPRGold,
+                label: isJapanese ? "ベスト" : "Best",
+                value: bestText,
+                sub: growthText
+            )
+
+            // セット
+            summaryCard(
+                icon: "number",
+                iconColor: Color.mmAccentPrimary,
+                label: isJapanese ? "セット" : "Sets",
+                value: "\(viewModel.periodTotalSets)",
+                sub: viewModel.monthlyAverageSets > 0
+                    ? (isJapanese ? "月平均\(viewModel.monthlyAverageSets)" : "avg \(viewModel.monthlyAverageSets)/mo")
+                    : nil
             )
         }
-        .aspectRatio(1, contentMode: .fit)
+    }
+
+    private var lastDateText: String {
+        guard let date = viewModel.periodLastDate else { return "-" }
+        let fmt = DateFormatter()
+        fmt.dateFormat = "M/d"
+        return fmt.string(from: date)
+    }
+
+    private var relativeDateText: String? {
+        guard let date = viewModel.periodLastDate else { return nil }
+        let fmt = RelativeDateTimeFormatter()
+        fmt.locale = isJapanese ? Locale(identifier: "ja_JP") : Locale(identifier: "en_US")
+        fmt.unitsStyle = .short
+        return fmt.localizedString(for: date, relativeTo: Date())
+    }
+
+    private var bestText: String {
+        guard let w = viewModel.periodBestWeight, let r = viewModel.periodBestReps else { return "-" }
+        return "\(Int(w))kg×\(r)"
+    }
+
+    private var growthText: String? {
+        guard let pct = viewModel.growthPercent else { return nil }
+        return pct > 0 ? "↑\(Int(pct))%" : "↓\(Int(abs(pct)))%"
+    }
+
+    @ViewBuilder
+    private func summaryCard(
+        icon: String, iconColor: Color, label: String,
+        value: String, sub: String?
+    ) -> some View {
+        VStack(spacing: 4) {
+            Image(systemName: icon)
+                .font(.caption)
+                .foregroundStyle(iconColor)
+            Text(label)
+                .font(.caption2)
+                .foregroundStyle(Color.mmTextSecondary)
+            Text(value)
+                .font(.subheadline.bold())
+                .foregroundStyle(Color.mmTextPrimary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+            if let sub {
+                Text(sub)
+                    .font(.system(size: 11))
+                    .foregroundStyle(
+                        sub.hasPrefix("↑") ? Color.mmAccentPrimary :
+                        sub.hasPrefix("↓") ? Color.mmDestructive :
+                        Color.mmTextSecondary
+                    )
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 10)
+        .background(Color.mmBgCard)
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 }
 
-// MARK: - 直近の履歴セクション
+// MARK: - エリアチャート
 
-private struct RecentHistorySection: View {
-    let recentSets: [(exercise: ExerciseDefinition, set: WorkoutSet)]
-    private var localization: LocalizationManager { LocalizationManager.shared }
+private struct DetailAreaChart: View {
+    let entries: [DetailWeightEntry]
+    let period: DetailPeriod
+    private var isJapanese: Bool { LocalizationManager.shared.currentLanguage == .japanese }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text(L10n.recentRecords)
-                .font(.headline)
+        VStack(alignment: .leading, spacing: 8) {
+            Text(isJapanese ? "重量推移" : "Weight Progress")
+                .font(.subheadline.bold())
                 .foregroundStyle(Color.mmTextPrimary)
-                .padding(.horizontal)
 
-            ForEach(recentSets.prefix(10), id: \.set.id) { entry in
-                HStack {
-                    Text(localization.currentLanguage == .japanese ? entry.exercise.nameJA : entry.exercise.nameEN)
-                        .font(.caption)
-                        .foregroundStyle(Color.mmTextPrimary)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.7)
-
-                    Spacer()
-
-                    Text(L10n.weightReps(entry.set.weight, entry.set.reps))
-                        .font(.caption.monospaced())
-                        .foregroundStyle(Color.mmAccentPrimary)
-
-                    Text(formatDate(entry.set.completedAt))
-                        .font(.caption2)
-                        .foregroundStyle(Color.mmTextSecondary)
-                        .frame(width: 50, alignment: .trailing)
-                }
-                .padding(.horizontal)
-                .padding(.vertical, 6)
+            if entries.isEmpty {
+                emptyState
+            } else {
+                chart
             }
         }
-        .padding(.vertical)
-        .background(Color.mmBgCard)
+        .padding(16)
+        .background(Color.mmBgSecondary)
         .clipShape(RoundedRectangle(cornerRadius: 16))
-        .padding(.horizontal)
     }
 
-    private func formatDate(_ date: Date) -> String {
-        let formatter = RelativeDateTimeFormatter()
-        formatter.locale = localization.currentLanguage == .japanese
-            ? Locale(identifier: "ja_JP")
-            : Locale(identifier: "en_US")
-        formatter.unitsStyle = .abbreviated
-        return formatter.localizedString(for: date, relativeTo: Date())
+    private var chart: some View {
+        Chart(entries) { entry in
+            // エリア塗りつぶし
+            AreaMark(
+                x: .value("Date", entry.date, unit: .day),
+                y: .value("Weight", entry.maxWeight)
+            )
+            .foregroundStyle(Color.mmAccentPrimary.opacity(0.08))
+            .interpolationMethod(.catmullRom)
+
+            // 折れ線
+            LineMark(
+                x: .value("Date", entry.date, unit: .day),
+                y: .value("Weight", entry.maxWeight)
+            )
+            .foregroundStyle(Color.mmAccentPrimary)
+            .lineStyle(StrokeStyle(lineWidth: 2))
+            .interpolationMethod(.catmullRom)
+
+            // データ点
+            PointMark(
+                x: .value("Date", entry.date, unit: .day),
+                y: .value("Weight", entry.maxWeight)
+            )
+            .foregroundStyle(entry.isPR ? Color.mmPRGold : Color.mmAccentPrimary)
+            .symbolSize(entry.isPR ? 64 : 16)
+        }
+        .chartXAxis {
+            AxisMarks(values: xAxisValues) { value in
+                AxisGridLine()
+                AxisValueLabel {
+                    if let date = value.as(Date.self) {
+                        Text(formatXLabel(date))
+                            .font(.caption2)
+                            .foregroundStyle(Color.mmTextSecondary)
+                    }
+                }
+            }
+        }
+        .chartYAxis {
+            AxisMarks(position: .leading) { _ in
+                AxisGridLine()
+                AxisValueLabel()
+                    .font(.caption2)
+                    .foregroundStyle(Color.mmTextSecondary)
+            }
+        }
+        .frame(height: 180)
+    }
+
+    // X軸ラベル値: 期間に応じて間引き
+    private var xAxisValues: AxisMarkValues {
+        switch period {
+        case .oneWeek, .twoWeeks:
+            return .stride(by: .day, count: period == .oneWeek ? 1 : 2)
+        case .oneMonth, .twoMonths:
+            return .stride(by: .weekOfYear, count: 1)
+        case .threeMonths:
+            return .stride(by: .month, count: 1)
+        case .all:
+            return .stride(by: .month, count: 1)
+        }
+    }
+
+    // X軸ラベルフォーマット
+    private func formatXLabel(_ date: Date) -> String {
+        let fmt = DateFormatter()
+        switch period {
+        case .oneWeek, .twoWeeks:
+            fmt.dateFormat = isJapanese ? "E" : "EEE"
+            fmt.locale = isJapanese ? Locale(identifier: "ja_JP") : Locale(identifier: "en_US")
+        case .oneMonth, .twoMonths:
+            fmt.dateFormat = "M/d"
+        case .threeMonths, .all:
+            fmt.dateFormat = isJapanese ? "M月" : "MMM"
+            fmt.locale = isJapanese ? Locale(identifier: "ja_JP") : Locale(identifier: "en_US")
+        }
+        return fmt.string(from: date)
+    }
+
+    private var emptyState: some View {
+        RoundedRectangle(cornerRadius: 8)
+            .stroke(Color.mmTextSecondary.opacity(0.2), style: StrokeStyle(lineWidth: 1, dash: [5]))
+            .frame(height: 180)
+            .overlay {
+                VStack(spacing: 8) {
+                    Image(systemName: "chart.line.uptrend.xyaxis")
+                        .font(.title2)
+                        .foregroundStyle(Color.mmTextSecondary.opacity(0.4))
+                    Text(isJapanese ? "まだ記録がありません" : "No records yet")
+                        .font(.caption)
+                        .foregroundStyle(Color.mmTextSecondary)
+                }
+            }
+    }
+}
+
+// MARK: - 種目Netflixグリッド
+
+private struct DetailExerciseGrid: View {
+    let cards: [ExerciseCardData]
+    @Binding var selectedExercise: ExerciseDefinition?
+    private var isJapanese: Bool { LocalizationManager.shared.currentLanguage == .japanese }
+
+    private let gridColumns = [
+        GridItem(.flexible(), spacing: 12),
+        GridItem(.flexible(), spacing: 12)
+    ]
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text(isJapanese ? "この期間の種目" : "Exercises")
+                    .font(.headline)
+                    .foregroundStyle(Color.mmTextPrimary)
+                Spacer()
+                Text("\(cards.count)")
+                    .font(.subheadline.bold())
+                    .foregroundStyle(Color.mmAccentPrimary)
+            }
+
+            LazyVGrid(columns: gridColumns, spacing: 12) {
+                ForEach(cards) { card in
+                    Button {
+                        HapticManager.lightTap()
+                        selectedExercise = card.exercise
+                    } label: {
+                        netflixCard(card)
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func netflixCard(_ card: ExerciseCardData) -> some View {
+        ZStack(alignment: .topTrailing) {
+            ZStack(alignment: .bottom) {
+                // GIF or プレースホルダー
+                if ExerciseGifView.hasGif(exerciseId: card.exercise.id) {
+                    ExerciseGifView(exerciseId: card.exercise.id, size: .gridCard)
+                        .frame(height: 120)
+                        .frame(maxWidth: .infinity)
+                        .clipped()
+                } else {
+                    Color.mmBgSecondary
+                        .frame(height: 120)
+                        .overlay {
+                            Image(systemName: "dumbbell.fill")
+                                .font(.system(size: 24))
+                                .foregroundStyle(Color.mmTextSecondary.opacity(0.3))
+                        }
+                }
+
+                // グラデーションオーバーレイ + テキスト
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(card.exercise.localizedName)
+                        .font(.caption.bold())
+                        .foregroundStyle(.white)
+                        .lineLimit(1)
+
+                    Text(card.exercise.localizedEquipment)
+                        .font(.caption2)
+                        .foregroundStyle(.white.opacity(0.6))
+
+                    if let w = card.lastWeight, let r = card.lastReps {
+                        Text("\(Int(w))kg×\(r)")
+                            .font(.caption2.bold())
+                            .foregroundStyle(Color.mmAccentPrimary)
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(8)
+                .background(
+                    LinearGradient(
+                        colors: [.clear, .black.opacity(0.85)],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
+            }
+
+            // セット数バッジ（右上）
+            Text("\(card.totalSets)")
+                .font(.system(size: 10, weight: .bold))
+                .foregroundStyle(.white)
+                .padding(.horizontal, 6)
+                .padding(.vertical, 3)
+                .background(Color.mmAccentPrimary.opacity(0.8))
+                .clipShape(Capsule())
+                .padding(6)
+        }
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.mmBgCard)
+        )
     }
 }
 
