@@ -20,6 +20,34 @@ const DI_H = 40;
 const DI_TOP = 16;
 const CAM_D = 14;
 
+// ─── KEY FIX: Use background-image instead of <img> ───
+// html-to-image clones DOM nodes. Cloned <img> elements with data URL src
+// often fail to decode before canvas draw (known bug, especially Safari).
+// CSS background-image is serialized as part of the style attribute in the
+// SVG foreignObject clone, so it works reliably.
+function ScreenImage({ dataUrl, accent }: { dataUrl: string | null; accent: string }) {
+  const a = accent;
+  if (dataUrl) {
+    return (
+      <div style={{
+        width: '100%',
+        aspectRatio: '1179/2556',
+        backgroundImage: `url(${dataUrl})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+      }} />
+    );
+  }
+  return (
+    <div style={{ width: '100%', aspectRatio: '1179/2556', background: '#080808', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ width: 50, height: 50, borderRadius: 13, border: `1.5px dashed ${a}18`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <span style={{ fontSize: 20, color: a, opacity: 0.2 }}>+</span>
+      </div>
+    </div>
+  );
+}
+
 function PhoneFrame({ accent, imageDataUrl }: { accent: string; imageDataUrl: string | null }) {
   const a = accent;
   return (
@@ -48,16 +76,7 @@ function PhoneFrame({ accent, imageDataUrl }: { accent: string; imageDataUrl: st
           <div style={{ position: 'absolute', inset: 0, borderRadius: SCREEN_R, boxShadow: 'inset 0 0 0 0.5px rgba(255,255,255,0.08)', pointerEvents: 'none', zIndex: 8 }} />
           <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 200, background: 'linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.015) 40%, transparent 100%)', pointerEvents: 'none', zIndex: 5 }} />
           <div style={{ position: 'absolute', top: -100, right: -100, width: 400, height: 800, background: 'linear-gradient(135deg, transparent 0%, rgba(255,255,255,0.02) 45%, rgba(255,255,255,0.035) 50%, rgba(255,255,255,0.02) 55%, transparent 100%)', transform: 'rotate(15deg)', pointerEvents: 'none', zIndex: 6 }} />
-          {imageDataUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={imageDataUrl} alt="" style={{ width: '100%', display: 'block' }} />
-          ) : (
-            <div style={{ width: '100%', aspectRatio: '1179/2556', background: '#080808', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <div style={{ width: 50, height: 50, borderRadius: 13, border: `1.5px dashed ${a}18`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <span style={{ fontSize: 20, color: a, opacity: 0.2 }}>+</span>
-              </div>
-            </div>
-          )}
+          <ScreenImage dataUrl={imageDataUrl} accent={a} />
         </div>
       </div>
     </div>
@@ -138,17 +157,12 @@ export default function Page() {
   const pick = useCallback((id: number) => { const i = document.createElement('input'); i.type = 'file'; i.accept = 'image/*'; i.onchange = (e) => { const f = (e.target as HTMLInputElement).files?.[0]; if (!f) return; const r = new FileReader(); r.onload = () => setImg(id, r.result as string); r.readAsDataURL(f); }; i.click(); }, [setImg]);
   const drop = useCallback((id: number, e: DragEvent) => { e.preventDefault(); const f = e.dataTransfer.files[0]; if (!f?.type.startsWith('image/')) return; const r = new FileReader(); r.onload = () => setImg(id, r.result as string); r.readAsDataURL(f); }, [setImg]);
 
-  // html-to-image known bug: cloned <img> with data URL src may not be
-  // decoded when the canvas draws. Calling toPng twice is the standard
-  // workaround — first call forces image loading in the clone, second
-  // call captures correctly. See: https://github.com/bubkoo/html-to-image/issues/361
   const exp1 = useCallback(async (id: number) => {
     const el = slideRefs.current[id];
     if (!el) return;
     const opts = { width: W, height: H, pixelRatio: 1, cacheBust: true };
-    // 1st call: warms up cloned images (result discarded)
+    // Double-render: 1st call warms caches, 2nd captures correctly
     await toPng(el, opts).catch(() => {});
-    // 2nd call: images now cached/decoded → correct capture
     const u = await toPng(el, opts);
     Object.assign(document.createElement('a'), { download: `shot${id}_${lang}.png`, href: u }).click();
   }, [lang]);
@@ -164,9 +178,17 @@ export default function Page() {
   }, [images, exp1]);
 
   const n = Object.keys(images).length;
+  const isSafari = typeof navigator !== 'undefined' && /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
 
   return (
     <div style={{ background: '#060606', minHeight: '100vh', color: '#fff' }}>
+      {/* Safari warning */}
+      {isSafari && (
+        <div style={{ padding: '8px 20px', background: '#3a1a00', color: '#FFB74D', fontSize: 12, textAlign: 'center' }}>
+          ⚠ Safari ではエクスポートに問題が出ることがあります。<strong>Chrome で開いてください</strong> → localhost:3000
+        </div>
+      )}
+
       <div style={{ padding: '12px 20px', borderBottom: '1px solid #151515', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, background: 'rgba(6,6,6,0.92)', backdropFilter: 'blur(16px)', zIndex: 50 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
           <span style={{ fontSize: 13, fontWeight: 700, color: '#555', letterSpacing: 2, textTransform: 'uppercase' }}>Screenshots</span>
