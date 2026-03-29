@@ -57,12 +57,20 @@ struct ExerciseGifView: View {
 
             case .gridCard:
                 // アニメーションGIF（グリッドカード用 — Fillで黒帯なし、frameは呼び出し元で指定）
-                GifImageView(gifData: gifData, useFill: true)
-                    .clipped()
+                if playOnce {
+                    GifPlayOnceView(gifData: gifData, useFill: true, triggerPlay: triggerPlay)
+                        .clipped()
+                } else {
+                    GifImageView(gifData: gifData, useFill: true)
+                        .clipped()
+                }
 
             case .card:
                 // カード型サムネイル（グリッド用 — Fillで黒帯なし、frameは呼び出し元で指定）
-                if let firstFrame = UIImage.gifFirstFrame(data: gifData) {
+                if playOnce {
+                    GifPlayOnceView(gifData: gifData, useFill: true, triggerPlay: triggerPlay)
+                        .clipped()
+                } else if let firstFrame = UIImage.gifFirstFrame(data: gifData) {
                     Image(uiImage: firstFrame)
                         .resizable()
                         .scaledToFill()
@@ -128,6 +136,96 @@ struct ExerciseGifView: View {
         // キャッシュに保存
         gifCache.setObject(data as NSData, forKey: cacheKey)
         return data
+    }
+}
+
+// MARK: - UIKit GIF PlayOnce View (UIViewRepresentable) - 1回再生モード
+
+private struct GifPlayOnceView: UIViewRepresentable {
+    let gifData: Data
+    var useFill: Bool = false
+    var triggerPlay: Bool = false
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator()
+    }
+
+    func makeUIView(context: Context) -> UIImageView {
+        let imageView = UIImageView()
+        imageView.contentMode = useFill ? .scaleAspectFill : .scaleAspectFit
+        imageView.clipsToBounds = true
+        imageView.backgroundColor = .clear
+        imageView.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        imageView.setContentHuggingPriority(.defaultLow, for: .vertical)
+        imageView.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        imageView.setContentCompressionResistancePriority(.defaultLow, for: .vertical)
+
+        // フレームを事前にパースして保持
+        if let source = CGImageSourceCreateWithData(gifData as CFData, nil) {
+            let count = CGImageSourceGetCount(source)
+            var frames: [UIImage] = []
+            var totalDuration: Double = 0
+
+            for i in 0..<count {
+                if let cgImage = CGImageSourceCreateImageAtIndex(source, i, nil) {
+                    frames.append(UIImage(cgImage: cgImage))
+                    totalDuration += UIImage.frameDuration(at: i, source: source)
+                }
+            }
+            if totalDuration < 0.1 { totalDuration = Double(count) * 0.1 }
+
+            context.coordinator.frames = frames
+            context.coordinator.duration = totalDuration
+
+            // 最初のフレームを静止表示
+            if let first = frames.first {
+                imageView.image = first
+            }
+        }
+
+        return imageView
+    }
+
+    func updateUIView(_ imageView: UIImageView, context: Context) {
+        let expectedMode: UIView.ContentMode = useFill ? .scaleAspectFill : .scaleAspectFit
+        if imageView.contentMode != expectedMode {
+            imageView.contentMode = expectedMode
+        }
+
+        // triggerPlay が true になった瞬間に1回だけ再生
+        if triggerPlay && !context.coordinator.hasPlayed {
+            context.coordinator.hasPlayed = true
+            let frames = context.coordinator.frames
+            let duration = context.coordinator.duration
+
+            guard frames.count > 1 else { return }
+
+            imageView.animationImages = frames
+            imageView.animationDuration = duration
+            imageView.animationRepeatCount = 1
+            imageView.startAnimating()
+
+            // アニメーション完了後に最後のフレームを設定
+            DispatchQueue.main.asyncAfter(deadline: .now() + duration) {
+                imageView.stopAnimating()
+                imageView.animationImages = nil
+                if let last = frames.last {
+                    imageView.image = last
+                }
+            }
+        }
+    }
+
+    class Coordinator {
+        var frames: [UIImage] = []
+        var duration: Double = 0
+        var hasPlayed = false
+    }
+
+    static func dismantleUIView(_ imageView: UIImageView, coordinator: ()) {
+        imageView.stopAnimating()
+        imageView.animationImages = nil
+        imageView.image = nil
     }
 }
 
@@ -236,7 +334,7 @@ extension UIImage {
     }
 
     /// GIFフレームの表示時間を取得
-    private static func frameDuration(at index: Int, source: CGImageSource) -> Double {
+    fileprivate static func frameDuration(at index: Int, source: CGImageSource) -> Double {
         let defaultDuration = 0.1
 
         guard let properties = CGImageSourceCopyPropertiesAtIndex(source, index, nil) as? [String: Any],

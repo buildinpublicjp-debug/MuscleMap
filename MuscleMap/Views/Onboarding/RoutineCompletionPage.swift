@@ -17,6 +17,7 @@ struct RoutineCompletionPage: View {
     @State private var highlightedMuscles: Set<String> = []
     @State private var animationCompleted = false
     @State private var timerHolder = TimerHolder()
+    @State private var playTriggers: [Int: Bool] = [:]
 
     /// 保存済みルーティン
     private var routine: UserRoutine {
@@ -279,7 +280,8 @@ struct RoutineCompletionPage: View {
 
                     compactExerciseCard(
                         routineExercise: routineExercise,
-                        state: state
+                        state: state,
+                        flatIndex: flatIndex
                     )
                 }
             }
@@ -292,14 +294,19 @@ struct RoutineCompletionPage: View {
     // MARK: - 種目カード（3列グリッド用、高さ110pt）
 
     @ViewBuilder
-    private func compactExerciseCard(routineExercise: RoutineExercise, state: CardState) -> some View {
+    private func compactExerciseCard(routineExercise: RoutineExercise, state: CardState, flatIndex: Int) -> some View {
         let def = ExerciseStore.shared.exercise(for: routineExercise.exerciseId)
         let name = def?.localizedName ?? routineExercise.exerciseId
 
         ZStack(alignment: .bottom) {
             // GIF or プレースホルダー
             if ExerciseGifView.hasGif(exerciseId: routineExercise.exerciseId) {
-                ExerciseGifView(exerciseId: routineExercise.exerciseId, size: .card)
+                ExerciseGifView(
+                    exerciseId: routineExercise.exerciseId,
+                    size: .card,
+                    playOnce: true,
+                    triggerPlay: playTriggers[flatIndex] ?? false
+                )
                     .scaledToFill()
                     .frame(height: 110)
                     .clipped()
@@ -451,6 +458,7 @@ struct RoutineCompletionPage: View {
 
         if flatExerciseIndex < allFlatExercises.count {
             let entry = allFlatExercises[flatExerciseIndex]
+            playTriggers[flatExerciseIndex] = true
             highlightExercise(entry.exercise)
         } else {
             // 全種目通過 → 完了演出
