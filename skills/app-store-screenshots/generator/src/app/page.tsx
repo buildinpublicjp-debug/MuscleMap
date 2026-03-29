@@ -11,7 +11,7 @@ const PHONE_TOP = 428;
 const PHONE_W = 1200;
 const PHONE_X = (W - PHONE_W) / 2;
 
-function CompositeSlide({ shot, lang, imageDataUrl, slideRef }: { shot: ShotDef; lang: Lang; imageDataUrl: string | null; slideRef: React.RefObject<HTMLDivElement | null>; }) {
+function CompositeSlide({ shot, lang, imageDataUrl, slideRef }: { shot: ShotDef; lang: Lang; imageDataUrl: string | null; slideRef?: React.RefObject<HTMLDivElement | null>; }) {
   const copy = shot.copy[lang]; const isJa = lang === 'ja' || lang === 'zh' || lang === 'ko'; const lines = copy.headline.split('\n'); const a = shot.accent;
   return (<div ref={slideRef} style={{ width: W, height: H, background: '#020303', position: 'relative', overflow: 'hidden', fontFamily: isJa ? "'Noto Sans JP', 'Hiragino Sans', sans-serif" : "'Inter', 'SF Pro Display', -apple-system, sans-serif" }}>
     <div style={{ position: 'absolute', inset: 0, background: `linear-gradient(175deg, #081410 0%, #030504 30%, #061008 60%, #020303 100%)` }} />
@@ -74,18 +74,40 @@ function CompositeSlide({ shot, lang, imageDataUrl, slideRef }: { shot: ShotDef;
 export default function Page() {
   const [lang, setLang] = useState<Lang>('ja');
   const [images, setImages] = useState<Record<number, string>>({});
-  const refs = useRef<Record<number, HTMLDivElement | null>>({});
+  // Export refs: point to hidden full-size CompositeSlides (off-screen)
+  const exportRefs = useRef<Record<number, HTMLDivElement | null>>({});
   const [exporting, setExporting] = useState(false);
   const LANGS: Lang[] = ['ja', 'en', 'zh', 'ko', 'es', 'de', 'fr'];
   const S = 380 / W;
   const setImg = useCallback((id: number, d: string) => setImages(p => ({ ...p, [id]: d })), []);
   const pick = useCallback((id: number) => { const i = document.createElement('input'); i.type = 'file'; i.accept = 'image/*'; i.onchange = (e) => { const f = (e.target as HTMLInputElement).files?.[0]; if (!f) return; const r = new FileReader(); r.onload = () => setImg(id, r.result as string); r.readAsDataURL(f); }; i.click(); }, [setImg]);
   const drop = useCallback((id: number, e: DragEvent) => { e.preventDefault(); const f = e.dataTransfer.files[0]; if (!f?.type.startsWith('image/')) return; const r = new FileReader(); r.onload = () => setImg(id, r.result as string); r.readAsDataURL(f); }, [setImg]);
-  const exp1 = useCallback(async (id: number) => { const el = refs.current[id]; if (!el) return; const u = await toPng(el, { width: W, height: H, pixelRatio: 1 }); Object.assign(document.createElement('a'), { download: `shot${id}_${lang}.png`, href: u }).click(); }, [lang]);
+
+  // Export uses the hidden full-size ref, not the scaled preview
+  const exp1 = useCallback(async (id: number) => {
+    const el = exportRefs.current[id];
+    if (!el) return;
+    const u = await toPng(el, { width: W, height: H, pixelRatio: 1 });
+    Object.assign(document.createElement('a'), { download: `shot${id}_${lang}.png`, href: u }).click();
+  }, [lang]);
+
   const expAll = useCallback(async () => { setExporting(true); for (const s of SHOTS) { if (!images[s.id]) continue; await exp1(s.id); await new Promise(r => setTimeout(r, 500)); } setExporting(false); }, [images, exp1]);
   const n = Object.keys(images).length;
   return (
     <div style={{ background: '#060606', minHeight: '100vh', color: '#fff' }}>
+      {/* Hidden full-size slides for export (off-screen) */}
+      <div style={{ position: 'absolute', left: -99999, top: 0, pointerEvents: 'none' }} aria-hidden="true">
+        {SHOTS.map(shot => (
+          <CompositeSlide
+            key={`export-${shot.id}`}
+            shot={shot}
+            lang={lang}
+            imageDataUrl={images[shot.id] || null}
+            slideRef={{ set current(el) { exportRefs.current[shot.id] = el; }, get current() { return exportRefs.current[shot.id] || null; } }}
+          />
+        ))}
+      </div>
+
       <div style={{ padding: '12px 20px', borderBottom: '1px solid #151515', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, background: 'rgba(6,6,6,0.92)', backdropFilter: 'blur(16px)', zIndex: 50 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
           <span style={{ fontSize: 13, fontWeight: 700, color: '#555', letterSpacing: 2, textTransform: 'uppercase' }}>Screenshots</span>
@@ -110,8 +132,9 @@ export default function Page() {
               </div>
             </div>
             <div onDragOver={e => e.preventDefault()} onDrop={e => drop(shot.id, e)} onClick={() => { if (!images[shot.id]) pick(shot.id); }} style={{ width: W * S, height: H * S, overflow: 'hidden', borderRadius: 6, border: images[shot.id] ? '1px solid #181818' : '1px dashed #1f1f1f', cursor: images[shot.id] ? 'default' : 'pointer' }}>
+              {/* Preview only — no ref needed, just visual */}
               <div style={{ transform: `scale(${S})`, transformOrigin: 'top left' }}>
-                <CompositeSlide shot={shot} lang={lang} imageDataUrl={images[shot.id] || null} slideRef={{ set current(el) { refs.current[shot.id] = el; }, get current() { return refs.current[shot.id] || null; } }} />
+                <CompositeSlide shot={shot} lang={lang} imageDataUrl={images[shot.id] || null} />
               </div>
             </div>
           </div>
