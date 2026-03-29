@@ -7,7 +7,7 @@ import { SHOTS, type Lang, type ShotDef } from '@/copy';
 const W = 1320;
 const H = 2868;
 const COPY_TOP = 80;
-const PHONE_TOP = 620;
+const PHONE_TOP = 500;
 const PHONE_W = 1200;
 const PHONE_X = (W - PHONE_W) / 2;
 
@@ -31,13 +31,10 @@ function CompositeSlide({
         : "'Inter', 'SF Pro Display', -apple-system, sans-serif",
     }}>
 
-      {/* ═══ BG: Green-tinted base ═══ */}
-      <div style={{
-        position: 'absolute', inset: 0,
+      <div style={{ position: 'absolute', inset: 0,
         background: `linear-gradient(175deg, #081410 0%, #030504 30%, #061008 60%, #020303 100%)`,
       }} />
 
-      {/* ═══ BG: MASSIVE aurora ═══ */}
       <div style={{
         position: 'absolute', top: -200, left: '50%', transform: 'translateX(-50%)',
         width: 1800, height: 1400,
@@ -45,7 +42,6 @@ function CompositeSlide({
         filter: 'blur(80px)',
       }} />
 
-      {/* ═══ BG: Bottom pool ═══ */}
       <div style={{
         position: 'absolute', bottom: -100, left: '50%', transform: 'translateX(-50%)',
         width: 1200, height: 600,
@@ -53,7 +49,6 @@ function CompositeSlide({
         filter: 'blur(60px)',
       }} />
 
-      {/* ═══ BG: Side glows ═══ */}
       <div style={{
         position: 'absolute', top: '30%', left: -200, width: 500, height: 800,
         background: `radial-gradient(circle, ${a}10 0%, transparent 60%)`,
@@ -65,7 +60,6 @@ function CompositeSlide({
         filter: 'blur(40px)',
       }} />
 
-      {/* ═══ BG: Muscle fibers ═══ */}
       <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}
         viewBox={`0 0 ${W} ${H}`} fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
         {Array.from({ length: 35 }).map((_, i) => {
@@ -91,7 +85,6 @@ function CompositeSlide({
         })}
       </svg>
 
-      {/* ═══ BG: Anatomy rings ═══ */}
       <div style={{
         position: 'absolute', top: 150, left: '50%', transform: 'translateX(-50%)',
         width: 1100, height: 1100, borderRadius: '50%',
@@ -109,7 +102,6 @@ function CompositeSlide({
         border: `1px solid ${a}`, opacity: 0.04,
       }} />
 
-      {/* ═══ BG: Particles ═══ */}
       <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}
         viewBox={`0 0 ${W} ${H}`} xmlns="http://www.w3.org/2000/svg">
         {Array.from({ length: 80 }).map((_, i) => (
@@ -122,14 +114,12 @@ function CompositeSlide({
         ))}
       </svg>
 
-      {/* ═══ BG: Noise ═══ */}
       <div style={{
         position: 'absolute', inset: 0, opacity: 0.6, mixBlendMode: 'overlay' as const,
         backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.08'/%3E%3C/svg%3E")`,
         backgroundRepeat: 'repeat',
       }} />
 
-      {/* ═══ BG: Edges ═══ */}
       <div style={{
         position: 'absolute', top: 0, left: '5%', right: '5%', height: 2,
         background: `linear-gradient(90deg, transparent, ${a}60, transparent)`,
@@ -160,7 +150,7 @@ function CompositeSlide({
 
         <div style={{
           fontSize: 26, fontWeight: 400, color: `${a}65`,
-          marginTop: 20, letterSpacing: isJa ? 3 : 1,
+          marginTop: 16, letterSpacing: isJa ? 3 : 1,
           fontFeatureSettings: "'palt' 1",
           textShadow: `0 0 30px ${a}20`,
         }}>
@@ -169,7 +159,7 @@ function CompositeSlide({
 
         <div style={{
           display: 'flex', gap: 8, justifyContent: 'center',
-          marginTop: 22, flexWrap: 'wrap' as const,
+          marginTop: 16, flexWrap: 'wrap' as const,
         }}>
           {copy.chips.map((c, i) => (
             <span key={i} style={{
@@ -259,10 +249,10 @@ function CompositeSlide({
         </div>
       </div>
 
-      {/* ═══ BOTTOM ═══ */}
+      {/* ═══ BOTTOM — very subtle fade, not heavy shadow ═══ */}
       <div style={{
-        position: 'absolute', bottom: 0, left: 0, right: 0, height: 450,
-        background: 'linear-gradient(transparent 0%, #020303 60%)',
+        position: 'absolute', bottom: 0, left: 0, right: 0, height: 200,
+        background: 'linear-gradient(transparent 0%, #02030480 100%)',
         pointerEvents: 'none', zIndex: 3,
       }} />
       <div style={{
