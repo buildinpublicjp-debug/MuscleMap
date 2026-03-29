@@ -49,22 +49,6 @@ struct PRInputPage: View {
         return ids.compactMap { store.exercise(for: $0) }
     }
 
-    /// 総合レベル
-    private var overallLevel: StrengthLevel? {
-        guard !recordedPRs.isEmpty else { return nil }
-        var totalScore = 0.0
-        for (exerciseId, weight) in recordedPRs {
-            let result = StrengthScoreCalculator.exerciseStrengthLevel(
-                exerciseId: exerciseId,
-                estimated1RM: weight,
-                bodyweightKg: bodyweightKg
-            )
-            totalScore += result.level.minimumScore
-        }
-        let avgScore = totalScore / Double(recordedPRs.count)
-        return StrengthScoreCalculator.level(score: avgScore)
-    }
-
     var body: some View {
         GeometryReader { geo in
             let h = geo.size.height
@@ -177,7 +161,7 @@ struct PRInputPage: View {
             .opacity(appeared ? 1 : 0)
             .animation(.easeOut(duration: 0.3), value: recordedPRs.count)
 
-            // 強さレベルプレビュー or 動機付けテキスト
+            // ヒントテキスト
             if recordedPRs.isEmpty {
                 HStack(spacing: 8) {
                     Image(systemName: "chart.line.uptrend.xyaxis")
@@ -189,86 +173,6 @@ struct PRInputPage: View {
                 }
                 .padding(.horizontal, 24)
                 .padding(.vertical, 6)
-                .opacity(appeared ? 1 : 0)
-            } else if let level = overallLevel {
-                VStack(spacing: 10) {
-                    // レベル表示（左: emoji + レベル名、右: ラベル）
-                    HStack {
-                        HStack(spacing: 8) {
-                            Text(level.emoji)
-                                .font(.system(size: 28))
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text(L10n.yourLevel)
-                                    .font(.system(size: 10))
-                                    .foregroundStyle(Color.mmOnboardingTextSub)
-                                Text(level.localizedName)
-                                    .font(.system(size: 18, weight: .heavy))
-                                    .foregroundStyle(level.color)
-                            }
-                        }
-                        Spacer()
-                    }
-
-                    // プログレスバー（赤→黄→緑のグラデーション + マーカー）
-                    GeometryReader { barGeo in
-                        let barWidth = barGeo.size.width
-                        let normalizedScore = Self.normalizedScore(for: level)
-                        ZStack(alignment: .leading) {
-                            // 背景バー
-                            RoundedRectangle(cornerRadius: 4)
-                                .fill(Color.mmOnboardingCard)
-                                .frame(height: 8)
-
-                            // グラデーションバー
-                            RoundedRectangle(cornerRadius: 4)
-                                .fill(
-                                    LinearGradient(
-                                        colors: [
-                                            Color(hex: "#E57373"),
-                                            Color(hex: "#FFD54F"),
-                                            Color(hex: "#81C784"),
-                                        ],
-                                        startPoint: .leading,
-                                        endPoint: .trailing
-                                    )
-                                )
-                                .frame(width: barWidth * normalizedScore, height: 8)
-
-                            // マーカー
-                            Circle()
-                                .fill(level.color)
-                                .frame(width: 14, height: 14)
-                                .shadow(color: level.color.opacity(0.5), radius: 4)
-                                .offset(x: barWidth * normalizedScore - 7)
-                        }
-                    }
-                    .frame(height: 14)
-
-                    // レベルラベル（Beginner / Intermediate / Advanced）
-                    HStack {
-                        Text(StrengthLevel.beginner.localizedName)
-                            .font(.system(size: 9))
-                            .foregroundStyle(Color.mmOnboardingTextSub.opacity(0.6))
-                        Spacer()
-                        Text(StrengthLevel.intermediate.localizedName)
-                            .font(.system(size: 9))
-                            .foregroundStyle(Color.mmOnboardingTextSub.opacity(0.6))
-                        Spacer()
-                        Text(StrengthLevel.advanced.localizedName)
-                            .font(.system(size: 9))
-                            .foregroundStyle(Color.mmOnboardingTextSub.opacity(0.6))
-                    }
-
-                    Text(L10n.prMoreInputHint)
-                        .font(.system(size: 11))
-                        .foregroundStyle(Color.mmOnboardingTextSub)
-                }
-                .padding(12)
-                .background(Color.mmOnboardingCard)
-                .clipShape(RoundedRectangle(cornerRadius: 16))
-                .padding(.horizontal, 24)
-                .transition(.opacity.combined(with: .scale(scale: 0.95)))
-                .animation(.spring(response: 0.4, dampingFraction: 0.7), value: overallLevel?.rawValue)
                 .opacity(appeared ? 1 : 0)
             }
 
@@ -351,17 +255,6 @@ struct PRInputPage: View {
             )
             .presentationDetents([.height(280)])
             .presentationDragIndicator(.visible)
-        }
-    }
-
-    /// プログレスバー用の正規化スコア（0.0〜1.0）
-    private static func normalizedScore(for level: StrengthLevel) -> Double {
-        switch level {
-        case .beginner:     return 0.10
-        case .intermediate: return 0.28
-        case .advanced:     return 0.50
-        case .elite:        return 0.72
-        case .freak:        return 0.92
         }
     }
 
@@ -485,15 +378,6 @@ private struct WeightInputSheet: View {
     @State private var weight: Double = 0
     @State private var holdTimer: Timer?
 
-    private var currentLevel: StrengthLevel? {
-        guard weight > 0 else { return nil }
-        return StrengthScoreCalculator.exerciseStrengthLevel(
-            exerciseId: exercise.id,
-            estimated1RM: weight,
-            bodyweightKg: bodyweightKg
-        ).level
-    }
-
     var body: some View {
         VStack(spacing: 16) {
             // 種目ヘッダー（GIF + 名前）
@@ -524,14 +408,6 @@ private struct WeightInputSheet: View {
                 }
 
                 Spacer()
-
-                if let level = currentLevel {
-                    Text(level.localizedName)
-                        .font(.system(size: 15, weight: .heavy))
-                        .foregroundStyle(level.color)
-                        .transition(.opacity)
-                        .animation(.easeInOut(duration: 0.2), value: level.rawValue)
-                }
             }
 
             // 重量入力エリア

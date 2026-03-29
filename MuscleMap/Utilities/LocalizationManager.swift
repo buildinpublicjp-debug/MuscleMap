@@ -681,7 +681,7 @@ enum L10n {
 
     // MARK: - PR入力画面（PRInputPage）
     static var prInputTitle: String { loc("いつも何キロで鍛えてる？", "What weight do you usually lift?", zhHans: "平时用多重的重量训练？", ko: "보통 몇 킬로로 운동하나요?", es: "¿Cuánto peso sueles levantar?", fr: "Quel poids soulevez-vous habituellement ?", de: "Mit welchem Gewicht trainierst du?") }
-    static var prInputSubtitle: String { loc("あなたの強さレベルを判定します", "We'll assess your strength level", zhHans: "我们将评估你的力量水平", ko: "당신의 강도 레벨을 판정합니다", es: "Evaluaremos tu nivel de fuerza", fr: "Nous évaluerons votre niveau de force", de: "Wir bewerten dein Stärke-Level") }
+    static var prInputSubtitle: String { loc("記録の初期値として使います", "Used as starting values for your records", zhHans: "用作记录的初始值", ko: "기록의 초기값으로 사용됩니다", es: "Se usarán como valores iniciales", fr: "Utilisé comme valeurs initiales", de: "Wird als Anfangswerte verwendet") }
     static var prBenchPress: String { loc("ベンチプレス", "Bench Press", zhHans: "卧推", ko: "벤치프레스", es: "Press de banca", fr: "Développé couché", de: "Bankdrücken") }
     static var prSquat: String { loc("スクワット", "Squat", zhHans: "深蹲", ko: "스쿼트", es: "Sentadilla", fr: "Squat", de: "Kniebeuge") }
     static var prDeadlift: String { loc("デッドリフト", "Deadlift", zhHans: "硬拉", ko: "데드리프트", es: "Peso muerto", fr: "Soulevé de terre", de: "Kreuzheben") }
