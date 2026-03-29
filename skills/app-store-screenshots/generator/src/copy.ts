@@ -1,5 +1,14 @@
-// MuscleMap App Store Screenshot Copy — Redesigned
-// Each shot: headline (2 lines max), sub (1 line), accent color, stat chips
+// MuscleMap App Store Screenshot Copy — v2
+// Design philosophy: benefit-driven, readable at thumbnail size
+// Story arc: Hook → Benefit → Depth → Core Action → Insight → Transformation
+//
+// Changes from v1:
+// - Headlines shortened & punchier (max 2 lines, ~8 chars/line for JA)
+// - Subs simplified to one short benefit phrase
+// - Chips reduced to 2-3 max, data-heavy
+// - Shot 4: PR Celebration → Workout Recording (matches actual screen)
+// - Shot 5: Growth Chart → Muscle Detail (matches RecoveryDetailView)
+// - Shot 6: Strength Map (deleted) → Progress Photo (Pro feature)
 
 export type Lang = 'ja' | 'en' | 'zh' | 'ko' | 'es' | 'de' | 'fr';
 
@@ -18,6 +27,8 @@ export interface ShotDef {
 }
 
 export const SHOTS: ShotDef[] = [
+  // ─── SHOT 1: Recovery Map — HOOK ───
+  // "What is this app?" → You can SEE your muscles
   {
     id: 1,
     file: 'shot1_screen.png',
@@ -26,38 +37,34 @@ export const SHOTS: ShotDef[] = [
     copy: {
       ja: {
         headline: '筋肉が、見える。',
-        sub: '21部位の回復状態をリアルタイム表示',
+        sub: '21部位の回復をリアルタイムで',
         chips: [
           { label: '21', desc: '部位' },
           { label: 'リアルタイム' },
-          { label: 'EMG', desc: 'ベース' },
         ],
       },
       en: {
-        headline: 'See your muscles.\nLive.',
+        headline: 'See your\nmuscles.',
         sub: '21 muscles. Real-time recovery.',
         chips: [
           { label: '21', desc: 'muscles' },
           { label: 'Real-time' },
-          { label: 'EMG', desc: 'based' },
         ],
       },
       zh: {
-        headline: '肌肉，看得见。',
-        sub: '21个部位实时恢复状态',
+        headline: '肌肉，\n看得见。',
+        sub: '21个部位 实时恢复状态',
         chips: [
           { label: '21', desc: '部位' },
           { label: '实时' },
-          { label: 'EMG', desc: '数据' },
         ],
       },
       ko: {
-        headline: '근육이 보인다.',
-        sub: '21개 부위 실시간 회복 상태',
+        headline: '근육이\n보인다.',
+        sub: '21개 부위 실시간 회복',
         chips: [
           { label: '21', desc: '부위' },
           { label: '실시간' },
-          { label: 'EMG', desc: '기반' },
         ],
       },
       es: {
@@ -66,7 +73,6 @@ export const SHOTS: ShotDef[] = [
         chips: [
           { label: '21', desc: 'músculos' },
           { label: 'Tiempo real' },
-          { label: 'EMG', desc: 'basado' },
         ],
       },
       de: {
@@ -75,7 +81,6 @@ export const SHOTS: ShotDef[] = [
         chips: [
           { label: '21', desc: 'Muskeln' },
           { label: 'Echtzeit' },
-          { label: 'EMG', desc: 'basiert' },
         ],
       },
       fr: {
@@ -84,11 +89,13 @@ export const SHOTS: ShotDef[] = [
         chips: [
           { label: '21', desc: 'muscles' },
           { label: 'Temps réel' },
-          { label: 'EMG', desc: 'basé' },
         ],
       },
     },
   },
+
+  // ─── SHOT 2: Today's Plan — BENEFIT ───
+  // "What does it do for me?" → No more guessing what to train
   {
     id: 2,
     file: 'shot2_screen.png',
@@ -96,77 +103,66 @@ export const SHOTS: ShotDef[] = [
     nav: 'Today Action — Auto Plan',
     copy: {
       ja: {
-        headline: '今日やるべき種目、\n自動で。',
-        sub: '目標×頻度×場所 → あなた専用メニュー',
+        headline: '迷わない。',
+        sub: '回復×目標から今日の種目を自動提案',
         chips: [
-          { label: '目標' },
-          { label: '頻度' },
-          { label: '場所' },
           { label: '自動生成' },
+          { label: '回復連動' },
         ],
       },
       en: {
-        headline: 'Your daily plan.\nAutomatic.',
-        sub: 'Goal × Frequency × Location → Your menu',
+        headline: "No more\nguessing.",
+        sub: 'Recovery × Goals → Your daily plan',
         chips: [
-          { label: 'Goals' },
-          { label: 'Frequency' },
-          { label: 'Location' },
-          { label: 'Auto' },
+          { label: 'Auto-plan' },
+          { label: 'Recovery-linked' },
         ],
       },
       zh: {
-        headline: '今天练什么，\n自动安排。',
-        sub: '目标×频率×场所 → 你的专属计划',
+        headline: '不再迷茫。',
+        sub: '恢复×目标 → 今日计划',
         chips: [
-          { label: '目标' },
-          { label: '频率' },
-          { label: '场所' },
           { label: '自动' },
+          { label: '恢复联动' },
         ],
       },
       ko: {
-        headline: '오늘 뭘 해야 할지,\n자동으로.',
-        sub: '목표×빈도×장소 → 나만의 메뉴',
+        headline: '고민 끝.',
+        sub: '회복×목표 → 오늘의 메뉴',
         chips: [
-          { label: '목표' },
-          { label: '빈도' },
-          { label: '장소' },
-          { label: '자동' },
+          { label: '자동 생성' },
+          { label: '회복 연동' },
         ],
       },
       es: {
-        headline: 'Tu plan diario.\nAutomático.',
-        sub: 'Objetivos × frecuencia × lugar → tu rutina',
+        headline: 'Sin dudas.',
+        sub: 'Recuperación × Objetivos → Tu plan',
         chips: [
-          { label: 'Objetivos' },
-          { label: 'Frecuencia' },
-          { label: 'Lugar' },
           { label: 'Auto' },
+          { label: 'Recuperación' },
         ],
       },
       de: {
-        headline: 'Dein Tagesplan.\nAutomatisch.',
-        sub: 'Ziele × Häufigkeit × Ort → dein Menü',
+        headline: 'Kein Rätsel\nmehr.',
+        sub: 'Erholung × Ziele → Dein Plan',
         chips: [
-          { label: 'Ziele' },
-          { label: 'Häufigkeit' },
-          { label: 'Ort' },
-          { label: 'Auto' },
+          { label: 'Automatisch' },
+          { label: 'Erholung' },
         ],
       },
       fr: {
-        headline: 'Votre plan du jour.\nAutomatique.',
-        sub: 'Objectifs × fréquence × lieu → votre menu',
+        headline: 'Fini les\ndoutes.',
+        sub: 'Récupération × Objectifs → Votre plan',
         chips: [
-          { label: 'Objectifs' },
-          { label: 'Fréquence' },
-          { label: 'Lieu' },
           { label: 'Auto' },
+          { label: 'Récupération' },
         ],
       },
     },
   },
+
+  // ─── SHOT 3: Exercise Library — DEPTH ───
+  // "How much content?" → 92 exercises, all with GIF form guides
   {
     id: 3,
     file: 'shot3_screen.png',
@@ -174,265 +170,276 @@ export const SHOTS: ShotDef[] = [
     nav: 'Exercise Library (92 GIFs)',
     copy: {
       ja: {
-        headline: '92種目、全部動く。',
-        sub: '正しいフォームをGIFで確認',
+        headline: '92種目。\n全部動く。',
+        sub: 'GIFで正しいフォームを確認',
         chips: [
           { label: '92', desc: '種目' },
-          { label: 'GIF', desc: '対応' },
-          { label: 'EMG', desc: '刺激度' },
+          { label: 'GIF' },
+          { label: 'EMG', desc: '対応' },
         ],
       },
       en: {
         headline: '92 exercises.\nAll animated.',
-        sub: 'Check form with animated GIFs',
+        sub: 'Animated form guides for every move',
         chips: [
           { label: '92', desc: 'exercises' },
-          { label: 'GIF', desc: 'powered' },
+          { label: 'GIF' },
           { label: 'EMG', desc: 'mapped' },
         ],
       },
       zh: {
-        headline: '92个动作，\n全部有动图。',
-        sub: '用GIF确认正确姿势',
+        headline: '92个动作。\n全部有动图。',
+        sub: 'GIF动图确认正确姿势',
         chips: [
           { label: '92', desc: '动作' },
-          { label: 'GIF', desc: '支持' },
+          { label: 'GIF' },
           { label: 'EMG', desc: '数据' },
         ],
       },
       ko: {
-        headline: '92개 종목,\n전부 움직인다.',
-        sub: 'GIF로 올바른 폼 확인',
+        headline: '92개 종목.\n전부 움직인다.',
+        sub: 'GIF로 정확한 폼 확인',
         chips: [
           { label: '92', desc: '종목' },
-          { label: 'GIF', desc: '지원' },
+          { label: 'GIF' },
           { label: 'EMG', desc: '기반' },
         ],
       },
       es: {
         headline: '92 ejercicios.\nTodos animados.',
-        sub: 'Verifica tu forma con GIFs animados',
+        sub: 'Guías de forma animadas',
         chips: [
           { label: '92', desc: 'ejercicios' },
-          { label: 'GIF', desc: '' },
-          { label: 'EMG', desc: '' },
+          { label: 'GIF' },
+          { label: 'EMG' },
         ],
       },
       de: {
         headline: '92 Übungen.\nAlle animiert.',
-        sub: 'Technik mit animierten GIFs prüfen',
+        sub: 'Animierte Form-Guides',
         chips: [
           { label: '92', desc: 'Übungen' },
-          { label: 'GIF', desc: '' },
-          { label: 'EMG', desc: '' },
+          { label: 'GIF' },
+          { label: 'EMG' },
         ],
       },
       fr: {
         headline: '92 exercices.\nTous animés.',
-        sub: 'Vérifiez votre forme avec des GIFs',
+        sub: "Guides de forme animés",
         chips: [
           { label: '92', desc: 'exercices' },
-          { label: 'GIF', desc: '' },
-          { label: 'EMG', desc: '' },
+          { label: 'GIF' },
+          { label: 'EMG' },
         ],
       },
     },
   },
+
+  // ─── SHOT 4: Workout Recording — CORE ACTION ───
+  // "How do I use it?" → Just log. PRs are detected automatically.
+  // Accent: gold — the PR badge on screen ties it together
   {
     id: 4,
     file: 'shot4_screen.png',
     accent: '#FFD700',
-    nav: 'PR Celebration',
+    nav: 'Workout Recording + PR',
     copy: {
       ja: {
-        headline: '自己ベスト、祝う。',
-        sub: 'PR更新を自動検出 → 紙吹雪で祝福',
-        chips: [{ label: '🏆 NEW PR!' }],
+        headline: '記録する。\nあとは自動。',
+        sub: 'PR更新も回復計算もおまかせ',
+        chips: [
+          { label: '🏆', desc: 'PR自動検出' },
+          { label: '回復連動' },
+        ],
       },
       en: {
-        headline: 'Celebrate\nevery PR.',
-        sub: 'Auto-detect PRs → Celebrate with confetti',
-        chips: [{ label: '🏆 NEW PR!' }],
+        headline: 'Just log it.\nWe do the rest.',
+        sub: 'Auto PR detection + recovery tracking',
+        chips: [
+          { label: '🏆', desc: 'Auto PR' },
+          { label: 'Recovery sync' },
+        ],
       },
       zh: {
-        headline: '最佳纪录，\n值得庆祝。',
-        sub: '自动检测PR → 撒花庆祝',
-        chips: [{ label: '🏆 NEW PR!' }],
+        headline: '只管记录。\n剩下交给我。',
+        sub: 'PR自动检测 + 恢复追踪',
+        chips: [
+          { label: '🏆', desc: '自动PR' },
+          { label: '恢复联动' },
+        ],
       },
       ko: {
-        headline: '자기 최고 기록,\n축하하자.',
-        sub: 'PR 자동 감지 → 축하 이펙트',
-        chips: [{ label: '🏆 NEW PR!' }],
+        headline: '기록만 해.\n나머지는 자동.',
+        sub: 'PR 자동 감지 + 회복 추적',
+        chips: [
+          { label: '🏆', desc: '자동 PR' },
+          { label: '회복 연동' },
+        ],
       },
       es: {
-        headline: 'Celebra cada\nrécord personal.',
-        sub: 'Detección automática de PR → Confeti',
-        chips: [{ label: '🏆 NEW PR!' }],
+        headline: 'Solo registra.\nNosotros hacemos\nel resto.',
+        sub: 'PR automático + seguimiento',
+        chips: [
+          { label: '🏆', desc: 'PR auto' },
+          { label: 'Recuperación' },
+        ],
       },
       de: {
-        headline: 'Feiere jeden\npersönlichen Rekord.',
-        sub: 'PR automatisch erkennen → Konfetti',
-        chips: [{ label: '🏆 NEW PR!' }],
+        headline: 'Einfach loggen.\nWir machen\nden Rest.',
+        sub: 'Auto-PR + Erholungs-Tracking',
+        chips: [
+          { label: '🏆', desc: 'Auto PR' },
+          { label: 'Erholung' },
+        ],
       },
       fr: {
-        headline: 'Célèbre chaque\nrecord personnel.',
-        sub: 'Détection auto des PR → Confettis',
-        chips: [{ label: '🏆 NEW PR!' }],
+        headline: 'Enregistrez.\nOn fait le reste.',
+        sub: 'PR auto + suivi récupération',
+        chips: [
+          { label: '🏆', desc: 'PR auto' },
+          { label: 'Récupération' },
+        ],
       },
     },
   },
+
+  // ─── SHOT 5: Muscle Detail — INSIGHT ───
+  // "How deep does the data go?" → Per-muscle trends, recovery, history
   {
     id: 5,
     file: 'shot5_screen.png',
-    accent: '#00E676',
-    nav: 'History — Growth Tracking',
+    accent: '#00D4FF',
+    nav: 'Recovery Detail — Per Muscle',
     copy: {
       ja: {
-        headline: '成長が、\nグラフで見える。',
-        sub: '週間ボリューム推移 + 先週比',
+        headline: '1部位ずつ、\n深く知る。',
+        sub: '重量推移・回復・種目を一覧',
         chips: [
-          { label: '30.5k', desc: 'kg' },
-          { label: '↑ 12%' },
-          { label: '🔥 8w' },
+          { label: '重量推移' },
+          { label: '回復状態' },
+          { label: '種目履歴' },
         ],
       },
       en: {
-        headline: 'Watch yourself\ngrow.',
-        sub: 'Weekly volume trends + comparison',
+        headline: 'Every muscle,\nin depth.',
+        sub: 'Weight trends · Recovery · Exercise history',
         chips: [
-          { label: '30.5k', desc: 'kg' },
-          { label: '↑ 12%' },
-          { label: '🔥 8w' },
+          { label: 'Trends' },
+          { label: 'Recovery' },
+          { label: 'History' },
         ],
       },
       zh: {
-        headline: '成长，\n一目了然。',
-        sub: '周训练量趋势 + 对比',
+        headline: '每块肌肉，\n深入了解。',
+        sub: '重量趋势 · 恢复 · 训练记录',
         chips: [
-          { label: '30.5k', desc: 'kg' },
-          { label: '↑ 12%' },
-          { label: '🔥 8w' },
+          { label: '重量趋势' },
+          { label: '恢复' },
+          { label: '记录' },
         ],
       },
       ko: {
-        headline: '성장을\n그래프로 확인.',
-        sub: '주간 볼륨 추이 + 전주 대비',
+        headline: '1부위씩,\n깊이 알다.',
+        sub: '중량 추이 · 회복 · 종목 이력',
         chips: [
-          { label: '30.5k', desc: 'kg' },
-          { label: '↑ 12%' },
-          { label: '🔥 8w' },
+          { label: '중량 추이' },
+          { label: '회복' },
+          { label: '이력' },
         ],
       },
       es: {
-        headline: 'Mira cómo\ncreces.',
-        sub: 'Tendencias de volumen semanal + comparación',
+        headline: 'Cada músculo,\nen detalle.',
+        sub: 'Tendencias · Recuperación · Historial',
         chips: [
-          { label: '30.5k', desc: 'kg' },
-          { label: '↑ 12%' },
-          { label: '🔥 8w' },
+          { label: 'Tendencias' },
+          { label: 'Recuperación' },
+          { label: 'Historial' },
         ],
       },
       de: {
-        headline: 'Sieh deinen\nFortschritt.',
-        sub: 'Wöchentliche Volumentrends + Vergleich',
+        headline: 'Jeder Muskel.\nIm Detail.',
+        sub: 'Trends · Erholung · Übungs-Historie',
         chips: [
-          { label: '30.5k', desc: 'kg' },
-          { label: '↑ 12%' },
-          { label: '🔥 8w' },
+          { label: 'Trends' },
+          { label: 'Erholung' },
+          { label: 'Historie' },
         ],
       },
       fr: {
-        headline: 'Regardez votre\nprogression.',
-        sub: 'Tendances hebdomadaires + comparaison',
+        headline: 'Chaque muscle,\nen détail.',
+        sub: 'Tendances · Récupération · Historique',
         chips: [
-          { label: '30.5k', desc: 'kg' },
-          { label: '↑ 12%' },
-          { label: '🔥 8w' },
+          { label: 'Tendances' },
+          { label: 'Récupération' },
+          { label: 'Historique' },
         ],
       },
     },
   },
+
+  // ─── SHOT 6: Progress Photo — TRANSFORMATION ───
+  // "What's the payoff?" → Capture your body's change over time
+  // NEW: replaces deleted Strength Map
   {
     id: 6,
     file: 'shot6_screen.png',
-    accent: '#00D4FF',
-    nav: 'Strength Map — Grades',
+    accent: '#B388FF',
+    nav: 'Progress Photo — Transformation',
     copy: {
       ja: {
-        headline: 'どこが強い？\n数値で見る。',
-        sub: '筋力レベルを太さで可視化 — S〜Dランク',
+        headline: '変化を、残す。',
+        sub: '定点撮影で体の変化を記録',
         chips: [
-          { label: 'S' },
-          { label: 'A' },
-          { label: 'B' },
-          { label: 'C' },
-          { label: 'D' },
+          { label: '定点撮影' },
+          { label: '比較' },
         ],
       },
       en: {
-        headline: 'Know your\nstrengths.',
-        sub: 'Strength levels visualized — S to D rank',
+        headline: 'Capture\nthe change.',
+        sub: 'Track your transformation over time',
         chips: [
-          { label: 'S' },
-          { label: 'A' },
-          { label: 'B' },
-          { label: 'C' },
-          { label: 'D' },
+          { label: 'Progress' },
+          { label: 'Compare' },
         ],
       },
       zh: {
-        headline: '哪里更强？\n数据说话。',
-        sub: '肌力等级可视化 — S到D等级',
+        headline: '留住变化。',
+        sub: '定点拍摄记录身体变化',
         chips: [
-          { label: 'S' },
-          { label: 'A' },
-          { label: 'B' },
-          { label: 'C' },
-          { label: 'D' },
+          { label: '定点拍摄' },
+          { label: '对比' },
         ],
       },
       ko: {
-        headline: '어디가 강한가?\n수치로 확인.',
-        sub: '근력 레벨 시각화 — S~D 등급',
+        headline: '변화를\n남기다.',
+        sub: '정점 촬영으로 변화 기록',
         chips: [
-          { label: 'S' },
-          { label: 'A' },
-          { label: 'B' },
-          { label: 'C' },
-          { label: 'D' },
+          { label: '정점 촬영' },
+          { label: '비교' },
         ],
       },
       es: {
-        headline: '¿Dónde eres\nfuerte?',
-        sub: 'Niveles de fuerza — rango S a D',
+        headline: 'Captura\nel cambio.',
+        sub: 'Registra tu transformación',
         chips: [
-          { label: 'S' },
-          { label: 'A' },
-          { label: 'B' },
-          { label: 'C' },
-          { label: 'D' },
+          { label: 'Progreso' },
+          { label: 'Comparar' },
         ],
       },
       de: {
-        headline: 'Wo bist du\nstark?',
-        sub: 'Stärkelevel visualisiert — S bis D',
+        headline: 'Halte die\nVeränderung fest.',
+        sub: 'Deine Transformation dokumentieren',
         chips: [
-          { label: 'S' },
-          { label: 'A' },
-          { label: 'B' },
-          { label: 'C' },
-          { label: 'D' },
+          { label: 'Fortschritt' },
+          { label: 'Vergleich' },
         ],
       },
       fr: {
-        headline: 'Où êtes-vous\nfort ?',
-        sub: 'Niveaux de force — rang S à D',
+        headline: 'Capturer\nle changement.',
+        sub: 'Documentez votre transformation',
         chips: [
-          { label: 'S' },
-          { label: 'A' },
-          { label: 'B' },
-          { label: 'C' },
-          { label: 'D' },
+          { label: 'Progrès' },
+          { label: 'Comparer' },
         ],
       },
     },
