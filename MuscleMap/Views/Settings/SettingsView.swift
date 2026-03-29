@@ -494,6 +494,24 @@ struct SettingsView: View {
     #if DEBUG
     private var developerSection: some View {
         Section {
+            // プレミアム切替トグル
+            Toggle(isOn: Binding(
+                get: { PurchaseManager.shared.isPremium },
+                set: { newValue in
+                    PurchaseManager.shared.debugOverridePremium = newValue ? true : nil
+                }
+            )) {
+                HStack(spacing: 8) {
+                    Image(systemName: "crown.fill")
+                        .foregroundStyle(Color.mmPRGold)
+                    Text(LocalizationManager.shared.currentLanguage == .japanese ? "プレミアム（デバッグ）" : "Premium (Debug)")
+                        .font(.subheadline)
+                        .foregroundStyle(Color.mmTextPrimary)
+                }
+            }
+            .tint(Color.mmAccentPrimary)
+            .listRowBackground(Color.mmBgCard)
+
             Button(role: .destructive) {
                 appState.hasCompletedOnboarding = false
                 appState.hasSeenDemoAnimation = false
