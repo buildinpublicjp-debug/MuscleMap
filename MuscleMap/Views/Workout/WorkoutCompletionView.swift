@@ -17,9 +17,6 @@ struct WorkoutCompletionView: View {
     @State private var isFirstConquest = false
     @State private var appState = AppState.shared
     @State private var hasPRUpdate = false
-    @State private var levelUpExercises: [LevelUpInfo] = []
-    @State private var showingStrengthShareSheet = false
-    @State private var strengthShareImage: UIImage?
     @State private var showingPaywall = false
     @State private var showingCamera = false
     @State private var photoSaved = false
@@ -159,11 +156,6 @@ struct WorkoutCompletionView: View {
                         // 3. サマリー（1行）
                         compactSummary
 
-                        // レベルアップ（PR更新でレベルが上がった場合）
-                        if !levelUpExercises.isEmpty {
-                            LevelUpCelebrationSection(levelUps: levelUpExercises)
-                        }
-
                         // 4. プログレスフォト
                         progressPhotoButton
 
@@ -230,13 +222,6 @@ struct WorkoutCompletionView: View {
             Button(L10n.shareToOtherApps) { showingShareSheet = true }
             Button(L10n.cancel, role: .cancel) {}
         }
-        .sheet(isPresented: $showingStrengthShareSheet) {
-            if let image = strengthShareImage {
-                ShareSheet(items: [image]) {
-                    HapticManager.success()
-                }
-            }
-        }
         .sheet(isPresented: $showingPaywall) {
             PaywallView()
         }
@@ -252,7 +237,6 @@ struct WorkoutCompletionView: View {
                 checkFullBodyConquest()
                 loadPRUpdates()
                 checkPRUpdates()
-                detectLevelUps()
                 scheduleRecoveryNotification()
             }
         }
@@ -565,61 +549,6 @@ struct WorkoutCompletionView: View {
 
     private func checkPRUpdates() {
         hasPRUpdate = !prUpdatesMap.isEmpty
-    }
-
-    private func detectLevelUps() {
-        let prUpdates = Array(prUpdatesMap.values)
-        guard !prUpdates.isEmpty else { return }
-
-        let bodyweight = AppState.shared.userProfile.weightKg
-
-        var results: [LevelUpInfo] = []
-        for update in prUpdates {
-            let previous1RM = PRManager.shared.effectiveEstimated1RM(
-                weight: update.previousWeight, reps: 1,
-                exerciseId: update.exerciseId, bodyweightKg: bodyweight
-            )
-            let sessionSets = session.sets.filter { $0.exerciseId == update.exerciseId }
-            let best1RMInSession = sessionSets.map {
-                PRManager.shared.effectiveEstimated1RM(
-                    weight: $0.weight, reps: $0.reps,
-                    exerciseId: update.exerciseId, bodyweightKg: bodyweight
-                )
-            }.max() ?? PRManager.shared.effectiveEstimated1RM(
-                weight: update.newWeight, reps: 1,
-                exerciseId: update.exerciseId, bodyweightKg: bodyweight
-            )
-
-            let previousResult = StrengthScoreCalculator.exerciseStrengthLevel(
-                exerciseId: update.exerciseId,
-                estimated1RM: previous1RM,
-                bodyweightKg: bodyweight
-            )
-            let newResult = StrengthScoreCalculator.exerciseStrengthLevel(
-                exerciseId: update.exerciseId,
-                estimated1RM: best1RMInSession,
-                bodyweightKg: bodyweight
-            )
-
-            if newResult.level != previousResult.level {
-                let exerciseName: String
-                if let def = ExerciseStore.shared.exercise(for: update.exerciseId) {
-                    exerciseName = localization.currentLanguage == .japanese ? def.nameJA : def.nameEN
-                } else {
-                    exerciseName = update.exerciseId
-                }
-
-                results.append(LevelUpInfo(
-                    exerciseName: exerciseName,
-                    previousLevel: previousResult.level,
-                    newLevel: newResult.level,
-                    kgToNext: newResult.kgToNext,
-                    nextLevel: newResult.nextLevel
-                ))
-            }
-        }
-
-        levelUpExercises = results
     }
 
     private func scheduleRecoveryNotification() {

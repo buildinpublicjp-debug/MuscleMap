@@ -9,10 +9,7 @@ struct HomeView: View {
     @State private var streakViewModel = StreakViewModel()
     @State private var selectedMuscle: Muscle?
     @State private var showDemo = false
-    @State private var showingAnalyticsMenu = false
-    @State private var showingStrengthMap = false
     @State private var showingPaywall = false
-    @State private var strengthScores: [String: Double] = [:]
     @State private var showCoachMark = false
     @State private var showMapExplanation = false
     @State private var showingExerciseLibrary = false
@@ -57,12 +54,6 @@ struct HomeView: View {
                                 }
                             )
 
-                            // 90日チャレンジバナー（チャレンジ開始済み or 完了済みの場合のみ表示）
-                            if AppState.shared.challengeActive || AppState.shared.challengeCompleted {
-                                ChallengeProgressBanner(showingPaywall: $showingPaywall)
-                                    .padding(.horizontal)
-                            }
-
                             // 2. RecoveryStatusSection（コンパクトマップ + ステータスチップ）
                             ZStack(alignment: .top) {
                                 RecoveryStatusSection(
@@ -104,12 +95,8 @@ struct HomeView: View {
                             // 3. Weekly Volume Chart
                             WeeklyVolumeChart()
 
-                            // 4. QuickAccessRow（Strength Map / 履歴ショートカット）
-                            QuickAccessRow(
-                                showingStrengthMap: $showingStrengthMap,
-                                onLoadStrengthScores: { loadStrengthScores() },
-                                onShowPaywall: { showingPaywall = true }
-                            )
+                            // 4. 履歴ショートカット
+                            HistoryShortcutButton()
                         }
                         .padding(.top, 8)
                         .padding(.bottom, 16)
@@ -130,14 +117,6 @@ struct HomeView: View {
                         showingExerciseLibrary = true
                     } label: {
                         Image(systemName: "book")
-                            .foregroundStyle(Color.mmTextSecondary)
-                    }
-                }
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        showingAnalyticsMenu = true
-                    } label: {
-                        Image(systemName: "chart.bar")
                             .foregroundStyle(Color.mmTextSecondary)
                     }
                 }
@@ -238,9 +217,6 @@ struct HomeView: View {
                     )
                 }
             }
-            .sheet(isPresented: $showingAnalyticsMenu) {
-                AnalyticsMenuView()
-            }
             .sheet(isPresented: $showingPaywall) {
                 PaywallView()
             }
@@ -264,16 +240,6 @@ struct HomeView: View {
         }
     }
 
-    /// Strength Map用のスコアを計算
-    private func loadStrengthScores() {
-        let descriptor = FetchDescriptor<WorkoutSet>()
-        guard let allSets = try? modelContext.fetch(descriptor) else { return }
-        let bodyweight = AppState.shared.userProfile.weightKg
-        strengthScores = StrengthScoreCalculator.shared.muscleStrengthScores(
-            allSets: allSets,
-            bodyweightKg: bodyweight
-        )
-    }
 }
 
 // MARK: - Preview

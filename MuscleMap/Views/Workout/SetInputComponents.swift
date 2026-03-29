@@ -30,21 +30,6 @@ struct SetInputCard: View {
         PRManager.shared.getWeightPR(exerciseId: exercise.id, context: modelContext)
     }
 
-    /// 現在の種目の強さレベル情報
-    private var strengthLevelInfo: (level: StrengthLevel, kgToNext: Double?, nextLevel: StrengthLevel?)? {
-        let bodyweight = AppState.shared.userProfile.weightKg
-        guard let best1RM = PRManager.shared.getBestEffective1RM(
-            exerciseId: exercise.id, bodyweightKg: bodyweight, context: modelContext
-        ) else {
-            return nil
-        }
-        return StrengthScoreCalculator.exerciseStrengthLevel(
-            exerciseId: exercise.id,
-            estimated1RM: best1RM,
-            bodyweightKg: bodyweight
-        )
-    }
-
     /// 前回記録から値が変更されていないか（ゴースト表示判定用）
     private var isWeightGhost: Bool {
         guard let lastW = viewModel.lastWeight else { return false }
@@ -76,12 +61,6 @@ struct SetInputCard: View {
                         .foregroundStyle(Color.mmTextSecondary)
                 }
                 .buttonStyle(.plain)
-
-                // レベルアイコンのみ（種目名横）
-                if let info = strengthLevelInfo {
-                    Text(info.level.emoji)
-                        .font(.caption)
-                }
 
                 Spacer()
 

@@ -108,93 +108,37 @@ private struct StatCard: View {
     }
 }
 
-// MARK: - クイックアクセス行（Strength Map / 履歴）
+// MARK: - 履歴ショートカットボタン
 
-struct QuickAccessRow: View {
-    let showingStrengthMap: Binding<Bool>
-    let onLoadStrengthScores: () -> Void
-    let onShowPaywall: () -> Void
-
+struct HistoryShortcutButton: View {
     private var isJapanese: Bool {
         LocalizationManager.shared.currentLanguage == .japanese
     }
 
-    private var isPremium: Bool {
-        PurchaseManager.shared.isPremium
-    }
-
     var body: some View {
-        HStack(spacing: 10) {
-            // Strength Mapボタン
-            Button {
-                HapticManager.lightTap()
-                if isPremium {
-                    onLoadStrengthScores()
-                    withAnimation { showingStrengthMap.wrappedValue = true }
-                } else {
-                    onShowPaywall()
+        Button {
+            HapticManager.lightTap()
+            AppState.shared.selectedTab = 3
+        } label: {
+            HStack(spacing: 8) {
+                Image(systemName: "clock.arrow.circlepath")
+                    .font(.system(size: 14))
+                    .foregroundStyle(Color.mmAccentSecondary)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(isJapanese ? "履歴" : "History")
+                        .font(.system(size: 13, weight: .bold))
+                        .foregroundStyle(Color.mmTextPrimary)
+                    Text(isJapanese ? "トレーニング記録" : "Training records")
+                        .font(.system(size: 10))
+                        .foregroundStyle(Color.mmTextSecondary)
                 }
-            } label: {
-                HStack(spacing: 8) {
-                    Image(systemName: "bolt.shield.fill")
-                        .font(.system(size: 14))
-                        .foregroundStyle(Color.mmAccentPrimary)
-                    VStack(alignment: .leading, spacing: 2) {
-                        HStack(spacing: 4) {
-                            Text("Strength Map")
-                                .font(.system(size: 13, weight: .bold))
-                                .foregroundStyle(Color.mmTextPrimary)
-                            if !isPremium {
-                                Text("Pro")
-                                    .font(.system(size: 9, weight: .bold))
-                                    .foregroundStyle(Color.mmBgPrimary)
-                                    .padding(.horizontal, 4)
-                                    .padding(.vertical, 1)
-                                    .background(Color.mmAccentPrimary)
-                                    .clipShape(Capsule())
-                            }
-                        }
-                        Text(isJapanese ? "筋力バランスを見る" : "See your balance")
-                            .font(.system(size: 10))
-                            .foregroundStyle(Color.mmTextSecondary)
-                    }
-                    Spacer()
-                }
-                .padding(12)
-                .background(Color.mmBgSecondary)
-                .clipShape(RoundedRectangle(cornerRadius: 12))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 12)
-                        .stroke(Color.mmAccentSecondary.opacity(0.15), lineWidth: 1)
-                )
+                Spacer()
             }
-            .buttonStyle(.plain)
-
-            // 履歴ショートカット
-            Button {
-                HapticManager.lightTap()
-                AppState.shared.selectedTab = 3
-            } label: {
-                HStack(spacing: 8) {
-                    Image(systemName: "clock.arrow.circlepath")
-                        .font(.system(size: 14))
-                        .foregroundStyle(Color.mmAccentSecondary)
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(isJapanese ? "履歴" : "History")
-                            .font(.system(size: 13, weight: .bold))
-                            .foregroundStyle(Color.mmTextPrimary)
-                        Text(isJapanese ? "トレーニング記録" : "Training records")
-                            .font(.system(size: 10))
-                            .foregroundStyle(Color.mmTextSecondary)
-                    }
-                    Spacer()
-                }
-                .padding(12)
-                .background(Color.mmBgSecondary)
-                .clipShape(RoundedRectangle(cornerRadius: 12))
-            }
-            .buttonStyle(.plain)
+            .padding(12)
+            .background(Color.mmBgSecondary)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
         }
+        .buttonStyle(.plain)
         .padding(.horizontal)
     }
 }
@@ -206,11 +150,7 @@ struct QuickAccessRow: View {
         Color.mmBgPrimary.ignoresSafeArea()
         VStack(spacing: 16) {
             HomeStatsRow()
-            QuickAccessRow(
-                showingStrengthMap: .constant(false),
-                onLoadStrengthScores: {},
-                onShowPaywall: {}
-            )
+            HistoryShortcutButton()
         }
     }
     .modelContainer(for: [WorkoutSession.self, WorkoutSet.self], inMemory: true)
