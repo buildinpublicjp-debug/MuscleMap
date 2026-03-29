@@ -15,19 +15,28 @@ struct NotificationPermissionView: View {
         LocalizationManager.shared.currentLanguage == .japanese
     }
 
-    /// 回復デモに使う筋肉（胸・三角筋前部・三頭筋）
-    private let demoMuscles: [Muscle] = [.chestUpper, .chestLower, .deltoidAnterior, .triceps]
+    /// 回復デモに使う筋肉（グループA: 胸・肩、グループB: 背中・腕）
+    private let groupA: [Muscle] = [.chestUpper, .chestLower, .deltoidAnterior, .deltoidLateral]
+    private let groupB: [Muscle] = [.lats, .trapsUpper, .biceps, .triceps]
 
-    /// フェーズに応じた筋肉マップ状態
+    /// フェーズに応じた筋肉マップ状態（2グループが時間差で回復）
     private var muscleStates: [Muscle: MuscleVisualState] {
         var states: [Muscle: MuscleVisualState] = [:]
         for muscle in Muscle.allCases {
-            if demoMuscles.contains(muscle) {
+            if groupA.contains(muscle) {
                 switch animationPhase {
                 case 0: states[muscle] = .recovering(progress: 0.05)  // 赤
                 case 1: states[muscle] = .recovering(progress: 0.5)   // 黄
                 case 2: states[muscle] = .recovering(progress: 0.95)  // 緑
-                default: states[muscle] = .inactive                   // 暗い
+                default: states[muscle] = .inactive
+                }
+            } else if groupB.contains(muscle) {
+                // グループBは1フェーズ遅れで回復
+                switch animationPhase {
+                case 0: states[muscle] = .inactive
+                case 1: states[muscle] = .recovering(progress: 0.05)  // 赤
+                case 2: states[muscle] = .recovering(progress: 0.5)   // 黄
+                default: states[muscle] = .recovering(progress: 0.95) // 緑
                 }
             } else {
                 states[muscle] = .inactive
@@ -85,19 +94,19 @@ struct NotificationPermissionView: View {
 
                         Spacer().frame(height: 20)
 
-                        // 通知プレビューカード（2枚）
+                        // 通知プレビューカード（回復通知×2）
                         VStack(spacing: 12) {
                             notificationCard(
-                                subtitle: L10n.notifMockTitle1,
-                                body: L10n.notifMockBody1,
+                                subtitle: isJapanese ? "大胸筋・三角筋 回復完了！" : "Chest & Delts Recovered!",
+                                body: isJapanese ? "プッシュの日です。トレーニングしよう！" : "Push day. Time to train!",
                                 time: L10n.notifMockTime1,
                                 isMain: true
                             )
 
                             notificationCard(
-                                subtitle: L10n.notifMockTitle2,
-                                body: L10n.notifMockBody2,
-                                time: L10n.notifMockTime2
+                                subtitle: isJapanese ? "背中・腕 回復完了！" : "Back & Arms Recovered!",
+                                body: isJapanese ? "プルの日です。トレーニングしよう！" : "Pull day. Time to train!",
+                                time: isJapanese ? "2時間前" : "2h ago"
                             )
                         }
                         .opacity(appeared ? 1 : 0)

@@ -21,6 +21,8 @@ enum ExerciseGifSize {
 struct ExerciseGifView: View {
     let exerciseId: String
     let size: ExerciseGifSize
+    var playOnce: Bool = false
+    var triggerPlay: Bool = false
 
     /// GIFデータのin-memoryキャッシュ
     private static let gifCache = NSCache<NSString, NSData>()
