@@ -7,7 +7,8 @@ import { SHOTS, type Lang, type ShotDef } from '@/copy';
 // ─── Canvas & Layout Constants ───
 const W = 1320;
 const H = 2868;
-const COPY_TOP = 80;
+const COPY_AREA_TOP = 40;      // Top padding for copy area
+const COPY_AREA_BOTTOM = 428;  // Where phone starts (= PHONE_TOP)
 const PHONE_TOP = 428;
 const PHONE_W = 1200;
 const PHONE_X = (W - PHONE_W) / 2;
@@ -117,20 +118,71 @@ function SlideBackground({ accent }: { accent: string }) {
   </>);
 }
 
-// ─── Copy Section ───
+// ─── Copy Section (vertically centered in copy area) ───
 function SlideCopy({ shot, lang }: { shot: ShotDef; lang: Lang }) {
   const copy = shot.copy[lang];
   const isJa = lang === 'ja' || lang === 'zh' || lang === 'ko';
   const lines = copy.headline.split('\n');
   const a = shot.accent;
+  const copyAreaH = COPY_AREA_BOTTOM - COPY_AREA_TOP;
+
   return (
-    <div style={{ position: 'absolute', top: COPY_TOP, left: 0, right: 0, textAlign: 'center', zIndex: 2, padding: '0 60px' }}>
-      <div style={{ fontSize: isJa ? 100 : 104, fontWeight: 900, color: '#FFF', lineHeight: 1.05, letterSpacing: isJa ? 8 : -3, fontFeatureSettings: "'palt' 1", textShadow: `0 0 60px ${a}30, 0 0 120px ${a}15, 0 4px 20px rgba(0,0,0,0.7)` }}>
+    <div style={{
+      position: 'absolute',
+      top: COPY_AREA_TOP,
+      left: 0,
+      right: 0,
+      height: copyAreaH,
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      textAlign: 'center',
+      zIndex: 2,
+      padding: '0 60px',
+    }}>
+      {/* Headline */}
+      <div style={{
+        fontSize: isJa ? 100 : 104,
+        fontWeight: 900,
+        color: '#FFF',
+        lineHeight: 1.05,
+        letterSpacing: isJa ? 8 : -3,
+        fontFeatureSettings: "'palt' 1",
+        textShadow: `0 0 60px ${a}30, 0 0 120px ${a}15, 0 4px 20px rgba(0,0,0,0.7)`,
+      }}>
         {lines.map((l, i) => <div key={i}>{l}</div>)}
       </div>
-      <div style={{ fontSize: 26, fontWeight: 400, color: `${a}65`, marginTop: 16, letterSpacing: isJa ? 3 : 1, fontFeatureSettings: "'palt' 1", textShadow: `0 0 30px ${a}20` }}>{copy.sub}</div>
-      <div style={{ display: 'flex', gap: 8, justifyContent: 'center', marginTop: 16, flexWrap: 'wrap' as const }}>
-        {copy.chips.map((c, i) => (<span key={i} style={{ padding: '5px 14px', background: `${a}0C`, border: `1px solid ${a}20`, borderRadius: 100, color: c.desc ? 'rgba(255,255,255,0.4)' : `${a}90`, fontSize: 15, fontWeight: c.desc ? 400 : 700, boxShadow: `0 0 15px ${a}08` }}>{c.desc ? <><strong style={{ color: `${a}CC`, fontWeight: 700 }}>{c.label}</strong> {c.desc}</> : c.label}</span>))}
+
+      {/* Sub */}
+      <div style={{
+        fontSize: 28,
+        fontWeight: 400,
+        color: `${a}70`,
+        marginTop: 20,
+        letterSpacing: isJa ? 4 : 1,
+        fontFeatureSettings: "'palt' 1",
+        textShadow: `0 0 30px ${a}20`,
+      }}>
+        {copy.sub}
+      </div>
+
+      {/* Chips */}
+      <div style={{ display: 'flex', gap: 10, justifyContent: 'center', marginTop: 20, flexWrap: 'wrap' as const }}>
+        {copy.chips.map((c, i) => (
+          <span key={i} style={{
+            padding: '6px 16px',
+            background: `${a}0C`,
+            border: `1px solid ${a}20`,
+            borderRadius: 100,
+            color: c.desc ? 'rgba(255,255,255,0.45)' : `${a}90`,
+            fontSize: 16,
+            fontWeight: c.desc ? 400 : 700,
+            boxShadow: `0 0 15px ${a}08`,
+          }}>
+            {c.desc ? <><strong style={{ color: `${a}CC`, fontWeight: 700 }}>{c.label}</strong> {c.desc}</> : c.label}
+          </span>
+        ))}
       </div>
     </div>
   );
