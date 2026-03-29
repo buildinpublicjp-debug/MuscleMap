@@ -7,6 +7,7 @@ struct RecoveryDetailView: View {
     let latestStimulations: [Muscle: MuscleStimulation]
 
     @Environment(\.dismiss) private var dismiss
+    @State private var selectedMuscle: Muscle?
 
     private var isJapanese: Bool {
         LocalizationManager.shared.currentLanguage == .japanese
@@ -42,6 +43,9 @@ struct RecoveryDetailView: View {
                     }
                 }
             }
+            .sheet(item: $selectedMuscle) { muscle in
+                MuscleDetailView(muscle: muscle)
+            }
         }
     }
 
@@ -56,10 +60,13 @@ struct RecoveryDetailView: View {
 
             MuscleMapView(
                 muscleStates: muscleStates,
+                onMuscleTapped: { muscle in
+                    selectedMuscle = muscle
+                },
                 demoMode: false
             )
             .frame(maxWidth: .infinity)
-            .frame(height: 280)
+            .frame(height: 340)
         }
         .padding(.horizontal, 16)
     }

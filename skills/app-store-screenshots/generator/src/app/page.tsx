@@ -7,11 +7,11 @@ import { SHOTS, EXPORT_SIZES, type Lang, type ShotDef } from '@/copy';
 // ─── Constants ────────────────────────────────────────────
 const CANVAS_W = 1320;
 const CANVAS_H = 2868;
-const PHONE_W = 1060; // ~80% of canvas width (was 940/71%)
-const COPY_AREA_PAD_TOP = 72; // tighter top (was 120)
-const COPY_AREA_PAD_X = 60; // tighter sides (was 80)
-const COPY_DEVICE_GAP = 20; // tighter gap (was 40)
-const BOTTOM_FADE_H = 350; // slightly smaller (was 400)
+const PHONE_W = 1080; // 82% of canvas width
+const COPY_AREA_PAD_TOP = 60;
+const COPY_AREA_PAD_X = 60;
+const COPY_DEVICE_GAP = 16;
+const BOTTOM_FADE_H = 300;
 
 // ─── Screenshot Slide ─────────────────────────────────────
 function ScreenshotSlide({
@@ -84,7 +84,7 @@ function ScreenshotSlide({
         {/* Headline */}
         <div
           style={{
-            fontSize: isJa ? 82 : 84,
+            fontSize: isJa ? 78 : 80,
             fontWeight: 900,
             color: '#FFFFFF',
             lineHeight: 1.15,
@@ -99,7 +99,7 @@ function ScreenshotSlide({
         {/* Sub copy */}
         <div
           style={{
-            fontSize: 28,
+            fontSize: 26,
             fontWeight: 500,
             color: `${shot.accent}99`,
             marginTop: 14,
@@ -130,7 +130,7 @@ function ScreenshotSlide({
                 color: chip.desc
                   ? 'rgba(255,255,255,0.6)'
                   : `${shot.accent}CC`,
-                fontSize: 20,
+                fontSize: 18,
                 fontWeight: chip.desc ? 500 : 700,
                 letterSpacing: 1,
               }}
@@ -180,7 +180,7 @@ function ScreenshotSlide({
               <div className="dynamic-island" />
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={`/screenshots/${shot.file}`}
+                src={`/screenshots/${lang}/${shot.file}`}
                 alt={`Shot ${shot.id}`}
                 style={{ width: '100%', display: 'block' }}
                 onError={(e) => {

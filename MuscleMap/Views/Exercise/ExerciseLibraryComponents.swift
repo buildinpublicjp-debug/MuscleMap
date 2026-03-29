@@ -93,33 +93,21 @@ struct LibraryGridContent: View {
     }
 }
 
-// MARK: - グリッドカード（Library版）
+// MARK: - グリッドカード（Library版 — 種目名+GIFのみクリーン表示）
 
-private struct LibraryGridCard: View {
+struct LibraryGridCard: View {
     let exercise: ExerciseDefinition
     let onTap: () -> Void
     @ObservedObject private var favorites = FavoritesManager.shared
     private var localization: LocalizationManager { LocalizationManager.shared }
 
-    /// 主要ターゲットの筋肉
-    private var primaryMuscle: Muscle? {
-        guard let maxEntry = exercise.muscleMapping.max(by: { $0.value < $1.value }) else {
-            return nil
-        }
-        return Muscle(rawValue: maxEntry.key) ?? Muscle(snakeCase: maxEntry.key)
-    }
-
     var body: some View {
         let name = localization.currentLanguage == .japanese ? exercise.nameJA : exercise.nameEN
-        let muscleName: String? = {
-            guard let m = primaryMuscle else { return nil }
-            return localization.currentLanguage == .japanese ? m.japaneseName : m.englishName
-        }()
 
         Button(action: onTap) {
             ZStack(alignment: .topTrailing) {
                 ZStack(alignment: .bottomLeading) {
-                    // GIF（AspectFitで全体表示、切れない）
+                    // GIF or フォールバック
                     if ExerciseGifView.hasGif(exerciseId: exercise.id) {
                         ExerciseGifView(exerciseId: exercise.id, size: .gridCard)
                             .frame(maxWidth: .infinity)
@@ -139,25 +127,12 @@ private struct LibraryGridCard: View {
                     )
                     .frame(height: 60)
 
-                    // テキスト（グラデーションの上）
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(name)
-                            .font(.caption.bold())
-                            .foregroundStyle(.white)
-                            .lineLimit(1)
-
-                        if let muscleName {
-                            HStack(spacing: 3) {
-                                Circle()
-                                    .fill(Color.mmAccentPrimary)
-                                    .frame(width: 5, height: 5)
-                                Text(muscleName)
-                                    .font(.caption2.bold())
-                                    .foregroundStyle(Color.mmAccentPrimary)
-                            }
-                        }
-                    }
-                    .padding(8)
+                    // 種目名のみ
+                    Text(name)
+                        .font(.caption.bold())
+                        .foregroundStyle(.white)
+                        .lineLimit(2)
+                        .padding(8)
                 }
 
                 // お気に入りハートアイコン
@@ -202,20 +177,12 @@ struct LibraryListContent: View {
     }
 }
 
-// MARK: - 種目行（リッチUI、Library版）
+// MARK: - 種目行（種目名+GIF+お気に入りのみ、Library版）
 
 struct ExerciseLibraryRow: View {
     let exercise: ExerciseDefinition
     @ObservedObject private var favorites = FavoritesManager.shared
     private var localization: LocalizationManager { LocalizationManager.shared }
-
-    /// 主要ターゲットの筋肉
-    private var primaryMuscle: Muscle? {
-        guard let maxEntry = exercise.muscleMapping.max(by: { $0.value < $1.value }) else {
-            return nil
-        }
-        return Muscle(rawValue: maxEntry.key) ?? Muscle(snakeCase: maxEntry.key)
-    }
 
     var body: some View {
         HStack(spacing: 12) {
@@ -229,26 +196,12 @@ struct ExerciseLibraryRow: View {
                     .clipShape(RoundedRectangle(cornerRadius: 8))
             }
 
-            // 種目情報
-            VStack(alignment: .leading, spacing: 4) {
-                Text(localization.currentLanguage == .japanese ? exercise.nameJA : exercise.nameEN)
-                    .font(.subheadline.bold())
-                    .foregroundStyle(Color.mmTextPrimary)
-                    .lineLimit(2)
-                    .fixedSize(horizontal: false, vertical: true)
-
-                // 筋肉名 + 器具タグ
-                HStack(spacing: 6) {
-                    if let muscle = primaryMuscle {
-                        LibraryPrimaryMuscleTag(
-                            muscleName: localization.currentLanguage == .japanese
-                                ? muscle.japaneseName
-                                : muscle.englishName
-                        )
-                    }
-                    LibraryExerciseTag(text: exercise.localizedEquipment, icon: "dumbbell")
-                }
-            }
+            // 種目名のみ
+            Text(localization.currentLanguage == .japanese ? exercise.nameJA : exercise.nameEN)
+                .font(.subheadline.bold())
+                .foregroundStyle(Color.mmTextPrimary)
+                .lineLimit(2)
+                .fixedSize(horizontal: false, vertical: true)
 
             Spacer(minLength: 4)
 
@@ -269,50 +222,5 @@ struct ExerciseLibraryRow: View {
                 .foregroundStyle(Color.mmTextSecondary)
         }
         .padding(.vertical, 6)
-    }
-}
-
-// MARK: - 主要筋肉タグ（Library用）
-
-private struct LibraryPrimaryMuscleTag: View {
-    let muscleName: String
-
-    var body: some View {
-        HStack(spacing: 3) {
-            Circle()
-                .fill(Color.mmAccentPrimary)
-                .frame(width: 6, height: 6)
-            Text(muscleName)
-                .lineLimit(1)
-        }
-        .font(.caption2.bold())
-        .foregroundStyle(Color.mmAccentPrimary)
-        .padding(.horizontal, 6)
-        .padding(.vertical, 2)
-        .background(Color.mmAccentPrimary.opacity(0.15))
-        .clipShape(Capsule())
-        .fixedSize()
-    }
-}
-
-// MARK: - 種目タグ（Library用）
-
-private struct LibraryExerciseTag: View {
-    let text: String
-    let icon: String
-
-    var body: some View {
-        HStack(spacing: 3) {
-            Image(systemName: icon)
-            Text(text)
-                .lineLimit(1)
-        }
-        .font(.caption2)
-        .foregroundStyle(Color.mmTextSecondary)
-        .padding(.horizontal, 6)
-        .padding(.vertical, 2)
-        .background(Color.mmBgCard)
-        .clipShape(Capsule())
-        .fixedSize()
     }
 }

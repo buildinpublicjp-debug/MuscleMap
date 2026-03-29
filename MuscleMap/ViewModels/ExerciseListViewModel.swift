@@ -34,6 +34,10 @@ class ExerciseListViewModel {
         didSet { if !isBatchUpdating { applyFilters() } }
     }
 
+    var selectedMuscleGroup: MuscleGroup? {
+        didSet { if !isBatchUpdating { applyFilters() } }
+    }
+
     /// 最近の検索ワード（最大3件）
     var recentSearches: [String] {
         UserDefaults.standard.stringArray(forKey: recentSearchesKey) ?? []
@@ -112,6 +116,14 @@ class ExerciseListViewModel {
             result = result.filter { $0.equipment == equipment }
         }
 
+        // 筋肉グループフィルター
+        if let group = selectedMuscleGroup {
+            let groupMuscleIds = Set(group.muscles.map { $0.rawValue })
+            result = result.filter { exercise in
+                !exercise.muscleMapping.keys.filter({ groupMuscleIds.contains($0) }).isEmpty
+            }
+        }
+
         // テキスト検索（強化版：筋肉名、ローカライズ器具名、筋肉グループ名も対象）
         if !searchText.isEmpty {
             let query = searchText.lowercased()
@@ -158,6 +170,7 @@ class ExerciseListViewModel {
         showRecentOnly = false
         selectedCategory = nil
         selectedEquipment = nil
+        selectedMuscleGroup = nil
         searchText = ""
         isBatchUpdating = false
         applyFilters()

@@ -132,9 +132,9 @@ struct RecentExercisesSection: View {
                             onSelect(exercise)
                         } label: {
                             ZStack(alignment: .bottomLeading) {
-                                // GIF（元の比率のまま）
+                                // GIF（gridCardでアスペクト比を尊重）
                                 if ExerciseGifView.hasGif(exerciseId: exercise.id) {
-                                    ExerciseGifView(exerciseId: exercise.id, size: .previewCard)
+                                    ExerciseGifView(exerciseId: exercise.id, size: .gridCard)
                                         .aspectRatio(contentMode: .fit)
                                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                                 } else {
@@ -171,7 +171,7 @@ struct RecentExercisesSection: View {
                                 }
                                 .padding(8)
                             }
-                            .frame(width: 140, height: 100)
+                            .frame(width: 140, height: 120)
                             .background(Color.mmBgCard)
                             .clipShape(RoundedRectangle(cornerRadius: 12))
                         }
@@ -190,26 +190,24 @@ struct MuscleExercisePickerSheet: View {
     let onSelect: (ExerciseDefinition) -> Void
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
+    @State private var selectedEquipment: String?
+    @State private var lastRecords: [String: WorkoutSet] = [:]
     private var localization: LocalizationManager { LocalizationManager.shared }
 
     private var relatedExercises: [ExerciseDefinition] {
         ExerciseStore.shared.exercises(targeting: muscle)
     }
 
-    private var exercisesWithGif: [ExerciseDefinition] {
-        relatedExercises.filter { ExerciseGifView.hasGif(exerciseId: $0.id) }
+    /// 器具フィルター適用後の種目リスト
+    private var filteredExercises: [ExerciseDefinition] {
+        guard let equipment = selectedEquipment else { return relatedExercises }
+        return relatedExercises.filter { $0.equipment == equipment }
     }
 
-    private var exercisesWithoutGif: [ExerciseDefinition] {
-        relatedExercises.filter { !ExerciseGifView.hasGif(exerciseId: $0.id) }
-    }
-
-    private func lastRecord(for exerciseId: String) -> WorkoutSet? {
-        let descriptor = FetchDescriptor<WorkoutSet>(
-            predicate: #Predicate { $0.exerciseId == exerciseId },
-            sortBy: [SortDescriptor(\.completedAt, order: .reverse)]
-        )
-        return try? modelContext.fetch(descriptor).first
+    /// 利用可能な器具タイプ（この筋肉の種目に存在するもののみ）
+    private var availableEquipment: [LibraryEquipmentFilter] {
+        let equipmentSet = Set(relatedExercises.map(\.equipment))
+        return LibraryEquipmentFilter.allCases.filter { equipmentSet.contains($0.rawValue) }
     }
 
     var body: some View {
@@ -228,29 +226,42 @@ struct MuscleExercisePickerSheet: View {
                     }
                 } else {
                     ScrollView {
-                        LazyVStack(spacing: 0) {
-                            // GIF付き種目を先に表示
-                            ForEach(exercisesWithGif) { exercise in
-                                exerciseRow(exercise)
+                        VStack(spacing: 12) {
+                            // 器具フィルターチップ
+                            if availableEquipment.count > 1 {
+                                ScrollView(.horizontal, showsIndicators: false) {
+                                    HStack(spacing: 8) {
+                                        PickerFilterChip(
+                                            title: localization.currentLanguage == .japanese ? "すべて" : "All",
+                                            isSelected: selectedEquipment == nil
+                                        ) {
+                                            selectedEquipment = nil
+                                        }
+
+                                        ForEach(availableEquipment) { filter in
+                                            PickerFilterChip(
+                                                title: filter.localizedName,
+                                                isSelected: selectedEquipment == filter.rawValue
+                                            ) {
+                                                selectedEquipment = selectedEquipment == filter.rawValue ? nil : filter.rawValue
+                                            }
+                                        }
+                                    }
+                                    .padding(.horizontal, 16)
+                                }
                             }
 
-                            // GIFなし種目（セパレーター付き）
-                            if !exercisesWithoutGif.isEmpty {
-                                HStack {
-                                    Rectangle().fill(Color.mmBorder.opacity(0.3)).frame(height: 0.5)
-                                    Text(localization.currentLanguage == .japanese ? "その他の種目" : "Other Exercises")
-                                        .font(.caption)
-                                        .foregroundStyle(Color.mmTextSecondary)
-                                        .layoutPriority(1)
-                                    Rectangle().fill(Color.mmBorder.opacity(0.3)).frame(height: 0.5)
-                                }
-                                .padding(.horizontal, 16)
-                                .padding(.vertical, 8)
-
-                                ForEach(exercisesWithoutGif) { exercise in
-                                    exerciseRow(exercise)
+                            // 2列グリッド（Netflixスタイル）
+                            let columns = [
+                                GridItem(.flexible(), spacing: 12),
+                                GridItem(.flexible(), spacing: 12)
+                            ]
+                            LazyVGrid(columns: columns, spacing: 12) {
+                                ForEach(filteredExercises) { exercise in
+                                    musclePickerGridCard(exercise)
                                 }
                             }
+                            .padding(.horizontal, 16)
                         }
                         .padding(.vertical, 8)
                     }
@@ -265,64 +276,91 @@ struct MuscleExercisePickerSheet: View {
                         .foregroundStyle(Color.mmAccentPrimary)
                 }
             }
+            .onAppear { loadLastRecords() }
         }
         .presentationDetents([.medium, .large])
     }
 
+    // MARK: - Netflixスタイルグリッドカード
+
     @ViewBuilder
-    private func exerciseRow(_ exercise: ExerciseDefinition) -> some View {
+    private func musclePickerGridCard(_ exercise: ExerciseDefinition) -> some View {
+        let name = localization.currentLanguage == .japanese ? exercise.nameJA : exercise.nameEN
+        let primary = exercise.primaryMuscle
+
         Button {
             HapticManager.lightTap()
             onSelect(exercise)
         } label: {
-            HStack(spacing: 12) {
-                // サムネイル（GIF or フォールバック）
+            ZStack(alignment: .bottomLeading) {
+                // GIF or フォールバック
                 if ExerciseGifView.hasGif(exerciseId: exercise.id) {
-                    ExerciseGifView(exerciseId: exercise.id, size: .thumbnail)
-                        .frame(width: 50, height: 50)
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                    ExerciseGifView(exerciseId: exercise.id, size: .gridCard)
+                        .aspectRatio(contentMode: .fit)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
-                    RoundedRectangle(cornerRadius: 8)
-                        .fill(Color.mmBgSecondary)
-                        .frame(width: 50, height: 50)
-                        .overlay(
-                            Image(systemName: "dumbbell.fill")
-                                .font(.system(size: 18))
-                                .foregroundStyle(Color.mmTextSecondary.opacity(0.5))
-                        )
+                    MiniMuscleMapView(muscleMapping: exercise.muscleMapping)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
 
-                // 種目名 + 器具
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(localization.currentLanguage == .japanese ? exercise.nameJA : exercise.nameEN)
-                        .font(.subheadline.bold())
-                        .foregroundStyle(Color.mmTextPrimary)
-                        .lineLimit(1)
-                    Text(exercise.localizedEquipment)
-                        .font(.caption)
-                        .foregroundStyle(Color.mmTextSecondary)
+                // 下部グラデーションオーバーレイ
+                LinearGradient(
+                    colors: [.clear, .black.opacity(0.85)],
+                    startPoint: .center,
+                    endPoint: .bottom
+                )
+
+                // テキスト情報
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(name)
+                        .font(.caption.bold())
+                        .foregroundStyle(.white)
+                        .lineLimit(2)
+
+                    if let primary {
+                        HStack(spacing: 3) {
+                            Circle()
+                                .fill(Color.mmAccentPrimary)
+                                .frame(width: 5, height: 5)
+                            Text(primary.localizedName)
+                                .font(.caption2.bold())
+                                .foregroundStyle(Color.mmAccentPrimary)
+                        }
+                    }
+
+                    // 前回記録
+                    if let record = lastRecords[exercise.id] {
+                        Text(L10n.lastRecordLabel(record.weight, record.reps))
+                            .font(.system(size: 9, weight: .bold).monospaced())
+                            .foregroundStyle(Color.mmAccentPrimary)
+                    }
                 }
-
-                Spacer()
-
-                // 前回記録
-                if let record = lastRecord(for: exercise.id) {
-                    Text(L10n.lastRecordLabel(record.weight, record.reps))
-                        .font(.caption.monospaced().bold())
-                        .foregroundStyle(Color.mmAccentPrimary)
-                }
-
-                Image(systemName: "chevron.right")
-                    .font(.caption)
-                    .foregroundStyle(Color.mmTextSecondary)
+                .padding(8)
             }
-            .padding(.horizontal, 16)
-            .frame(height: 66)
+            .frame(height: 160)
+            .background(Color.mmBgCard)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
         }
         .buttonStyle(.plain)
+    }
 
-        Divider()
-            .background(Color.mmBgCard)
-            .padding(.leading, 78)
+    // MARK: - 前回記録の一括取得
+
+    private func loadLastRecords() {
+        let exerciseIds = relatedExercises.map(\.id)
+        var descriptor = FetchDescriptor<WorkoutSet>(
+            sortBy: [SortDescriptor(\.completedAt, order: .reverse)]
+        )
+        descriptor.fetchLimit = 500
+        guard let allSets = try? modelContext.fetch(descriptor) else { return }
+
+        var records: [String: WorkoutSet] = [:]
+        let idSet = Set(exerciseIds)
+        for set in allSets {
+            if idSet.contains(set.exerciseId) && records[set.exerciseId] == nil {
+                records[set.exerciseId] = set
+            }
+        }
+        lastRecords = records
     }
 }
