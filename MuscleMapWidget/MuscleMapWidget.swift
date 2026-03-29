@@ -149,9 +149,12 @@ struct SmallWidgetView: View {
     let entry: MuscleMapEntry
 
     var body: some View {
-        WidgetMuscleMapView(muscleStates: entry.muscleStates, showFront: true)
-            .padding(4)
-            .containerBackground(Color.mmBgPrimary, for: .widget)
+        HStack(spacing: 2) {
+            WidgetMuscleMapView(muscleStates: entry.muscleStates, showFront: true)
+            WidgetMuscleMapView(muscleStates: entry.muscleStates, showFront: false)
+        }
+        .padding(4)
+        .containerBackground(Color.mmBgPrimary, for: .widget)
     }
 }
 
