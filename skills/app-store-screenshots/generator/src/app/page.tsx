@@ -7,7 +7,7 @@ import { SHOTS, type Lang, type ShotDef } from '@/copy';
 const W = 1320;
 const H = 2868;
 const COPY_TOP = 100;
-const PHONE_TOP = 680;
+const PHONE_TOP = 700;
 const PHONE_W = 900;
 const PHONE_X = (W - PHONE_W) / 2;
 
@@ -31,135 +31,143 @@ function CompositeSlide({
         : "'Inter', 'SF Pro Display', -apple-system, sans-serif",
     }}>
 
-      {/* ═══════ BACKGROUND LAYERS ═══════ */}
-
-      {/* Deep base gradient — dark with subtle green tint */}
+      {/* ═══ BG: Base gradient with green tint ═══ */}
       <div style={{
         position: 'absolute', inset: 0,
-        background: 'linear-gradient(175deg, #040806 0%, #030504 25%, #050705 50%, #030604 75%, #020403 100%)',
+        background: `linear-gradient(175deg, #060C08 0%, #030504 30%, #040806 60%, #030504 100%)`,
       }} />
 
-      {/* Main accent aurora — large soft glow from top */}
+      {/* ═══ BG: Main aurora glow — STRONG ═══ */}
       <div style={{
-        position: 'absolute', top: -500, left: '50%', transform: 'translateX(-50%)',
-        width: 1800, height: 1600,
-        background: `radial-gradient(ellipse 60% 40%, ${a}18 0%, ${a}08 30%, transparent 65%)`,
+        position: 'absolute', top: -300, left: '50%', transform: 'translateX(-50%)',
+        width: 1600, height: 1200,
+        background: `radial-gradient(ellipse 70% 50%, ${a}30 0%, ${a}15 25%, ${a}08 45%, transparent 65%)`,
+        filter: 'blur(40px)',
       }} />
 
-      {/* Secondary aurora — bottom right warmth */}
+      {/* ═══ BG: Bottom warm glow ═══ */}
       <div style={{
-        position: 'absolute', bottom: -400, right: -300,
-        width: 1200, height: 1000,
-        background: `radial-gradient(ellipse, ${a}06 0%, transparent 60%)`,
+        position: 'absolute', bottom: -200, left: '50%', transform: 'translateX(-50%)',
+        width: 1400, height: 800,
+        background: `radial-gradient(ellipse, ${a}12 0%, transparent 60%)`,
+        filter: 'blur(60px)',
       }} />
 
-      {/* Tertiary aurora — left side subtle */}
-      <div style={{
-        position: 'absolute', top: '40%', left: -400,
-        width: 800, height: 800,
-        background: `radial-gradient(circle, ${a}04 0%, transparent 60%)`,
-      }} />
-
-      {/* ── Muscle fiber pattern (SVG) ── */}
-      <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', opacity: 0.03 }}
-        viewBox="0 0 1320 2868" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
-        {/* Flowing organic fiber lines */}
-        {Array.from({ length: 24 }).map((_, i) => {
-          const y = 120 * i;
-          const offset = (i % 3) * 40;
+      {/* ═══ BG: Muscle fiber lines — VISIBLE ═══ */}
+      <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}
+        viewBox={`0 0 ${W} ${H}`} fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+        {/* Horizontal flowing fibers */}
+        {Array.from({ length: 30 }).map((_, i) => {
+          const y = 96 * i;
+          const wave = Math.sin(i * 0.5) * 60;
+          const wave2 = Math.cos(i * 0.3) * 40;
           return (
-            <path key={i}
-              d={`M${-100 + offset} ${y} C${300 + offset} ${y + 60}, ${600 - offset} ${y - 40}, ${W + 100} ${y + 30}`}
-              stroke={a} strokeWidth={1 + (i % 3) * 0.5} strokeOpacity={0.4 + (i % 5) * 0.1}
+            <path key={`h${i}`}
+              d={`M-50 ${y + wave} Q${330} ${y + wave2 + 30}, ${660} ${y - wave + 15} T${W + 50} ${y + wave2}`}
+              stroke={a}
+              strokeWidth={0.8 + (i % 4) * 0.3}
+              opacity={0.06 + (i % 3) * 0.03}
             />
           );
         })}
-        {/* Cross fibers */}
-        {Array.from({ length: 8 }).map((_, i) => {
-          const x = 165 * i;
+        {/* Vertical structure lines */}
+        {Array.from({ length: 10 }).map((_, i) => {
+          const x = 132 * i;
+          const sway = Math.sin(i * 0.7) * 50;
           return (
             <path key={`v${i}`}
-              d={`M${x} ${-100} C${x + 80} ${700}, ${x - 60} ${1400}, ${x + 40} ${H + 100}`}
-              stroke={a} strokeWidth={0.5} strokeOpacity={0.2}
+              d={`M${x + sway} -50 Q${x - sway + 30} ${H * 0.33}, ${x + sway - 20} ${H * 0.66} T${x - sway} ${H + 50}`}
+              stroke={a}
+              strokeWidth={0.5}
+              opacity={0.04 + (i % 3) * 0.02}
             />
           );
         })}
       </svg>
 
-      {/* ── Anatomical ring — abstract muscle cross-section ── */}
+      {/* ═══ BG: Concentric anatomy rings ═══ */}
       <div style={{
-        position: 'absolute', top: 300, left: '50%', transform: 'translateX(-50%)',
-        width: 800, height: 800, opacity: 0.04,
+        position: 'absolute', top: 200, left: '50%', transform: 'translateX(-50%)',
+        width: 1000, height: 1000,
         borderRadius: '50%',
-        border: `2px solid ${a}`,
-        boxShadow: `0 0 120px ${a}20, inset 0 0 120px ${a}10`,
+        border: `1.5px solid ${a}`,
+        opacity: 0.07,
+        boxShadow: `0 0 80px ${a}15, inset 0 0 80px ${a}08`,
       }} />
       <div style={{
-        position: 'absolute', top: 380, left: '50%', transform: 'translateX(-50%)',
-        width: 640, height: 640, opacity: 0.025,
+        position: 'absolute', top: 320, left: '50%', transform: 'translateX(-50%)',
+        width: 760, height: 760,
         borderRadius: '50%',
         border: `1px solid ${a}`,
+        opacity: 0.04,
+      }} />
+      <div style={{
+        position: 'absolute', top: 440, left: '50%', transform: 'translateX(-50%)',
+        width: 520, height: 520,
+        borderRadius: '50%',
+        border: `0.5px solid ${a}`,
+        opacity: 0.03,
       }} />
 
-      {/* ── Particle dots ── */}
-      <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', opacity: 0.06 }}
-        viewBox="0 0 1320 2868" xmlns="http://www.w3.org/2000/svg">
-        {Array.from({ length: 40 }).map((_, i) => (
+      {/* ═══ BG: Scatter particles ═══ */}
+      <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}
+        viewBox={`0 0 ${W} ${H}`} xmlns="http://www.w3.org/2000/svg">
+        {Array.from({ length: 60 }).map((_, i) => (
           <circle key={i}
-            cx={100 + (i * 317) % W}
-            cy={80 + (i * 541) % H}
-            r={1 + (i % 3)}
+            cx={60 + (i * 293 + i * i * 7) % (W - 120)}
+            cy={50 + (i * 487 + i * i * 3) % (H - 100)}
+            r={1 + (i % 4) * 0.8}
             fill={a}
-            opacity={0.3 + (i % 4) * 0.15}
+            opacity={0.08 + (i % 5) * 0.04}
           />
         ))}
       </svg>
 
-      {/* ── Fine noise texture ── */}
+      {/* ═══ BG: Noise texture ═══ */}
       <div style={{
-        position: 'absolute', inset: 0, opacity: 0.35,
-        backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E")`,
+        position: 'absolute', inset: 0, opacity: 0.5, mixBlendMode: 'overlay' as const,
+        backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E")`,
         backgroundRepeat: 'repeat',
       }} />
 
-      {/* ── Top accent edge ── */}
+      {/* ═══ BG: Edge accents ═══ */}
+      {/* Top */}
       <div style={{
-        position: 'absolute', top: 0, left: '10%', right: '10%', height: 1,
-        background: `linear-gradient(90deg, transparent, ${a}35, transparent)`,
+        position: 'absolute', top: 0, left: '5%', right: '5%', height: 2,
+        background: `linear-gradient(90deg, transparent, ${a}50, transparent)`,
+      }} />
+      {/* Sides */}
+      <div style={{
+        position: 'absolute', top: '5%', bottom: '5%', left: 0, width: 1,
+        background: `linear-gradient(180deg, transparent 0%, ${a}18 30%, ${a}10 70%, transparent 100%)`,
+      }} />
+      <div style={{
+        position: 'absolute', top: '5%', bottom: '5%', right: 0, width: 1,
+        background: `linear-gradient(180deg, transparent 0%, ${a}18 30%, ${a}10 70%, transparent 100%)`,
       }} />
 
-      {/* ── Side accent lines ── */}
-      <div style={{
-        position: 'absolute', top: '8%', bottom: '8%', left: 0, width: 1,
-        background: `linear-gradient(180deg, transparent, ${a}10, ${a}06, transparent)`,
-      }} />
-      <div style={{
-        position: 'absolute', top: '8%', bottom: '8%', right: 0, width: 1,
-        background: `linear-gradient(180deg, transparent, ${a}10, ${a}06, transparent)`,
-      }} />
-
-      {/* ═══════ COPY AREA ═══════ */}
+      {/* ═══ COPY ═══ */}
       <div style={{
         position: 'absolute', top: COPY_TOP, left: 0, right: 0,
         textAlign: 'center', zIndex: 2, padding: '0 70px',
       }}>
         <div style={{
           fontSize: isJa ? 100 : 104,
-          fontWeight: 900,
-          color: '#FFF',
+          fontWeight: 900, color: '#FFF',
           lineHeight: 1.05,
           letterSpacing: isJa ? 8 : -3,
           fontFeatureSettings: "'palt' 1",
-          textShadow: `0 0 100px ${a}12, 0 4px 30px rgba(0,0,0,0.4)`,
+          textShadow: `0 0 80px ${a}25, 0 0 160px ${a}10, 0 4px 20px rgba(0,0,0,0.6)`,
         }}>
           {lines.map((l, i) => <div key={i}>{l}</div>)}
         </div>
 
         <div style={{
           fontSize: 26, fontWeight: 400,
-          color: `${a}5A`,
+          color: `${a}60`,
           marginTop: 22, letterSpacing: isJa ? 3 : 1,
           fontFeatureSettings: "'palt' 1",
+          textShadow: `0 0 40px ${a}15`,
         }}>
           {copy.sub}
         </div>
@@ -171,59 +179,60 @@ function CompositeSlide({
           {copy.chips.map((c, i) => (
             <span key={i} style={{
               padding: '5px 14px',
-              background: `${a}05`,
-              border: `1px solid ${a}10`,
+              background: `${a}08`,
+              border: `1px solid ${a}18`,
               borderRadius: 100,
-              color: c.desc ? 'rgba(255,255,255,0.3)' : `${a}70`,
+              color: c.desc ? 'rgba(255,255,255,0.35)' : `${a}80`,
               fontSize: 15, fontWeight: c.desc ? 400 : 700,
               letterSpacing: 0.5,
+              boxShadow: `0 0 20px ${a}06`,
             }}>
               {c.desc
-                ? <><strong style={{ color: `${a}AA`, fontWeight: 700 }}>{c.label}</strong> {c.desc}</>
+                ? <><strong style={{ color: `${a}BB`, fontWeight: 700 }}>{c.label}</strong> {c.desc}</>
                 : c.label}
             </span>
           ))}
         </div>
       </div>
 
-      {/* ═══════ PHONE ═══════ */}
+      {/* ═══ PHONE ═══ */}
       <div style={{
         position: 'absolute', top: PHONE_TOP, left: PHONE_X, width: PHONE_W, zIndex: 1,
       }}>
-        {/* Phone glow */}
+        {/* Phone underglow */}
         <div style={{
-          position: 'absolute', top: -60, left: -80, right: -80, bottom: -60,
-          background: `radial-gradient(ellipse, ${a}0A 0%, transparent 65%)`,
+          position: 'absolute', top: -50, left: -100, right: -100, bottom: -50,
+          background: `radial-gradient(ellipse 70% 50%, ${a}10 0%, transparent 60%)`,
+          filter: 'blur(30px)',
           pointerEvents: 'none',
         }} />
 
-        {/* Phone reflection arc — premium feel */}
+        {/* Top reflection arc */}
         <div style={{
-          position: 'absolute', top: -30, left: '50%', transform: 'translateX(-50%)',
-          width: PHONE_W - 100, height: 60, opacity: 0.04,
-          background: `radial-gradient(ellipse, ${a} 0%, transparent 70%)`,
-          filter: 'blur(20px)',
+          position: 'absolute', top: -20, left: '10%', right: '10%', height: 40,
+          background: `radial-gradient(ellipse, ${a}18 0%, transparent 70%)`,
+          filter: 'blur(15px)',
           pointerEvents: 'none',
         }} />
 
         <div style={{
           position: 'relative', borderRadius: 56, padding: 11,
-          background: 'linear-gradient(155deg, #555557 0%, #2C2C2E 15%, #1C1C1E 50%, #2C2C2E 85%, #555557 100%)',
+          background: 'linear-gradient(155deg, #606062 0%, #3A3A3C 10%, #1C1C1E 50%, #3A3A3C 90%, #606062 100%)',
           boxShadow: `
             0 40px 80px rgba(0,0,0,0.9),
-            0 0 0 0.5px rgba(255,255,255,0.1),
-            0 15px 50px ${a}06,
-            inset 0 0.5px 0 rgba(255,255,255,0.18),
-            inset 0 -0.5px 0 rgba(255,255,255,0.05)
+            0 0 0 0.5px rgba(255,255,255,0.12),
+            0 20px 60px ${a}08,
+            inset 0 0.5px 0 rgba(255,255,255,0.2),
+            inset 0 -0.5px 0 rgba(255,255,255,0.06)
           `,
         }}>
           {/* Buttons */}
           <div style={{ position: 'absolute', top: 195, right: -2, width: 3, height: 75,
-            background: 'linear-gradient(180deg, #606062, #3A3A3C, #606062)', borderRadius: '0 1.5px 1.5px 0' }} />
+            background: 'linear-gradient(180deg, #707072, #3A3A3C, #707072)', borderRadius: '0 1.5px 1.5px 0' }} />
           <div style={{ position: 'absolute', top: 165, left: -2, width: 3, height: 38,
-            background: 'linear-gradient(180deg, #606062, #3A3A3C, #606062)', borderRadius: '1.5px 0 0 1.5px' }} />
+            background: 'linear-gradient(180deg, #707072, #3A3A3C, #707072)', borderRadius: '1.5px 0 0 1.5px' }} />
           <div style={{ position: 'absolute', top: 215, left: -2, width: 3, height: 38,
-            background: 'linear-gradient(180deg, #606062, #3A3A3C, #606062)', borderRadius: '1.5px 0 0 1.5px' }} />
+            background: 'linear-gradient(180deg, #707072, #3A3A3C, #707072)', borderRadius: '1.5px 0 0 1.5px' }} />
 
           <div style={{
             borderRadius: 45, overflow: 'hidden', background: '#000', position: 'relative',
@@ -234,12 +243,12 @@ function CompositeSlide({
             }} />
             <div style={{
               position: 'absolute', inset: 0, borderRadius: 45,
-              boxShadow: 'inset 0 0 0 0.5px rgba(255,255,255,0.08)',
+              boxShadow: 'inset 0 0 0 0.5px rgba(255,255,255,0.1)',
               pointerEvents: 'none', zIndex: 8,
             }} />
             <div style={{
               position: 'absolute', top: 0, left: 0, right: 0, height: 150,
-              background: 'linear-gradient(180deg, rgba(255,255,255,0.02) 0%, transparent 100%)',
+              background: 'linear-gradient(180deg, rgba(255,255,255,0.025) 0%, transparent 100%)',
               pointerEvents: 'none', zIndex: 5,
             }} />
 
@@ -253,10 +262,10 @@ function CompositeSlide({
               }}>
                 <div style={{
                   width: 44, height: 44, borderRadius: 11,
-                  border: '1.5px dashed rgba(255,255,255,0.05)',
+                  border: `1.5px dashed ${a}15`,
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                 }}>
-                  <span style={{ fontSize: 18, opacity: 0.08 }}>+</span>
+                  <span style={{ fontSize: 18, color: a, opacity: 0.15 }}>+</span>
                 </div>
               </div>
             )}
@@ -264,23 +273,18 @@ function CompositeSlide({
         </div>
       </div>
 
-      {/* ═══════ BOTTOM ═══════ */}
+      {/* ═══ BOTTOM FADE ═══ */}
       <div style={{
         position: 'absolute', bottom: 0, left: 0, right: 0, height: 500,
         background: 'linear-gradient(transparent 0%, #030504 65%)',
         pointerEvents: 'none', zIndex: 3,
       }} />
 
-      {/* Bottom brand accent bar */}
+      {/* Bottom brand bar */}
       <div style={{
-        position: 'absolute', bottom: 50, left: '30%', right: '30%', height: 2,
-        background: `linear-gradient(90deg, transparent, ${a}20, transparent)`,
+        position: 'absolute', bottom: 45, left: '25%', right: '25%', height: 2,
+        background: `linear-gradient(90deg, transparent, ${a}35, transparent)`,
         zIndex: 4, borderRadius: 1,
-      }} />
-      <div style={{
-        position: 'absolute', bottom: 46, left: '35%', right: '35%', height: 1,
-        background: `linear-gradient(90deg, transparent, ${a}08, transparent)`,
-        zIndex: 4,
       }} />
     </div>
   );
@@ -341,7 +345,7 @@ export default function Page() {
   return (
     <div style={{ background: '#060606', minHeight: '100vh', color: '#fff' }}>
       <div style={{
-        padding: '12px 20px', borderBottom: '1px solid #131313',
+        padding: '12px 20px', borderBottom: '1px solid #151515',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         position: 'sticky', top: 0, background: 'rgba(6,6,6,0.92)',
         backdropFilter: 'blur(16px)', zIndex: 50,
