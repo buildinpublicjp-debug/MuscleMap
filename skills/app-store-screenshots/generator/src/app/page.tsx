@@ -12,7 +12,7 @@ const PHONE_TOP = 428;
 const PHONE_W = 1200;
 const PHONE_X = (W - PHONE_W) / 2;
 
-// ─── iPhone Frame Constants (CSS mode — iPhone 16 Pro proportions) ───
+// ─── iPhone 16 Pro Frame Constants ───
 const FRAME_R = 64;
 const SCREEN_R = 52;
 const FRAME_BEZEL = 12;
@@ -21,131 +21,21 @@ const DI_H = 40;
 const DI_TOP = 16;
 const CAM_D = 14;
 
-// ─── Phone Frame Mode ───
-// 'css'  = Enhanced CSS/SVG frame (default, no external assets needed)
-// 'png'  = PNG overlay from /iphone-frame.png (ANY resolution, auto-scaled)
-const PHONE_FRAME_MODE: 'css' | 'png' = 'css';
-
-// ─── PNG Frame Config ───
-// Works with ANY resolution PNG. The PNG is scaled to fill PHONE_W (1200px)
-// with height: auto, so aspect ratio is always preserved.
-//
-// PNG_FRAME_AR: original width / height of your PNG (for aspect ratio sizing)
-// PNG_SCREEN:   where the transparent screen area is, in % of the PNG
-//
-// How to measure PNG_SCREEN for your mockup:
-//   1. Open PNG in Preview/Figma, note total dimensions (e.g. 962 × 1982)
-//   2. Find the screen area's bounding box in pixels
-//      e.g. screen starts at (43, 68), size (876, 1846)
-//   3. Calculate: top = 68/1982 * 100 = 3.43%
-//                 left = 43/962 * 100 = 4.47%
-//                 width = 876/962 * 100 = 91.06%
-//                 height = 1846/1982 * 100 = 93.14%
-//
-// Default values below are for a typical iPhone 16 Pro mockup (~962×1982).
-// Adjust to match YOUR specific PNG.
-const PNG_FRAME_AR = 962 / 1982;  // width / height of your PNG
-
-const PNG_SCREEN = {
-  top: 3.4,       // % from top of PNG to screen top
-  left: 4.5,      // % from left of PNG to screen left
-  width: 91.0,    // % of PNG width that the screen occupies
-  height: 93.1,   // % of PNG height that the screen occupies
-  radius: 44,     // px — screen corner radius (at rendered PHONE_W scale)
-};
-
-// ─── Phone Frame: PNG Mode ───
-function PhoneFramePng({ accent, imageDataUrl }: { accent: string; imageDataUrl: string | null }) {
-  const a = accent;
-  // PNG is scaled to PHONE_W. Height determined by aspect ratio.
-  const renderedH = PHONE_W / PNG_FRAME_AR;
-
-  return (
-    <div style={{ position: 'relative', width: PHONE_W }}>
-      {/* Ambient glow */}
-      <div style={{ position: 'absolute', top: -60, left: -120, right: -120, bottom: -60, background: `radial-gradient(ellipse 60% 40%, ${a}15 0%, transparent 60%)`, filter: 'blur(40px)' }} />
-
-      {/* Container — aspect ratio from PNG */}
-      <div style={{ position: 'relative', width: PHONE_W, height: renderedH }}>
-        {/* Screenshot positioned inside the screen area */}
-        <div style={{
-          position: 'absolute',
-          top: `${PNG_SCREEN.top}%`,
-          left: `${PNG_SCREEN.left}%`,
-          width: `${PNG_SCREEN.width}%`,
-          height: `${PNG_SCREEN.height}%`,
-          borderRadius: PNG_SCREEN.radius,
-          overflow: 'hidden',
-          background: '#000',
-        }}>
-          {imageDataUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={imageDataUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
-          ) : (
-            <div style={{ width: '100%', height: '100%', background: '#080808', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <div style={{ width: 50, height: 50, borderRadius: 13, border: `1.5px dashed ${a}18`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <span style={{ fontSize: 20, color: a, opacity: 0.2 }}>+</span>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* PNG frame overlay — on top, scaled to fill container */}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/iphone-frame.png"
-          alt=""
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: 'auto',  // ← preserves aspect ratio, no distortion
-            pointerEvents: 'none',
-            zIndex: 20,
-          }}
-        />
-
-        {/* Drop shadow overlay */}
-        <div style={{
-          position: 'absolute',
-          inset: 0,
-          borderRadius: 56,
-          boxShadow: `0 50px 100px rgba(0,0,0,0.9), 0 20px 60px rgba(0,0,0,0.5), 0 25px 70px ${a}08`,
-          pointerEvents: 'none',
-          zIndex: 21,
-        }} />
-      </div>
-    </div>
-  );
-}
-
-// ─── Phone Frame: CSS Mode ───
-function PhoneFrameCss({ accent, imageDataUrl }: { accent: string; imageDataUrl: string | null }) {
+// ─── Phone Frame (CSS only — titanium finish) ───
+function PhoneFrame({ accent, imageDataUrl }: { accent: string; imageDataUrl: string | null }) {
   const a = accent;
   return (
     <div style={{ position: 'relative', width: PHONE_W }}>
-      {/* Ambient glow behind phone */}
       <div style={{ position: 'absolute', top: -60, left: -120, right: -120, bottom: -60, background: `radial-gradient(ellipse 60% 40%, ${a}15 0%, transparent 60%)`, filter: 'blur(40px)' }} />
       <div style={{ position: 'absolute', top: -15, left: '8%', right: '8%', height: 30, background: `radial-gradient(ellipse, ${a}25 0%, transparent 70%)`, filter: 'blur(12px)' }} />
 
-      {/* Phone body — titanium finish */}
       <div style={{
-        position: 'relative',
-        borderRadius: FRAME_R,
-        padding: FRAME_BEZEL,
+        position: 'relative', borderRadius: FRAME_R, padding: FRAME_BEZEL,
         background: 'linear-gradient(165deg, #78787A 0%, #5A5A5C 3%, #454547 8%, #2C2C2E 15%, #1C1C1E 50%, #2C2C2E 85%, #454547 92%, #5A5A5C 97%, #78787A 100%)',
-        boxShadow: `
-          0 50px 100px rgba(0,0,0,0.95),
-          0 20px 60px rgba(0,0,0,0.6),
-          0 0 0 0.5px rgba(255,255,255,0.08),
-          0 25px 70px ${a}08,
-          inset 0 0.5px 0 rgba(255,255,255,0.25),
-          inset 0 -0.5px 0 rgba(255,255,255,0.05)
-        `,
+        boxShadow: `0 50px 100px rgba(0,0,0,0.95), 0 20px 60px rgba(0,0,0,0.6), 0 0 0 0.5px rgba(255,255,255,0.08), 0 25px 70px ${a}08, inset 0 0.5px 0 rgba(255,255,255,0.25), inset 0 -0.5px 0 rgba(255,255,255,0.05)`,
       }}>
-        {/* Top edge highlight */}
-        <div style={{ position: 'absolute', top: 0, left: 40, right: 40, height: 1, background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.18), rgba(255,255,255,0.25), rgba(255,255,255,0.18), transparent)', borderRadius: `${FRAME_R}px ${FRAME_R}px 0 0` }} />
+        {/* Edge highlights */}
+        <div style={{ position: 'absolute', top: 0, left: 40, right: 40, height: 1, background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.18), rgba(255,255,255,0.25), rgba(255,255,255,0.18), transparent)' }} />
         <div style={{ position: 'absolute', top: 80, left: 0, width: 1, bottom: 80, background: 'linear-gradient(180deg, transparent, rgba(255,255,255,0.06), rgba(255,255,255,0.04), transparent)' }} />
         <div style={{ position: 'absolute', top: 80, right: 0, width: 1, bottom: 80, background: 'linear-gradient(180deg, transparent, rgba(255,255,255,0.04), rgba(255,255,255,0.03), transparent)' }} />
 
@@ -179,12 +69,12 @@ function PhoneFrameCss({ accent, imageDataUrl }: { accent: string; imageDataUrl:
             }} />
           </div>
 
-          {/* Screen overlays */}
+          {/* Glass effects */}
           <div style={{ position: 'absolute', inset: 0, borderRadius: SCREEN_R, boxShadow: 'inset 0 0 0 0.5px rgba(255,255,255,0.08)', pointerEvents: 'none', zIndex: 8 }} />
           <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 200, background: 'linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.015) 40%, transparent 100%)', pointerEvents: 'none', zIndex: 5 }} />
           <div style={{ position: 'absolute', top: -100, right: -100, width: 400, height: 800, background: 'linear-gradient(135deg, transparent 0%, rgba(255,255,255,0.02) 45%, rgba(255,255,255,0.035) 50%, rgba(255,255,255,0.02) 55%, transparent 100%)', transform: 'rotate(15deg)', pointerEvents: 'none', zIndex: 6 }} />
 
-          {/* Screenshot image */}
+          {/* Screenshot */}
           {imageDataUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={imageDataUrl} alt="" style={{ width: '100%', display: 'block' }} />
@@ -199,14 +89,6 @@ function PhoneFrameCss({ accent, imageDataUrl }: { accent: string; imageDataUrl:
       </div>
     </div>
   );
-}
-
-// ─── Phone Frame Router ───
-function PhoneFrame({ accent, imageDataUrl }: { accent: string; imageDataUrl: string | null }) {
-  if (PHONE_FRAME_MODE === 'png') {
-    return <PhoneFramePng accent={accent} imageDataUrl={imageDataUrl} />;
-  }
-  return <PhoneFrameCss accent={accent} imageDataUrl={imageDataUrl} />;
 }
 
 // ─── Background Layer ───
@@ -315,8 +197,6 @@ export default function Page() {
           <div style={{ display: 'flex', gap: 1 }}>
             {LANGS.map(l => (<button key={l} onClick={() => setLang(l)} style={{ padding: '3px 9px', background: lang === l ? '#00E676' : 'transparent', color: lang === l ? '#000' : '#444', border: 'none', borderRadius: 3, cursor: 'pointer', fontWeight: 700, fontSize: 10, textTransform: 'uppercase' }}>{l}</button>))}
           </div>
-          <div style={{ width: 1, height: 14, background: '#1a1a1a' }} />
-          <span style={{ fontSize: 9, color: '#2a2a2a', fontFamily: 'monospace' }}>frame: {PHONE_FRAME_MODE}</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <span style={{ fontSize: 10, color: '#2a2a2a' }}>{n}/6</span>
