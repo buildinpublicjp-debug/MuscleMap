@@ -10,6 +10,9 @@ struct MiniMuscleMapView: View {
     /// 表示する面（前面/背面、デフォルトは主要筋肉に応じて自動判定）
     var showFront: Bool?
 
+    /// ハイライト色（デフォルト: mmAccentPrimary）
+    var tintColor: Color = .mmAccentPrimary
+
     private var shouldShowFront: Bool {
         if let showFront = showFront {
             return showFront
@@ -77,7 +80,7 @@ struct MiniMuscleMapView: View {
         }
 
         let opacity = max(0.4, Double(stimulation) / 100.0)
-        return Color.mmAccentPrimary.opacity(opacity)
+        return tintColor.opacity(opacity)
     }
 }
 

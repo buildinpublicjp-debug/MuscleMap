@@ -124,7 +124,7 @@ struct MonthlyCalendarView: View {
                     }
                 } else {
                     Color.clear
-                        .frame(height: 62)
+                        .frame(height: 72)
                 }
             }
         }
@@ -216,11 +216,14 @@ private struct DayCell: View {
         muscleMapping.keys.contains { Self.backMuscleIds.contains($0) }
     }
 
+    // カレンダー用の赤系色（鍛えた部位）
+    private static let trainedColor = Color(red: 1.0, green: 0.4, blue: 0.4)
+
     var body: some View {
         Button(action: action) {
             VStack(spacing: 1) {
                 Text("\(calendar.component(.day, from: date))")
-                    .font(.system(size: 12, weight: isToday ? .bold : .regular))
+                    .font(.system(size: 10, weight: isToday ? .bold : .regular))
                     .foregroundStyle(textColor)
 
                 // ワークアウトした日はミニマッスルマップを表示
@@ -228,29 +231,29 @@ private struct DayCell: View {
                     if hasBackMuscles {
                         // 背面筋肉が含まれる場合は前面+背面を横並び表示
                         HStack(spacing: 1) {
-                            MiniMuscleMapView(muscleMapping: muscleMapping, showFront: true)
-                                .frame(width: 14, height: 36)
-                            MiniMuscleMapView(muscleMapping: muscleMapping, showFront: false)
-                                .frame(width: 14, height: 36)
+                            MiniMuscleMapView(muscleMapping: muscleMapping, showFront: true, tintColor: Self.trainedColor)
+                                .frame(width: 18, height: 46)
+                            MiniMuscleMapView(muscleMapping: muscleMapping, showFront: false, tintColor: Self.trainedColor)
+                                .frame(width: 18, height: 46)
                         }
                         .allowsHitTesting(false)
                     } else {
-                        MiniMuscleMapView(muscleMapping: muscleMapping, showFront: true)
-                            .frame(width: 28, height: 36)
+                        MiniMuscleMapView(muscleMapping: muscleMapping, showFront: true, tintColor: Self.trainedColor)
+                            .frame(width: 36, height: 46)
                             .allowsHitTesting(false)
                     }
                 } else if hasWorkout {
                     Image(systemName: "dumbbell.fill")
                         .font(.system(size: 10))
-                        .foregroundStyle(Color.mmAccentPrimary)
-                        .frame(height: 36)
+                        .foregroundStyle(Self.trainedColor)
+                        .frame(height: 46)
                 } else {
                     Color.clear
-                        .frame(height: 36)
+                        .frame(height: 46)
                 }
             }
             .frame(maxWidth: .infinity)
-            .frame(height: 62)
+            .frame(height: 72)
             .background(backgroundColor)
             .clipShape(RoundedRectangle(cornerRadius: 8))
         }
