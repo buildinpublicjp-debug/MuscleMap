@@ -148,22 +148,30 @@ private struct SessionDetailCard: View {
         return result
     }
 
+    /// 最重量セットのIDを返す
+    private var heaviestSetIds: Set<UUID> {
+        var ids = Set<UUID>()
+        for entry in exerciseSets {
+            if let heaviest = entry.sets.max(by: { $0.weight < $1.weight }), heaviest.weight > 0 {
+                ids.insert(heaviest.id)
+            }
+        }
+        return ids
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            // ヘッダー（セッション削除メニュー付き）
+            // コンパクトサマリー（1行）+ 削除メニュー
             HStack {
-                Text(session.startDate.formatted(date: .omitted, time: .shortened))
-                    .font(.subheadline.bold())
-                    .foregroundStyle(Color.mmTextPrimary)
-                Spacer()
-                HStack(spacing: 12) {
-                    Label(duration, systemImage: "clock")
-                    Label(L10n.setsLabel(session.sets.count), systemImage: "number")
-                }
-                .font(.caption)
-                .foregroundStyle(Color.mmTextSecondary)
+                let volumeStr = totalVolume >= 1000 ? String(format: "%.1fk", totalVolume / 1000) : String(format: "%.0f", totalVolume)
+                let isJa = localization.currentLanguage == .japanese
+                Text("\(session.startDate.formatted(date: .omitted, time: .shortened)) · \(duration) · \(exerciseSets.count)\(isJa ? "種目" : " ex") · \(session.sets.count)\(isJa ? "セット" : " sets") · \(volumeStr)kg")
+                    .font(.caption)
+                    .foregroundStyle(Color.mmTextSecondary)
+                    .lineLimit(1)
 
-                // セッション削除メニュー
+                Spacer()
+
                 Menu {
                     Button(role: .destructive) {
                         showDeleteSessionConfirmation = true
@@ -185,104 +193,63 @@ private struct SessionDetailCard: View {
                 }
             }
 
-            // サマリー行（種目数・合計ボリューム）
-            HStack(spacing: 16) {
-                HStack(spacing: 4) {
-                    Image(systemName: "figure.strengthtraining.traditional")
-                        .font(.caption)
-                        .foregroundStyle(Color.mmAccentPrimary)
-                    Text("\(exerciseSets.count)")
-                        .font(.title3.bold())
-                        .foregroundStyle(Color.mmTextPrimary)
-                    Text(localization.currentLanguage == .japanese ? "種目" : "exercises")
-                        .font(.caption)
-                        .foregroundStyle(Color.mmTextSecondary)
-                }
-                HStack(spacing: 4) {
-                    Image(systemName: "scalemass")
-                        .font(.caption)
-                        .foregroundStyle(Color.mmAccentPrimary)
-                    Text(totalVolume >= 1000 ? String(format: "%.1fk", totalVolume / 1000) : String(format: "%.0f", totalVolume))
-                        .font(.title3.bold())
-                        .foregroundStyle(Color.mmTextPrimary)
-                    Text("kg")
-                        .font(.caption)
-                        .foregroundStyle(Color.mmTextSecondary)
-                }
-                Spacer()
-            }
-
-            // ミニ筋肉マップ（大きめ表示）
-            if !stimulatedMuscleMapping.isEmpty {
-                HStack(spacing: 12) {
-                    MiniMuscleMapView(muscleMapping: stimulatedMuscleMapping, showFront: true)
-                        .aspectRatio(0.5, contentMode: .fit)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 280)
-                    MiniMuscleMapView(muscleMapping: stimulatedMuscleMapping, showFront: false)
-                        .aspectRatio(0.5, contentMode: .fit)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 280)
-                }
-            }
-
-            Divider().background(Color.mmBgSecondary)
-
-            // 種目ごとのセット（種目名 + セット数 + 種目ボリューム）
+            // 種目ごとのカード（GIF大きく）
             ForEach(exerciseSets, id: \.exercise.id) { entry in
-                VStack(alignment: .leading, spacing: 6) {
-                    HStack(spacing: 10) {
-                        // GIFサムネイル（50x50pt、mmBgCard角丸）
-                        ZStack {
-                            Color.mmBgCard
-                            if ExerciseGifView.hasGif(exerciseId: entry.exercise.id) {
-                                ExerciseGifView(exerciseId: entry.exercise.id, size: .thumbnail)
-                                    .scaledToFill()
-                                    .frame(width: 50, height: 50)
-                                    .clipped()
-                            } else {
-                                Image(systemName: "dumbbell.fill")
-                                    .font(.system(size: 20))
-                                    .foregroundStyle(Color.mmTextSecondary.opacity(0.5))
-                            }
+                VStack(alignment: .leading, spacing: 8) {
+                    // GIF（全幅、大きく表示）
+                    ZStack {
+                        Color.white
+                        if ExerciseGifView.hasGif(exerciseId: entry.exercise.id) {
+                            ExerciseGifView(exerciseId: entry.exercise.id, size: .gridCard)
+                                .scaledToFit()
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 140)
+                        } else {
+                            Image(systemName: "dumbbell.fill")
+                                .font(.system(size: 32))
+                                .foregroundStyle(Color.mmTextSecondary.opacity(0.3))
+                                .frame(height: 140)
+                                .frame(maxWidth: .infinity)
                         }
-                        .frame(width: 50, height: 50)
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                    }
+                    .frame(height: 140)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
 
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(localization.currentLanguage == .japanese ? entry.exercise.nameJA : entry.exercise.nameEN)
-                                .font(.subheadline.bold())
-                                .foregroundStyle(Color.mmAccentPrimary)
-                            HStack(spacing: 4) {
-                                let exerciseVolume = entry.sets.reduce(0.0) { $0 + $1.weight * Double($1.reps) }
-                                Text(localization.currentLanguage == .japanese ? "\(entry.sets.count)セット" : "\(entry.sets.count) sets")
+                    // 種目名 + サマリー
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(localization.currentLanguage == .japanese ? entry.exercise.nameJA : entry.exercise.nameEN)
+                            .font(.headline.bold())
+                            .foregroundStyle(Color.mmAccentPrimary)
+                        let exerciseVolume = entry.sets.reduce(0.0) { $0 + $1.weight * Double($1.reps) }
+                        HStack(spacing: 4) {
+                            Text(localization.currentLanguage == .japanese ? "\(entry.sets.count)セット" : "\(entry.sets.count) sets")
+                                .font(.caption)
+                                .foregroundStyle(Color.mmTextSecondary)
+                            if exerciseVolume > 0 {
+                                Text("·")
                                     .font(.caption)
                                     .foregroundStyle(Color.mmTextSecondary)
-                                if exerciseVolume > 0 {
-                                    Text("·")
-                                        .font(.caption)
-                                        .foregroundStyle(Color.mmTextSecondary)
-                                    Text(String(format: "%.0fkg", exerciseVolume))
-                                        .font(.caption.bold())
-                                        .foregroundStyle(Color.mmTextSecondary)
-                                }
+                                Text(String(format: "%.0fkg", exerciseVolume))
+                                    .font(.caption.bold())
+                                    .foregroundStyle(Color.mmTextSecondary)
                             }
                         }
-
-                        Spacer()
                     }
 
+                    // セット行
                     ForEach(entry.sets, id: \.id) { set in
+                        let isHeaviest = heaviestSetIds.contains(set.id)
                         HStack {
                             Text(L10n.setNumber(set.setNumber))
                                 .font(.caption)
-                                .foregroundStyle(Color.mmTextSecondary)
+                                .foregroundStyle(isHeaviest ? Color.mmAccentPrimary : Color.mmTextSecondary)
                                 .frame(width: 50, alignment: .leading)
 
                             if set.weight > 0 {
                                 Text(L10n.weightReps(set.weight, set.reps))
                                     .font(.caption.monospaced())
-                                    .foregroundStyle(Color.mmTextPrimary)
+                                    .foregroundStyle(isHeaviest ? Color.mmTextPrimary : Color.mmTextPrimary)
+                                    .fontWeight(isHeaviest ? .bold : .regular)
                             } else {
                                 Text(L10n.repsOnly(set.reps))
                                     .font(.caption.monospaced())
@@ -291,7 +258,6 @@ private struct SessionDetailCard: View {
 
                             Spacer()
 
-                            // 編集アイコン
                             Image(systemName: "pencil")
                                 .font(.caption2)
                                 .foregroundStyle(Color.mmTextSecondary.opacity(0.5))
@@ -300,7 +266,10 @@ private struct SessionDetailCard: View {
                         .padding(.horizontal, 4)
                         .background(
                             RoundedRectangle(cornerRadius: 4)
-                                .fill(setToEdit?.id == set.id ? Color.mmAccentPrimary.opacity(0.1) : Color.clear)
+                                .fill(
+                                    setToEdit?.id == set.id ? Color.mmAccentPrimary.opacity(0.1) :
+                                    isHeaviest ? Color.mmAccentPrimary.opacity(0.05) : Color.clear
+                                )
                         )
                         .contentShape(Rectangle())
                         .onTapGesture {
@@ -322,7 +291,32 @@ private struct SessionDetailCard: View {
                         }
                     }
                 }
-                .padding(.vertical, 2)
+                .padding(12)
+                .background(Color.mmBgSecondary)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+            }
+
+            // 筋肉マップ（下部、小さめ）
+            if !stimulatedMuscleMapping.isEmpty {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text(localization.currentLanguage == .japanese ? "刺激した筋肉" : "Muscles Worked")
+                        .font(.caption.bold())
+                        .foregroundStyle(Color.mmTextSecondary)
+
+                    HStack(spacing: 8) {
+                        MiniMuscleMapView(muscleMapping: stimulatedMuscleMapping, showFront: true)
+                            .aspectRatio(0.5, contentMode: .fit)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 160)
+                        MiniMuscleMapView(muscleMapping: stimulatedMuscleMapping, showFront: false)
+                            .aspectRatio(0.5, contentMode: .fit)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 160)
+                    }
+                }
+                .padding(12)
+                .background(Color.mmBgSecondary)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
             }
         }
         .padding()

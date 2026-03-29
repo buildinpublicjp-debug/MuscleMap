@@ -189,12 +189,16 @@ struct ExerciseLibraryRow: View {
         HStack(spacing: 12) {
             // GIFサムネイル or ミニ筋肉マップ
             if ExerciseGifView.hasGif(exerciseId: exercise.id) {
-                ExerciseGifView(exerciseId: exercise.id, size: .thumbnail)
+                ExerciseGifView(exerciseId: exercise.id, size: .gridCard)
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 120, height: 90)
+                    .background(Color.white)
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
             } else {
                 MiniMuscleMapView(muscleMapping: exercise.muscleMapping)
-                    .frame(width: 100, height: 75)
+                    .frame(width: 120, height: 90)
                     .background(Color.mmBgPrimary.opacity(0.5))
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
             }
 
             // 種目名のみ
