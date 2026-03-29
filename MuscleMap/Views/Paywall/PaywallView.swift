@@ -96,36 +96,38 @@ struct PaywallView: View {
             )
             .ignoresSafeArea()
 
-            GeometryReader { geo in
-                let h = geo.size.height
-                // マーキーカードサイズ: 画面高さの18%ベース（小画面でも十分大きく）
-                let cardSize = min(max(h * 0.18, 120), 170)
+            VStack(spacing: 0) {
+                // スクロール可能エリア
+                ScrollView(showsIndicators: false) {
+                    VStack(spacing: 16) {
+                        // 上部マージン
+                        Color.clear.frame(height: isHardPaywall ? 16 : 40)
 
-                VStack(spacing: 0) {
-                    // 上部マージン
-                    Color.clear.frame(height: isHardPaywall ? 16 : 32)
+                        // 1. ヘッドライン（自然サイズ）
+                        headlineSection
 
-                    // 1. ヘッドライン
-                    headlineSection
-                        .frame(height: h * 0.10)
+                        // 2. マーキーGIF 2行（固定140ptカード）
+                        marqueeArea(cardSize: 140)
+                            .frame(height: 140 * 2 + 8)
 
-                    // 2. マーキーGIF（2行、スクロールするカード）
-                    marqueeArea(cardSize: cardSize)
-                        .frame(height: cardSize * 2 + 8)
-
-                    // 3. Free vs Pro 比較テーブル（ボタン直前配置）
-                    featureListSection
-                        .padding(.top, 10)
-
-                    // 4. 価格セクション（テーブル直後 → 即行動）
-                    pricingSection
-                        .padding(.top, 10)
-
-                    // 5. フッター（下に吸着）
-                    footerSection
-                        .padding(.top, 8)
-                        .padding(.bottom, 8)
+                        // 3. Free vs Pro 比較テーブル
+                        featureListSection
+                    }
                 }
+
+                // 固定下部エリア（スクロールしない）
+                VStack(spacing: 8) {
+                    pricingSection
+                    footerSection
+                }
+                .padding(.top, 8)
+                .background(
+                    LinearGradient(
+                        colors: [Color.clear, Color(red: 0.06, green: 0.12, blue: 0.08)],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
             }
 
             // 閉じるボタン（右上固定、ハードペイウォール時は非表示）
@@ -184,20 +186,18 @@ struct PaywallView: View {
     // MARK: - ヘッドライン（感情訴求）
 
     private var headlineSection: some View {
-        VStack(spacing: 3) {
+        VStack(spacing: 6) {
             if !routine.days.isEmpty && totalExercises > 0 {
-                // 1行目: 「あなた専用のN日間メニュー」— N をアクセントカラーで強調
                 Text(L10n.pwHeadlineWithRoutine(routine.days.count, totalExercises))
-                    .font(.system(size: 22, weight: .heavy))
+                    .font(.system(size: 24, weight: .heavy))
                     .foregroundStyle(Color.mmTextPrimary)
 
-                // 2行目: 「N種目、今日から始めよう」— N をアクセントカラーで強調
                 Text(L10n.pwHeadlineExercises(totalExercises))
-                    .font(.system(size: 22, weight: .heavy))
+                    .font(.system(size: 24, weight: .heavy))
                     .foregroundStyle(Color.mmAccentPrimary.opacity(0.8))
             } else {
                 Text(L10n.pwHeadlineFallback)
-                    .font(.system(size: 22, weight: .heavy))
+                    .font(.system(size: 24, weight: .heavy))
                     .foregroundStyle(Color.mmTextPrimary)
                     .multilineTextAlignment(.center)
             }
@@ -206,6 +206,7 @@ struct PaywallView: View {
                 Text(subtitle)
                     .font(.system(size: 13))
                     .foregroundStyle(Color.mmTextSecondary)
+                    .padding(.top, 2)
             }
         }
         .padding(.horizontal, 24)
@@ -266,12 +267,6 @@ struct PaywallView: View {
                 feature: L10n.pwWorkoutLog,
                 freeValue: .limited(L10n.pwTwicePerWeek), proValue: .check
             )
-            comparisonSeparator
-            comparisonRow(
-                feature: "Strength Map",
-                freeValue: .cross, proValue: .check
-            )
-
             // 下部パディング
             Color.clear.frame(height: 4)
         }
