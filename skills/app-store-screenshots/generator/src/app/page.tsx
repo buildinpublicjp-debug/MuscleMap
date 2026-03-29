@@ -4,7 +4,6 @@ import { useRef, useState, useCallback, DragEvent } from 'react';
 import { toPng } from 'html-to-image';
 import { SHOTS, type Lang, type ShotDef } from '@/copy';
 
-// ─── Canvas & Layout Constants ───
 const W = 1320;
 const H = 2868;
 const COPY_AREA_TOP = 40;
@@ -13,7 +12,6 @@ const PHONE_TOP = 428;
 const PHONE_W = 1200;
 const PHONE_X = (W - PHONE_W) / 2;
 
-// ─── iPhone 16 Pro Frame Constants ───
 const FRAME_R = 64;
 const SCREEN_R = 52;
 const FRAME_BEZEL = 12;
@@ -22,7 +20,6 @@ const DI_H = 40;
 const DI_TOP = 16;
 const CAM_D = 14;
 
-// ─── Phone Frame ───
 function PhoneFrame({ accent, imageDataUrl }: { accent: string; imageDataUrl: string | null }) {
   const a = accent;
   return (
@@ -67,7 +64,6 @@ function PhoneFrame({ accent, imageDataUrl }: { accent: string; imageDataUrl: st
   );
 }
 
-// ─── Background Layer ───
 function SlideBackground({ accent }: { accent: string }) {
   const a = accent;
   return (<>
@@ -93,7 +89,6 @@ function SlideBackground({ accent }: { accent: string }) {
   </>);
 }
 
-// ─── Copy Section ───
 function SlideCopy({ shot, lang }: { shot: ShotDef; lang: Lang }) {
   const copy = shot.copy[lang];
   const isJa = lang === 'ja' || lang === 'zh' || lang === 'ko';
@@ -117,7 +112,6 @@ function SlideCopy({ shot, lang }: { shot: ShotDef; lang: Lang }) {
   );
 }
 
-// ─── Composite Slide ───
 function CompositeSlide({ shot, lang, imageDataUrl, slideRef }: { shot: ShotDef; lang: Lang; imageDataUrl: string | null; slideRef?: React.RefObject<HTMLDivElement | null>; }) {
   const isJa = lang === 'ja' || lang === 'zh' || lang === 'ko';
   return (
@@ -133,11 +127,9 @@ function CompositeSlide({ shot, lang, imageDataUrl, slideRef }: { shot: ShotDef;
   );
 }
 
-// ─── Main Page ───
 export default function Page() {
   const [lang, setLang] = useState<Lang>('ja');
   const [images, setImages] = useState<Record<number, string>>({});
-  // Refs point directly to the PREVIEW CompositeSlides (which are already on-screen)
   const slideRefs = useRef<Record<number, HTMLDivElement | null>>({});
   const [exporting, setExporting] = useState(false);
   const LANGS: Lang[] = ['ja', 'en', 'zh', 'ko', 'es', 'de', 'fr'];
@@ -146,15 +138,18 @@ export default function Page() {
   const pick = useCallback((id: number) => { const i = document.createElement('input'); i.type = 'file'; i.accept = 'image/*'; i.onchange = (e) => { const f = (e.target as HTMLInputElement).files?.[0]; if (!f) return; const r = new FileReader(); r.onload = () => setImg(id, r.result as string); r.readAsDataURL(f); }; i.click(); }, [setImg]);
   const drop = useCallback((id: number, e: DragEvent) => { e.preventDefault(); const f = e.dataTransfer.files[0]; if (!f?.type.startsWith('image/')) return; const r = new FileReader(); r.onload = () => setImg(id, r.result as string); r.readAsDataURL(f); }, [setImg]);
 
-  // Export directly from the on-screen preview slide.
-  // The CompositeSlide is 1320×2868 in the DOM — the parent's CSS transform:scale()
-  // only affects visual rendering, not the DOM dimensions.
-  // toPng clones the DOM node, so the clone is full-size regardless of parent transforms.
-  // Since images are already visible on screen, the browser has decoded them — no timing hacks needed.
+  // html-to-image known bug: cloned <img> with data URL src may not be
+  // decoded when the canvas draws. Calling toPng twice is the standard
+  // workaround — first call forces image loading in the clone, second
+  // call captures correctly. See: https://github.com/bubkoo/html-to-image/issues/361
   const exp1 = useCallback(async (id: number) => {
     const el = slideRefs.current[id];
     if (!el) return;
-    const u = await toPng(el, { width: W, height: H, pixelRatio: 1 });
+    const opts = { width: W, height: H, pixelRatio: 1, cacheBust: true };
+    // 1st call: warms up cloned images (result discarded)
+    await toPng(el, opts).catch(() => {});
+    // 2nd call: images now cached/decoded → correct capture
+    const u = await toPng(el, opts);
     Object.assign(document.createElement('a'), { download: `shot${id}_${lang}.png`, href: u }).click();
   }, [lang]);
 
@@ -163,7 +158,7 @@ export default function Page() {
     for (const s of SHOTS) {
       if (!images[s.id]) continue;
       await exp1(s.id);
-      await new Promise(r => setTimeout(r, 500));
+      await new Promise(r => setTimeout(r, 300));
     }
     setExporting(false);
   }, [images, exp1]);
@@ -172,8 +167,6 @@ export default function Page() {
 
   return (
     <div style={{ background: '#060606', minHeight: '100vh', color: '#fff' }}>
-      {/* NO hidden container. Export uses the preview slides directly. */}
-
       <div style={{ padding: '12px 20px', borderBottom: '1px solid #151515', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, background: 'rgba(6,6,6,0.92)', backdropFilter: 'blur(16px)', zIndex: 50 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
           <span style={{ fontSize: 13, fontWeight: 700, color: '#555', letterSpacing: 2, textTransform: 'uppercase' }}>Screenshots</span>
@@ -200,13 +193,8 @@ export default function Page() {
             </div>
             <div onDragOver={e => e.preventDefault()} onDrop={e => drop(shot.id, e)} onClick={() => { if (!images[shot.id]) pick(shot.id); }} style={{ width: W * S, height: H * S, overflow: 'hidden', borderRadius: 6, border: images[shot.id] ? '1px solid #181818' : '1px dashed #1f1f1f', cursor: images[shot.id] ? 'default' : 'pointer' }}>
               <div style={{ transform: `scale(${S})`, transformOrigin: 'top left' }}>
-                {/* This IS the export target — ref goes directly on the full-size CompositeSlide */}
-                <CompositeSlide
-                  shot={shot}
-                  lang={lang}
-                  imageDataUrl={images[shot.id] || null}
-                  slideRef={{ set current(el) { slideRefs.current[shot.id] = el; }, get current() { return slideRefs.current[shot.id] || null; } }}
-                />
+                <CompositeSlide shot={shot} lang={lang} imageDataUrl={images[shot.id] || null}
+                  slideRef={{ set current(el) { slideRefs.current[shot.id] = el; }, get current() { return slideRefs.current[shot.id] || null; } }} />
               </div>
             </div>
           </div>
