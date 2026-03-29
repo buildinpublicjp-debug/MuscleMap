@@ -95,50 +95,16 @@ struct SetInputCard: View {
                 }
             }
 
-            // GIF: 初回セットのみフル表示、2セット目以降はミニサムネ
+            // GIF: 全セット統一レイアウト（gridCard + オーバーレイ）
             if ExerciseGifView.hasGif(exerciseId: exercise.id) {
-                if viewModel.currentSetNumber == 1 {
-                    // フル表示（タイマー・PRオーバーレイ付き）
-                    ZStack(alignment: .topTrailing) {
-                        ZStack(alignment: .bottomTrailing) {
-                            ExerciseGifView(exerciseId: exercise.id, size: .fullWidth)
-                                .frame(maxHeight: 150)
+                ZStack(alignment: .topTrailing) {
+                    ZStack(alignment: .bottomTrailing) {
+                        ExerciseGifView(exerciseId: exercise.id, size: .gridCard)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: viewModel.currentSetNumber == 1 ? 150 : 120)
+                            .clipped()
 
-                            // PR表示（GIF右下にオーバーレイ）
-                            if let pr = prWeight, !isBodyweight {
-                                HStack(spacing: 2) {
-                                    Image(systemName: "trophy.fill")
-                                        .font(.caption2)
-                                        .foregroundStyle(Color.mmPRGold)
-                                    Text("\(pr, specifier: "%.1f")kg")
-                                        .font(.caption2.bold())
-                                        .foregroundStyle(Color.mmTextPrimary)
-                                }
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 4)
-                                .background(Color.mmBgPrimary.opacity(0.6))
-                                .clipShape(Capsule())
-                                .padding(8)
-                            }
-                        }
-
-                        // タイマー（GIF右上にオーバーレイ）
-                        if viewModel.isRestTimerRunning {
-                            CompactTimerBadge(
-                                seconds: viewModel.restTimerSeconds,
-                                isOvertime: viewModel.isRestTimerOvertime,
-                                onStop: { viewModel.stopRestTimer() }
-                            )
-                            .padding(8)
-                        }
-                    }
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
-                } else {
-                    // 2セット目以降: ミニサムネ + タイマー横並び
-                    HStack(spacing: 8) {
-                        ExerciseGifView(exerciseId: exercise.id, size: .thumbnail)
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
-
+                        // PR表示（GIF右下にオーバーレイ）
                         if let pr = prWeight, !isBodyweight {
                             HStack(spacing: 2) {
                                 Image(systemName: "trophy.fill")
@@ -146,21 +112,27 @@ struct SetInputCard: View {
                                     .foregroundStyle(Color.mmPRGold)
                                 Text("\(pr, specifier: "%.1f")kg")
                                     .font(.caption2.bold())
-                                    .foregroundStyle(Color.mmTextSecondary)
+                                    .foregroundStyle(Color.mmTextPrimary)
                             }
-                        }
-
-                        Spacer()
-
-                        if viewModel.isRestTimerRunning {
-                            CompactTimerBadge(
-                                seconds: viewModel.restTimerSeconds,
-                                isOvertime: viewModel.isRestTimerOvertime,
-                                onStop: { viewModel.stopRestTimer() }
-                            )
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(Color.mmBgPrimary.opacity(0.6))
+                            .clipShape(Capsule())
+                            .padding(8)
                         }
                     }
+
+                    // タイマー（GIF右上にオーバーレイ）
+                    if viewModel.isRestTimerRunning {
+                        CompactTimerBadge(
+                            seconds: viewModel.restTimerSeconds,
+                            isOvertime: viewModel.isRestTimerOvertime,
+                            onStop: { viewModel.stopRestTimer() }
+                        )
+                        .padding(8)
+                    }
                 }
+                .clipShape(RoundedRectangle(cornerRadius: 12))
             } else {
                 // GIFがない場合のタイマー表示
                 if viewModel.isRestTimerRunning {
@@ -250,33 +222,6 @@ struct SetInputCard: View {
                     }
                 }
 
-                // クイックセット重量ボタン（直近3つの重量）
-                if !viewModel.recentWeights.isEmpty {
-                    HStack(spacing: 8) {
-                        ForEach(viewModel.recentWeights, id: \.self) { weight in
-                            Button {
-                                viewModel.currentWeight = weight
-                                HapticManager.lightTap()
-                            } label: {
-                                Text(String(format: "%.1f", weight))
-                                    .font(.system(size: 14, weight: .bold, design: .monospaced))
-                                    .foregroundStyle(
-                                        viewModel.currentWeight == weight
-                                            ? Color.mmBgPrimary
-                                            : Color.mmAccentPrimary
-                                    )
-                                    .padding(.horizontal, 14)
-                                    .padding(.vertical, 8)
-                                    .background(
-                                        viewModel.currentWeight == weight
-                                            ? Color.mmAccentPrimary
-                                            : Color.mmAccentPrimary.opacity(0.15)
-                                    )
-                                    .clipShape(Capsule())
-                            }
-                        }
-                    }
-                }
             }
 
             // レップ数入力

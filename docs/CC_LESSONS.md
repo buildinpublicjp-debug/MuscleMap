@@ -14,6 +14,9 @@
 - シミュレーターのスクショは1290×2796pxで巨大。必ず `sips -Z 800` でリサイズしてからAPIに送る
 - 固定ピクセル値を盲目的に適用しない。必ずシミュレーターで目視確認してから判断する
 - RecoveryStatusSectionでマップを中央配置すると両サイドに死んだ余白ができる。HStack（マップ左+チップ右）が正しいレイアウト
+- `.aspectRatio(contentMode: .fit)` + `.frame(maxHeight: .infinity)` はGIFカードで白余白を作る。`.frame(height: 固定)` + `.clipped()` を使え
+- セット記録前後でGIFサイズが変わるとUXが悪い。`.gridCard` で統一し、セット1は150pt、2以降は120ptで高さだけ変える
+- 横スクロールの `.padding(.horizontal)` は親VStackとの二重適用に注意。`.padding(.leading, 16)` + `.padding(.trailing, 20)` でスクロール示唆
 
 ## デザインシステム参照
 

@@ -132,16 +132,16 @@ struct RecentExercisesSection: View {
                             onSelect(exercise)
                         } label: {
                             ZStack(alignment: .bottomLeading) {
-                                // GIF（gridCardでアスペクト比を尊重）
+                                // GIF（固定サイズ + clipped）
                                 if ExerciseGifView.hasGif(exerciseId: exercise.id) {
                                     ExerciseGifView(exerciseId: exercise.id, size: .gridCard)
-                                        .aspectRatio(contentMode: .fit)
-                                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                        .frame(width: 140, height: 120)
+                                        .clipped()
                                 } else {
                                     Image(systemName: "dumbbell.fill")
                                         .font(.system(size: 22))
                                         .foregroundStyle(Color.mmTextSecondary.opacity(0.4))
-                                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                        .frame(width: 140, height: 120)
                                 }
 
                                 // 下部グラデーション
@@ -177,7 +177,8 @@ struct RecentExercisesSection: View {
                         }
                     }
                 }
-                .padding(.horizontal)
+                .padding(.leading, 16)
+                .padding(.trailing, 20)
             }
         }
     }
@@ -293,14 +294,16 @@ struct MuscleExercisePickerSheet: View {
             onSelect(exercise)
         } label: {
             ZStack(alignment: .bottomLeading) {
-                // GIF or フォールバック
+                // GIF or フォールバック（固定height + clipped）
                 if ExerciseGifView.hasGif(exerciseId: exercise.id) {
                     ExerciseGifView(exerciseId: exercise.id, size: .gridCard)
-                        .aspectRatio(contentMode: .fit)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 160)
+                        .clipped()
                 } else {
                     MiniMuscleMapView(muscleMapping: exercise.muscleMapping)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 160)
                 }
 
                 // 下部グラデーションオーバーレイ
