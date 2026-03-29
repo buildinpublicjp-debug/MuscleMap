@@ -1,8 +1,6 @@
-// MuscleMap App Store Screenshot Copy — v3
-// Story arc: Hook → Benefit → Depth → Core Action → Insight → Dashboard
-//
-// v3 changes:
-// - Shot 6: Progress Photo → HomeView (dashboard overview)
+// MuscleMap App Store Screenshot Copy — v4
+// Story arc: Hook → Overview → Benefit → Depth → Core Action → Insight
+// First 3 shots are critical (90% of users don't scroll past)
 
 export type Lang = 'ja' | 'en' | 'zh' | 'ko' | 'es' | 'de' | 'fr';
 
@@ -87,10 +85,76 @@ export const SHOTS: ShotDef[] = [
     },
   },
 
-  // ─── SHOT 2: Today's Plan — BENEFIT ───
+  // ─── SHOT 2: Home Dashboard — OVERVIEW ───
   {
     id: 2,
     file: 'shot2_screen.png',
+    accent: '#00E676',
+    nav: 'Home — Dashboard',
+    copy: {
+      ja: {
+        headline: '全部、ここに。',
+        sub: '今日の種目・回復・ボリューム推移',
+        chips: [
+          { label: 'ダッシュボード' },
+          { label: 'ワンタップ' },
+        ],
+      },
+      en: {
+        headline: 'All in\none place.',
+        sub: "Today's plan · Recovery · Volume trends",
+        chips: [
+          { label: 'Dashboard' },
+          { label: 'One tap' },
+        ],
+      },
+      zh: {
+        headline: '全部在这里。',
+        sub: '今日计划 · 恢复 · 训练量趋势',
+        chips: [
+          { label: '仪表盘' },
+          { label: '一键' },
+        ],
+      },
+      ko: {
+        headline: '전부, 여기에.',
+        sub: '오늘의 메뉴 · 회복 · 볼륨 추이',
+        chips: [
+          { label: '대시보드' },
+          { label: '원탭' },
+        ],
+      },
+      es: {
+        headline: 'Todo en\nun lugar.',
+        sub: 'Plan diario · Recuperación · Volumen',
+        chips: [
+          { label: 'Panel' },
+          { label: 'Un toque' },
+        ],
+      },
+      de: {
+        headline: 'Alles an\neinem Ort.',
+        sub: 'Tagesplan · Erholung · Volumen-Trends',
+        chips: [
+          { label: 'Dashboard' },
+          { label: 'Ein Tipp' },
+        ],
+      },
+      fr: {
+        headline: 'Tout en\nun seul endroit.',
+        sub: "Plan du jour · Récupération · Volume",
+        chips: [
+          { label: 'Tableau de bord' },
+          { label: 'Un tap' },
+        ],
+      },
+    },
+  },
+
+  // ─── SHOT 3: Auto Plan — BENEFIT ───
+  {
+    id: 3,
+    file: 'shot3_screen.png',
     accent: '#00E676',
     nav: 'Today Action — Auto Plan',
     copy: {
@@ -153,10 +217,10 @@ export const SHOTS: ShotDef[] = [
     },
   },
 
-  // ─── SHOT 3: Exercise Library — DEPTH ───
+  // ─── SHOT 4: Exercise Library — DEPTH ───
   {
-    id: 3,
-    file: 'shot3_screen.png',
+    id: 4,
+    file: 'shot4_screen.png',
     accent: '#00D4FF',
     nav: 'Exercise Library (92 GIFs)',
     copy: {
@@ -226,10 +290,10 @@ export const SHOTS: ShotDef[] = [
     },
   },
 
-  // ─── SHOT 4: Workout Recording — CORE ACTION ───
+  // ─── SHOT 5: Workout Recording — CORE ACTION ───
   {
-    id: 4,
-    file: 'shot4_screen.png',
+    id: 5,
+    file: 'shot5_screen.png',
     accent: '#FFD700',
     nav: 'Workout Recording + PR',
     copy: {
@@ -292,10 +356,10 @@ export const SHOTS: ShotDef[] = [
     },
   },
 
-  // ─── SHOT 5: Muscle Detail — INSIGHT ───
+  // ─── SHOT 6: Muscle Detail — INSIGHT ───
   {
-    id: 5,
-    file: 'shot5_screen.png',
+    id: 6,
+    file: 'shot6_screen.png',
     accent: '#00D4FF',
     nav: 'Recovery Detail — Per Muscle',
     copy: {
@@ -360,73 +424,6 @@ export const SHOTS: ShotDef[] = [
           { label: 'Tendances' },
           { label: 'Récupération' },
           { label: 'Historique' },
-        ],
-      },
-    },
-  },
-
-  // ─── SHOT 6: Home Dashboard — OVERVIEW ───
-  // "What does the app look like day-to-day?" → Everything in one place
-  {
-    id: 6,
-    file: 'shot6_screen.png',
-    accent: '#00E676',
-    nav: 'Home — Dashboard',
-    copy: {
-      ja: {
-        headline: '全部、ここに。',
-        sub: '今日の種目・回復・ボリューム推移',
-        chips: [
-          { label: 'ダッシュボード' },
-          { label: 'ワンタップ' },
-        ],
-      },
-      en: {
-        headline: 'All in\none place.',
-        sub: "Today's plan · Recovery · Volume trends",
-        chips: [
-          { label: 'Dashboard' },
-          { label: 'One tap' },
-        ],
-      },
-      zh: {
-        headline: '全部在这里。',
-        sub: '今日计划 · 恢复 · 训练量趋势',
-        chips: [
-          { label: '仪表盘' },
-          { label: '一键' },
-        ],
-      },
-      ko: {
-        headline: '전부, 여기에.',
-        sub: '오늘의 메뉴 · 회복 · 볼륨 추이',
-        chips: [
-          { label: '대시보드' },
-          { label: '원탭' },
-        ],
-      },
-      es: {
-        headline: 'Todo en\nun lugar.',
-        sub: 'Plan diario · Recuperación · Volumen',
-        chips: [
-          { label: 'Panel' },
-          { label: 'Un toque' },
-        ],
-      },
-      de: {
-        headline: 'Alles an\neinem Ort.',
-        sub: 'Tagesplan · Erholung · Volumen-Trends',
-        chips: [
-          { label: 'Dashboard' },
-          { label: 'Ein Tipp' },
-        ],
-      },
-      fr: {
-        headline: 'Tout en\nun seul endroit.',
-        sub: "Plan du jour · Récupération · Volume",
-        chips: [
-          { label: 'Tableau de bord' },
-          { label: 'Un tap' },
         ],
       },
     },
