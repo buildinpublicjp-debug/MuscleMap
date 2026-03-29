@@ -102,66 +102,50 @@ struct ExerciseLibraryView: View {
             )
             .frame(width: 120, height: 120)
 
-            // 右: フィルターチップ + 種目数
-            VStack(alignment: .leading, spacing: 6) {
+            // 右: フィルターチップ（折り返し表示） + 種目数
+            VStack(alignment: .leading, spacing: 4) {
                 // 器具フィルター
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 6) {
-                        PickerFilterChip(
-                            title: L10n.all,
-                            isSelected: viewModel.selectedEquipment == nil
-                        ) {
-                            viewModel.selectedEquipment = nil
-                        }
-                        ForEach(LibraryEquipmentFilter.allCases) { filter in
-                            PickerFilterChip(
-                                title: filter.localizedName,
-                                isSelected: viewModel.selectedEquipment == filter.rawValue
-                            ) {
-                                viewModel.selectedEquipment = filter.rawValue
-                            }
+                LibraryFlowLayout(spacing: 4) {
+                    LibraryChip(title: L10n.all, isSelected: viewModel.selectedEquipment == nil) {
+                        viewModel.selectedEquipment = nil
+                    }
+                    ForEach(LibraryEquipmentFilter.allCases) { filter in
+                        LibraryChip(title: filter.localizedName, isSelected: viewModel.selectedEquipment == filter.rawValue) {
+                            viewModel.selectedEquipment = filter.rawValue
                         }
                     }
                 }
 
                 // 部位フィルター
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 6) {
-                        PickerFilterChip(
-                            title: "⏱ \(L10n.recent)",
-                            isSelected: viewModel.showRecentOnly
-                        ) {
-                            viewModel.showRecentOnly.toggle()
-                            if viewModel.showRecentOnly {
-                                viewModel.showFavoritesOnly = false
-                                viewModel.selectedCategory = nil
-                                viewModel.selectedMuscleGroup = nil
-                            }
+                LibraryFlowLayout(spacing: 4) {
+                    LibraryChip(title: "⏱\(L10n.recent)", isSelected: viewModel.showRecentOnly) {
+                        viewModel.showRecentOnly.toggle()
+                        if viewModel.showRecentOnly {
+                            viewModel.showFavoritesOnly = false
+                            viewModel.selectedCategory = nil
+                            viewModel.selectedMuscleGroup = nil
                         }
-                        PickerFilterChip(
-                            title: "★ \(L10n.favorites)",
-                            isSelected: viewModel.showFavoritesOnly
-                        ) {
-                            viewModel.showFavoritesOnly.toggle()
-                            if viewModel.showFavoritesOnly {
-                                viewModel.showRecentOnly = false
-                                viewModel.selectedCategory = nil
-                                viewModel.selectedMuscleGroup = nil
-                            }
+                    }
+                    LibraryChip(title: "★\(L10n.favorites)", isSelected: viewModel.showFavoritesOnly) {
+                        viewModel.showFavoritesOnly.toggle()
+                        if viewModel.showFavoritesOnly {
+                            viewModel.showRecentOnly = false
+                            viewModel.selectedCategory = nil
+                            viewModel.selectedMuscleGroup = nil
                         }
-                        ForEach(MuscleGroup.allCases) { group in
-                            PickerFilterChip(
-                                title: localization.currentLanguage == .japanese ? group.japaneseName : group.englishName,
-                                isSelected: viewModel.selectedMuscleGroup == group
-                            ) {
-                                viewModel.showRecentOnly = false
-                                viewModel.showFavoritesOnly = false
-                                viewModel.selectedCategory = nil
-                                if viewModel.selectedMuscleGroup == group {
-                                    viewModel.selectedMuscleGroup = nil
-                                } else {
-                                    viewModel.selectedMuscleGroup = group
-                                }
+                    }
+                    ForEach(MuscleGroup.allCases) { group in
+                        LibraryChip(
+                            title: localization.currentLanguage == .japanese ? group.japaneseName : group.englishName,
+                            isSelected: viewModel.selectedMuscleGroup == group
+                        ) {
+                            viewModel.showRecentOnly = false
+                            viewModel.showFavoritesOnly = false
+                            viewModel.selectedCategory = nil
+                            if viewModel.selectedMuscleGroup == group {
+                                viewModel.selectedMuscleGroup = nil
+                            } else {
+                                viewModel.selectedMuscleGroup = group
                             }
                         }
                     }
@@ -357,6 +341,64 @@ private struct LibraryMiniBodySide: View {
         } else {
             return Color.mmMuscleInactive
         }
+    }
+}
+
+// MARK: - コンパクトフィルターチップ（種目辞典用）
+
+private struct LibraryChip: View {
+    let title: String
+    let isSelected: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Text(title)
+                .font(.system(size: 11, weight: .bold))
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .background(isSelected ? Color.mmAccentPrimary : Color.mmBgCard)
+                .foregroundStyle(isSelected ? Color.mmBgPrimary : Color.mmTextSecondary)
+                .clipShape(Capsule())
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+// MARK: - 折り返しレイアウト（FlowLayout）
+
+private struct LibraryFlowLayout: Layout {
+    var spacing: CGFloat = 4
+
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+        arrange(width: proposal.width ?? .infinity, subviews: subviews).size
+    }
+
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        let result = arrange(width: bounds.width, subviews: subviews)
+        for (index, pos) in result.positions.enumerated() {
+            subviews[index].place(at: CGPoint(x: bounds.minX + pos.x, y: bounds.minY + pos.y), proposal: .unspecified)
+        }
+    }
+
+    private func arrange(width: CGFloat, subviews: Subviews) -> (size: CGSize, positions: [CGPoint]) {
+        var positions: [CGPoint] = []
+        var x: CGFloat = 0
+        var y: CGFloat = 0
+        var rowHeight: CGFloat = 0
+
+        for subview in subviews {
+            let size = subview.sizeThatFits(.unspecified)
+            if x + size.width > width, x > 0 {
+                x = 0
+                y += rowHeight + spacing
+                rowHeight = 0
+            }
+            positions.append(CGPoint(x: x, y: y))
+            rowHeight = max(rowHeight, size.height)
+            x += size.width + spacing
+        }
+        return (CGSize(width: width, height: y + rowHeight), positions)
     }
 }
 
