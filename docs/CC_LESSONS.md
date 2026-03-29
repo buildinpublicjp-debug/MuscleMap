@@ -17,6 +17,9 @@
 - `.aspectRatio(contentMode: .fit)` + `.frame(maxHeight: .infinity)` はGIFカードで白余白を作る。`.frame(height: 固定)` + `.clipped()` を使え
 - セット記録前後でGIFサイズが変わるとUXが悪い。`.gridCard` で統一し、セット1は150pt、2以降は120ptで高さだけ変える
 - 横スクロールの `.padding(.horizontal)` は親VStackとの二重適用に注意。`.padding(.leading, 16)` + `.padding(.trailing, 20)` でスクロール示唆
+- PR祝福は全画面オーバーレイではなくカード上部バナーにする。操作を妨げない
+- 絵文字は安っぽい印象を与える。SF Symbolsだけ使う
+- リストの最後の行はDividerがない分下が詰まって見える。padding(.bottom)で補正
 
 ## デザインシステム参照
 

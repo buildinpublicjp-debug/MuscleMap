@@ -293,10 +293,11 @@ struct SetInputCard: View {
         .background(Color.mmBgCard)
         .clipShape(RoundedRectangle(cornerRadius: 16))
         .padding(.horizontal)
-        .overlay {
+        .overlay(alignment: .top) {
             if showPRCelebration {
                 PRCelebrationOverlay()
-                    .transition(.scale.combined(with: .opacity))
+                    .transition(.move(edge: .top).combined(with: .opacity))
+                    .padding(.top, 8)
             }
         }
     }
@@ -388,38 +389,45 @@ struct PreviousSessionReference: View {
 // MARK: - PR達成祝福オーバーレイ
 
 struct PRCelebrationOverlay: View {
-    @State private var scale: CGFloat = 0.5
-    @State private var rotation: Double = -10
+    @State private var offset: CGFloat = -60
     @State private var opacity: Double = 0
-    private var localization: LocalizationManager { LocalizationManager.shared }
+    private var isJapanese: Bool {
+        LocalizationManager.shared.currentLanguage == .japanese
+    }
 
     var body: some View {
-        ZStack {
-            Color.mmBgPrimary.opacity(0.6)
-                .ignoresSafeArea()
-
-            VStack(spacing: 16) {
+        VStack {
+            HStack(spacing: 8) {
                 Image(systemName: "trophy.fill")
-                    .font(.system(size: 60))
+                    .font(.system(size: 16))
                     .foregroundStyle(Color.mmPRGold)
-                    .shadow(color: Color.mmPRGold.opacity(0.5), radius: 10)
 
-                Text("🎉 NEW PR! 🎉")
-                    .font(.title.bold())
-                    .foregroundStyle(Color.mmTextPrimary)
-
-                Text(localization.currentLanguage == .japanese ? "自己ベスト更新！" : "Personal Record!")
-                    .font(.headline)
-                    .foregroundStyle(Color.mmAccentPrimary)
+                Text(isJapanese ? "自己ベスト更新" : "New Personal Record")
+                    .font(.system(size: 14, weight: .heavy))
+                    .foregroundStyle(Color.mmPRGold)
             }
-            .scaleEffect(scale)
-            .rotationEffect(.degrees(rotation))
+            .padding(.horizontal, 20)
+            .padding(.vertical, 10)
+            .background(
+                LinearGradient(
+                    colors: [Color.mmPRGold.opacity(0.15), Color.mmPRGold.opacity(0.05)],
+                    startPoint: .leading,
+                    endPoint: .trailing
+                )
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 10)
+                    .stroke(Color.mmPRGold.opacity(0.3), lineWidth: 1)
+            )
+            .clipShape(RoundedRectangle(cornerRadius: 10))
+            .offset(y: offset)
             .opacity(opacity)
+
+            Spacer()
         }
         .onAppear {
-            withAnimation(.spring(response: 0.4, dampingFraction: 0.5)) {
-                scale = 1.0
-                rotation = 0
+            withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
+                offset = 0
                 opacity = 1.0
             }
         }

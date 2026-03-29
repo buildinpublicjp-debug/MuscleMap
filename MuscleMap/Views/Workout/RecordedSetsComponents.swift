@@ -146,6 +146,7 @@ struct RecordedSetsView: View {
                     .scrollContentBackground(.hidden)
                     .frame(height: CGFloat(entry.sets.count) * 48)
                     .animation(.spring(response: 0.4, dampingFraction: 0.7), value: entry.sets.count)
+                    .padding(.bottom, 8)
                 }
                 .background(Color.mmBgCard)
                 .clipShape(RoundedRectangle(cornerRadius: 12))
