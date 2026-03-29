@@ -103,9 +103,9 @@ struct ExerciseLibraryView: View {
             .frame(width: 120, height: 120)
 
             // 右: フィルターチップ（折り返し表示） + 種目数
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: 8) {
                 // 器具フィルター
-                LibraryFlowLayout(spacing: 4) {
+                LibraryFlowLayout(spacing: 6) {
                     LibraryChip(title: L10n.all, isSelected: viewModel.selectedEquipment == nil) {
                         viewModel.selectedEquipment = nil
                     }
@@ -117,7 +117,7 @@ struct ExerciseLibraryView: View {
                 }
 
                 // 部位フィルター
-                LibraryFlowLayout(spacing: 4) {
+                LibraryFlowLayout(spacing: 6) {
                     LibraryChip(title: "⏱\(L10n.recent)", isSelected: viewModel.showRecentOnly) {
                         viewModel.showRecentOnly.toggle()
                         if viewModel.showRecentOnly {
@@ -354,9 +354,9 @@ private struct LibraryChip: View {
     var body: some View {
         Button(action: action) {
             Text(title)
-                .font(.system(size: 11, weight: .bold))
-                .padding(.horizontal, 8)
-                .padding(.vertical, 4)
+                .font(.system(size: 12, weight: .medium))
+                .padding(.horizontal, 10)
+                .padding(.vertical, 5)
                 .background(isSelected ? Color.mmAccentPrimary : Color.mmBgCard)
                 .foregroundStyle(isSelected ? Color.mmBgPrimary : Color.mmTextSecondary)
                 .clipShape(Capsule())
@@ -368,7 +368,7 @@ private struct LibraryChip: View {
 // MARK: - 折り返しレイアウト（FlowLayout）
 
 private struct LibraryFlowLayout: Layout {
-    var spacing: CGFloat = 4
+    var spacing: CGFloat = 6
 
     func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
         arrange(width: proposal.width ?? .infinity, subviews: subviews).size
