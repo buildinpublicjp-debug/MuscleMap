@@ -4,6 +4,7 @@ import { useRef, useState, useCallback, DragEvent } from 'react';
 import { toPng } from 'html-to-image';
 import { SHOTS, type Lang, type ShotDef } from '@/copy';
 
+// ─── Canvas & Layout Constants ───
 const W = 1320;
 const H = 2868;
 const COPY_TOP = 80;
@@ -11,9 +12,200 @@ const PHONE_TOP = 428;
 const PHONE_W = 1200;
 const PHONE_X = (W - PHONE_W) / 2;
 
-function CompositeSlide({ shot, lang, imageDataUrl, slideRef }: { shot: ShotDef; lang: Lang; imageDataUrl: string | null; slideRef?: React.RefObject<HTMLDivElement | null>; }) {
-  const copy = shot.copy[lang]; const isJa = lang === 'ja' || lang === 'zh' || lang === 'ko'; const lines = copy.headline.split('\n'); const a = shot.accent;
-  return (<div ref={slideRef} style={{ width: W, height: H, background: '#020303', position: 'relative', overflow: 'hidden', fontFamily: isJa ? "'Noto Sans JP', 'Hiragino Sans', sans-serif" : "'Inter', 'SF Pro Display', -apple-system, sans-serif" }}>
+// ─── iPhone Frame Constants (iPhone 16 Pro proportions) ───
+const FRAME_R = 64;      // Outer body corner radius
+const SCREEN_R = 52;     // Screen corner radius
+const FRAME_BEZEL = 12;  // Bezel thickness
+const DI_W = 190;        // Dynamic Island width
+const DI_H = 40;         // Dynamic Island height
+const DI_TOP = 16;       // Dynamic Island offset from screen top
+const CAM_D = 14;        // Front camera lens diameter
+
+// ─── Phone Frame Mode ───
+// 'css'  = Enhanced CSS/SVG frame (default, no external assets)
+// 'png'  = PNG overlay from /iphone-frame.png (add 1200×2574 transparent PNG to public/)
+//
+// To use a real iPhone mockup PNG:
+//   1. Create a 1200×2574px PNG with transparent screen area
+//   2. Save as public/iphone-frame.png
+//   3. Set PHONE_FRAME_MODE = 'png'
+const PHONE_FRAME_MODE: 'css' | 'png' = 'css';
+
+// ─── Phone Frame Component ───
+function PhoneFrame({ accent, imageDataUrl }: { accent: string; imageDataUrl: string | null }) {
+  const a = accent;
+
+  if (PHONE_FRAME_MODE === 'png') {
+    // PNG overlay mode: screenshot sits behind, frame PNG overlays on top
+    return (
+      <div style={{ position: 'relative', width: PHONE_W }}>
+        {/* Ambient glow */}
+        <div style={{ position: 'absolute', top: -60, left: -120, right: -120, bottom: -60, background: `radial-gradient(ellipse 60% 40%, ${a}15 0%, transparent 60%)`, filter: 'blur(40px)' }} />
+        {/* Screen content (behind frame) */}
+        <div style={{ position: 'relative', borderRadius: FRAME_R, overflow: 'hidden' }}>
+          <div style={{ padding: FRAME_BEZEL, background: 'transparent' }}>
+            <div style={{ borderRadius: SCREEN_R, overflow: 'hidden', background: '#000' }}>
+              {imageDataUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={imageDataUrl} alt="" style={{ width: '100%', display: 'block' }} />
+              ) : (
+                <div style={{ width: '100%', aspectRatio: '1179/2556', background: '#080808', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <div style={{ width: 50, height: 50, borderRadius: 13, border: `1.5px dashed ${a}18`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <span style={{ fontSize: 20, color: a, opacity: 0.2 }}>+</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+          {/* PNG frame overlay */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/iphone-frame.png"
+            alt=""
+            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 20 }}
+          />
+        </div>
+        {/* Drop shadow */}
+        <div style={{ position: 'absolute', inset: 0, borderRadius: FRAME_R, boxShadow: `0 40px 80px rgba(0,0,0,0.9), 0 20px 60px ${a}0A`, pointerEvents: 'none' }} />
+      </div>
+    );
+  }
+
+  // ─── CSS Frame Mode (default) ───
+  return (
+    <div style={{ position: 'relative', width: PHONE_W }}>
+      {/* Ambient glow behind phone */}
+      <div style={{ position: 'absolute', top: -60, left: -120, right: -120, bottom: -60, background: `radial-gradient(ellipse 60% 40%, ${a}15 0%, transparent 60%)`, filter: 'blur(40px)' }} />
+      <div style={{ position: 'absolute', top: -15, left: '8%', right: '8%', height: 30, background: `radial-gradient(ellipse, ${a}25 0%, transparent 70%)`, filter: 'blur(12px)' }} />
+
+      {/* Phone body — titanium finish */}
+      <div style={{
+        position: 'relative',
+        borderRadius: FRAME_R,
+        padding: FRAME_BEZEL,
+        background: 'linear-gradient(165deg, #78787A 0%, #5A5A5C 3%, #454547 8%, #2C2C2E 15%, #1C1C1E 50%, #2C2C2E 85%, #454547 92%, #5A5A5C 97%, #78787A 100%)',
+        boxShadow: `
+          0 50px 100px rgba(0,0,0,0.95),
+          0 20px 60px rgba(0,0,0,0.6),
+          0 0 0 0.5px rgba(255,255,255,0.08),
+          0 25px 70px ${a}08,
+          inset 0 0.5px 0 rgba(255,255,255,0.25),
+          inset 0 -0.5px 0 rgba(255,255,255,0.05)
+        `,
+      }}>
+        {/* Top edge highlight — simulates light catching titanium edge */}
+        <div style={{ position: 'absolute', top: 0, left: 40, right: 40, height: 1, background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.18), rgba(255,255,255,0.25), rgba(255,255,255,0.18), transparent)', borderRadius: `${FRAME_R}px ${FRAME_R}px 0 0` }} />
+        {/* Left edge highlight */}
+        <div style={{ position: 'absolute', top: 80, left: 0, width: 1, bottom: 80, background: 'linear-gradient(180deg, transparent, rgba(255,255,255,0.06), rgba(255,255,255,0.04), transparent)' }} />
+        {/* Right edge highlight */}
+        <div style={{ position: 'absolute', top: 80, right: 0, width: 1, bottom: 80, background: 'linear-gradient(180deg, transparent, rgba(255,255,255,0.04), rgba(255,255,255,0.03), transparent)' }} />
+
+        {/* ─── Physical buttons ─── */}
+        {/* Power button (right side) */}
+        <div style={{ position: 'absolute', top: 280, right: -3, width: 4, height: 100, background: 'linear-gradient(180deg, #707072, #505052, #3A3A3C, #505052, #707072)', borderRadius: '0 2px 2px 0', boxShadow: '1px 0 2px rgba(0,0,0,0.4)' }} />
+        {/* Action button (left side, top) */}
+        <div style={{ position: 'absolute', top: 200, left: -3, width: 4, height: 45, background: 'linear-gradient(180deg, #707072, #505052, #3A3A3C, #505052, #707072)', borderRadius: '2px 0 0 2px', boxShadow: '-1px 0 2px rgba(0,0,0,0.4)' }} />
+        {/* Volume Up (left side) */}
+        <div style={{ position: 'absolute', top: 270, left: -3, width: 4, height: 55, background: 'linear-gradient(180deg, #707072, #505052, #3A3A3C, #505052, #707072)', borderRadius: '2px 0 0 2px', boxShadow: '-1px 0 2px rgba(0,0,0,0.4)' }} />
+        {/* Volume Down (left side) */}
+        <div style={{ position: 'absolute', top: 340, left: -3, width: 4, height: 55, background: 'linear-gradient(180deg, #707072, #505052, #3A3A3C, #505052, #707072)', borderRadius: '2px 0 0 2px', boxShadow: '-1px 0 2px rgba(0,0,0,0.4)' }} />
+
+        {/* ─── Screen ─── */}
+        <div style={{ borderRadius: SCREEN_R, overflow: 'hidden', background: '#000', position: 'relative' }}>
+
+          {/* ─── Dynamic Island ─── */}
+          <div style={{
+            position: 'absolute',
+            top: DI_TOP,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            width: DI_W,
+            height: DI_H,
+            background: '#000',
+            borderRadius: DI_H / 2,
+            zIndex: 10,
+            boxShadow: '0 1px 4px rgba(0,0,0,0.6), inset 0 0 1px rgba(255,255,255,0.05)',
+          }}>
+            {/* Front camera lens */}
+            <div style={{
+              position: 'absolute',
+              right: 32,
+              top: '50%',
+              transform: 'translateY(-50%)',
+              width: CAM_D,
+              height: CAM_D,
+              borderRadius: '50%',
+              background: 'radial-gradient(circle at 35% 35%, #2d2d4a 0%, #161625 45%, #0a0a14 70%, #050508 100%)',
+              boxShadow: '0 0 0 2px #1a1a2e, 0 0 0 3px rgba(60,60,80,0.3), inset 0 0.5px 1px rgba(100,100,150,0.15)',
+            }}>
+              {/* Lens reflection dot */}
+              <div style={{
+                position: 'absolute',
+                top: 3,
+                left: 4,
+                width: 3,
+                height: 3,
+                borderRadius: '50%',
+                background: 'radial-gradient(circle, rgba(180,180,220,0.4) 0%, transparent 100%)',
+              }} />
+            </div>
+            {/* Proximity/Face ID sensor (subtle dot on left) */}
+            <div style={{
+              position: 'absolute',
+              left: 36,
+              top: '50%',
+              transform: 'translateY(-50%)',
+              width: 6,
+              height: 6,
+              borderRadius: '50%',
+              background: 'radial-gradient(circle, #1a1a28 0%, #0a0a10 100%)',
+              boxShadow: '0 0 0 1px rgba(40,40,60,0.3)',
+            }} />
+          </div>
+
+          {/* Screen content inset border */}
+          <div style={{
+            position: 'absolute', inset: 0, borderRadius: SCREEN_R,
+            boxShadow: 'inset 0 0 0 0.5px rgba(255,255,255,0.08)',
+            pointerEvents: 'none', zIndex: 8,
+          }} />
+
+          {/* Glass reflection — subtle top highlight */}
+          <div style={{
+            position: 'absolute', top: 0, left: 0, right: 0, height: 200,
+            background: 'linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.015) 40%, transparent 100%)',
+            pointerEvents: 'none', zIndex: 5,
+          }} />
+
+          {/* Diagonal glass sheen */}
+          <div style={{
+            position: 'absolute', top: -100, right: -100, width: 400, height: 800,
+            background: 'linear-gradient(135deg, transparent 0%, rgba(255,255,255,0.02) 45%, rgba(255,255,255,0.035) 50%, rgba(255,255,255,0.02) 55%, transparent 100%)',
+            transform: 'rotate(15deg)',
+            pointerEvents: 'none', zIndex: 6,
+          }} />
+
+          {/* ─── Screenshot image ─── */}
+          {imageDataUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={imageDataUrl} alt="" style={{ width: '100%', display: 'block' }} />
+          ) : (
+            <div style={{ width: '100%', aspectRatio: '1179/2556', background: '#080808', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ width: 50, height: 50, borderRadius: 13, border: `1.5px dashed ${a}18`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <span style={{ fontSize: 20, color: a, opacity: 0.2 }}>+</span>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Background Layer ───
+function SlideBackground({ accent }: { accent: string }) {
+  const a = accent;
+  return (<>
     <div style={{ position: 'absolute', inset: 0, background: `linear-gradient(175deg, #081410 0%, #030504 30%, #061008 60%, #020303 100%)` }} />
     <div style={{ position: 'absolute', top: -200, left: '50%', transform: 'translateX(-50%)', width: 1800, height: 1400, background: `radial-gradient(ellipse 65% 45%, ${a}44 0%, ${a}22 30%, ${a}0C 55%, transparent 70%)`, filter: 'blur(80px)' }} />
     <div style={{ position: 'absolute', bottom: -100, left: '50%', transform: 'translateX(-50%)', width: 1200, height: 600, background: `radial-gradient(ellipse, ${a}20 0%, ${a}08 40%, transparent 70%)`, filter: 'blur(60px)' }} />
@@ -33,6 +225,16 @@ function CompositeSlide({ shot, lang, imageDataUrl, slideRef }: { shot: ShotDef;
     <div style={{ position: 'absolute', top: 0, left: '5%', right: '5%', height: 2, background: `linear-gradient(90deg, transparent, ${a}60, transparent)` }} />
     <div style={{ position: 'absolute', top: '5%', bottom: '5%', left: 0, width: 1, background: `linear-gradient(180deg, transparent, ${a}25, ${a}15, transparent)` }} />
     <div style={{ position: 'absolute', top: '5%', bottom: '5%', right: 0, width: 1, background: `linear-gradient(180deg, transparent, ${a}25, ${a}15, transparent)` }} />
+  </>);
+}
+
+// ─── Copy Section ───
+function SlideCopy({ shot, lang }: { shot: ShotDef; lang: Lang }) {
+  const copy = shot.copy[lang];
+  const isJa = lang === 'ja' || lang === 'zh' || lang === 'ko';
+  const lines = copy.headline.split('\n');
+  const a = shot.accent;
+  return (
     <div style={{ position: 'absolute', top: COPY_TOP, left: 0, right: 0, textAlign: 'center', zIndex: 2, padding: '0 60px' }}>
       <div style={{ fontSize: isJa ? 100 : 104, fontWeight: 900, color: '#FFF', lineHeight: 1.05, letterSpacing: isJa ? 8 : -3, fontFeatureSettings: "'palt' 1", textShadow: `0 0 60px ${a}30, 0 0 120px ${a}15, 0 4px 20px rgba(0,0,0,0.7)` }}>
         {lines.map((l, i) => <div key={i}>{l}</div>)}
@@ -42,39 +244,29 @@ function CompositeSlide({ shot, lang, imageDataUrl, slideRef }: { shot: ShotDef;
         {copy.chips.map((c, i) => (<span key={i} style={{ padding: '5px 14px', background: `${a}0C`, border: `1px solid ${a}20`, borderRadius: 100, color: c.desc ? 'rgba(255,255,255,0.4)' : `${a}90`, fontSize: 15, fontWeight: c.desc ? 400 : 700, boxShadow: `0 0 15px ${a}08` }}>{c.desc ? <><strong style={{ color: `${a}CC`, fontWeight: 700 }}>{c.label}</strong> {c.desc}</> : c.label}</span>))}
       </div>
     </div>
-    <div style={{ position: 'absolute', top: PHONE_TOP, left: PHONE_X, width: PHONE_W, zIndex: 1 }}>
-      <div style={{ position: 'absolute', top: -60, left: -120, right: -120, bottom: -60, background: `radial-gradient(ellipse 60% 40%, ${a}15 0%, transparent 60%)`, filter: 'blur(40px)' }} />
-      <div style={{ position: 'absolute', top: -15, left: '8%', right: '8%', height: 30, background: `radial-gradient(ellipse, ${a}25 0%, transparent 70%)`, filter: 'blur(12px)' }} />
-      <div style={{ position: 'relative', borderRadius: 62, padding: 12, background: 'linear-gradient(155deg, #606062 0%, #3A3A3C 10%, #1C1C1E 50%, #3A3A3C 90%, #606062 100%)', boxShadow: `0 40px 80px rgba(0,0,0,0.9), 0 0 0 0.5px rgba(255,255,255,0.12), 0 20px 60px ${a}0A, inset 0 0.5px 0 rgba(255,255,255,0.2), inset 0 -0.5px 0 rgba(255,255,255,0.06)` }}>
-        <div style={{ position: 'absolute', top: 215, right: -2.5, width: 3, height: 85, background: 'linear-gradient(180deg, #707072, #3A3A3C, #707072)', borderRadius: '0 1.5px 1.5px 0' }} />
-        <div style={{ position: 'absolute', top: 180, left: -2.5, width: 3, height: 42, background: 'linear-gradient(180deg, #707072, #3A3A3C, #707072)', borderRadius: '1.5px 0 0 1.5px' }} />
-        <div style={{ position: 'absolute', top: 235, left: -2.5, width: 3, height: 42, background: 'linear-gradient(180deg, #707072, #3A3A3C, #707072)', borderRadius: '1.5px 0 0 1.5px' }} />
-        <div style={{ borderRadius: 50, overflow: 'hidden', background: '#000', position: 'relative' }}>
-          <div style={{ position: 'absolute', top: 12, left: '50%', transform: 'translateX(-50%)', width: 140, height: 32, background: '#000', borderRadius: 16, zIndex: 10 }} />
-          <div style={{ position: 'absolute', inset: 0, borderRadius: 50, boxShadow: 'inset 0 0 0 0.5px rgba(255,255,255,0.1)', pointerEvents: 'none', zIndex: 8 }} />
-          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 160, background: 'linear-gradient(180deg, rgba(255,255,255,0.03) 0%, transparent 100%)', pointerEvents: 'none', zIndex: 5 }} />
-          {imageDataUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={imageDataUrl} alt="" style={{ width: '100%', display: 'block' }} />
-          ) : (
-            <div style={{ width: '100%', aspectRatio: '1179/2556', background: '#080808', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <div style={{ width: 50, height: 50, borderRadius: 13, border: `1.5px dashed ${a}18`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <span style={{ fontSize: 20, color: a, opacity: 0.2 }}>+</span>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-    <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 200, background: 'linear-gradient(transparent 0%, #02030480 100%)', pointerEvents: 'none', zIndex: 3 }} />
-    <div style={{ position: 'absolute', bottom: 40, left: '20%', right: '20%', height: 2, background: `linear-gradient(90deg, transparent, ${a}40, transparent)`, zIndex: 4, borderRadius: 1 }} />
-  </div>);
+  );
 }
 
+// ─── Composite Slide ───
+function CompositeSlide({ shot, lang, imageDataUrl, slideRef }: { shot: ShotDef; lang: Lang; imageDataUrl: string | null; slideRef?: React.RefObject<HTMLDivElement | null>; }) {
+  const isJa = lang === 'ja' || lang === 'zh' || lang === 'ko';
+  return (
+    <div ref={slideRef} style={{ width: W, height: H, background: '#020303', position: 'relative', overflow: 'hidden', fontFamily: isJa ? "'Noto Sans JP', 'Hiragino Sans', sans-serif" : "'Inter', 'SF Pro Display', -apple-system, sans-serif" }}>
+      <SlideBackground accent={shot.accent} />
+      <SlideCopy shot={shot} lang={lang} />
+      <div style={{ position: 'absolute', top: PHONE_TOP, left: PHONE_X, width: PHONE_W, zIndex: 1 }}>
+        <PhoneFrame accent={shot.accent} imageDataUrl={imageDataUrl} />
+      </div>
+      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 200, background: 'linear-gradient(transparent 0%, #02030480 100%)', pointerEvents: 'none', zIndex: 3 }} />
+      <div style={{ position: 'absolute', bottom: 40, left: '20%', right: '20%', height: 2, background: `linear-gradient(90deg, transparent, ${shot.accent}40, transparent)`, zIndex: 4, borderRadius: 1 }} />
+    </div>
+  );
+}
+
+// ─── Main Page ───
 export default function Page() {
   const [lang, setLang] = useState<Lang>('ja');
   const [images, setImages] = useState<Record<number, string>>({});
-  // Export refs: point to hidden full-size CompositeSlides (off-screen)
   const exportRefs = useRef<Record<number, HTMLDivElement | null>>({});
   const [exporting, setExporting] = useState(false);
   const LANGS: Lang[] = ['ja', 'en', 'zh', 'ko', 'es', 'de', 'fr'];
@@ -83,7 +275,6 @@ export default function Page() {
   const pick = useCallback((id: number) => { const i = document.createElement('input'); i.type = 'file'; i.accept = 'image/*'; i.onchange = (e) => { const f = (e.target as HTMLInputElement).files?.[0]; if (!f) return; const r = new FileReader(); r.onload = () => setImg(id, r.result as string); r.readAsDataURL(f); }; i.click(); }, [setImg]);
   const drop = useCallback((id: number, e: DragEvent) => { e.preventDefault(); const f = e.dataTransfer.files[0]; if (!f?.type.startsWith('image/')) return; const r = new FileReader(); r.onload = () => setImg(id, r.result as string); r.readAsDataURL(f); }, [setImg]);
 
-  // Export uses the hidden full-size ref, not the scaled preview
   const exp1 = useCallback(async (id: number) => {
     const el = exportRefs.current[id];
     if (!el) return;
@@ -93,9 +284,10 @@ export default function Page() {
 
   const expAll = useCallback(async () => { setExporting(true); for (const s of SHOTS) { if (!images[s.id]) continue; await exp1(s.id); await new Promise(r => setTimeout(r, 500)); } setExporting(false); }, [images, exp1]);
   const n = Object.keys(images).length;
+
   return (
     <div style={{ background: '#060606', minHeight: '100vh', color: '#fff' }}>
-      {/* Hidden full-size slides for export (off-screen) */}
+      {/* Hidden full-size slides for export */}
       <div style={{ position: 'absolute', left: -99999, top: 0, pointerEvents: 'none' }} aria-hidden="true">
         {SHOTS.map(shot => (
           <CompositeSlide
@@ -108,6 +300,7 @@ export default function Page() {
         ))}
       </div>
 
+      {/* Toolbar */}
       <div style={{ padding: '12px 20px', borderBottom: '1px solid #151515', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, background: 'rgba(6,6,6,0.92)', backdropFilter: 'blur(16px)', zIndex: 50 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
           <span style={{ fontSize: 13, fontWeight: 700, color: '#555', letterSpacing: 2, textTransform: 'uppercase' }}>Screenshots</span>
@@ -115,12 +308,16 @@ export default function Page() {
           <div style={{ display: 'flex', gap: 1 }}>
             {LANGS.map(l => (<button key={l} onClick={() => setLang(l)} style={{ padding: '3px 9px', background: lang === l ? '#00E676' : 'transparent', color: lang === l ? '#000' : '#444', border: 'none', borderRadius: 3, cursor: 'pointer', fontWeight: 700, fontSize: 10, textTransform: 'uppercase' }}>{l}</button>))}
           </div>
+          <div style={{ width: 1, height: 14, background: '#1a1a1a' }} />
+          <span style={{ fontSize: 9, color: '#2a2a2a', fontFamily: 'monospace' }}>frame: {PHONE_FRAME_MODE}</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <span style={{ fontSize: 10, color: '#2a2a2a' }}>{n}/6</span>
           <button onClick={expAll} disabled={!n || exporting} style={{ padding: '7px 20px', background: !n ? '#0d0d0d' : '#00E676', color: !n ? '#2a2a2a' : '#000', border: 'none', borderRadius: 5, cursor: !n ? 'not-allowed' : 'pointer', fontWeight: 800, fontSize: 11 }}>{exporting ? '...' : 'Export All'}</button>
         </div>
       </div>
+
+      {/* Grid */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, padding: '12px 8px' }}>
         {SHOTS.map(shot => (
           <div key={shot.id}>
@@ -132,7 +329,6 @@ export default function Page() {
               </div>
             </div>
             <div onDragOver={e => e.preventDefault()} onDrop={e => drop(shot.id, e)} onClick={() => { if (!images[shot.id]) pick(shot.id); }} style={{ width: W * S, height: H * S, overflow: 'hidden', borderRadius: 6, border: images[shot.id] ? '1px solid #181818' : '1px dashed #1f1f1f', cursor: images[shot.id] ? 'default' : 'pointer' }}>
-              {/* Preview only — no ref needed, just visual */}
               <div style={{ transform: `scale(${S})`, transformOrigin: 'top left' }}>
                 <CompositeSlide shot={shot} lang={lang} imageDataUrl={images[shot.id] || null} />
               </div>
