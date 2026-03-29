@@ -1,14 +1,8 @@
-// MuscleMap App Store Screenshot Copy — v2
-// Design philosophy: benefit-driven, readable at thumbnail size
-// Story arc: Hook → Benefit → Depth → Core Action → Insight → Transformation
+// MuscleMap App Store Screenshot Copy — v3
+// Story arc: Hook → Benefit → Depth → Core Action → Insight → Dashboard
 //
-// Changes from v1:
-// - Headlines shortened & punchier (max 2 lines, ~8 chars/line for JA)
-// - Subs simplified to one short benefit phrase
-// - Chips reduced to 2-3 max, data-heavy
-// - Shot 4: PR Celebration → Workout Recording (matches actual screen)
-// - Shot 5: Growth Chart → Muscle Detail (matches RecoveryDetailView)
-// - Shot 6: Strength Map (deleted) → Progress Photo (Pro feature)
+// v3 changes:
+// - Shot 6: Progress Photo → HomeView (dashboard overview)
 
 export type Lang = 'ja' | 'en' | 'zh' | 'ko' | 'es' | 'de' | 'fr';
 
@@ -28,7 +22,6 @@ export interface ShotDef {
 
 export const SHOTS: ShotDef[] = [
   // ─── SHOT 1: Recovery Map — HOOK ───
-  // "What is this app?" → You can SEE your muscles
   {
     id: 1,
     file: 'shot1_screen.png',
@@ -95,7 +88,6 @@ export const SHOTS: ShotDef[] = [
   },
 
   // ─── SHOT 2: Today's Plan — BENEFIT ───
-  // "What does it do for me?" → No more guessing what to train
   {
     id: 2,
     file: 'shot2_screen.png',
@@ -162,7 +154,6 @@ export const SHOTS: ShotDef[] = [
   },
 
   // ─── SHOT 3: Exercise Library — DEPTH ───
-  // "How much content?" → 92 exercises, all with GIF form guides
   {
     id: 3,
     file: 'shot3_screen.png',
@@ -236,8 +227,6 @@ export const SHOTS: ShotDef[] = [
   },
 
   // ─── SHOT 4: Workout Recording — CORE ACTION ───
-  // "How do I use it?" → Just log. PRs are detected automatically.
-  // Accent: gold — the PR badge on screen ties it together
   {
     id: 4,
     file: 'shot4_screen.png',
@@ -304,7 +293,6 @@ export const SHOTS: ShotDef[] = [
   },
 
   // ─── SHOT 5: Muscle Detail — INSIGHT ───
-  // "How deep does the data go?" → Per-muscle trends, recovery, history
   {
     id: 5,
     file: 'shot5_screen.png',
@@ -377,69 +365,68 @@ export const SHOTS: ShotDef[] = [
     },
   },
 
-  // ─── SHOT 6: Progress Photo — TRANSFORMATION ───
-  // "What's the payoff?" → Capture your body's change over time
-  // NEW: replaces deleted Strength Map
+  // ─── SHOT 6: Home Dashboard — OVERVIEW ───
+  // "What does the app look like day-to-day?" → Everything in one place
   {
     id: 6,
     file: 'shot6_screen.png',
-    accent: '#B388FF',
-    nav: 'Progress Photo — Transformation',
+    accent: '#00E676',
+    nav: 'Home — Dashboard',
     copy: {
       ja: {
-        headline: '変化を、残す。',
-        sub: '定点撮影で体の変化を記録',
+        headline: '全部、ここに。',
+        sub: '今日の種目・回復・ボリューム推移',
         chips: [
-          { label: '定点撮影' },
-          { label: '比較' },
+          { label: 'ダッシュボード' },
+          { label: 'ワンタップ' },
         ],
       },
       en: {
-        headline: 'Capture\nthe change.',
-        sub: 'Track your transformation over time',
+        headline: 'All in\none place.',
+        sub: "Today's plan · Recovery · Volume trends",
         chips: [
-          { label: 'Progress' },
-          { label: 'Compare' },
+          { label: 'Dashboard' },
+          { label: 'One tap' },
         ],
       },
       zh: {
-        headline: '留住变化。',
-        sub: '定点拍摄记录身体变化',
+        headline: '全部在这里。',
+        sub: '今日计划 · 恢复 · 训练量趋势',
         chips: [
-          { label: '定点拍摄' },
-          { label: '对比' },
+          { label: '仪表盘' },
+          { label: '一键' },
         ],
       },
       ko: {
-        headline: '변화를\n남기다.',
-        sub: '정점 촬영으로 변화 기록',
+        headline: '전부, 여기에.',
+        sub: '오늘의 메뉴 · 회복 · 볼륨 추이',
         chips: [
-          { label: '정점 촬영' },
-          { label: '비교' },
+          { label: '대시보드' },
+          { label: '원탭' },
         ],
       },
       es: {
-        headline: 'Captura\nel cambio.',
-        sub: 'Registra tu transformación',
+        headline: 'Todo en\nun lugar.',
+        sub: 'Plan diario · Recuperación · Volumen',
         chips: [
-          { label: 'Progreso' },
-          { label: 'Comparar' },
+          { label: 'Panel' },
+          { label: 'Un toque' },
         ],
       },
       de: {
-        headline: 'Halte die\nVeränderung fest.',
-        sub: 'Deine Transformation dokumentieren',
+        headline: 'Alles an\neinem Ort.',
+        sub: 'Tagesplan · Erholung · Volumen-Trends',
         chips: [
-          { label: 'Fortschritt' },
-          { label: 'Vergleich' },
+          { label: 'Dashboard' },
+          { label: 'Ein Tipp' },
         ],
       },
       fr: {
-        headline: 'Capturer\nle changement.',
-        sub: 'Documentez votre transformation',
+        headline: 'Tout en\nun seul endroit.',
+        sub: "Plan du jour · Récupération · Volume",
         chips: [
-          { label: 'Progrès' },
-          { label: 'Comparer' },
+          { label: 'Tableau de bord' },
+          { label: 'Un tap' },
         ],
       },
     },
