@@ -487,7 +487,7 @@ private struct DetailExerciseGrid: View {
             ZStack(alignment: .bottom) {
                 // GIF or プレースホルダー
                 if ExerciseGifView.hasGif(exerciseId: card.exercise.id) {
-                    ExerciseGifView(exerciseId: card.exercise.id, size: .gridCard)
+                    ExerciseGifView(exerciseId: card.exercise.id, size: .card)
                         .frame(height: 120)
                         .frame(maxWidth: .infinity)
                         .clipped()

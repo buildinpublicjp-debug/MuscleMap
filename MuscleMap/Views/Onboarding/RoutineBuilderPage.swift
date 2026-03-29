@@ -358,7 +358,7 @@ struct RoutineBuilderPage: View {
                 } label: {
                     ZStack(alignment: .bottom) {
                         if ExerciseGifView.hasGif(exerciseId: routineExercise.exerciseId) {
-                            ExerciseGifView(exerciseId: routineExercise.exerciseId, size: .gridCard)
+                            ExerciseGifView(exerciseId: routineExercise.exerciseId, size: .card)
                                 .aspectRatio(contentMode: .fit)
                                 .frame(maxWidth: .infinity)
                                 .frame(height: cardHeight)
@@ -817,7 +817,7 @@ struct RoutineExercisePickerSheet: View {
                             } label: {
                                 ZStack {
                                     if ExerciseGifView.hasGif(exerciseId: exercise.id) {
-                                        ExerciseGifView(exerciseId: exercise.id, size: .gridCard)
+                                        ExerciseGifView(exerciseId: exercise.id, size: .card)
                                             .aspectRatio(contentMode: .fit)
                                             .frame(maxWidth: .infinity)
                                             .frame(height: 170)

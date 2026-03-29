@@ -27,6 +27,14 @@ struct ExerciseGifView: View {
     /// GIFデータのin-memoryキャッシュ
     private static let gifCache = NSCache<NSString, NSData>()
 
+    /// 第1フレームのin-memoryキャッシュ（静止画表示の高速化）
+    private static let firstFrameCache: NSCache<NSString, UIImage> = {
+        let cache = NSCache<NSString, UIImage>()
+        cache.countLimit = 50
+        cache.totalCostLimit = 50 * 1024 * 1024 // 50MB
+        return cache
+    }()
+
     var body: some View {
         if let gifData = Self.loadGifData(exerciseId: exerciseId) {
             switch size {
@@ -66,11 +74,11 @@ struct ExerciseGifView: View {
                 }
 
             case .card:
-                // カード型サムネイル（グリッド用 — Fillで黒帯なし、frameは呼び出し元で指定）
+                // カード型サムネイル（グリッド用 — 静止画、frameは呼び出し元で指定）
                 if playOnce {
                     GifPlayOnceView(gifData: gifData, useFill: true, triggerPlay: triggerPlay)
                         .clipped()
-                } else if let firstFrame = UIImage.gifFirstFrame(data: gifData) {
+                } else if let firstFrame = Self.cachedFirstFrame(exerciseId: exerciseId, gifData: gifData) {
                     Image(uiImage: firstFrame)
                         .resizable()
                         .scaledToFill()
@@ -78,8 +86,8 @@ struct ExerciseGifView: View {
                 }
 
             case .thumbnail:
-                // リスト行用サムネイル（ExerciseLibraryView用）
-                if let firstFrame = UIImage.gifFirstFrame(data: gifData) {
+                // リスト行用サムネイル（静止画）
+                if let firstFrame = Self.cachedFirstFrame(exerciseId: exerciseId, gifData: gifData) {
                     Image(uiImage: firstFrame)
                         .resizable()
                         .scaledToFill()
@@ -136,6 +144,18 @@ struct ExerciseGifView: View {
         // キャッシュに保存
         gifCache.setObject(data as NSData, forKey: cacheKey)
         return data
+    }
+
+    // MARK: - 第1フレームキャッシュ（静止画表示用）
+
+    private static func cachedFirstFrame(exerciseId: String, gifData: Data) -> UIImage? {
+        let key = exerciseId as NSString
+        if let cached = firstFrameCache.object(forKey: key) {
+            return cached
+        }
+        guard let frame = UIImage.gifFirstFrame(data: gifData) else { return nil }
+        firstFrameCache.setObject(frame, forKey: key)
+        return frame
     }
 }
 

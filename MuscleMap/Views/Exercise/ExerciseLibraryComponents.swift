@@ -109,7 +109,7 @@ struct LibraryGridCard: View {
                 ZStack(alignment: .bottomLeading) {
                     // GIF or フォールバック
                     if ExerciseGifView.hasGif(exerciseId: exercise.id) {
-                        ExerciseGifView(exerciseId: exercise.id, size: .gridCard)
+                        ExerciseGifView(exerciseId: exercise.id, size: .card)
                             .aspectRatio(contentMode: .fit)
                             .frame(maxWidth: .infinity)
                             .frame(height: 160)
@@ -190,7 +190,7 @@ struct ExerciseLibraryRow: View {
         HStack(spacing: 12) {
             // GIFサムネイル or ミニ筋肉マップ
             if ExerciseGifView.hasGif(exerciseId: exercise.id) {
-                ExerciseGifView(exerciseId: exercise.id, size: .gridCard)
+                ExerciseGifView(exerciseId: exercise.id, size: .card)
                     .aspectRatio(contentMode: .fit)
                     .frame(width: 120, height: 90)
                     .background(Color.white)

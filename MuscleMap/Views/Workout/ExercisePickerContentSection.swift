@@ -125,7 +125,7 @@ private struct PickerGridCard: View {
                 ZStack(alignment: .bottomLeading) {
                     // GIF or ミニマップ（元の比率のまま）
                     if ExerciseGifView.hasGif(exerciseId: exercise.id) {
-                        ExerciseGifView(exerciseId: exercise.id, size: .gridCard)
+                        ExerciseGifView(exerciseId: exercise.id, size: .card)
                             .aspectRatio(contentMode: .fit)
                             .frame(maxWidth: .infinity)
                             .frame(height: 160)

@@ -200,7 +200,7 @@ private struct SessionDetailCard: View {
                     ZStack {
                         Color.white
                         if ExerciseGifView.hasGif(exerciseId: entry.exercise.id) {
-                            ExerciseGifView(exerciseId: entry.exercise.id, size: .gridCard)
+                            ExerciseGifView(exerciseId: entry.exercise.id, size: .card)
                                 .scaledToFit()
                                 .frame(maxWidth: .infinity)
                                 .frame(height: 140)

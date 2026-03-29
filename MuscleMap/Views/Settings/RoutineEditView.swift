@@ -227,7 +227,7 @@ private struct RoutineExerciseCard: View {
             ZStack(alignment: .bottom) {
                 // GIF
                 if ExerciseGifView.hasGif(exerciseId: exercise.exerciseId) {
-                    ExerciseGifView(exerciseId: exercise.exerciseId, size: .gridCard)
+                    ExerciseGifView(exerciseId: exercise.exerciseId, size: .card)
                         .aspectRatio(contentMode: .fit)
                         .frame(width: 110, height: 100)
                         .background(Color.white)
@@ -477,7 +477,7 @@ private struct DayEditExerciseRow: View {
             HStack(spacing: 12) {
                 // GIF
                 if ExerciseGifView.hasGif(exerciseId: exercise.id) {
-                    ExerciseGifView(exerciseId: exercise.id, size: .gridCard)
+                    ExerciseGifView(exerciseId: exercise.id, size: .card)
                         .aspectRatio(contentMode: .fit)
                         .frame(width: 100, height: 80)
                         .background(Color.white)
@@ -626,7 +626,7 @@ private struct RoutineEditExercisePickerSheet: View {
                             } label: {
                                 ZStack {
                                     if ExerciseGifView.hasGif(exerciseId: exercise.id) {
-                                        ExerciseGifView(exerciseId: exercise.id, size: .gridCard)
+                                        ExerciseGifView(exerciseId: exercise.id, size: .card)
                                             .aspectRatio(contentMode: .fit)
                                             .frame(maxWidth: .infinity)
                                             .frame(height: 170)

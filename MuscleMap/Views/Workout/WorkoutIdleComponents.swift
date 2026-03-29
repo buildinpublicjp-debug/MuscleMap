@@ -296,9 +296,9 @@ struct MuscleExercisePickerSheet: View {
             onSelect(exercise)
         } label: {
             ZStack(alignment: .bottomLeading) {
-                // GIF or フォールバック（固定height + fit）
+                // GIF or フォールバック（静止画 + fit）
                 if ExerciseGifView.hasGif(exerciseId: exercise.id) {
-                    ExerciseGifView(exerciseId: exercise.id, size: .gridCard)
+                    ExerciseGifView(exerciseId: exercise.id, size: .card)
                         .aspectRatio(contentMode: .fit)
                         .frame(maxWidth: .infinity)
                         .frame(height: 160)

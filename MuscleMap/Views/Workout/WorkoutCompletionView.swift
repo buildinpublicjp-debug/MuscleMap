@@ -312,7 +312,7 @@ struct WorkoutCompletionView: View {
             HStack(spacing: 12) {
                 // GIFサムネイル
                 if ExerciseGifView.hasGif(exerciseId: exercise.id) {
-                    ExerciseGifView(exerciseId: exercise.id, size: .gridCard)
+                    ExerciseGifView(exerciseId: exercise.id, size: .card)
                         .frame(width: 80, height: 80)
                         .clipShape(RoundedRectangle(cornerRadius: 8))
                 } else {
