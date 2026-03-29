@@ -33,8 +33,6 @@ struct HistoryCalendarView: View {
                     TopExercisesCard(exercises: viewModel.topExercises)
                 }
 
-                // セッション履歴
-                SessionHistorySection(sessions: viewModel.sessions)
             }
             .padding()
         }
@@ -166,14 +164,9 @@ struct GroupVolumeCard: View {
     }
 
     private func colorForGroup(_ group: MuscleGroup) -> Color {
-        switch group {
-        case .chest: return .mmMuscleJustWorked
-        case .back: return .mmAccentSecondary
-        case .shoulders: return .mmMuscleAmber
-        case .arms: return .mmMuscleCoral
-        case .core: return .mmMuscleLime
-        case .lowerBody: return .mmAccentPrimary
-        }
+        // 統一カラー: mmAccentPrimary のopacityで濃淡を表現
+        let ratio = barRatio(volume[group] ?? 0)
+        return Color.mmAccentPrimary.opacity(0.4 + ratio * 0.6)
     }
 }
 
@@ -197,9 +190,13 @@ struct TopExercisesCard: View {
                         .foregroundStyle(Color.mmAccentPrimary)
                         .frame(width: 20)
 
-                    // ミニ筋肉マップ（ビジュアル要素）
-                    MiniMuscleMapView(muscleMapping: item.exercise.muscleMapping)
-                        .frame(width: 32, height: 44)
+                    // GIFサムネイル
+                    ExerciseGifView(exerciseId: item.exercise.id, size: .card)
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 80, height: 70)
+                        .background(Color.white)
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .clipped()
 
                     VStack(alignment: .leading, spacing: 2) {
                         Text(localization.currentLanguage == .japanese ? item.exercise.nameJA : item.exercise.nameEN)

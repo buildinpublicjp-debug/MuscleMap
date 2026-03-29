@@ -415,9 +415,9 @@ struct HistoryMuscleMapCanvas: View {
         let ratio = Double(sets) / Double(maxSets)
 
         if ratio < 0.25 {
-            return Color.mmMuscleLime.opacity(0.4)
+            return Color.mmAccentPrimary.opacity(0.3)
         } else if ratio < 0.5 {
-            return Color.mmMuscleLime.opacity(0.6)
+            return Color.mmAccentPrimary.opacity(0.5)
         } else if ratio < 0.75 {
             return Color.mmAccentPrimary.opacity(0.7)
         } else {
@@ -472,8 +472,8 @@ struct HistoryMapLegend: View {
                     .frame(width: 40)
                 LinearGradient(
                     colors: [
-                        Color.mmMuscleLime.opacity(0.4),
-                        Color.mmMuscleLime.opacity(0.6),
+                        Color.mmAccentPrimary.opacity(0.3),
+                        Color.mmAccentPrimary.opacity(0.5),
                         Color.mmAccentPrimary.opacity(0.7),
                         Color.mmAccentPrimary
                     ],

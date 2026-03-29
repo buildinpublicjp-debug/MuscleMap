@@ -124,7 +124,7 @@ struct MonthlyCalendarView: View {
                     }
                 } else {
                     Color.clear
-                        .frame(height: 72)
+                        .frame(height: 44)
                 }
             }
         }
@@ -207,53 +207,58 @@ private struct DayCell: View {
 
     private let calendar = Calendar.current
 
-    private static let backMuscleIds: Set<String> = [
-        "lats", "traps_upper", "traps_middle_lower", "erector_spinae",
-        "hamstrings", "glutes", "deltoid_posterior", "gastrocnemius", "soleus"
+    // 上半身/下半身の判定
+    private static let upperBodyIds: Set<String> = [
+        "chest_upper", "chest_lower", "lats", "traps_upper", "traps_middle_lower",
+        "deltoid_anterior", "deltoid_lateral", "deltoid_posterior",
+        "biceps", "triceps", "forearms", "rectus_abdominis", "obliques"
+    ]
+    private static let lowerBodyIds: Set<String> = [
+        "quadriceps", "hamstrings", "glutes", "adductors", "hip_flexors",
+        "gastrocnemius", "soleus", "erector_spinae"
     ]
 
-    private var hasBackMuscles: Bool {
-        muscleMapping.keys.contains { Self.backMuscleIds.contains($0) }
+    private var hasUpper: Bool {
+        muscleMapping.keys.contains { Self.upperBodyIds.contains($0) }
     }
-
-    // カレンダー用の赤系色（鍛えた部位）
-    private static let trainedColor = Color(red: 1.0, green: 0.4, blue: 0.4)
+    private var hasLower: Bool {
+        muscleMapping.keys.contains { Self.lowerBodyIds.contains($0) }
+    }
 
     var body: some View {
         Button(action: action) {
-            VStack(spacing: 1) {
+            VStack(spacing: 4) {
                 Text("\(calendar.component(.day, from: date))")
                     .font(.system(size: 10, weight: isToday ? .bold : .regular))
                     .foregroundStyle(textColor)
 
-                // ワークアウトした日はミニマッスルマップを表示
+                // 軽量ドットインジケーター（上半身/下半身）
                 if hasWorkout && !muscleMapping.isEmpty {
-                    if hasBackMuscles {
-                        // 背面筋肉が含まれる場合は前面+背面を横並び表示
-                        HStack(spacing: 1) {
-                            MiniMuscleMapView(muscleMapping: muscleMapping, showFront: true, tintColor: Self.trainedColor)
-                                .frame(width: 18, height: 46)
-                            MiniMuscleMapView(muscleMapping: muscleMapping, showFront: false, tintColor: Self.trainedColor)
-                                .frame(width: 18, height: 46)
+                    HStack(spacing: 3) {
+                        if hasUpper {
+                            Circle()
+                                .fill(Color.mmAccentPrimary)
+                                .frame(width: 6, height: 6)
                         }
-                        .allowsHitTesting(false)
-                    } else {
-                        MiniMuscleMapView(muscleMapping: muscleMapping, showFront: true, tintColor: Self.trainedColor)
-                            .frame(width: 36, height: 46)
-                            .allowsHitTesting(false)
+                        if hasLower {
+                            Circle()
+                                .fill(Color.mmAccentSecondary)
+                                .frame(width: 6, height: 6)
+                        }
                     }
+                    .frame(height: 10)
                 } else if hasWorkout {
-                    Image(systemName: "dumbbell.fill")
-                        .font(.system(size: 10))
-                        .foregroundStyle(Self.trainedColor)
-                        .frame(height: 46)
+                    Circle()
+                        .fill(Color.mmAccentPrimary.opacity(0.5))
+                        .frame(width: 6, height: 6)
+                        .frame(height: 10)
                 } else {
                     Color.clear
-                        .frame(height: 46)
+                        .frame(height: 10)
                 }
             }
             .frame(maxWidth: .infinity)
-            .frame(height: 72)
+            .frame(height: 44)
             .background(backgroundColor)
             .clipShape(RoundedRectangle(cornerRadius: 8))
         }

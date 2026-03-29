@@ -38,6 +38,10 @@
 - 一画面4枚以上GIF → 必ず静止画(.card)。アニメ(.gridCard)は1-3枚の画面だけ（セット入力、ホームサムネ、最近使った種目）
 - dismantleUIView で animationImages = nil。画面外のGIFメモリ解放
 - NSCacheで第1フレームをキャッシュ。同じGIFを何度もデコードしない（firstFrameCache, countLimit=50）
+- 部位別セット数バーは色を統一する（mmAccentPrimaryのopacity濃淡）。6色バラバラは情報ノイズ
+- セッション履歴リストはDayWorkoutDetailViewと重複する。カレンダーから辿れるなら不要
+- カレンダーのミニ筋肉マップはSVGパスが重い。上半身/下半身ドット（6pt）で十分
+- 絵文字（🏆等）は全てSF Symbols（trophy.fill等）に置換。統一感とプロ感
 
 ## デザインシステム参照
 

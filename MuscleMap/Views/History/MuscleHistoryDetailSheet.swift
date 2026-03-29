@@ -177,9 +177,40 @@ struct MuscleHistoryDetailSheet: View {
 
     // MARK: - 重量推移グラフ
 
+    /// 期間に応じたX軸ストライドとフォーマット
+    private var xAxisStride: Calendar.Component {
+        switch period {
+        case .week: return .day
+        case .month: return .weekOfYear
+        default: return .month
+        }
+    }
+
+    private var xAxisFormat: Date.FormatStyle {
+        switch period {
+        case .week: return .dateTime.weekday(.abbreviated)
+        case .month: return .dateTime.day()
+        default: return .dateTime.month(.abbreviated)
+        }
+    }
+
     private var weightChart: some View {
         Chart(detail.weightHistory) { entry in
-            // 折れ線グラフ（推移を直感的に表現）
+            // エリア塗りつぶし（高級感）
+            AreaMark(
+                x: .value("Date", entry.date, unit: .day),
+                y: .value("Weight", entry.maxWeight)
+            )
+            .foregroundStyle(
+                LinearGradient(
+                    colors: [Color.mmAccentPrimary.opacity(0.08), Color.clear],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+            )
+            .interpolationMethod(.catmullRom)
+
+            // 折れ線グラフ
             LineMark(
                 x: .value("Date", entry.date, unit: .day),
                 y: .value("Weight", entry.maxWeight)
@@ -203,20 +234,25 @@ struct MuscleHistoryDetailSheet: View {
             }
         }
         .chartXAxis {
-            AxisMarks(values: .stride(by: .day)) { _ in
-                AxisGridLine()
-                AxisValueLabel(format: .dateTime.day(), centered: true)
+            AxisMarks(values: .automatic(desiredCount: 5)) { _ in
+                AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5))
+                    .foregroundStyle(Color.mmTextSecondary.opacity(0.2))
+                AxisValueLabel(format: xAxisFormat, centered: true)
                     .foregroundStyle(Color.mmTextSecondary)
+                    .font(.caption2)
             }
         }
         .chartYAxis {
             AxisMarks { _ in
-                AxisGridLine()
+                AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5))
+                    .foregroundStyle(Color.mmTextSecondary.opacity(0.2))
                 AxisValueLabel()
                     .foregroundStyle(Color.mmTextSecondary)
+                    .font(.caption2)
             }
         }
-        .frame(height: 80)
+        .chartYScale(domain: .automatic(includesZero: false))
+        .frame(height: 100)
     }
 
     // MARK: - グラフ空状態
@@ -277,9 +313,13 @@ struct MuscleHistoryDetailSheet: View {
                 // 種目リスト
                 ForEach(detail.exercises) { item in
                     HStack(spacing: 12) {
-                        // ミニ筋肉マップ
-                        MiniMuscleMapView(muscleMapping: item.exercise.muscleMapping)
-                            .frame(width: 36, height: 48)
+                        // GIFサムネイル
+                        ExerciseGifView(exerciseId: item.exercise.id, size: .card)
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: 80, height: 70)
+                            .background(Color.white)
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                            .clipped()
 
                         VStack(alignment: .leading, spacing: 2) {
                             Text(localization.currentLanguage == .japanese
