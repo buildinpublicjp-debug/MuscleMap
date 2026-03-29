@@ -35,24 +35,16 @@ function PhoneFrame({ accent, imageDataUrl }: { accent: string; imageDataUrl: st
         background: 'linear-gradient(165deg, #78787A 0%, #5A5A5C 3%, #454547 8%, #2C2C2E 15%, #1C1C1E 50%, #2C2C2E 85%, #454547 92%, #5A5A5C 97%, #78787A 100%)',
         boxShadow: `0 50px 100px rgba(0,0,0,0.95), 0 20px 60px rgba(0,0,0,0.6), 0 0 0 0.5px rgba(255,255,255,0.08), 0 25px 70px ${a}08, inset 0 0.5px 0 rgba(255,255,255,0.25), inset 0 -0.5px 0 rgba(255,255,255,0.05)`,
       }}>
-        {/* Edge highlights */}
         <div style={{ position: 'absolute', top: 0, left: 40, right: 40, height: 1, background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.18), rgba(255,255,255,0.25), rgba(255,255,255,0.18), transparent)' }} />
         <div style={{ position: 'absolute', top: 80, left: 0, width: 1, bottom: 80, background: 'linear-gradient(180deg, transparent, rgba(255,255,255,0.06), rgba(255,255,255,0.04), transparent)' }} />
         <div style={{ position: 'absolute', top: 80, right: 0, width: 1, bottom: 80, background: 'linear-gradient(180deg, transparent, rgba(255,255,255,0.04), rgba(255,255,255,0.03), transparent)' }} />
 
-        {/* Physical buttons — positions matched to iPhone 16 Pro proportions */}
-        {/* Power button (right side, ~22% from top) */}
         <div style={{ position: 'absolute', top: 560, right: -3, width: 4, height: 105, background: 'linear-gradient(180deg, #707072, #505052, #3A3A3C, #505052, #707072)', borderRadius: '0 2px 2px 0', boxShadow: '1px 0 2px rgba(0,0,0,0.4)' }} />
-        {/* Action button (left side, ~17% from top) */}
         <div style={{ position: 'absolute', top: 430, left: -3, width: 4, height: 48, background: 'linear-gradient(180deg, #707072, #505052, #3A3A3C, #505052, #707072)', borderRadius: '2px 0 0 2px', boxShadow: '-1px 0 2px rgba(0,0,0,0.4)' }} />
-        {/* Volume Up (left side, ~22% from top) */}
         <div style={{ position: 'absolute', top: 555, left: -3, width: 4, height: 58, background: 'linear-gradient(180deg, #707072, #505052, #3A3A3C, #505052, #707072)', borderRadius: '2px 0 0 2px', boxShadow: '-1px 0 2px rgba(0,0,0,0.4)' }} />
-        {/* Volume Down (left side, ~26% from top) */}
         <div style={{ position: 'absolute', top: 630, left: -3, width: 4, height: 58, background: 'linear-gradient(180deg, #707072, #505052, #3A3A3C, #505052, #707072)', borderRadius: '2px 0 0 2px', boxShadow: '-1px 0 2px rgba(0,0,0,0.4)' }} />
 
-        {/* Screen */}
         <div style={{ borderRadius: SCREEN_R, overflow: 'hidden', background: '#000', position: 'relative' }}>
-          {/* Dynamic Island */}
           <div style={{
             position: 'absolute', top: DI_TOP, left: '50%', transform: 'translateX(-50%)',
             width: DI_W, height: DI_H, background: '#000', borderRadius: DI_H / 2, zIndex: 10,
@@ -74,12 +66,10 @@ function PhoneFrame({ accent, imageDataUrl }: { accent: string; imageDataUrl: st
             }} />
           </div>
 
-          {/* Glass effects */}
           <div style={{ position: 'absolute', inset: 0, borderRadius: SCREEN_R, boxShadow: 'inset 0 0 0 0.5px rgba(255,255,255,0.08)', pointerEvents: 'none', zIndex: 8 }} />
           <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 200, background: 'linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.015) 40%, transparent 100%)', pointerEvents: 'none', zIndex: 5 }} />
           <div style={{ position: 'absolute', top: -100, right: -100, width: 400, height: 800, background: 'linear-gradient(135deg, transparent 0%, rgba(255,255,255,0.02) 45%, rgba(255,255,255,0.035) 50%, rgba(255,255,255,0.02) 55%, transparent 100%)', transform: 'rotate(15deg)', pointerEvents: 'none', zIndex: 6 }} />
 
-          {/* Screenshot */}
           {imageDataUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={imageDataUrl} alt="" style={{ width: '100%', display: 'block' }} />
@@ -122,14 +112,13 @@ function SlideBackground({ accent }: { accent: string }) {
   </>);
 }
 
-// ─── Copy Section (vertically centered in copy area) ───
+// ─── Copy Section ───
 function SlideCopy({ shot, lang }: { shot: ShotDef; lang: Lang }) {
   const copy = shot.copy[lang];
   const isJa = lang === 'ja' || lang === 'zh' || lang === 'ko';
   const lines = copy.headline.split('\n');
   const a = shot.accent;
   const copyAreaH = COPY_AREA_BOTTOM - COPY_AREA_TOP;
-
   return (
     <div style={{
       position: 'absolute', top: COPY_AREA_TOP, left: 0, right: 0, height: copyAreaH,
@@ -146,9 +135,7 @@ function SlideCopy({ shot, lang }: { shot: ShotDef; lang: Lang }) {
       <div style={{
         fontSize: 28, fontWeight: 400, color: `${a}70`, marginTop: 20,
         letterSpacing: isJa ? 4 : 1, fontFeatureSettings: "'palt' 1", textShadow: `0 0 30px ${a}20`,
-      }}>
-        {copy.sub}
-      </div>
+      }}>{copy.sub}</div>
       <div style={{ display: 'flex', gap: 10, justifyContent: 'center', marginTop: 20, flexWrap: 'wrap' as const }}>
         {copy.chips.map((c, i) => (
           <span key={i} style={{
@@ -185,6 +172,7 @@ export default function Page() {
   const [lang, setLang] = useState<Lang>('ja');
   const [images, setImages] = useState<Record<number, string>>({});
   const exportRefs = useRef<Record<number, HTMLDivElement | null>>({});
+  const exportContainerRef = useRef<HTMLDivElement | null>(null);
   const [exporting, setExporting] = useState(false);
   const LANGS: Lang[] = ['ja', 'en', 'zh', 'ko', 'es', 'de', 'fr'];
   const S = 380 / W;
@@ -192,10 +180,30 @@ export default function Page() {
   const pick = useCallback((id: number) => { const i = document.createElement('input'); i.type = 'file'; i.accept = 'image/*'; i.onchange = (e) => { const f = (e.target as HTMLInputElement).files?.[0]; if (!f) return; const r = new FileReader(); r.onload = () => setImg(id, r.result as string); r.readAsDataURL(f); }; i.click(); }, [setImg]);
   const drop = useCallback((id: number, e: DragEvent) => { e.preventDefault(); const f = e.dataTransfer.files[0]; if (!f?.type.startsWith('image/')) return; const r = new FileReader(); r.onload = () => setImg(id, r.result as string); r.readAsDataURL(f); }, [setImg]);
 
+  // Export: temporarily move hidden container on-screen so browser renders images
   const exp1 = useCallback(async (id: number) => {
     const el = exportRefs.current[id];
-    if (!el) return;
+    const container = exportContainerRef.current;
+    if (!el || !container) return;
+
+    // Move on-screen (invisible but rendered by browser)
+    container.style.position = 'fixed';
+    container.style.left = '0';
+    container.style.top = '0';
+    container.style.zIndex = '-1';
+    container.style.opacity = '0.01';
+
+    // Wait for browser to render/decode images
+    await new Promise(r => setTimeout(r, 200));
+
     const u = await toPng(el, { width: W, height: H, pixelRatio: 1 });
+
+    // Move back off-screen
+    container.style.position = 'absolute';
+    container.style.left = '-99999px';
+    container.style.opacity = '';
+    container.style.zIndex = '';
+
     Object.assign(document.createElement('a'), { download: `shot${id}_${lang}.png`, href: u }).click();
   }, [lang]);
 
@@ -204,7 +212,8 @@ export default function Page() {
 
   return (
     <div style={{ background: '#060606', minHeight: '100vh', color: '#fff' }}>
-      <div style={{ position: 'absolute', left: -99999, top: 0, pointerEvents: 'none' }} aria-hidden="true">
+      {/* Hidden full-size slides for export — temporarily moved on-screen during capture */}
+      <div ref={exportContainerRef} style={{ position: 'absolute', left: -99999, top: 0, pointerEvents: 'none' }} aria-hidden="true">
         {SHOTS.map(shot => (
           <CompositeSlide key={`export-${shot.id}`} shot={shot} lang={lang} imageDataUrl={images[shot.id] || null}
             slideRef={{ set current(el) { exportRefs.current[shot.id] = el; }, get current() { return exportRefs.current[shot.id] || null; } }} />
