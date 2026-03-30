@@ -4,6 +4,15 @@ import { useRef, useState, useCallback, DragEvent } from 'react';
 import { toPng } from 'html-to-image';
 import { SHOTS, type Lang, type ShotDef } from '@/copy';
 
+// ─── Export Size Options ───
+const SIZES = [
+  { label: '6.9"', w: 1320, h: 2868 },
+  { label: '6.7"', w: 1290, h: 2796 },
+  { label: '6.5"', w: 1284, h: 2778 },
+  { label: '6.5" alt', w: 1242, h: 2688 },
+] as const;
+
+// Base canvas dimensions (used for layout — export rescales)
 const W = 1320;
 const H = 2868;
 const COPY_AREA_TOP = 40;
@@ -20,11 +29,6 @@ const DI_H = 40;
 const DI_TOP = 16;
 const CAM_D = 14;
 
-// ─── KEY FIX: Use background-image instead of <img> ───
-// html-to-image clones DOM nodes. Cloned <img> elements with data URL src
-// often fail to decode before canvas draw (known bug, especially Safari).
-// CSS background-image is serialized as part of the style attribute in the
-// SVG foreignObject clone, so it works reliably.
 function ScreenImage({ dataUrl, accent }: { dataUrl: string | null; accent: string }) {
   const a = accent;
   if (dataUrl) {
@@ -151,21 +155,24 @@ export default function Page() {
   const [images, setImages] = useState<Record<number, string>>({});
   const slideRefs = useRef<Record<number, HTMLDivElement | null>>({});
   const [exporting, setExporting] = useState(false);
+  const [sizeIdx, setSizeIdx] = useState(2); // default: 6.5" (1284×2778)
   const LANGS: Lang[] = ['ja', 'en', 'zh', 'ko', 'es', 'de', 'fr'];
   const S = 380 / W;
   const setImg = useCallback((id: number, d: string) => setImages(p => ({ ...p, [id]: d })), []);
   const pick = useCallback((id: number) => { const i = document.createElement('input'); i.type = 'file'; i.accept = 'image/*'; i.onchange = (e) => { const f = (e.target as HTMLInputElement).files?.[0]; if (!f) return; const r = new FileReader(); r.onload = () => setImg(id, r.result as string); r.readAsDataURL(f); }; i.click(); }, [setImg]);
   const drop = useCallback((id: number, e: DragEvent) => { e.preventDefault(); const f = e.dataTransfer.files[0]; if (!f?.type.startsWith('image/')) return; const r = new FileReader(); r.onload = () => setImg(id, r.result as string); r.readAsDataURL(f); }, [setImg]);
 
+  // Export: DOM is always at base W×H (1320×2868), toPng rescales to target size
   const exp1 = useCallback(async (id: number) => {
     const el = slideRefs.current[id];
     if (!el) return;
-    const opts = { width: W, height: H, pixelRatio: 1, cacheBust: true };
-    // Double-render: 1st call warms caches, 2nd captures correctly
+    const sz = SIZES[sizeIdx];
+    const opts = { width: sz.w, height: sz.h, pixelRatio: 1, cacheBust: true,
+      style: { transform: `scale(${sz.w / W})`, transformOrigin: 'top left' } };
     await toPng(el, opts).catch(() => {});
     const u = await toPng(el, opts);
-    Object.assign(document.createElement('a'), { download: `shot${id}_${lang}.png`, href: u }).click();
-  }, [lang]);
+    Object.assign(document.createElement('a'), { download: `shot${id}_${lang}_${sz.w}x${sz.h}.png`, href: u }).click();
+  }, [lang, sizeIdx]);
 
   const expAll = useCallback(async () => {
     setExporting(true);
@@ -182,7 +189,6 @@ export default function Page() {
 
   return (
     <div style={{ background: '#060606', minHeight: '100vh', color: '#fff' }}>
-      {/* Safari warning */}
       {isSafari && (
         <div style={{ padding: '8px 20px', background: '#3a1a00', color: '#FFB74D', fontSize: 12, textAlign: 'center' }}>
           ⚠ Safari ではエクスポートに問題が出ることがあります。<strong>Chrome で開いてください</strong> → localhost:3000
@@ -196,10 +202,15 @@ export default function Page() {
           <div style={{ display: 'flex', gap: 1 }}>
             {LANGS.map(l => (<button key={l} onClick={() => setLang(l)} style={{ padding: '3px 9px', background: lang === l ? '#00E676' : 'transparent', color: lang === l ? '#000' : '#444', border: 'none', borderRadius: 3, cursor: 'pointer', fontWeight: 700, fontSize: 10, textTransform: 'uppercase' }}>{l}</button>))}
           </div>
+          <div style={{ width: 1, height: 14, background: '#1a1a1a' }} />
+          {/* Size selector */}
+          <div style={{ display: 'flex', gap: 1 }}>
+            {SIZES.map((sz, i) => (<button key={i} onClick={() => setSizeIdx(i)} style={{ padding: '3px 8px', background: sizeIdx === i ? '#00D4FF' : 'transparent', color: sizeIdx === i ? '#000' : '#444', border: 'none', borderRadius: 3, cursor: 'pointer', fontWeight: 700, fontSize: 9 }}>{sz.label} {sz.w}×{sz.h}</button>))}
+          </div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <span style={{ fontSize: 10, color: '#2a2a2a' }}>{n}/6</span>
-          <button onClick={expAll} disabled={!n || exporting} style={{ padding: '7px 20px', background: !n ? '#0d0d0d' : '#00E676', color: !n ? '#2a2a2a' : '#000', border: 'none', borderRadius: 5, cursor: !n ? 'not-allowed' : 'pointer', fontWeight: 800, fontSize: 11 }}>{exporting ? '...' : 'Export All'}</button>
+          <button onClick={expAll} disabled={!n || exporting} style={{ padding: '7px 20px', background: !n ? '#0d0d0d' : '#00E676', color: !n ? '#2a2a2a' : '#000', border: 'none', borderRadius: 5, cursor: !n ? 'not-allowed' : 'pointer', fontWeight: 800, fontSize: 11 }}>{exporting ? '...' : `Export All (${SIZES[sizeIdx].w}×${SIZES[sizeIdx].h})`}</button>
         </div>
       </div>
 
