@@ -4,7 +4,6 @@ import SwiftUI
 
 struct MonthlySummaryCard: View {
     let stats: MonthlyStats
-    private var localization: LocalizationManager { LocalizationManager.shared }
 
     var body: some View {
         VStack(spacing: 20) {
@@ -18,22 +17,22 @@ struct MonthlySummaryCard: View {
             HStack(spacing: 0) {
                 BigStatItem(
                     value: "\(stats.sessionCount)",
-                    label: localization.currentLanguage == .japanese ? "セッション" : "Sessions",
+                    label: L10n.sessions,
                     icon: "figure.strengthtraining.traditional"
                 )
                 BigStatItem(
                     value: "\(stats.totalSets)",
-                    label: localization.currentLanguage == .japanese ? "セット数" : "Sets",
+                    label: L10n.totalSets,
                     icon: "number"
                 )
                 BigStatItem(
                     value: formatVolume(stats.totalVolume),
-                    label: localization.currentLanguage == .japanese ? "総ボリューム" : "Volume",
+                    label: L10n.totalVolume,
                     icon: "scalemass"
                 )
                 BigStatItem(
                     value: "\(stats.trainingDays)",
-                    label: localization.currentLanguage == .japanese ? "トレ日数" : "Days",
+                    label: L10n.trainingDays,
                     icon: "calendar"
                 )
             }
@@ -74,39 +73,35 @@ struct HistoryStatItem: View {
 struct PeriodSummaryCard: View {
     let stats: PeriodStats
     let period: HistoryPeriod
-    private var localization: LocalizationManager { LocalizationManager.shared }
 
     var body: some View {
         VStack(spacing: 20) {
             HStack {
-                Text(localization.currentLanguage == .japanese
-                    ? "\(period.rawValue)のサマリー"
-                    : "\(period.englishName) Summary"
-                )
-                .font(.headline)
-                .foregroundStyle(Color.mmTextPrimary)
+                Text(L10n.periodSummaryTitle(period.localizedName))
+                    .font(.headline)
+                    .foregroundStyle(Color.mmTextPrimary)
                 Spacer()
             }
 
             HStack(spacing: 0) {
                 BigStatItem(
                     value: "\(stats.sessionCount)",
-                    label: localization.currentLanguage == .japanese ? "セッション" : "Sessions",
+                    label: L10n.sessions,
                     icon: "figure.strengthtraining.traditional"
                 )
                 BigStatItem(
                     value: "\(stats.totalSets)",
-                    label: localization.currentLanguage == .japanese ? "セット数" : "Sets",
+                    label: L10n.totalSets,
                     icon: "number"
                 )
                 BigStatItem(
                     value: formatVolume(stats.totalVolume),
-                    label: localization.currentLanguage == .japanese ? "総ボリューム" : "Volume",
+                    label: L10n.totalVolume,
                     icon: "scalemass"
                 )
                 BigStatItem(
                     value: "\(stats.trainingDays)",
-                    label: localization.currentLanguage == .japanese ? "トレ日数" : "Days",
+                    label: L10n.trainingDays,
                     icon: "calendar"
                 )
             }

@@ -50,10 +50,7 @@ private struct MainTabView: View {
 
             ExerciseDictionaryView()
                 .tabItem {
-                    Label(
-                        LocalizationManager.shared.currentLanguage == .japanese ? "種目辞典" : "Exercises",
-                        systemImage: "book.fill"
-                    )
+                    Label(L10n.exerciseLibrary, systemImage: "book.fill")
                 }
                 .tag(2)
 

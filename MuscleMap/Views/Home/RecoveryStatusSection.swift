@@ -8,15 +8,11 @@ struct RecoveryStatusSection: View {
     let onMuscleTapped: (Muscle) -> Void
     let onDetailsTapped: () -> Void
 
-    private var isJapanese: Bool {
-        LocalizationManager.shared.currentLanguage == .japanese
-    }
-
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             // ヘッダー
             HStack {
-                Text(isJapanese ? "回復ステータス" : "Recovery Status")
+                Text(L10n.recoveryStatus)
                     .font(.system(size: 14, weight: .bold))
                     .foregroundStyle(Color.mmTextPrimary)
 
@@ -26,7 +22,7 @@ struct RecoveryStatusSection: View {
                     onDetailsTapped()
                 } label: {
                     HStack(spacing: 2) {
-                        Text(isJapanese ? "詳細" : "Details")
+                        Text(L10n.detailsLabel)
                             .font(.system(size: 12))
                         Image(systemName: "chevron.right")
                             .font(.system(size: 10))
@@ -110,7 +106,7 @@ struct RecoveryStatusSection: View {
                 chipType = .recovered
             }
 
-            let groupName = isJapanese ? group.japaneseName : group.englishName
+            let groupName = group.localizedName
 
             statuses.append(GroupRecoveryStatus(
                 id: group.rawValue,

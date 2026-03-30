@@ -134,12 +134,8 @@ struct MonthlyCalendarView: View {
 
     private var monthYearString: String {
         let formatter = DateFormatter()
-        formatter.locale = LocalizationManager.shared.currentLanguage == .japanese
-            ? Locale(identifier: "ja_JP")
-            : Locale(identifier: "en_US")
-        formatter.dateFormat = LocalizationManager.shared.currentLanguage == .japanese
-            ? "yyyy年M月"
-            : "MMMM yyyy"
+        formatter.locale = Locale.current
+        formatter.dateFormat = L10n.dateFormatYearMonth
         return formatter.string(from: currentMonth)
     }
 

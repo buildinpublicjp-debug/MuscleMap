@@ -6,7 +6,6 @@ struct LibraryFavoritesRow: View {
     let exercises: [ExerciseDefinition]
     let onSelect: (ExerciseDefinition) -> Void
     @ObservedObject private var favorites = FavoritesManager.shared
-    private var localization: LocalizationManager { LocalizationManager.shared }
 
     private var favoriteExercises: [ExerciseDefinition] {
         exercises.filter { favorites.isFavorite($0.id) }
@@ -23,7 +22,7 @@ struct LibraryFavoritesRow: View {
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 10) {
                         ForEach(favoriteExercises) { exercise in
-                            let name = localization.currentLanguage == .japanese ? exercise.nameJA : exercise.nameEN
+                            let name = exercise.localizedName
                             Button {
                                 HapticManager.lightTap()
                                 onSelect(exercise)
@@ -99,10 +98,9 @@ struct LibraryGridCard: View {
     let exercise: ExerciseDefinition
     let onTap: () -> Void
     @ObservedObject private var favorites = FavoritesManager.shared
-    private var localization: LocalizationManager { LocalizationManager.shared }
 
     var body: some View {
-        let name = localization.currentLanguage == .japanese ? exercise.nameJA : exercise.nameEN
+        let name = exercise.localizedName
 
         Button(action: onTap) {
             ZStack(alignment: .topTrailing) {
@@ -185,7 +183,6 @@ struct LibraryListContent: View {
 struct ExerciseLibraryRow: View {
     let exercise: ExerciseDefinition
     @ObservedObject private var favorites = FavoritesManager.shared
-    private var localization: LocalizationManager { LocalizationManager.shared }
 
     var body: some View {
         HStack(spacing: 12) {
@@ -204,7 +201,7 @@ struct ExerciseLibraryRow: View {
             }
 
             // 種目名のみ
-            Text(localization.currentLanguage == .japanese ? exercise.nameJA : exercise.nameEN)
+            Text(exercise.localizedName)
                 .font(.subheadline.bold())
                 .foregroundStyle(Color.mmTextPrimary)
                 .lineLimit(2)

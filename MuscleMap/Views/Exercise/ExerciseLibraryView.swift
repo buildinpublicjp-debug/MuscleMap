@@ -10,7 +10,6 @@ struct ExerciseLibraryView: View {
     @State private var selectedExercise: ExerciseDefinition?
     @State private var isSearchActive = false
     @AppStorage("exerciseLibraryGridView") private var isGridView = true
-    private var localization: LocalizationManager { LocalizationManager.shared }
 
     var body: some View {
         ZStack {
@@ -136,7 +135,7 @@ struct ExerciseLibraryView: View {
                     }
                     ForEach(MuscleGroup.allCases) { group in
                         LibraryChip(
-                            title: localization.currentLanguage == .japanese ? group.japaneseName : group.englishName,
+                            title: group.localizedName,
                             isSelected: viewModel.selectedMuscleGroup == group
                         ) {
                             viewModel.showRecentOnly = false

@@ -162,7 +162,6 @@ struct PickerFavoritesRow: View {
     let exercises: [ExerciseDefinition]
     let onSelect: (ExerciseDefinition) -> Void
     @ObservedObject private var favorites = FavoritesManager.shared
-    private var localization: LocalizationManager { LocalizationManager.shared }
 
     private var favoriteExercises: [ExerciseDefinition] {
         exercises.filter { favorites.isFavorite($0.id) }
@@ -197,7 +196,6 @@ struct PickerFavoritesRow: View {
 private struct FavoriteExerciseChip: View {
     let exercise: ExerciseDefinition
     let onTap: () -> Void
-    private var localization: LocalizationManager { LocalizationManager.shared }
 
     var body: some View {
         Button(action: onTap) {
@@ -216,7 +214,7 @@ private struct FavoriteExerciseChip: View {
                         .clipShape(RoundedRectangle(cornerRadius: 6))
                 }
 
-                Text(localization.currentLanguage == .japanese ? exercise.nameJA : exercise.nameEN)
+                Text(exercise.localizedName)
                     .font(.caption2.bold())
                     .foregroundStyle(Color.mmTextPrimary)
                     .lineLimit(1)

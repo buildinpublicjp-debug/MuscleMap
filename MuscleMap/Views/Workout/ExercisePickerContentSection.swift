@@ -97,7 +97,6 @@ private struct PickerGridCard: View {
     let onSelect: () -> Void
     let onPreview: () -> Void
     @ObservedObject private var favorites = FavoritesManager.shared
-    private var localization: LocalizationManager { LocalizationManager.shared }
 
     private var compatibility: ExerciseCompatibility {
         ExerciseCompatibilityCalculator.calculate(
@@ -115,11 +114,8 @@ private struct PickerGridCard: View {
     }
 
     var body: some View {
-        let name = localization.currentLanguage == .japanese ? exercise.nameJA : exercise.nameEN
-        let muscleName: String? = {
-            guard let m = primaryMuscle else { return nil }
-            return localization.currentLanguage == .japanese ? m.japaneseName : m.englishName
-        }()
+        let name = exercise.localizedName
+        let muscleName: String? = primaryMuscle?.localizedName
 
         Button(action: onSelect) {
             ZStack(alignment: .topTrailing) {
@@ -231,7 +227,6 @@ struct EnhancedExerciseRow: View {
     let exercise: ExerciseDefinition
     let muscleStates: [Muscle: MuscleStimulation]
     var showChevron: Bool = true
-    private var localization: LocalizationManager { LocalizationManager.shared }
 
     private var compatibility: ExerciseCompatibility {
         ExerciseCompatibilityCalculator.calculate(
@@ -241,11 +236,11 @@ struct EnhancedExerciseRow: View {
     }
 
     private var exerciseName: String {
-        localization.currentLanguage == .japanese ? exercise.nameJA : exercise.nameEN
+        exercise.localizedName
     }
 
     private var secondaryName: String {
-        localization.currentLanguage == .japanese ? exercise.nameEN : exercise.nameJA
+        exercise.secondaryLocalizedName
     }
 
     var body: some View {
@@ -277,7 +272,7 @@ struct EnhancedExerciseRow: View {
                     Label(exercise.localizedEquipment, systemImage: "dumbbell")
                     if let primary = exercise.primaryMuscle {
                         Label(
-                            localization.currentLanguage == .japanese ? primary.japaneseName : primary.englishName,
+                            primary.localizedName,
                             systemImage: "figure.strengthtraining.traditional"
                         )
                     }

@@ -11,7 +11,6 @@ struct RecordedSetsView: View {
     let onDeleteSet: (WorkoutSet) -> Void
     var latestSetId: UUID?
     var lastSetWasPR: Bool = false
-    private var localization: LocalizationManager { LocalizationManager.shared }
 
     @State private var setToDelete: WorkoutSet?
     @State private var showingDeleteConfirm = false
@@ -46,7 +45,7 @@ struct RecordedSetsView: View {
                             HapticManager.lightTap()
                             onSelectExercise(entry.exercise)
                         } label: {
-                            Text(localization.currentLanguage == .japanese ? entry.exercise.nameJA : entry.exercise.nameEN)
+                            Text(entry.exercise.localizedName)
                                 .font(.subheadline.bold())
                                 .foregroundStyle(Color.mmTextPrimary)
                         }

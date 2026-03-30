@@ -48,9 +48,7 @@ struct HomeCoachMarkView: View {
     var body: some View {
         VStack(spacing: 4) {
             // テキストバッジ
-            Text(LocalizationManager.shared.currentLanguage == .japanese
-                 ? "まずワークアウトを記録しよう 👆"
-                 : "Record your first workout 👆")
+            Text(L10n.recordFirstWorkoutHint)
                 .font(.subheadline.bold())
                 .foregroundStyle(Color.mmBgPrimary)
                 .padding(.horizontal, 16)
@@ -138,8 +136,6 @@ struct TodayRecommendationInline: View {
     @State private var showingReplaceSheet = false
     @State private var replacingExerciseIndex: Int?
 
-    private var localization: LocalizationManager { LocalizationManager.shared }
-
     var body: some View {
         if let routine = todayRoutine, !routine.exercises.isEmpty {
             // ルーティン設定済み → ルーティンカード
@@ -189,7 +185,7 @@ struct TodayRecommendationInline: View {
         return VStack(alignment: .leading, spacing: 12) {
             // ヘッダー
             HStack(spacing: 8) {
-                Text(isToday ? L10n.todayRoutine : (localization.currentLanguage == .japanese ? "ルーティン" : "Routine"))
+                Text(isToday ? L10n.todayRoutine : L10n.routineLabel)
                     .font(.system(size: 16, weight: .bold))
                     .foregroundStyle(Color.mmTextPrimary)
 
@@ -205,7 +201,7 @@ struct TodayRecommendationInline: View {
                 let groupNames = displayDay.muscleGroups.compactMap { raw in
                     MuscleGroup(rawValue: raw)
                 }.map { group in
-                    localization.currentLanguage == .japanese ? group.japaneseName : group.englishName
+                    group.localizedName
                 }
                 if !groupNames.isEmpty {
                     HStack(spacing: 6) {
@@ -332,7 +328,7 @@ struct TodayRecommendationInline: View {
                             showingReplaceSheet = true
                         } label: {
                             Label(
-                                localization.currentLanguage == .japanese ? "種目を変更" : "Replace Exercise",
+                                L10n.replaceExercise,
                                 systemImage: "arrow.left.arrow.right"
                             )
                         }
@@ -344,7 +340,7 @@ struct TodayRecommendationInline: View {
                             }
                         } label: {
                             Label(
-                                localization.currentLanguage == .japanese ? "削除" : "Remove",
+                                L10n.removeLabel,
                                 systemImage: "trash"
                             )
                         }
@@ -377,7 +373,7 @@ struct TodayRecommendationInline: View {
                     HStack(spacing: 4) {
                         Image(systemName: "checkmark.circle")
                             .font(.system(size: 10))
-                        Text(localization.currentLanguage == .japanese ? "今週あと\(remaining)回無料" : "\(remaining) free this week")
+                        Text(L10n.freeRemainingThisWeek(remaining))
                             .font(.system(size: 11))
                     }
                     .foregroundStyle(Color.mmAccentPrimary)
@@ -417,7 +413,7 @@ struct TodayRecommendationInline: View {
                     HStack(spacing: 4) {
                         Image(systemName: "lock.circle")
                             .font(.system(size: 10))
-                        Text(localization.currentLanguage == .japanese ? "今週の無料枠を使い切りました" : "Free workouts used this week")
+                        Text(L10n.freeWorkoutsUsedThisWeek)
                             .font(.system(size: 11))
                     }
                     .foregroundStyle(Color.mmWarning)
@@ -429,14 +425,14 @@ struct TodayRecommendationInline: View {
                 let nextIndex = (todayDayIndex + 1) % allDays.count
                 let nextDay = allDays[nextIndex]
                 let nextGroupNames = nextDay.muscleGroups.compactMap { MuscleGroup(rawValue: $0) }
-                    .map { localization.currentLanguage == .japanese ? $0.japaneseName : $0.englishName }
+                    .map { $0.localizedName }
 
                 HStack(spacing: 8) {
                     Image(systemName: "arrow.right.circle.fill")
                         .font(.system(size: 14))
                         .foregroundStyle(Color.mmTextSecondary)
 
-                    Text(localization.currentLanguage == .japanese ? "次回" : "Next")
+                    Text(L10n.nextLabel)
                         .font(.system(size: 12, weight: .semibold))
                         .foregroundStyle(Color.mmTextSecondary)
 
@@ -476,7 +472,7 @@ struct TodayRecommendationInline: View {
         guard let def = ExerciseStore.shared.exercise(for: exercise.exerciseId) else {
             return exercise.exerciseId
         }
-        return localization.currentLanguage == .japanese ? def.nameJA : def.nameEN
+        return def.localizedName
     }
 
     // MARK: - Pro版 詳細提案カード
@@ -590,7 +586,7 @@ struct TodayRecommendationInline: View {
                 ZStack {
                     VStack(alignment: .leading, spacing: 8) {
                         ForEach(menu.exercises.prefix(3), id: \.id) { ex in
-                            let name = localization.currentLanguage == .japanese ? ex.definition.nameJA : ex.definition.nameEN
+                            let name = ex.definition.localizedName
                             HStack {
                                 Text(name)
                                     .font(.system(size: 15))
@@ -608,7 +604,7 @@ struct TodayRecommendationInline: View {
                     HStack(spacing: 6) {
                         Image(systemName: "lock.fill")
                             .font(.caption)
-                        Text(localization.currentLanguage == .japanese ? "Proでメニューを見る" : "View Menu with Pro")
+                        Text(L10n.viewMenuWithPro)
                             .font(.subheadline.bold())
                     }
                     .foregroundStyle(Color.mmTextPrimary)
@@ -730,7 +726,6 @@ struct TodayRecommendationInline: View {
     // MARK: - 休息日カード（ルーティンあり・今日の種目なし）
 
     private var restDayCard: some View {
-        let isJP = localization.currentLanguage == .japanese
         let routineDays = RoutineManager.shared.routine.days
         // 次の種目ありDayを探す
         let nextDay = routineDays.first { !$0.exercises.isEmpty }
@@ -742,16 +737,14 @@ struct TodayRecommendationInline: View {
                     .font(.system(size: 18))
                     .foregroundStyle(Color.mmAccentPrimary)
 
-                Text(isJP ? "今日は休息日" : "Rest Day")
+                Text(L10n.restDay)
                     .font(.system(size: 16, weight: .bold))
                     .foregroundStyle(Color.mmTextPrimary)
 
                 Spacer()
             }
 
-            Text(isJP
-                ? "筋肉を回復させて、次のトレーニングに備えましょう"
-                : "Let your muscles recover for the next session")
+            Text(L10n.restDayDescription)
                 .font(.system(size: 13))
                 .foregroundStyle(Color.mmTextSecondary)
 
@@ -762,9 +755,7 @@ struct TodayRecommendationInline: View {
                         .font(.system(size: 14))
                         .foregroundStyle(Color.mmAccentPrimary)
 
-                    Text(isJP
-                        ? "次回: \(next.name)（\(next.exercises.count)種目）"
-                        : "Next: \(next.name) (\(next.exercises.count) exercises)")
+                    Text(L10n.nextRoutineDay(next.name, next.exercises.count))
                         .font(.system(size: 13, weight: .semibold))
                         .foregroundStyle(Color.mmTextPrimary)
 
@@ -780,7 +771,7 @@ struct TodayRecommendationInline: View {
                 HapticManager.lightTap()
                 onStart()
             } label: {
-                Text(isJP ? "それでもトレーニングする" : "Train Anyway")
+                Text(L10n.trainAnyway)
                     .font(.system(size: 14, weight: .semibold))
                     .foregroundStyle(Color.mmAccentPrimary)
                     .frame(maxWidth: .infinity)
@@ -799,24 +790,20 @@ struct TodayRecommendationInline: View {
     // MARK: - ルーティン未設定カード（フォールバック）
 
     private var noRoutineCard: some View {
-        let isJP = localization.currentLanguage == .japanese
-
-        return VStack(spacing: 12) {
+        VStack(spacing: 12) {
             HStack(spacing: 8) {
                 Image(systemName: "calendar.badge.plus")
                     .font(.system(size: 18))
                     .foregroundStyle(Color.mmAccentPrimary)
 
-                Text(isJP ? "今日のおすすめ" : "Today's Recommendation")
+                Text(L10n.todayRecommendation)
                     .font(.system(size: 16, weight: .bold))
                     .foregroundStyle(Color.mmTextPrimary)
 
                 Spacer()
             }
 
-            Text(isJP
-                ? "ルーティンを設定すると、毎日最適なメニューを提案します"
-                : "Set up a routine to get daily personalized suggestions")
+            Text(L10n.setupRoutineHint)
                 .font(.system(size: 13))
                 .foregroundStyle(Color.mmTextSecondary)
 
@@ -825,7 +812,7 @@ struct TodayRecommendationInline: View {
                 HapticManager.lightTap()
                 showRoutineEdit = true
             } label: {
-                Text(isJP ? "ルーティンを作成" : "Create Routine")
+                Text(L10n.createRoutine)
                     .font(.system(size: 15, weight: .bold))
                     .foregroundStyle(Color.mmBgPrimary)
                     .frame(maxWidth: .infinity)
@@ -841,7 +828,7 @@ struct TodayRecommendationInline: View {
                 HapticManager.lightTap()
                 onStart()
             } label: {
-                Text(isJP ? "ルーティンなしで始める" : "Start Without Routine")
+                Text(L10n.startWithoutRoutine)
                     .font(.system(size: 14, weight: .semibold))
                     .foregroundStyle(Color.mmAccentPrimary)
                 .contentShape(Rectangle())
@@ -864,49 +851,35 @@ struct TodayRecommendationInline: View {
     private func goalLinkedCopy(muscleGroup: String) -> String? {
         guard let goalRaw = AppState.shared.primaryOnboardingGoal,
               let goal = OnboardingGoal(rawValue: goalRaw) else { return nil }
-        let isJP = localization.currentLanguage == .japanese
         switch goal {
         case .getBig:
-            return isJP ? "\(goal.localizedName) → 今日は\(muscleGroup)でサイズアップ"
-                        : "\(goal.localizedName) → \(muscleGroup) for size today"
+            return L10n.goalCopySizeUp(goal.localizedName, muscleGroup)
         case .dontGetDisrespected:
-            return isJP ? "威圧感・存在感 → 今日は\(muscleGroup)で幅を作る"
-                        : "Presence → Build \(muscleGroup) width today"
+            return L10n.goalCopyPresence(muscleGroup)
         case .martialArts:
-            return isJP ? "\(goal.localizedName) → 今日は\(muscleGroup)でパワー強化"
-                        : "\(goal.localizedName) → \(muscleGroup) for power today"
+            return L10n.goalCopyPower(goal.localizedName, muscleGroup)
         case .sports:
-            return isJP ? "\(goal.localizedName) → 今日は\(muscleGroup)でパフォーマンスアップ"
-                        : "\(goal.localizedName) → \(muscleGroup) for performance today"
+            return L10n.goalCopyPerformance(goal.localizedName, muscleGroup)
         case .getAttractive:
-            return isJP ? "\(goal.localizedName) → 今日は\(muscleGroup)でシルエット強化"
-                        : "\(goal.localizedName) → Shape \(muscleGroup) today"
+            return L10n.goalCopyShape(goal.localizedName, muscleGroup)
         case .moveWell:
-            return isJP ? "\(goal.localizedName) → 今日は\(muscleGroup)で動ける体に"
-                        : "\(goal.localizedName) → \(muscleGroup) for mobility today"
+            return L10n.goalCopyMobility(goal.localizedName, muscleGroup)
         case .health:
-            return isJP ? "\(goal.localizedName) → 今日は\(muscleGroup)で基礎体力アップ"
-                        : "\(goal.localizedName) → \(muscleGroup) for fitness today"
+            return L10n.goalCopyFitness(goal.localizedName, muscleGroup)
         }
     }
 
     /// ペアリングされたグループ名を表示用に結合
     private func inlineGroupNames(menu: SuggestedMenu) -> String {
         let groups = MenuSuggestionService.pairedGroups(for: menu.primaryGroup)
-        let names = groups.map { group in
-            localization.currentLanguage == .japanese ? group.japaneseName : group.englishName
-        }
+        let names = groups.map { $0.localizedName }
         return names.joined(separator: "・")
     }
 
     /// 回復状態の簡潔な理由テキスト
     private func inlineReason(menu: SuggestedMenu) -> String {
-        let groupName = localization.currentLanguage == .japanese
-            ? menu.primaryGroup.japaneseName
-            : menu.primaryGroup.englishName
-        return localization.currentLanguage == .japanese
-            ? "\(groupName)が回復済み"
-            : "\(groupName) recovered"
+        let groupName = menu.primaryGroup.localizedName
+        return L10n.groupRecovered(groupName)
     }
 
     /// 重量テキスト（例: "62.5kg × 10 × 3"）
@@ -955,7 +928,7 @@ struct StrengthMapPreviewBanner: View {
                             .background(Color.mmAccentPrimary)
                             .clipShape(Capsule())
                     }
-                    Text(LocalizationManager.shared.currentLanguage == .japanese ? "筋力レベルを見る" : "View strength levels")
+                    Text(L10n.viewStrengthLevels)
                         .font(.caption)
                         .foregroundStyle(Color.mmTextSecondary)
                 }
@@ -991,8 +964,6 @@ private struct RoutineExerciseReplacePicker: View {
     @State private var viewModel = ExerciseListViewModel()
     @State private var searchText = ""
 
-    private var localization: LocalizationManager { LocalizationManager.shared }
-
     var body: some View {
         NavigationStack {
             ZStack {
@@ -1003,7 +974,7 @@ private struct RoutineExerciseReplacePicker: View {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 8) {
                             replaceFilterChip(
-                                title: localization.currentLanguage == .japanese ? "すべて" : "All",
+                                title: L10n.all,
                                 isSelected: viewModel.selectedCategory == nil
                             ) {
                                 viewModel.clearAllFilters()
@@ -1049,7 +1020,7 @@ private struct RoutineExerciseReplacePicker: View {
                                 }
 
                                 VStack(alignment: .leading, spacing: 4) {
-                                    Text(localization.currentLanguage == .japanese ? exercise.nameJA : exercise.nameEN)
+                                    Text(exercise.localizedName)
                                         .font(.subheadline.bold())
                                         .foregroundStyle(Color.mmTextPrimary)
                                         .lineLimit(1)
@@ -1058,7 +1029,7 @@ private struct RoutineExerciseReplacePicker: View {
                                         Label(exercise.localizedEquipment, systemImage: "dumbbell")
                                         if let primary = exercise.primaryMuscle {
                                             Label(
-                                                localization.currentLanguage == .japanese ? primary.japaneseName : primary.englishName,
+                                                primary.localizedName,
                                                 systemImage: "figure.strengthtraining.traditional"
                                             )
                                         }
@@ -1077,7 +1048,7 @@ private struct RoutineExerciseReplacePicker: View {
                     .scrollContentBackground(.hidden)
                 }
             }
-            .navigationTitle(localization.currentLanguage == .japanese ? "種目を変更" : "Replace Exercise")
+            .navigationTitle(L10n.replaceExercise)
             .navigationBarTitleDisplayMode(.inline)
             .toolbarColorScheme(.dark, for: .navigationBar)
             .searchable(text: $searchText, prompt: L10n.searchExercises)

@@ -27,28 +27,26 @@ enum OnboardingGoal: String, CaseIterable, Identifiable {
     }
 
     var localizedName: String {
-        let isJa = LocalizationManager.shared.currentLanguage == .japanese
         switch self {
-        case .getBig: return isJa ? "デカくなりたい" : "Get Big"
-        case .dontGetDisrespected: return isJa ? "舐められたくない" : "Command Respect"
-        case .martialArts: return isJa ? "格闘技・武道" : "Martial Arts"
-        case .sports: return isJa ? "スポーツに活かす" : "Sports Performance"
-        case .getAttractive: return isJa ? "モテたい" : "Look Attractive"
-        case .moveWell: return isJa ? "動ける体がほしい" : "Move Better"
-        case .health: return isJa ? "健康に長生き" : "Health & Longevity"
+        case .getBig: return L10n.goalGetBig
+        case .dontGetDisrespected: return L10n.goalCommandRespect
+        case .martialArts: return L10n.goalMartialArts
+        case .sports: return L10n.goalSports
+        case .getAttractive: return L10n.goalLookAttractive
+        case .moveWell: return L10n.goalMoveBetter
+        case .health: return L10n.goalHealthLongevity
         }
     }
 
     var localizedDescription: String {
-        let isJa = LocalizationManager.shared.currentLanguage == .japanese
         switch self {
-        case .getBig: return isJa ? "Tシャツが似合う体に" : "A body that fills out a T-shirt"
-        case .dontGetDisrespected: return isJa ? "存在感のある体で生きる" : "Command presence with your physique"
-        case .martialArts: return isJa ? "パンチ力・タックル・組み力" : "Punch power, tackles & grappling"
-        case .sports: return isJa ? "ゴルフ飛距離、スイング速度" : "Drive distance & swing speed"
-        case .getAttractive: return isJa ? "自信のある体が全てを変える" : "A confident body changes everything"
-        case .moveWell: return isJa ? "階段で息切れしない" : "No more breathlessness on stairs"
-        case .health: return isJa ? "家族のために" : "For your family"
+        case .getBig: return L10n.goalGetBigDesc
+        case .dontGetDisrespected: return L10n.goalCommandRespectDesc
+        case .martialArts: return L10n.goalMartialArtsDesc
+        case .sports: return L10n.goalSportsDesc
+        case .getAttractive: return L10n.goalLookAttractiveDesc
+        case .moveWell: return L10n.goalMoveBetterDesc
+        case .health: return L10n.goalHealthLongevityDesc
         }
     }
 }
@@ -366,10 +364,6 @@ private struct MuscleExerciseSheet: View {
     let muscle: Muscle
     @State private var selectedExercise: ExerciseDefinition?
 
-    private var isJapanese: Bool {
-        LocalizationManager.shared.currentLanguage == .japanese
-    }
-
     private var exercises: [ExerciseDefinition] {
         ExerciseStore.shared.exercises(targeting: muscle)
             .filter { ExerciseGifView.hasGif(exerciseId: $0.id) }
@@ -436,9 +430,7 @@ private struct MuscleExerciseSheet: View {
                 .padding(.vertical, 16)
             }
             .background(Color.mmOnboardingBg)
-            .navigationTitle(isJapanese
-                ? "\(muscle.japaneseName) — \(exercises.count)種目"
-                : "\(muscle.englishName) — \(exercises.count) exercises")
+            .navigationTitle(L10n.muscleExerciseSheetTitle(muscle.localizedName, exercises.count))
             .navigationBarTitleDisplayMode(.inline)
             .sheet(item: $selectedExercise) { exercise in
                 ExerciseDetailView(exercise: exercise, hideStartWorkoutButton: true)

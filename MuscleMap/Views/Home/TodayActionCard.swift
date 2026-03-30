@@ -17,10 +17,6 @@ struct TodayActionCard: View {
     @State private var selectedExerciseDetail: ExerciseDefinition?
     @State private var showingRoutineEdit = false
 
-    private var isJapanese: Bool {
-        LocalizationManager.shared.currentLanguage == .japanese
-    }
-
     var body: some View {
         Group {
             if let routine = viewModel.todayRoutine, !routine.exercises.isEmpty {
@@ -57,16 +53,16 @@ struct TodayActionCard: View {
         let allDays = RoutineManager.shared.routine.days
         let displayDay = activeDay
         let groupNames = displayDay.muscleGroups.compactMap { MuscleGroup(rawValue: $0) }
-            .map { isJapanese ? $0.japaneseName : $0.englishName }
+            .map { $0.localizedName }
             .joined(separator: " + ")
 
         return VStack(alignment: .leading, spacing: 12) {
             HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("\(isJapanese ? "今日:" : "Today:") \(groupNames)")
+                    Text("\(L10n.todayColon) \(groupNames)")
                         .font(.system(size: 18, weight: .heavy))
                         .foregroundStyle(.white)
-                    Text("\(displayDay.name) - \(displayDay.exercises.count)\(isJapanese ? "種目" : " exercises")")
+                    Text("\(displayDay.name) - \(L10n.exerciseCountLabel(displayDay.exercises.count))")
                         .font(.system(size: 12))
                         .foregroundStyle(.white.opacity(0.5))
                 }
@@ -148,7 +144,7 @@ struct TodayActionCard: View {
                     let def = ExerciseStore.shared.exercise(for: exercise.exerciseId)
                     let rawName: String = {
                         guard let d = def else { return exercise.exerciseId }
-                        return isJapanese ? d.nameJA : d.nameEN
+                        return d.localizedName
                     }()
                     let name = shortenedName(rawName)
 
@@ -234,7 +230,7 @@ struct TodayActionCard: View {
             RoutineManager.shared.pendingStartDay = routine
             AppState.shared.selectedTab = 1
         } label: {
-            Text(isJapanese ? "ワークアウトを開始" : "Start Workout")
+            Text(L10n.startWorkout)
                 .font(.system(size: 16, weight: .heavy))
                 .foregroundStyle(.black)
                 .frame(maxWidth: .infinity)
@@ -283,13 +279,11 @@ struct TodayActionCard: View {
                         Image(systemName: "moon.zzz.fill")
                             .font(.system(size: 18))
                             .foregroundStyle(Color.mmAccentPrimary)
-                        Text(isJapanese ? "今日は休息日" : "Rest Day")
+                        Text(L10n.restDay)
                             .font(.system(size: 18, weight: .heavy))
                             .foregroundStyle(.white)
                     }
-                    Text(isJapanese
-                        ? "筋肉を回復させて、次のトレーニングに備えましょう"
-                        : "Let your muscles recover for the next session")
+                    Text(L10n.restDayDescription)
                         .font(.system(size: 12))
                         .foregroundStyle(.white.opacity(0.5))
                 }
@@ -302,9 +296,7 @@ struct TodayActionCard: View {
                     Image(systemName: "arrow.right.circle.fill")
                         .font(.system(size: 14))
                         .foregroundStyle(Color.mmAccentPrimary)
-                    Text(isJapanese
-                        ? "次回: \(next.name)（\(next.exercises.count)種目）"
-                        : "Next: \(next.name) (\(next.exercises.count) exercises)")
+                    Text(L10n.nextRoutineDay(next.name, next.exercises.count))
                         .font(.system(size: 13, weight: .semibold))
                         .foregroundStyle(.white)
                 }
@@ -317,7 +309,7 @@ struct TodayActionCard: View {
                 HapticManager.lightTap()
                 onStart()
             } label: {
-                Text(isJapanese ? "それでもトレーニングする" : "Train Anyway")
+                Text(L10n.trainAnyway)
                     .font(.system(size: 14, weight: .semibold))
                     .foregroundStyle(Color.mmAccentPrimary)
                     .frame(maxWidth: .infinity)
@@ -353,7 +345,7 @@ struct TodayActionCard: View {
                     Text(L10n.firstTimeMenuHeader)
                         .font(.system(size: 18, weight: .heavy))
                         .foregroundStyle(.white)
-                    Text("\(recommendation.exercises.count)\(isJapanese ? "種目" : " exercises")")
+                    Text(L10n.exerciseCountLabel(recommendation.exercises.count))
                         .font(.system(size: 12))
                         .foregroundStyle(.white.opacity(0.5))
                 }
@@ -374,7 +366,7 @@ struct TodayActionCard: View {
                 HapticManager.lightTap()
                 onStartWithMenu(recommendation.exercises)
             } label: {
-                Text(isJapanese ? "ワークアウトを開始" : "Start Workout")
+                Text(L10n.startWorkout)
                     .font(.system(size: 16, weight: .heavy))
                     .foregroundStyle(.black)
                     .frame(maxWidth: .infinity)
@@ -417,13 +409,11 @@ struct TodayActionCard: View {
                         Image(systemName: "calendar.badge.plus")
                             .font(.system(size: 18))
                             .foregroundStyle(Color.mmAccentPrimary)
-                        Text(isJapanese ? "ルーティンを設定しよう" : "Set Up Your Routine")
+                        Text(L10n.setupRoutineTitle)
                             .font(.system(size: 18, weight: .heavy))
                             .foregroundStyle(.white)
                     }
-                    Text(isJapanese
-                        ? "ルーティンを設定すると、毎日最適なメニューを提案します"
-                        : "Set up a routine to get daily personalized suggestions")
+                    Text(L10n.setupRoutineHint)
                         .font(.system(size: 12))
                         .foregroundStyle(.white.opacity(0.5))
                 }
@@ -434,7 +424,7 @@ struct TodayActionCard: View {
                 HapticManager.lightTap()
                 showingRoutineEdit = true
             } label: {
-                Text(isJapanese ? "ルーティンを作成" : "Create Routine")
+                Text(L10n.createRoutine)
                     .font(.system(size: 16, weight: .heavy))
                     .foregroundStyle(.black)
                     .frame(maxWidth: .infinity)
@@ -455,7 +445,7 @@ struct TodayActionCard: View {
                 HapticManager.lightTap()
                 onStart()
             } label: {
-                Text(isJapanese ? "ルーティンなしで始める" : "Start Without Routine")
+                Text(L10n.startWithoutRoutine)
                     .font(.system(size: 14, weight: .semibold))
                     .foregroundStyle(Color.mmAccentPrimary)
                 .contentShape(Rectangle())

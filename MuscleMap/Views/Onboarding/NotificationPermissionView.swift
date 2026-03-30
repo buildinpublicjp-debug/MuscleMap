@@ -11,10 +11,6 @@ struct NotificationPermissionView: View {
     @State private var animationPhase: Int = 0
     @State private var animationTimer: Timer?
 
-    private var isJapanese: Bool {
-        LocalizationManager.shared.currentLanguage == .japanese
-    }
-
     /// 回復デモに使う筋肉（グループA: 胸・肩、グループB: 背中・腕）
     private let groupA: [Muscle] = [.chestUpper, .chestLower, .deltoidAnterior, .deltoidLateral]
     private let groupB: [Muscle] = [.lats, .trapsUpper, .biceps, .triceps]
@@ -97,16 +93,16 @@ struct NotificationPermissionView: View {
                         // 通知プレビューカード（回復通知×2）
                         VStack(spacing: 12) {
                             notificationCard(
-                                subtitle: isJapanese ? "大胸筋・三角筋 回復完了！" : "Chest & Delts Recovered!",
-                                body: isJapanese ? "プッシュの日です。トレーニングしよう！" : "Push day. Time to train!",
+                                subtitle: L10n.notifMockCard1Subtitle,
+                                body: L10n.notifMockBody1,
                                 time: L10n.notifMockTime1,
                                 isMain: true
                             )
 
                             notificationCard(
-                                subtitle: isJapanese ? "背中・腕 回復完了！" : "Back & Arms Recovered!",
-                                body: isJapanese ? "プルの日です。トレーニングしよう！" : "Pull day. Time to train!",
-                                time: isJapanese ? "2時間前" : "2h ago"
+                                subtitle: L10n.notifMockCard2Subtitle,
+                                body: L10n.notifMockCard2Body,
+                                time: L10n.notifMockTime2
                             )
                         }
                         .opacity(appeared ? 1 : 0)

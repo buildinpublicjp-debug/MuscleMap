@@ -11,21 +11,17 @@ struct HomeStatsRow: View {
     @State private var totalVolume: Double = 0
     @State private var prCount: Int = 0
 
-    private var isJapanese: Bool {
-        LocalizationManager.shared.currentLanguage == .japanese
-    }
-
     var body: some View {
         VStack(spacing: 16) {
             // スタッツカード3枚
             HStack(spacing: 10) {
                 StatCard(
                     value: "\(sessionCount)",
-                    label: isJapanese ? "セッション" : "Sessions"
+                    label: L10n.sessionsLabel
                 )
                 StatCard(
                     value: formatVolume(totalVolume),
-                    label: isJapanese ? "ボリューム" : "Volume"
+                    label: L10n.volume
                 )
                 StatCard(
                     value: "\(prCount)",
@@ -111,10 +107,6 @@ private struct StatCard: View {
 // MARK: - 履歴ショートカットボタン
 
 struct HistoryShortcutButton: View {
-    private var isJapanese: Bool {
-        LocalizationManager.shared.currentLanguage == .japanese
-    }
-
     var body: some View {
         Button {
             HapticManager.lightTap()
@@ -125,10 +117,10 @@ struct HistoryShortcutButton: View {
                     .font(.system(size: 14))
                     .foregroundStyle(Color.mmAccentSecondary)
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(isJapanese ? "履歴" : "History")
+                    Text(L10n.history)
                         .font(.system(size: 13, weight: .bold))
                         .foregroundStyle(Color.mmTextPrimary)
-                    Text(isJapanese ? "トレーニング記録" : "Training records")
+                    Text(L10n.trainingRecords)
                         .font(.system(size: 10))
                         .foregroundStyle(Color.mmTextSecondary)
                 }

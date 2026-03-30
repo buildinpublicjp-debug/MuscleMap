@@ -398,6 +398,39 @@ enum L10n {
     static var lessThanOneMinute: String { loc("<1分", "<1 min", zhHans: "<1分钟", ko: "<1분", es: "<1 min", fr: "<1 min", de: "<1 Min") }
     static var andMore: String { loc("他", "more", zhHans: "更多", ko: "더", es: "más", fr: "plus", de: "mehr") }
     static func setsLabel(_ count: Int) -> String { loc("\(count)セット", "\(count) sets", zhHans: "\(count)组", ko: "\(count)세트", es: "\(count) series", fr: "\(count) séries", de: "\(count) Sätze") }
+    static func exerciseCountSuffix(_ count: Int) -> String { loc("\(count)種目", "\(count) ex", zhHans: "\(count)动作", ko: "\(count)종목", es: "\(count) ej", fr: "\(count) ex", de: "\(count) Üb") }
+    static var historyMapTab: String { loc("マップ", "Map", zhHans: "地图", ko: "맵", es: "Mapa", fr: "Carte", de: "Karte") }
+    static var historyCalendarTab: String { loc("カレンダー", "Calendar", zhHans: "日历", ko: "달력", es: "Calendario", fr: "Calendrier", de: "Kalender") }
+    static var period7Days: String { loc("7日", "7 Days", zhHans: "7天", ko: "7일", es: "7 días", fr: "7 jours", de: "7 Tage") }
+    static var period30Days: String { loc("30日", "30 Days", zhHans: "30天", ko: "30일", es: "30 días", fr: "30 jours", de: "30 Tage") }
+    static var allTime: String { loc("全期間", "All Time", zhHans: "全部", ko: "전체", es: "Todo", fr: "Tout", de: "Gesamt") }
+    static func periodSummaryTitle(_ period: String) -> String { loc("\(period)のサマリー", "\(period) Summary", zhHans: "\(period)总结", ko: "\(period) 요약", es: "Resumen de \(period)", fr: "Résumé de \(period)", de: "\(period) Zusammenfassung") }
+    static var weightProgressByExercise: String { loc("種目別 重量推移", "Weight Progress by Exercise", zhHans: "动作别重量趋势", ko: "종목별 중량 추이", es: "Progreso por ejercicio", fr: "Progression par exercice", de: "Gewichtsverlauf nach Übung") }
+    static var recordFirstWorkout: String { loc("まずトレーニングを記録しよう", "Record your first workout", zhHans: "先记录你的第一次训练", ko: "첫 운동을 기록하세요", es: "Registra tu primer entrenamiento", fr: "Enregistrez votre premier entraînement", de: "Zeichne dein erstes Training auf") }
+    static var noWeightData: String { loc("重量データなし（体重のみの種目は表示されません）", "No weight data (bodyweight-only exercises are not shown)", zhHans: "无重量数据（仅自重动作不显示）", ko: "중량 데이터 없음 (맨몸 운동은 표시되지 않음)", es: "Sin datos de peso (ejercicios de peso corporal no se muestran)", fr: "Pas de données de poids (exercices au poids du corps non affichés)", de: "Keine Gewichtsdaten (Körpergewichtsübungen werden nicht angezeigt)") }
+    static var prAchievedLabel: String { loc("PR達成", "PR", zhHans: "PR达成", ko: "PR 달성", es: "PR", fr: "PR", de: "PR") }
+    static var maxWeightLabel: String { loc("最大重量", "Max Weight", zhHans: "最大重量", ko: "최대 중량", es: "Peso máximo", fr: "Poids max", de: "Maximalgewicht") }
+    static var totalSetsLabel: String { loc("合計セット", "Total Sets", zhHans: "总组数", ko: "총 세트", es: "Total series", fr: "Total séries", de: "Gesamtsätze") }
+    static var bestLabel: String { loc("ベスト", "Best", zhHans: "最佳", ko: "최고", es: "Mejor", fr: "Meilleur", de: "Bester") }
+    static var growthLabel: String { loc("成長率", "Growth", zhHans: "增长率", ko: "성장률", es: "Crecimiento", fr: "Croissance", de: "Wachstum") }
+    static var trendProSubtitle: String { loc("全期間の種目別 重量推移グラフ", "All-time weight progress by exercise", zhHans: "全期间动作别重量趋势图", ko: "전체 기간 종목별 중량 추이 그래프", es: "Gráfico de progreso de peso por ejercicio", fr: "Graphique de progression par exercice", de: "Gewichtsverlauf aller Zeiten nach Übung") }
+    static var legendNone: String { loc("未トレ", "None", zhHans: "未练", ko: "미운동", es: "Ninguno", fr: "Aucun", de: "Keine") }
+    static var legendLow: String { loc("少", "Low", zhHans: "少", ko: "소", es: "Bajo", fr: "Faible", de: "Niedrig") }
+    static var legendMid: String { loc("中", "Mid", zhHans: "中", ko: "중", es: "Medio", fr: "Moyen", de: "Mittel") }
+    static var legendHigh: String { loc("多", "High", zhHans: "多", ko: "다", es: "Alto", fr: "Élevé", de: "Hoch") }
+    static var weightProgress: String { loc("重量推移", "Weight Progress", zhHans: "重量趋势", ko: "중량 추이", es: "Progreso de peso", fr: "Progression du poids", de: "Gewichtsverlauf") }
+    static var lastLabel: String { loc("最終", "Last", zhHans: "最近", ko: "최근", es: "Último", fr: "Dernier", de: "Letzter") }
+    static var setsStatLabel: String { loc("セット", "Sets", zhHans: "组数", ko: "세트", es: "Series", fr: "Séries", de: "Sätze") }
+    static var noRecordsYet: String { loc("まだ記録がありません", "No records yet", zhHans: "暂无记录", ko: "아직 기록이 없습니다", es: "Sin registros aún", fr: "Pas encore d'enregistrements", de: "Noch keine Aufzeichnungen") }
+    static var exercisesInPeriod: String { loc("この期間の種目", "Exercises", zhHans: "本期间动作", ko: "이 기간의 운동", es: "Ejercicios", fr: "Exercices", de: "Übungen") }
+    static var musclesWorked: String { loc("刺激した筋肉", "Muscles Worked", zhHans: "锻炼的肌肉", ko: "자극한 근육", es: "Músculos trabajados", fr: "Muscles travaillés", de: "Trainierte Muskeln") }
+    static var deleteSession: String { loc("セッションを削除", "Delete Session", zhHans: "删除训练", ko: "세션 삭제", es: "Eliminar sesión", fr: "Supprimer la séance", de: "Sitzung löschen") }
+    static var deleteSessionConfirm: String { loc("このセッションを削除しますか？\n全てのセットと関連データが削除されます。", "Delete this session?\nAll sets and related data will be removed.", zhHans: "删除此训练？\n所有组数和相关数据将被删除。", ko: "이 세션을 삭제하시겠습니까?\n모든 세트와 관련 데이터가 삭제됩니다.", es: "¿Eliminar esta sesión?\nTodas las series y datos se eliminarán.", fr: "Supprimer cette séance ?\nToutes les séries et données seront supprimées.", de: "Diese Sitzung löschen?\nAlle Sätze und zugehörigen Daten werden entfernt.") }
+    static var weightKgInput: String { loc("重量 (kg)", "Weight (kg)", zhHans: "重量 (kg)", ko: "중량 (kg)", es: "Peso (kg)", fr: "Poids (kg)", de: "Gewicht (kg)") }
+    static var repsInput: String { loc("レップ数", "Reps", zhHans: "次数", ko: "횟수", es: "Repeticiones", fr: "Répétitions", de: "Wiederholungen") }
+    static var dateFormatYearMonth: String { loc("yyyy年M月", "MMMM yyyy", zhHans: "yyyy年M月", ko: "yyyy년 M월", es: "MMMM yyyy", fr: "MMMM yyyy", de: "MMMM yyyy") }
+    static var dateFormatYearMonthDay: String { loc("yyyy年M月d日", "MMM d, yyyy", zhHans: "yyyy年M月d日", ko: "yyyy년 M월 d일", es: "d MMM yyyy", fr: "d MMM yyyy", de: "d. MMM yyyy") }
+    static var dateFormatShort: String { loc("M/d", "MMM d", zhHans: "M/d", ko: "M/d", es: "d MMM", fr: "d MMM", de: "d. MMM") }
 
     // MARK: - 部位詳細画面
     static var highLoadRestNeeded: String { loc("高負荷 — 休息が必要", "High Load — Rest Needed", zhHans: "高负荷 — 需要休息", ko: "고부하 — 휴식 필요", es: "Alta carga — Descanso necesario", fr: "Charge élevée — Repos nécessaire", de: "Hohe Last — Ruhe erforderlich") }
@@ -1514,6 +1547,57 @@ enum L10n {
     static var coachMarkBody: String { loc("トレーニングすると筋肉が赤く光ります。\n回復すると黄→暗い色に戻ります。", "Muscles light up red after training.\nThey turn yellow → dark as they recover.", zhHans: "训练后肌肉会变红。\n恢复后会从黄色→暗色。", ko: "트레이닝하면 근육이 빨갛게 빛납니다.\n회복되면 노랑→어두운 색으로 돌아갑니다.", es: "Los músculos se iluminan en rojo al entrenar.\nSe vuelven amarillos → oscuros al recuperarse.", fr: "Les muscles s'illuminent en rouge après l'entraînement.\nIls passent au jaune → sombre en récupérant.", de: "Muskeln leuchten rot nach dem Training.\nSie werden gelb → dunkel bei der Erholung.") }
     static var gotIt: String { loc("わかった！", "Got it!", zhHans: "明白了！", ko: "알겠어!", es: "¡Entendido!", fr: "Compris !", de: "Verstanden!") }
 
+    // MARK: - Home Views (TodayActionCard, RecoveryStatus, WeeklyVolumeChart, HomeStatsRow, etc.)
+    static var todayColon: String { loc("今日:", "Today:", zhHans: "今天:", ko: "오늘:", es: "Hoy:", fr: "Aujourd'hui :", de: "Heute:") }
+    static var restDay: String { loc("今日は休息日", "Rest Day", zhHans: "今天是休息日", ko: "오늘은 휴식일", es: "Día de descanso", fr: "Jour de repos", de: "Ruhetag") }
+    static var restDayDescription: String { loc("しっかり休んで次に備えよう", "Rest up and prepare for your next session", zhHans: "好好休息，为下次训练做准备", ko: "충분히 쉬고 다음에 대비하세요", es: "Descansa bien para tu próxima sesión", fr: "Repose-toi bien pour la prochaine séance", de: "Erhole dich gut für dein nächstes Training") }
+    static func nextRoutineDay(_ name: String, _ count: Int) -> String { loc("次回: \(name)（\(count)種目）", "Next: \(name) (\(count) exercises)", zhHans: "下次: \(name)（\(count)个动作）", ko: "다음: \(name)（\(count)종목）", es: "Siguiente: \(name) (\(count) ejercicios)", fr: "Suivant : \(name) (\(count) exercices)", de: "Nächstes: \(name) (\(count) Übungen)") }
+    static var trainAnyway: String { loc("それでもトレーニングする", "Train Anyway", zhHans: "仍然训练", ko: "그래도 트레이닝하기", es: "Entrenar de todos modos", fr: "S'entraîner quand même", de: "Trotzdem trainieren") }
+    static var setupRoutineTitle: String { loc("ルーティンを設定しよう", "Set Up Your Routine", zhHans: "设置你的训练计划", ko: "루틴을 설정하세요", es: "Configura tu rutina", fr: "Configure ta routine", de: "Richte deine Routine ein") }
+    static var setupRoutineHint: String { loc("曜日ごとのメニューで効率的にトレーニング", "Train efficiently with daily menus", zhHans: "按日安排菜单，高效训练", ko: "요일별 메뉴로 효율적으로 트레이닝", es: "Entrena eficientemente con menús diarios", fr: "Entraîne-toi efficacement avec des menus quotidiens", de: "Trainiere effizient mit täglichen Menüs") }
+    static var createRoutine: String { loc("ルーティンを作成", "Create Routine", zhHans: "创建训练计划", ko: "루틴 만들기", es: "Crear rutina", fr: "Créer une routine", de: "Routine erstellen") }
+    static var startWithoutRoutine: String { loc("ルーティンなしで始める", "Start Without Routine", zhHans: "不用计划直接开始", ko: "루틴 없이 시작", es: "Empezar sin rutina", fr: "Commencer sans routine", de: "Ohne Routine starten") }
+    static var recoveryStatus: String { loc("回復状態", "Recovery Status", zhHans: "恢复状态", ko: "회복 상태", es: "Estado de recuperación", fr: "État de récupération", de: "Erholungsstatus") }
+    static var detailsLabel: String { loc("詳細", "Details", zhHans: "详情", ko: "상세", es: "Detalles", fr: "Détails", de: "Details") }
+    static var recoveryMap: String { loc("回復マップ", "Recovery Map", zhHans: "恢复图", ko: "회복 맵", es: "Mapa de recuperación", fr: "Carte de récupération", de: "Erholungskarte") }
+    static var bodyReadiness: String { loc("カラダの準備度", "Body Readiness", zhHans: "身体准备度", ko: "신체 준비도", es: "Preparación corporal", fr: "Préparation corporelle", de: "Körperbereitschaft") }
+    static var allMusclesRecoveringRestDay: String { loc("全筋肉が回復中。今日は休息日にしましょう", "All muscles recovering. Consider a rest day", zhHans: "所有肌肉恢复中。今天休息吧", ko: "모든 근육 회복 중. 오늘은 쉬세요", es: "Todos los músculos se están recuperando. Descansa hoy", fr: "Tous les muscles récupèrent. Repose-toi aujourd'hui", de: "Alle Muskeln erholen sich. Mach heute Pause") }
+    static func recoveredRecommendation(_ groups: String) -> String { loc("\(groups) が回復済み。トレーニングにおすすめ", "\(groups) recovered. Recommended for training", zhHans: "\(groups) 已恢复。推荐训练", ko: "\(groups) 회복 완료. 트레이닝 추천", es: "\(groups) recuperados. Recomendado para entrenar", fr: "\(groups) récupérés. Recommandé pour l'entraînement", de: "\(groups) erholt. Empfohlen zum Training") }
+    static func recoveredRecommendation(_ groups: String, _ partName: String) -> String { loc("\(groups) が回復済み。\(partName)トレにおすすめ", "\(groups) recovered. Recommended for \(partName)", zhHans: "\(groups) 已恢复。推荐\(partName)训练", ko: "\(groups) 회복 완료. \(partName) 추천", es: "\(groups) recuperados. Recomendado para \(partName)", fr: "\(groups) récupérés. Recommandé pour \(partName)", de: "\(groups) erholt. Empfohlen für \(partName)") }
+    static func groupRecovered(_ name: String) -> String { loc("\(name)が回復済み", "\(name) recovered", zhHans: "\(name)已恢复", ko: "\(name) 회복 완료", es: "\(name) recuperado", fr: "\(name) récupéré", de: "\(name) erholt") }
+    static var thisWeek: String { loc("今週", "This Week", zhHans: "本周", ko: "이번 주", es: "Esta semana", fr: "Cette semaine", de: "Diese Woche") }
+    static func lastWeekVolume(_ vol: String) -> String { loc("先週: \(vol) kg", "Last week: \(vol) kg", zhHans: "上周: \(vol) kg", ko: "지난주: \(vol) kg", es: "Semana pasada: \(vol) kg", fr: "Semaine dernière : \(vol) kg", de: "Letzte Woche: \(vol) kg") }
+    static func sessionCount(_ count: Int) -> String { loc("\(count)回トレーニング", "\(count) sessions", zhHans: "\(count)次训练", ko: "\(count)회 트레이닝", es: "\(count) sesiones", fr: "\(count) séances", de: "\(count) Einheiten") }
+    static func weekdayShortLabels() -> [String] {
+        let lang = LocalizationManager.shared.currentLanguage
+        switch lang {
+        case .japanese: return ["月", "火", "水", "木", "金", "土", "日"]
+        case .english: return ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+        case .chineseSimplified: return ["一", "二", "三", "四", "五", "六", "日"]
+        case .korean: return ["월", "화", "수", "목", "금", "토", "일"]
+        case .spanish: return ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"]
+        case .french: return ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"]
+        case .german: return ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"]
+        }
+    }
+    static var sessionsLabel: String { loc("セッション", "Sessions", zhHans: "训练次数", ko: "세션", es: "Sesiones", fr: "Séances", de: "Einheiten") }
+    static var trainingRecords: String { loc("トレーニング記録を見る", "View training records", zhHans: "查看训练记录", ko: "트레이닝 기록 보기", es: "Ver registros de entrenamiento", fr: "Voir les enregistrements", de: "Trainingsaufzeichnungen ansehen") }
+    static var recordFirstWorkoutHint: String { loc("まずワークアウトを記録しよう！\n下のタブからスタート 👇", "Record your first workout!\nStart from the tab below 👇", zhHans: "记录你的第一次训练！\n从下方标签开始 👇", ko: "첫 워크아웃을 기록하세요!\n아래 탭에서 시작 👇", es: "¡Registra tu primer entrenamiento!\nComienza desde la pestaña de abajo 👇", fr: "Enregistre ton premier entraînement !\nCommence depuis l'onglet ci-dessous 👇", de: "Zeichne dein erstes Training auf!\nStarte vom Tab unten 👇") }
+    static var routineLabel: String { loc("ルーティン", "Routine", zhHans: "训练计划", ko: "루틴", es: "Rutina", fr: "Routine", de: "Routine") }
+    static var removeLabel: String { loc("削除", "Remove", zhHans: "删除", ko: "삭제", es: "Eliminar", fr: "Supprimer", de: "Entfernen") }
+    static func freeRemainingThisWeek(_ remaining: Int) -> String { loc("今週あと\(remaining)回無料", "\(remaining) free this week", zhHans: "本周还剩\(remaining)次免费", ko: "이번 주 \(remaining)회 무료 남음", es: "\(remaining) gratis esta semana", fr: "\(remaining) gratuit(s) cette semaine", de: "\(remaining) kostenlos diese Woche") }
+    static var freeWorkoutsUsedThisWeek: String { loc("今週の無料ワークアウトを使い切りました", "Free workouts used up this week", zhHans: "本周免费训练已用完", ko: "이번 주 무료 워크아웃을 모두 사용했습니다", es: "Entrenamientos gratuitos agotados esta semana", fr: "Entraînements gratuits épuisés cette semaine", de: "Kostenlose Trainings diese Woche aufgebraucht") }
+    static var nextLabel: String { loc("次へ", "Next", zhHans: "下一步", ko: "다음", es: "Siguiente", fr: "Suivant", de: "Weiter") }
+    static var viewMenuWithPro: String { loc("メニューを確認する（Pro）", "View Menu (Pro)", zhHans: "查看菜单（Pro）", ko: "메뉴 확인 (Pro)", es: "Ver menú (Pro)", fr: "Voir le menu (Pro)", de: "Menü ansehen (Pro)") }
+    static var viewStrengthLevels: String { loc("筋力レベルを見る", "View Strength Levels", zhHans: "查看力量水平", ko: "근력 레벨 보기", es: "Ver niveles de fuerza", fr: "Voir les niveaux de force", de: "Kraftniveaus ansehen") }
+    static func goalCopySizeUp(_ nickname: String) -> String { loc("\(nickname)さん、デカくなりましょう", "Let's bulk up, \(nickname)", zhHans: "\(nickname)，让我们增肌吧", ko: "\(nickname)님, 크게 키워봅시다", es: "¡A crecer, \(nickname)!", fr: "Prenons du volume, \(nickname)", de: "Lass uns aufbauen, \(nickname)") }
+    static func goalCopyPresence(_ nickname: String) -> String { loc("\(nickname)さん、存在感を見せつけろ", "Show your presence, \(nickname)", zhHans: "\(nickname)，展示你的存在感", ko: "\(nickname)님, 존재감을 보여주세요", es: "¡Muestra tu presencia, \(nickname)!", fr: "Montre ta présence, \(nickname)", de: "Zeig deine Präsenz, \(nickname)") }
+    static func goalCopyPower(_ nickname: String) -> String { loc("\(nickname)さん、限界を超えろ", "Break your limits, \(nickname)", zhHans: "\(nickname)，突破极限", ko: "\(nickname)님, 한계를 넘어서세요", es: "¡Supera tus límites, \(nickname)!", fr: "Dépasse tes limites, \(nickname)", de: "Überwinde deine Grenzen, \(nickname)") }
+    static func goalCopyPerformance(_ nickname: String) -> String { loc("\(nickname)さん、パフォーマンスUP", "Level up your performance, \(nickname)", zhHans: "\(nickname)，提升表现", ko: "\(nickname)님, 퍼포먼스 UP", es: "¡Mejora tu rendimiento, \(nickname)!", fr: "Améliore tes performances, \(nickname)", de: "Steigere deine Leistung, \(nickname)") }
+    static func goalCopyShape(_ nickname: String) -> String { loc("\(nickname)さん、理想のボディへ", "Shape your ideal body, \(nickname)", zhHans: "\(nickname)，塑造理想身材", ko: "\(nickname)님, 이상적인 몸으로", es: "¡Moldea tu cuerpo ideal, \(nickname)!", fr: "Sculpte ton corps idéal, \(nickname)", de: "Forme deinen Idealkörper, \(nickname)") }
+    static func goalCopyMobility(_ nickname: String) -> String { loc("\(nickname)さん、動ける身体へ", "Build a mobile body, \(nickname)", zhHans: "\(nickname)，打造灵活身体", ko: "\(nickname)님, 움직이는 몸으로", es: "¡Construye un cuerpo ágil, \(nickname)!", fr: "Construis un corps mobile, \(nickname)", de: "Baue einen beweglichen Körper, \(nickname)") }
+    static func goalCopyFitness(_ nickname: String) -> String { loc("\(nickname)さん、今日も鍛えよう", "Let's train today, \(nickname)", zhHans: "\(nickname)，今天也来训练吧", ko: "\(nickname)님, 오늘도 운동합시다", es: "¡Entrenemos hoy, \(nickname)!", fr: "Entraînons-nous aujourd'hui, \(nickname)", de: "Lass uns heute trainieren, \(nickname)") }
+
     // MARK: - ActiveWorkoutComponents
     static var routineComplete: String { loc("ルーティン完了!", "Routine Complete!", zhHans: "训练完成!", ko: "루틴 완료!", es: "¡Rutina completada!", fr: "Routine terminée !", de: "Routine abgeschlossen!") }
     static var routineCompleteHint: String { loc("追加で種目を記録するか、ワークアウトを終了できます", "Add more exercises or finish your workout", zhHans: "可以继续记录或结束训练", ko: "추가 종목을 기록하거나 워크아웃을 종료할 수 있습니다", es: "Añade más ejercicios o termina tu entrenamiento", fr: "Ajoutez des exercices ou terminez votre entraînement", de: "Weitere Übungen hinzufügen oder Training beenden") }
@@ -1584,13 +1668,8 @@ enum L10n {
     static func remainingDaysHours(_ d: Int, _ h: Int) -> String { loc("残り\(d)日\(h)時間", "\(d)d \(h)h left", zhHans: "剩余\(d)天\(h)小时", ko: "\(d)일 \(h)시간 남음", es: "\(d)d \(h)h restantes", fr: "\(d)j \(h)h restants", de: "\(d)T \(h)Std verbleibend") }
     static func remainingHoursLabel(_ h: Int) -> String { loc("残り\(h)時間", "\(h)h left", zhHans: "剩余\(h)小时", ko: "\(h)시간 남음", es: "\(h)h restantes", fr: "\(h)h restantes", de: "\(h)Std verbleibend") }
     static var recoveredCheck: String { loc("✅ 回復済み", "✅ Recovered", zhHans: "✅ 已恢复", ko: "✅ 회복됨", es: "✅ Recuperado", fr: "✅ Récupéré", de: "✅ Erholt") }
-    static var lastLabel: String { loc("最終", "Last", zhHans: "最近", ko: "최종", es: "Último", fr: "Dernier", de: "Letztes") }
-    static var bestLabel: String { loc("ベスト", "Best", zhHans: "最佳", ko: "베스트", es: "Mejor", fr: "Meilleur", de: "Bester") }
     static var setsLabel: String { loc("セット", "Sets", zhHans: "组数", ko: "세트", es: "Series", fr: "Séries", de: "Sätze") }
     static func monthlyAvgLabel(_ avg: Int) -> String { loc("月平均\(avg)", "avg \(avg)/mo", zhHans: "月均\(avg)", ko: "월 평균 \(avg)", es: "promedio \(avg)/mes", fr: "moy \(avg)/mois", de: "Ø \(avg)/Mon") }
-    static var weightProgress: String { loc("重量推移", "Weight Progress", zhHans: "重量变化", ko: "중량 추이", es: "Progreso de peso", fr: "Progression de poids", de: "Gewichtsverlauf") }
-    static var noRecordsYet: String { loc("まだ記録がありません", "No records yet", zhHans: "暂无记录", ko: "아직 기록이 없습니다", es: "Sin registros aún", fr: "Aucun enregistrement", de: "Noch keine Aufzeichnungen") }
-    static var exercisesInPeriod: String { loc("この期間の種目", "Exercises", zhHans: "此期间的动作", ko: "이 기간의 종목", es: "Ejercicios", fr: "Exercices", de: "Übungen") }
 
     // MARK: - MuscleDetailViewModel (追加)
     static var period1W: String { loc("1週", "1W", zhHans: "1周", ko: "1주", es: "1S", fr: "1S", de: "1W") }
@@ -1649,19 +1728,10 @@ enum L10n {
     static var splitWednesday: String { loc("水", "Wed", zhHans: "三", ko: "수", es: "Mié", fr: "Mer", de: "Mi") }
     static var splitThursday: String { loc("木", "Thu", zhHans: "四", ko: "목", es: "Jue", fr: "Jeu", de: "Do") }
     static var splitFriday: String { loc("金", "Fri", zhHans: "五", ko: "금", es: "Vie", fr: "Ven", de: "Fr") }
-    static var splitUpperBody: String { loc("上半身（胸・肩・腕）", "Upper Body (Chest, Shoulders, Arms)", zhHans: "上半身（胸·肩·臂）", ko: "상체 (가슴·어깨·팔)", es: "Tren superior (Pecho, Hombros, Brazos)", fr: "Haut du corps (Poitrine, Épaules, Bras)", de: "Oberkörper (Brust, Schultern, Arme)") }
-    static var splitLowerBody: String { loc("下半身（脚・体幹）", "Lower Body (Legs, Core)", zhHans: "下半身（腿·核心）", ko: "하체 (다리·코어)", es: "Tren inferior (Piernas, Core)", fr: "Bas du corps (Jambes, Core)", de: "Unterkörper (Beine, Core)") }
     static var splitPush: String { loc("プッシュ（胸・肩・三頭）", "Push (Chest, Shoulders, Triceps)", zhHans: "推（胸·肩·三头）", ko: "푸시 (가슴·어깨·삼두)", es: "Empuje (Pecho, Hombros, Tríceps)", fr: "Poussée (Poitrine, Épaules, Triceps)", de: "Push (Brust, Schultern, Trizeps)") }
     static var splitPull: String { loc("プル（背中・二頭）", "Pull (Back, Biceps)", zhHans: "拉（背·二头）", ko: "풀 (등·이두)", es: "Tirón (Espalda, Bíceps)", fr: "Traction (Dos, Biceps)", de: "Pull (Rücken, Bizeps)") }
-    static var splitLegs: String { loc("脚（脚・体幹）", "Legs (Legs, Core)", zhHans: "腿（腿·核心）", ko: "다리 (다리·코어)", es: "Piernas (Piernas, Core)", fr: "Jambes (Jambes, Core)", de: "Beine (Beine, Core)") }
-    static var splitChestShouldersTri: String { loc("胸・肩・三頭", "Chest · Shoulders · Triceps", zhHans: "胸·肩·三头", ko: "가슴·어깨·삼두", es: "Pecho · Hombros · Tríceps", fr: "Poitrine · Épaules · Triceps", de: "Brust · Schultern · Trizeps") }
-    static var splitBackBiceps: String { loc("背中・二頭", "Back · Biceps", zhHans: "背·二头", ko: "등·이두", es: "Espalda · Bíceps", fr: "Dos · Biceps", de: "Rücken · Bizeps") }
     static var splitLegsOnly: String { loc("脚", "Legs", zhHans: "腿", ko: "다리", es: "Piernas", fr: "Jambes", de: "Beine") }
     static var splitShouldersArms: String { loc("肩・腕", "Shoulders · Arms", zhHans: "肩·臂", ko: "어깨·팔", es: "Hombros · Brazos", fr: "Épaules · Bras", de: "Schultern · Arme") }
-    static var splitChest: String { loc("胸", "Chest", zhHans: "胸", ko: "가슴", es: "Pecho", fr: "Poitrine", de: "Brust") }
-    static var splitBack: String { loc("背中", "Back", zhHans: "背", ko: "등", es: "Espalda", fr: "Dos", de: "Rücken") }
-    static var splitShoulders: String { loc("肩", "Shoulders", zhHans: "肩", ko: "어깨", es: "Hombros", fr: "Épaules", de: "Schultern") }
-    static var splitArms: String { loc("腕", "Arms", zhHans: "臂", ko: "팔", es: "Brazos", fr: "Bras", de: "Arme") }
 
     // MARK: - ImportDataConverter (追加)
     static func importWorkoutsCount(_ count: Int) -> String { loc("\(count)件のワークアウトをインポート", "\(count) workouts imported", zhHans: "\(count)次训练已导入", ko: "\(count)건의 운동을 가져오기 완료", es: "\(count) entrenamientos importados", fr: "\(count) entraînements importés", de: "\(count) Trainings importiert") }

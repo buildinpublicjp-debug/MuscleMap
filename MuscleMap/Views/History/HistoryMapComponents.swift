@@ -56,8 +56,6 @@ struct HistoryMapView: View {
 struct ExerciseTrendSection: View {
     let trendData: [ExerciseTrendData]
     @State private var selectedIndex: Int = 0
-    private var localization: LocalizationManager { LocalizationManager.shared }
-    private var isJapanese: Bool { localization.currentLanguage == .japanese }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -67,11 +65,11 @@ struct ExerciseTrendSection: View {
                 Image(systemName: "chart.xyaxis.line")
                     .font(.subheadline.bold())
                     .foregroundStyle(Color.mmAccentPrimary)
-                Text(isJapanese ? "種目別 重量推移" : "Weight Progress by Exercise")
+                Text(L10n.weightProgressByExercise)
                     .font(.headline)
                     .foregroundStyle(Color.mmTextPrimary)
                 Spacer()
-                Text(isJapanese ? "全期間" : "All Time")
+                Text(L10n.allTime)
                     .font(.caption.bold())
                     .foregroundStyle(Color.mmAccentPrimary)
                     .padding(.horizontal, 8)
@@ -86,7 +84,7 @@ struct ExerciseTrendSection: View {
                     Image(systemName: "dumbbell")
                         .font(.title2)
                         .foregroundStyle(Color.mmTextSecondary.opacity(0.4))
-                    Text(isJapanese ? "まずトレーニングを記録しよう" : "Record your first workout")
+                    Text(L10n.recordFirstWorkout)
                         .font(.subheadline)
                         .foregroundStyle(Color.mmTextSecondary)
                 }
@@ -103,10 +101,7 @@ struct ExerciseTrendSection: View {
                                 }
                                 HapticManager.lightTap()
                             } label: {
-                                Text(localization.currentLanguage == .japanese
-                                    ? data.exercise.nameJA
-                                    : data.exercise.nameEN
-                                )
+                                Text(data.exercise.localizedName)
                                 .font(.caption.bold())
                                 .lineLimit(1)
                                 .padding(.horizontal, 14)
@@ -143,7 +138,7 @@ struct ExerciseTrendSection: View {
                                     Image(systemName: "chart.line.uptrend.xyaxis")
                                         .font(.title2)
                                         .foregroundStyle(Color.mmTextSecondary.opacity(0.4))
-                                    Text(isJapanese ? "重量データなし（体重のみの種目は表示されません）" : "No weight data (bodyweight-only exercises are not shown)")
+                                    Text(L10n.noWeightData)
                                         .font(.caption)
                                         .foregroundStyle(Color.mmTextSecondary)
                                         .multilineTextAlignment(.center)
@@ -214,11 +209,11 @@ struct ExerciseTrendSection: View {
                         HStack(spacing: 16) {
                             HStack(spacing: 4) {
                                 Circle().fill(Color.mmPRGold).frame(width: 8, height: 8)
-                                Text(isJapanese ? "PR達成" : "PR").font(.caption2).foregroundStyle(Color.mmTextSecondary)
+                                Text(L10n.prAchievedLabel).font(.caption2).foregroundStyle(Color.mmTextSecondary)
                             }
                             HStack(spacing: 4) {
                                 Circle().fill(Color.mmAccentPrimary).frame(width: 8, height: 8)
-                                Text(isJapanese ? "最大重量" : "Max Weight").font(.caption2).foregroundStyle(Color.mmTextSecondary)
+                                Text(L10n.maxWeightLabel).font(.caption2).foregroundStyle(Color.mmTextSecondary)
                             }
                             Spacer()
                         }
@@ -231,7 +226,7 @@ struct ExerciseTrendSection: View {
                             // 合計セット数
                             TrendStatBox(
                                 icon: "number",
-                                label: isJapanese ? "合計セット" : "Total Sets",
+                                label: L10n.totalSetsLabel,
                                 value: "\(data.totalSets)"
                             )
 
@@ -242,7 +237,7 @@ struct ExerciseTrendSection: View {
                             TrendStatBox(
                                 icon: "trophy.fill",
                                 iconColor: .mmPRGold,
-                                label: isJapanese ? "ベスト" : "Best",
+                                label: L10n.bestLabel,
                                 value: data.bestWeight.map { "\(Int($0))kg" } ?? "-"
                             )
 
@@ -254,13 +249,13 @@ struct ExerciseTrendSection: View {
                                 TrendStatBox(
                                     icon: progress >= 0 ? "arrow.up.right" : "arrow.down.right",
                                     iconColor: progress >= 0 ? Color.mmAccentPrimary : Color.mmDestructive,
-                                    label: isJapanese ? "成長率" : "Growth",
+                                    label: L10n.growthLabel,
                                     value: String(format: "%+.1f%%", progress)
                                 )
                             } else {
                                 TrendStatBox(
                                     icon: "arrow.up.right",
-                                    label: isJapanese ? "成長率" : "Growth",
+                                    label: L10n.growthLabel,
                                     value: "-"
                                 )
                             }
@@ -310,7 +305,6 @@ private struct TrendStatBox: View {
 struct PeriodSelector: View {
     let selectedPeriod: HistoryPeriod
     let onPeriodChanged: (HistoryPeriod) -> Void
-    private var localization: LocalizationManager { LocalizationManager.shared }
 
     var body: some View {
         HStack(spacing: 6) {
@@ -319,7 +313,7 @@ struct PeriodSelector: View {
                     onPeriodChanged(period)
                     HapticManager.lightTap()
                 } label: {
-                    Text(localization.currentLanguage == .japanese ? period.rawValue : period.englishName)
+                    Text(period.localizedName)
                         .font(.subheadline.weight(selectedPeriod == period ? .bold : .medium))
                         .foregroundStyle(selectedPeriod == period ? Color.mmBgPrimary : Color.mmTextPrimary.opacity(0.8))
                         .padding(.horizontal, 20)
@@ -463,8 +457,6 @@ struct HistoryMusclePathView: View {
 // MARK: - 履歴マップ凡例
 
 struct HistoryMapLegend: View {
-    private var localization: LocalizationManager { LocalizationManager.shared }
-
     var body: some View {
         VStack(spacing: 8) {
             HStack(spacing: 0) {
@@ -486,19 +478,19 @@ struct HistoryMapLegend: View {
             .clipShape(RoundedRectangle(cornerRadius: 4))
 
             HStack {
-                Text(localization.currentLanguage == .japanese ? "未トレ" : "None")
+                Text(L10n.legendNone)
                     .font(.caption2)
                     .foregroundStyle(Color.mmTextSecondary)
                 Spacer()
-                Text(localization.currentLanguage == .japanese ? "少" : "Low")
+                Text(L10n.legendLow)
                     .font(.caption2)
                     .foregroundStyle(Color.mmTextSecondary)
                 Spacer()
-                Text(localization.currentLanguage == .japanese ? "中" : "Mid")
+                Text(L10n.legendMid)
                     .font(.caption2)
                     .foregroundStyle(Color.mmTextSecondary)
                 Spacer()
-                Text(localization.currentLanguage == .japanese ? "多" : "High")
+                Text(L10n.legendHigh)
                     .font(.caption2)
                     .foregroundStyle(Color.mmTextSecondary)
             }
@@ -523,7 +515,7 @@ struct ExerciseTrendProBanner: View {
                     Text(L10n.exerciseTrendTitle)
                         .font(.subheadline.bold())
                         .foregroundStyle(Color.mmTextPrimary)
-                    Text(LocalizationManager.shared.currentLanguage == .japanese ? "全期間の種目別 重量推移グラフ" : "All-time weight progress by exercise")
+                    Text(L10n.trendProSubtitle)
                         .font(.caption)
                         .foregroundStyle(Color.mmTextSecondary)
                 }

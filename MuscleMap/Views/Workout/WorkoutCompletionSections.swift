@@ -67,9 +67,7 @@ struct NextRecommendedDaySection: View {
         if daysUntil <= 0 { return L10n.today }
         if daysUntil == 1 { return L10n.tomorrow }
         let fmt = DateFormatter()
-        fmt.dateFormat = LocalizationManager.shared.currentLanguage == .japanese
-            ? "M月d日（E）"
-            : "MMM d (EEE)"
+        fmt.dateFormat = L10n.shortDateFormat
         fmt.locale = LocalizationManager.shared.currentLanguage.locale
         return fmt.string(from: recommendedDate)
     }
@@ -116,7 +114,7 @@ struct NextRecommendedDaySection: View {
             Button {
                 HapticManager.lightTap()
                 NotificationManager.shared.scheduleRecoveryReminder(
-                    nextPartName: nextRoutineName ?? (LocalizationManager.shared.currentLanguage == .japanese ? "トレーニング" : "Training"),
+                    nextPartName: nextRoutineName ?? L10n.trainingFallback,
                     recoveryDate: recommendedDate
                 )
                 withAnimation {

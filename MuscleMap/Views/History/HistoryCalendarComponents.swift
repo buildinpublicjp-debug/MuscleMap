@@ -105,7 +105,6 @@ struct VolumeChartCard: View {
 
 struct GroupVolumeCard: View {
     let volume: [MuscleGroup: Int]
-    private var localization: LocalizationManager { LocalizationManager.shared }
 
     private var sortedGroups: [(group: MuscleGroup, sets: Int)] {
         MuscleGroup.allCases.map { group in
@@ -126,7 +125,7 @@ struct GroupVolumeCard: View {
             VStack(spacing: 8) {
                 ForEach(sortedGroups, id: \.group) { item in
                     HStack(spacing: 8) {
-                        Text(localization.currentLanguage == .japanese ? item.group.japaneseName : item.group.englishName)
+                        Text(item.group.localizedName)
                             .font(.caption)
                             .foregroundStyle(Color.mmTextSecondary)
                             .frame(width: 48, alignment: .trailing)
@@ -174,7 +173,6 @@ struct GroupVolumeCard: View {
 
 struct TopExercisesCard: View {
     let exercises: [(exercise: ExerciseDefinition, count: Int)]
-    private var localization: LocalizationManager { LocalizationManager.shared }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -199,7 +197,7 @@ struct TopExercisesCard: View {
                         .clipped()
 
                     VStack(alignment: .leading, spacing: 2) {
-                        Text(localization.currentLanguage == .japanese ? item.exercise.nameJA : item.exercise.nameEN)
+                        Text(item.exercise.localizedName)
                             .font(.subheadline)
                             .foregroundStyle(Color.mmTextPrimary)
                         Text(item.exercise.localizedEquipment)

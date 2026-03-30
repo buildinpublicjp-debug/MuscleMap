@@ -116,6 +116,16 @@ extension ExerciseDefinition {
         }
     }
 
+    /// セカンダリ言語の種目名（日本語選択時は英語、それ以外は日本語）
+    @MainActor var secondaryLocalizedName: String {
+        switch LocalizationManager.shared.currentLanguage {
+        case .japanese:
+            return nameEN
+        default:
+            return nameJA
+        }
+    }
+
     /// ローカライズされたカテゴリ名
     @MainActor var localizedCategory: String {
         L10n.localizedCategory(category)

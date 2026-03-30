@@ -109,12 +109,11 @@ struct ExercisePickerView: View {
 
 struct ExerciseRow: View {
     let exercise: ExerciseDefinition
-    private var localization: LocalizationManager { LocalizationManager.shared }
 
     var body: some View {
         HStack {
             VStack(alignment: .leading, spacing: 4) {
-                Text(localization.currentLanguage == .japanese ? exercise.nameJA : exercise.nameEN)
+                Text(exercise.localizedName)
                     .font(.subheadline)
                     .foregroundStyle(Color.mmTextPrimary)
 
@@ -130,7 +129,7 @@ struct ExerciseRow: View {
 
             // ターゲット筋肉タグ
             if let primary = exercise.primaryMuscle {
-                Text(localization.currentLanguage == .japanese ? primary.japaneseName : primary.englishName)
+                Text(primary.localizedName)
                     .font(.caption2)
                     .padding(.horizontal, 6)
                     .padding(.vertical, 2)

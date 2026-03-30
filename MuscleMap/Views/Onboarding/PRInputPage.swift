@@ -275,15 +275,15 @@ private struct MuscleExerciseSheet: View {
 
     @State private var selectedEquipment: String? = nil
 
-    private var localization: LocalizationManager { LocalizationManager.shared }
-    private var isJapanese: Bool { localization.currentLanguage == .japanese }
-
-    private let equipmentFilters: [(key: String, label: String, labelEn: String)] = [
-        ("バーベル", "バーベル", "Barbell"),
-        ("ダンベル", "ダンベル", "Dumbbell"),
-        ("マシン", "マシン", "Machine"),
-        ("ケーブル", "ケーブル", "Cable"),
-    ]
+    /// 器具フィルタ（keyはデータ照合用、labelはローカライズ表示用）
+    private var equipmentFilters: [(key: String, label: String)] {
+        [
+            ("バーベル", L10n.equipBarbell),
+            ("ダンベル", L10n.equipDumbbell),
+            ("マシン", L10n.equipMachine),
+            ("ケーブル", L10n.equipCable),
+        ]
+    }
 
     private var exercises: [ExerciseDefinition] {
         var result = ExerciseStore.shared.exercises(targeting: muscle)
@@ -301,7 +301,7 @@ private struct MuscleExerciseSheet: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack {
-                Text(isJapanese ? muscle.japaneseName : muscle.englishName)
+                Text(muscle.localizedName)
                     .font(.headline.bold())
                     .foregroundStyle(Color.mmOnboardingTextMain)
                 Spacer()
@@ -323,7 +323,7 @@ private struct MuscleExerciseSheet: View {
                     }
                     ForEach(equipmentFilters, id: \.key) { filter in
                         equipmentChip(
-                            text: isJapanese ? filter.label : filter.labelEn,
+                            text: filter.label,
                             isSelected: selectedEquipment == filter.key
                         ) {
                             selectedEquipment = selectedEquipment == filter.key ? nil : filter.key

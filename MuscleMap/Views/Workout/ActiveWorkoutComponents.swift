@@ -321,10 +321,6 @@ struct RoutineProgressBar: View {
     let currentExerciseId: String?
     let onExerciseTap: (String) -> Void
 
-    private var isJapanese: Bool {
-        LocalizationManager.shared.currentLanguage == .japanese
-    }
-
     private var completedCount: Int {
         day.exercises.filter { completion[$0.exerciseId] == true }.count
     }
@@ -444,10 +440,6 @@ struct RoutineProgressBar: View {
 // MARK: - ルーティン完了カード
 
 struct RoutineCompleteCard: View {
-    private var isJapanese: Bool {
-        LocalizationManager.shared.currentLanguage == .japanese
-    }
-
     var body: some View {
         VStack(spacing: 8) {
             Image(systemName: "checkmark.circle.fill")

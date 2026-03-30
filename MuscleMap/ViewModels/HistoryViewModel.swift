@@ -532,6 +532,15 @@ enum HistoryPeriod: String, CaseIterable {
         case .all: return "All Time"
         }
     }
+
+    @MainActor
+    var localizedName: String {
+        switch self {
+        case .week: return L10n.period7Days
+        case .month: return L10n.period30Days
+        case .all: return L10n.allTime
+        }
+    }
 }
 
 // MARK: - 期間内統計

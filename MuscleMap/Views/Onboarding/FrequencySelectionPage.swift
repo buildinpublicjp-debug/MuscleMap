@@ -39,7 +39,6 @@ enum WeeklyFrequency: Int, CaseIterable, Codable {
 
     /// スケジュールプレビュー用の曜日割り当て（splitPartsから動的生成）
     var schedulePreview: [String] {
-        let isJapanese = LocalizationManager.shared.currentLanguage == .japanese
         let parts = WorkoutRecommendationEngine.splitParts(for: self.rawValue)
         var schedule: [String] = Array(repeating: "OFF", count: 7)
 
@@ -48,7 +47,7 @@ enum WeeklyFrequency: Int, CaseIterable, Codable {
             let part = parts[partIndex]
             // muscleGroups の主要グループ名を短縮表示（最大2つ）
             let names = part.muscleGroups.prefix(2).map { group in
-                isJapanese ? group.japaneseName : group.shortEnglishName
+                group.localizedName
             }
             schedule[dayIndex] = names.joined(separator: "・")
         }
@@ -497,10 +496,6 @@ private struct FrequencyMuscleExerciseSheet: View {
     let muscle: Muscle
     @State private var selectedExercise: ExerciseDefinition?
 
-    private var isJapanese: Bool {
-        LocalizationManager.shared.currentLanguage == .japanese
-    }
-
     private var exercises: [ExerciseDefinition] {
         ExerciseStore.shared.exercises(targeting: muscle)
             .filter { ExerciseGifView.hasGif(exerciseId: $0.id) }
@@ -567,9 +562,7 @@ private struct FrequencyMuscleExerciseSheet: View {
                 .padding(.vertical, 16)
             }
             .background(Color.mmOnboardingBg)
-            .navigationTitle(isJapanese
-                ? "\(muscle.japaneseName) — \(exercises.count)種目"
-                : "\(muscle.englishName) — \(exercises.count) exercises")
+            .navigationTitle(L10n.muscleExerciseSheetTitle(muscle.localizedName, exercises.count))
             .navigationBarTitleDisplayMode(.inline)
             .sheet(item: $selectedExercise) { exercise in
                 ExerciseDetailView(exercise: exercise, hideStartWorkoutButton: true)

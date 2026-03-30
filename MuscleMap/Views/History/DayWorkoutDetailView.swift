@@ -8,17 +8,11 @@ struct DayWorkoutDetailView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
     @State private var daySessions: [WorkoutSession] = []
-    private var localization: LocalizationManager { LocalizationManager.shared }
 
     private var localizedDateString: String {
         let formatter = DateFormatter()
-        if localization.currentLanguage == .japanese {
-            formatter.locale = Locale(identifier: "ja_JP")
-            formatter.dateFormat = "yyyy年M月d日"
-        } else {
-            formatter.locale = Locale(identifier: "en_US")
-            formatter.dateStyle = .medium
-        }
+        formatter.locale = Locale.current
+        formatter.dateFormat = L10n.dateFormatYearMonthDay
         return formatter.string(from: date)
     }
 
@@ -91,7 +85,6 @@ private struct SessionDetailCard: View {
     let session: WorkoutSession
     var onSessionDeleted: () -> Void
     @Environment(\.modelContext) private var modelContext
-    private var localization: LocalizationManager { LocalizationManager.shared }
 
     // セット編集用
     @State private var setToEdit: WorkoutSet?
@@ -164,8 +157,7 @@ private struct SessionDetailCard: View {
             // コンパクトサマリー（1行）+ 削除メニュー
             HStack {
                 let volumeStr = totalVolume >= 1000 ? String(format: "%.1fk", totalVolume / 1000) : String(format: "%.0f", totalVolume)
-                let isJa = localization.currentLanguage == .japanese
-                Text("\(session.startDate.formatted(date: .omitted, time: .shortened)) · \(duration) · \(exerciseSets.count)\(isJa ? "種目" : " ex") · \(session.sets.count)\(isJa ? "セット" : " sets") · \(volumeStr)kg")
+                Text("\(session.startDate.formatted(date: .omitted, time: .shortened)) · \(duration) · \(L10n.exerciseCountSuffix(exerciseSets.count)) · \(L10n.setsLabel(session.sets.count)) · \(volumeStr)kg")
                     .font(.caption)
                     .foregroundStyle(Color.mmTextSecondary)
                     .lineLimit(1)
@@ -176,13 +168,7 @@ private struct SessionDetailCard: View {
                     Button(role: .destructive) {
                         showDeleteSessionConfirmation = true
                     } label: {
-                        Label(
-                            LocalizationManager.localized(
-                                ja: "セッションを削除",
-                                en: "Delete Session"
-                            ),
-                            systemImage: "trash"
-                        )
+                        Label(L10n.deleteSession, systemImage: "trash")
                     }
                 } label: {
                     Image(systemName: "ellipsis")
@@ -217,12 +203,12 @@ private struct SessionDetailCard: View {
 
                     // 種目名 + サマリー
                     VStack(alignment: .leading, spacing: 2) {
-                        Text(localization.currentLanguage == .japanese ? entry.exercise.nameJA : entry.exercise.nameEN)
+                        Text(entry.exercise.localizedName)
                             .font(.headline.bold())
                             .foregroundStyle(Color.mmAccentPrimary)
                         let exerciseVolume = entry.sets.reduce(0.0) { $0 + $1.weight * Double($1.reps) }
                         HStack(spacing: 4) {
-                            Text(localization.currentLanguage == .japanese ? "\(entry.sets.count)セット" : "\(entry.sets.count) sets")
+                            Text(L10n.setsLabel(entry.sets.count))
                                 .font(.caption)
                                 .foregroundStyle(Color.mmTextSecondary)
                             if exerciseVolume > 0 {
@@ -299,7 +285,7 @@ private struct SessionDetailCard: View {
             // 筋肉マップ（下部、小さめ）
             if !stimulatedMuscleMapping.isEmpty {
                 VStack(alignment: .leading, spacing: 8) {
-                    Text(localization.currentLanguage == .japanese ? "刺激した筋肉" : "Muscles Worked")
+                    Text(L10n.musclesWorked)
                         .font(.caption.bold())
                         .foregroundStyle(Color.mmTextSecondary)
 
@@ -345,10 +331,7 @@ private struct SessionDetailCard: View {
         }
         // セッション削除確認
         .alert(
-            LocalizationManager.localized(
-                ja: "このセッションを削除しますか？\n全てのセットと関連データが削除されます。",
-                en: "Delete this session?\nAll sets and related data will be removed."
-            ),
+            L10n.deleteSessionConfirm,
             isPresented: $showDeleteSessionConfirmation
         ) {
             Button(L10n.cancel, role: .cancel) {}
@@ -493,9 +476,7 @@ private struct HistorySetEditSheet: View {
 
     private var exerciseName: String {
         if let exercise = ExerciseStore.shared.exercise(for: workoutSet.exerciseId) {
-            return LocalizationManager.shared.currentLanguage == .japanese
-                ? exercise.nameJA
-                : exercise.nameEN
+            return exercise.localizedName
         }
         return workoutSet.exerciseId
     }
@@ -519,7 +500,7 @@ private struct HistorySetEditSheet: View {
 
                     // 重量入力
                     VStack(spacing: 8) {
-                        Text(LocalizationManager.localized(ja: "重量 (kg)", en: "Weight (kg)"))
+                        Text(L10n.weightKgInput)
                             .font(.caption)
                             .foregroundStyle(Color.mmTextSecondary)
 
@@ -552,7 +533,7 @@ private struct HistorySetEditSheet: View {
 
                     // レップ数入力
                     VStack(spacing: 8) {
-                        Text(LocalizationManager.localized(ja: "レップ数", en: "Reps"))
+                        Text(L10n.repsInput)
                             .font(.caption)
                             .foregroundStyle(Color.mmTextSecondary)
 

@@ -23,7 +23,6 @@ struct WorkoutCompletionView: View {
     @State private var daysSinceLastPhoto: Int?
     @State private var prUpdatesMap: [String: PRUpdate] = [:]
 
-    private var localization: LocalizationManager { LocalizationManager.shared }
 
     /// Instagramがインストールされているか
     private var isInstagramAvailable: Bool {
@@ -105,7 +104,7 @@ struct WorkoutCompletionView: View {
     }
 
     private var exerciseNames: [String] {
-        exercisesDone.map { localization.currentLanguage == .japanese ? $0.nameJA : $0.nameEN }
+        exercisesDone.map { $0.localizedName }
     }
 
     private func formatVolume(_ volume: Double) -> String {
@@ -113,23 +112,13 @@ struct WorkoutCompletionView: View {
     }
 
     private var shareText: String {
-        if localization.currentLanguage == .japanese {
-            return """
-            今日のワークアウト完了
-            \(uniqueExercises)種目 · \(totalSets)セット · \(durationMinutes)分
-            MuscleMap で記録
-            \(AppConstants.shareHashtag)
-            \(AppConstants.appStoreURL)
-            """
-        } else {
-            return """
-            Workout Complete
-            \(uniqueExercises) exercises · \(totalSets) sets · \(durationMinutes)min
-            Tracked with MuscleMap
-            \(AppConstants.shareHashtag)
-            \(AppConstants.appStoreURL)
-            """
-        }
+        return """
+        \(L10n.workoutCompleteShareTitle)
+        \(L10n.workoutCompleteSummary(uniqueExercises, totalSets, durationMinutes))
+        \(L10n.trackedWithMuscleMap)
+        \(AppConstants.shareHashtag)
+        \(AppConstants.appStoreURL)
+        """
     }
 
     // MARK: - Body
@@ -304,7 +293,7 @@ struct WorkoutCompletionView: View {
     }
 
     private func exerciseCard(_ exercise: ExerciseDefinition) -> some View {
-        let name = localization.currentLanguage == .japanese ? exercise.nameJA : exercise.nameEN
+        let name = exercise.localizedName
         let sets = setsCount(for: exercise.id)
         let best = bestSet(for: exercise.id)
         let prUpdate = prUpdatesMap[exercise.id]
@@ -392,12 +381,7 @@ struct WorkoutCompletionView: View {
     // MARK: - 3. サマリー（1行）
 
     private var compactSummary: some View {
-        let isJapanese = localization.currentLanguage == .japanese
-        let text = isJapanese
-            ? "\(uniqueExercises)種目 · \(totalSets)セット · \(durationMinutes)分"
-            : "\(uniqueExercises) exercises · \(totalSets) sets · \(durationMinutes)min"
-
-        return Text(text)
+        return Text(L10n.workoutCompleteSummary(uniqueExercises, totalSets, durationMinutes))
             .font(.caption)
             .foregroundStyle(Color.mmTextSecondary)
             .frame(maxWidth: .infinity)
@@ -406,16 +390,13 @@ struct WorkoutCompletionView: View {
     // MARK: - プログレスフォトボタン
 
     private var progressPhotoButton: some View {
-        let isJapanese = localization.currentLanguage == .japanese
         return Button {
             HapticManager.lightTap()
             showingCamera = true
         } label: {
             HStack(spacing: 8) {
                 Image(systemName: photoSaved ? "checkmark.circle.fill" : "camera.fill")
-                Text(photoSaved
-                     ? (isJapanese ? "記録済み" : "Photo Saved")
-                     : (isJapanese ? "体の記録を撮る" : "Take Progress Photo"))
+                Text(photoSaved ? L10n.photoSaved : L10n.takeProgressPhoto)
             }
             .font(.system(size: 16, weight: .bold))
             .foregroundStyle(photoSaved ? Color.mmAccentPrimary : Color.mmTextPrimary)
@@ -430,14 +411,11 @@ struct WorkoutCompletionView: View {
     }
 
     private func photoReminderBanner(days: Int) -> some View {
-        let isJapanese = localization.currentLanguage == .japanese
         return HStack(spacing: 8) {
             Image(systemName: "photo.on.rectangle.angled")
                 .font(.subheadline)
                 .foregroundStyle(Color.mmWarning)
-            Text(isJapanese
-                 ? "最後の体の記録から\(days)日経過"
-                 : "It's been \(days) days since your last progress photo")
+            Text(L10n.photoReminderDays(days))
                 .font(.caption)
                 .foregroundStyle(Color.mmTextSecondary)
         }
@@ -517,7 +495,7 @@ struct WorkoutCompletionView: View {
     private func prepareShareImage() {
         let prItems: [SharePRItem] = prUpdatesMap.values.prefix(3).compactMap { update in
             guard let exercise = ExerciseStore.shared.exercise(for: update.exerciseId) else { return nil }
-            let name = localization.currentLanguage == .japanese ? exercise.nameJA : exercise.nameEN
+            let name = exercise.localizedName
             return SharePRItem(
                 exerciseName: name,
                 previousWeight: update.previousWeight,
@@ -529,7 +507,7 @@ struct WorkoutCompletionView: View {
         // 種目ごとの最大重量×レップ（シェアカード用）
         let exerciseEntries: [ShareExerciseEntry] = exercisesDone.prefix(3).compactMap { exercise in
             guard let best = bestSet(for: exercise.id), best.weight > 0 else { return nil }
-            let name = localization.currentLanguage == .japanese ? exercise.nameJA : exercise.nameEN
+            let name = exercise.localizedName
             return ShareExerciseEntry(exerciseName: name, weight: best.weight, reps: best.reps)
         }
 
@@ -567,8 +545,7 @@ struct WorkoutCompletionView: View {
         let recoveryDate = Date().addingTimeInterval(maxHours * 3600)
 
         let nextPart = WorkoutRecommendationEngine.todaysPart(modelContext: modelContext)
-        let isJa = LocalizationManager.shared.currentLanguage == .japanese
-        let partName = nextPart?.localizedName ?? (isJa ? "トレーニング" : "Training")
+        let partName = nextPart?.localizedName ?? L10n.trainingFallback
 
         NotificationManager.shared.scheduleRecoveryReminder(
             nextPartName: partName,

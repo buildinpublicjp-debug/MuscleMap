@@ -9,14 +9,13 @@ struct ExercisePreviewSheet: View {
     @Environment(\.dismiss) private var dismiss
     @State private var showAllPrimaryMuscles = false
     @State private var showAllSecondaryMuscles = false
-    private var localization: LocalizationManager { LocalizationManager.shared }
 
     private var exerciseName: String {
-        localization.currentLanguage == .japanese ? exercise.nameJA : exercise.nameEN
+        exercise.localizedName
     }
 
     private var secondaryName: String {
-        localization.currentLanguage == .japanese ? exercise.nameEN : exercise.nameJA
+        exercise.secondaryLocalizedName
     }
 
     /// Primary筋肉（刺激度60%以上）
@@ -379,11 +378,10 @@ private struct MuscleChip: View {
     let muscle: Muscle
     let percentage: Int
     let isPrimary: Bool
-    private var localization: LocalizationManager { LocalizationManager.shared }
 
     var body: some View {
         HStack(spacing: 4) {
-            Text(localization.currentLanguage == .japanese ? muscle.japaneseName : muscle.englishName)
+            Text(muscle.localizedName)
             Text("\(percentage)%")
                 .fontWeight(.bold)
         }

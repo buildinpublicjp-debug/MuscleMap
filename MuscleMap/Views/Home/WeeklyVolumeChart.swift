@@ -8,10 +8,6 @@ struct WeeklyVolumeChart: View {
     @State private var dailyVolumes: [WeeklyDayVolume] = []
     @State private var lastWeekTotal: Double = 0
 
-    private var isJapanese: Bool {
-        LocalizationManager.shared.currentLanguage == .japanese
-    }
-
     /// 今週の合計
     private var thisWeekTotal: Double {
         dailyVolumes.reduce(0) { $0 + $1.volume }
@@ -30,7 +26,7 @@ struct WeeklyVolumeChart: View {
         VStack(alignment: .leading, spacing: 10) {
             // ヘッダー行
             HStack(alignment: .firstTextBaseline) {
-                Text(isJapanese ? "今週" : "This week")
+                Text(L10n.thisWeek)
                     .font(.system(size: 13, weight: .bold))
                     .foregroundStyle(Color.mmTextPrimary)
 
@@ -91,9 +87,7 @@ struct WeeklyVolumeChart: View {
             // フッター行
             HStack {
                 if lastWeekTotal > 0 {
-                    Text(isJapanese
-                        ? "先週: \(formatVolume(lastWeekTotal)) kg"
-                        : "Last week: \(formatVolume(lastWeekTotal)) kg")
+                    Text(L10n.lastWeekVolume(formatVolume(lastWeekTotal)))
                         .font(.system(size: 9))
                         .foregroundStyle(Color.mmTextSecondary.opacity(0.4))
                 }
@@ -102,9 +96,7 @@ struct WeeklyVolumeChart: View {
 
                 let sessionCount = dailyVolumes.filter { $0.volume > 0 }.count
                 if sessionCount > 0 {
-                    Text(isJapanese
-                        ? "\(sessionCount)セッション"
-                        : "\(sessionCount) sessions")
+                    Text(L10n.sessionCount(sessionCount))
                         .font(.system(size: 9))
                         .foregroundStyle(Color.mmTextSecondary.opacity(0.4))
                 }
@@ -161,9 +153,7 @@ struct WeeklyVolumeChart: View {
         guard let allSets = try? modelContext.fetch(descriptor) else { return }
 
         // 曜日ラベル
-        let dayLabels: [String] = isJapanese
-            ? ["月", "火", "水", "木", "金", "土", "日"]
-            : ["M", "T", "W", "T", "F", "S", "S"]
+        let dayLabels: [String] = L10n.weekdayShortLabels()
 
         // 今週の日別ボリューム
         var volumes: [WeeklyDayVolume] = []

@@ -7,7 +7,6 @@ struct MuscleHistoryDetailSheet: View {
     let detail: MuscleHistoryDetail
     let period: HistoryPeriod
     @Environment(\.dismiss) private var dismiss
-    private var localization: LocalizationManager { LocalizationManager.shared }
 
     var body: some View {
         NavigationStack {
@@ -31,10 +30,7 @@ struct MuscleHistoryDetailSheet: View {
                 }
             }
             .background(Color.mmBgSecondary) // モーダル背景を差別化
-            .navigationTitle(localization.currentLanguage == .japanese
-                ? detail.muscle.japaneseName
-                : detail.muscle.englishName
-            )
+            .navigationTitle(detail.muscle.localizedName)
             .navigationBarTitleDisplayMode(.inline)
             .toolbarColorScheme(.dark, for: .navigationBar)
             .toolbar {
@@ -62,17 +58,11 @@ struct MuscleHistoryDetailSheet: View {
             // 筋肉名とグループ
             HStack {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(localization.currentLanguage == .japanese
-                        ? detail.muscle.japaneseName
-                        : detail.muscle.englishName
-                    )
+                    Text(detail.muscle.localizedName)
                     .font(.title3.bold())
                     .foregroundStyle(Color.mmTextPrimary)
 
-                    Text(localization.currentLanguage == .japanese
-                        ? detail.muscle.group.japaneseName
-                        : detail.muscle.group.englishName
-                    )
+                    Text(detail.muscle.group.localizedName)
                     .font(.caption)
                     .foregroundStyle(Color.mmAccentPrimary)
                 }
@@ -80,10 +70,7 @@ struct MuscleHistoryDetailSheet: View {
                 Spacer()
 
                 // 期間バッジ
-                Text(localization.currentLanguage == .japanese
-                    ? period.rawValue
-                    : period.englishName
-                )
+                Text(period.localizedName)
                 .font(.caption.bold())
                 .foregroundStyle(Color.mmBgPrimary)
                 .padding(.horizontal, 10)
@@ -103,7 +90,7 @@ struct MuscleHistoryDetailSheet: View {
         VStack(spacing: 12) {
             // 重量推移グラフ
             VStack(alignment: .leading, spacing: 8) {
-                Text(localization.currentLanguage == .japanese ? "重量推移" : "Weight Progress")
+                Text(L10n.weightProgress)
                     .font(.subheadline.bold())
                     .foregroundStyle(Color.mmTextPrimary)
 
@@ -126,7 +113,7 @@ struct MuscleHistoryDetailSheet: View {
                     Image(systemName: "calendar")
                         .font(.caption)
                         .foregroundStyle(Color.mmAccentSecondary)
-                    Text(localization.currentLanguage == .japanese ? "最終" : "Last")
+                    Text(L10n.lastLabel)
                         .font(.caption2)
                         .foregroundStyle(Color.mmTextSecondary)
                     Text(detail.lastWorkoutDate.map { formatDate($0) } ?? "-")
@@ -140,7 +127,7 @@ struct MuscleHistoryDetailSheet: View {
                     Image(systemName: "trophy.fill")
                         .font(.caption)
                         .foregroundStyle(Color.mmPRGold)
-                    Text(localization.currentLanguage == .japanese ? "ベスト" : "Best")
+                    Text(L10n.bestLabel)
                         .font(.caption2)
                         .foregroundStyle(Color.mmTextSecondary)
                     if let weight = detail.bestWeight, let reps = detail.bestReps {
@@ -160,7 +147,7 @@ struct MuscleHistoryDetailSheet: View {
                     Image(systemName: "number")
                         .font(.caption)
                         .foregroundStyle(Color.mmAccentPrimary)
-                    Text(localization.currentLanguage == .japanese ? "セット" : "Sets")
+                    Text(L10n.setsStatLabel)
                         .font(.caption2)
                         .foregroundStyle(Color.mmTextSecondary)
                     Text("\(detail.totalSets)")
@@ -268,10 +255,7 @@ struct MuscleHistoryDetailSheet: View {
                         Image(systemName: "chart.line.uptrend.xyaxis")
                             .font(.title2)
                             .foregroundStyle(Color.mmTextSecondary.opacity(0.4))
-                        Text(localization.currentLanguage == .japanese
-                            ? "まだ記録がありません"
-                            : "No records yet"
-                        )
+                        Text(L10n.noRecordsYet)
                         .font(.caption)
                         .foregroundStyle(Color.mmTextSecondary)
                     }
@@ -285,7 +269,7 @@ struct MuscleHistoryDetailSheet: View {
         VStack(spacing: 12) {
             // ヘッダー
             HStack {
-                Text(localization.currentLanguage == .japanese ? "この期間の種目" : "Exercises")
+                Text(L10n.exercisesInPeriod)
                     .font(.headline)
                     .foregroundStyle(Color.mmTextPrimary)
                 Spacer()
@@ -300,10 +284,7 @@ struct MuscleHistoryDetailSheet: View {
                     Image(systemName: "dumbbell")
                         .font(.title)
                         .foregroundStyle(Color.mmTextSecondary.opacity(0.4))
-                    Text(localization.currentLanguage == .japanese
-                        ? "記録なし"
-                        : "No Records"
-                    )
+                    Text(L10n.noPerformanceData)
                     .font(.subheadline)
                     .foregroundStyle(Color.mmTextSecondary)
                 }
@@ -322,10 +303,7 @@ struct MuscleHistoryDetailSheet: View {
                             .clipped()
 
                         VStack(alignment: .leading, spacing: 2) {
-                            Text(localization.currentLanguage == .japanese
-                                ? item.exercise.nameJA
-                                : item.exercise.nameEN
-                            )
+                            Text(item.exercise.localizedName)
                             .font(.subheadline.weight(.medium))
                             .foregroundStyle(Color.mmTextPrimary)
                             .lineLimit(1)
@@ -361,7 +339,7 @@ struct MuscleHistoryDetailSheet: View {
 
     private func formatDate(_ date: Date) -> String {
         let formatter = DateFormatter()
-        formatter.dateFormat = localization.currentLanguage == .japanese ? "M/d" : "MMM d"
+        formatter.dateFormat = L10n.dateFormatShort
         return formatter.string(from: date)
     }
 }

@@ -38,13 +38,12 @@ struct SessionHistorySection: View {
 
 struct SessionRowView: View {
     let session: WorkoutSession
-    private var localization: LocalizationManager { LocalizationManager.shared }
 
     private var exerciseNames: String {
         let ids = Set(session.sets.map(\.exerciseId))
         let names = ids.compactMap { id -> String? in
             guard let exercise = ExerciseStore.shared.exercise(for: id) else { return nil }
-            return localization.currentLanguage == .japanese ? exercise.nameJA : exercise.nameEN
+            return exercise.localizedName
         }
         let displayNames = names.prefix(3).joined(separator: ", ")
         return names.count > 3 ? "\(displayNames) \(L10n.andMore)" : displayNames

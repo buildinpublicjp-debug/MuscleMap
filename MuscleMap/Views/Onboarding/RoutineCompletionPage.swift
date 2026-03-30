@@ -83,8 +83,6 @@ struct RoutineCompletionPage: View {
         return MuscleGroup.allCases.filter { groups.contains($0) }
     }
 
-    private var isJapanese: Bool { LocalizationManager.shared.currentLanguage == .japanese }
-
     /// 目標に合わせたキャッチコピー
     private var goalBasedHeadline: String {
         guard let raw = AppState.shared.primaryOnboardingGoal,

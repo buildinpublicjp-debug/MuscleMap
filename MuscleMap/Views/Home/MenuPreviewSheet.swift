@@ -13,10 +13,9 @@ struct MenuPreviewSheet: View {
 
     /// RoutineDayからMenuPreviewSheetを生成する便利イニシャライザ
     init(routineDay: RoutineDay, previousWeightProvider: @escaping (String) -> Double?, onStart: @escaping ([RecommendedExercise]) -> Void) {
-        let loc = LocalizationManager.shared
         let exercises: [RecommendedExercise] = routineDay.exercises.compactMap { re in
             guard let def = ExerciseStore.shared.exercise(for: re.exerciseId) else { return nil }
-            let name = loc.currentLanguage == .japanese ? def.nameJA : def.nameEN
+            let name = def.localizedName
             let prevW = previousWeightProvider(re.exerciseId)
             return RecommendedExercise(
                 exerciseId: re.exerciseId,

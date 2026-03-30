@@ -16,10 +16,6 @@ struct RoutineBuilderPage: View {
 
     private let maxExercisesPerDay = 6
 
-    private var isJapanese: Bool {
-        LocalizationManager.shared.currentLanguage == .japanese
-    }
-
     /// 分割法パーツ
     private var splitParts: [SplitPart] {
         let frequency = AppState.shared.userProfile.weeklyFrequency
@@ -741,10 +737,6 @@ struct RoutineExercisePickerSheet: View {
 
     @Environment(\.dismiss) private var dismiss
     @State private var searchText = ""
-
-    private var isJapanese: Bool {
-        LocalizationManager.shared.currentLanguage == .japanese
-    }
 
     private var targetExercises: [ExerciseDefinition] {
         let store = ExerciseStore.shared

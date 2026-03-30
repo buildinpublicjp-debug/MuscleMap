@@ -9,10 +9,6 @@ struct RecoveryDetailView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var selectedMuscle: Muscle?
 
-    private var isJapanese: Bool {
-        LocalizationManager.shared.currentLanguage == .japanese
-    }
-
     var body: some View {
         NavigationStack {
             ZStack {
@@ -29,7 +25,7 @@ struct RecoveryDetailView: View {
                     .padding(.bottom, 32)
                 }
             }
-            .navigationTitle(isJapanese ? "回復マップ" : "Recovery Map")
+            .navigationTitle(L10n.recoveryMap)
             .navigationBarTitleDisplayMode(.inline)
             .toolbarColorScheme(.dark, for: .navigationBar)
             .toolbar {
@@ -78,7 +74,7 @@ struct RecoveryDetailView: View {
 
         return VStack(spacing: 10) {
             HStack(alignment: .lastTextBaseline) {
-                Text(isJapanese ? "回復度" : "Body Readiness")
+                Text(L10n.bodyReadiness)
                     .font(.system(size: 14, weight: .bold))
                     .foregroundStyle(Color.mmTextSecondary)
 
@@ -172,9 +168,7 @@ struct RecoveryDetailView: View {
             if readyGroups.isEmpty {
                 recommendationCard(
                     icon: "moon.fill",
-                    text: isJapanese
-                        ? "全筋肉が回復中 — 休息日"
-                        : "Rest day — all muscles recovering"
+                    text: L10n.allMusclesRecoveringRestDay
                 )
             } else {
                 let readyGroupIds = Set(readyGroups.map { $0.groupId })
@@ -183,19 +177,17 @@ struct RecoveryDetailView: View {
                 }
 
                 if let part = matchedPart {
+                    let names = readyGroups.map(\.groupName).joined(separator: "・")
+                    let partName = part.localizedName
                     recommendationCard(
                         icon: "bolt.fill",
-                        text: isJapanese
-                            ? "\(readyGroups.map(\.groupName).joined(separator: "・"))回復済み → \(part.name)がおすすめ"
-                            : "\(readyGroups.map(\.groupName).joined(separator: " & ")) ready → \(part.nameEN) recommended"
+                        text: L10n.recoveredRecommendation(names, partName)
                     )
                 } else {
-                    let names = readyGroups.map(\.groupName).joined(separator: isJapanese ? "・" : " & ")
+                    let names = readyGroups.map(\.groupName).joined(separator: "・")
                     recommendationCard(
                         icon: "bolt.fill",
-                        text: isJapanese
-                            ? "\(names)が回復済み"
-                            : "\(names) ready to train"
+                        text: L10n.groupRecovered(names)
                     )
                 }
             }
@@ -269,7 +261,7 @@ struct RecoveryDetailView: View {
             let hoursAgo = Date().timeIntervalSince(date) / 3600
             let days = RecoveryCalculator.daysSinceStimulation(date)
 
-            let groupName = isJapanese ? group.japaneseName : group.englishName
+            let groupName = group.localizedName
 
             statuses.append(DetailGroupStatus(
                 groupId: group,

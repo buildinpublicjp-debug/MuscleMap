@@ -9,7 +9,6 @@ struct ExerciseDetailView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
     @ObservedObject private var favorites = FavoritesManager.shared
-    private var localization: LocalizationManager { LocalizationManager.shared }
 
     private var prWeight: Double? {
         PRManager.shared.getWeightPR(exerciseId: exercise.id, context: modelContext)
@@ -154,7 +153,7 @@ struct ExerciseDetailView: View {
                     }
                 }
                 ToolbarItem(placement: .principal) {
-                    Text(localization.currentLanguage == .japanese ? exercise.nameJA : exercise.nameEN)
+                    Text(exercise.localizedName)
                         .font(.headline)
                         .foregroundStyle(Color.mmTextPrimary)
                         .lineLimit(1)

@@ -15,7 +15,6 @@ struct SetInputCard: View {
     @State private var recordButtonScale: CGFloat = 1.0
     @State private var showExerciseDetail = false
     @State private var showPreviousSession = false
-    private var localization: LocalizationManager { LocalizationManager.shared }
 
     private var isBodyweight: Bool {
         exercise.isBodyweight
@@ -46,7 +45,7 @@ struct SetInputCard: View {
         VStack(spacing: 12) {
             // 種目名 + info + レベルアイコン + セット番号
             HStack {
-                Text(localization.currentLanguage == .japanese ? exercise.nameJA : exercise.nameEN)
+                Text(exercise.localizedName)
                     .font(.headline)
                     .foregroundStyle(Color.mmTextPrimary)
                     .lineLimit(1)
@@ -173,7 +172,7 @@ struct SetInputCard: View {
                     HStack(spacing: 4) {
                         Image(systemName: "hand.raised.fill")
                             .font(.caption2)
-                        Text(localization.currentLanguage == .japanese ? "片手" : "Per hand")
+                        Text(L10n.perHand)
                             .font(.caption.bold())
                     }
                     .foregroundStyle(Color.mmAccentSecondary)
@@ -375,9 +374,6 @@ struct PreviousSessionReference: View {
 struct PRCelebrationOverlay: View {
     @State private var offset: CGFloat = -60
     @State private var opacity: Double = 0
-    private var isJapanese: Bool {
-        LocalizationManager.shared.currentLanguage == .japanese
-    }
 
     var body: some View {
         VStack {
@@ -386,7 +382,7 @@ struct PRCelebrationOverlay: View {
                     .font(.system(size: 16))
                     .foregroundStyle(Color.mmPRGold)
 
-                Text(isJapanese ? "自己ベスト更新" : "New Personal Record")
+                Text(L10n.newPersonalRecord)
                     .font(.system(size: 14, weight: .heavy))
                     .foregroundStyle(Color.mmPRGold)
             }

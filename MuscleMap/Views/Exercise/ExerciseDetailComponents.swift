@@ -134,11 +134,9 @@ struct DetailInfoTag: View {
 struct DetailMuscleStimulationBar: View {
     let muscle: Muscle
     let percentage: Int
-    private var localization: LocalizationManager { LocalizationManager.shared }
-
     var body: some View {
         HStack(spacing: 12) {
-            Text(localization.currentLanguage == .japanese ? muscle.japaneseName : muscle.englishName)
+            Text(muscle.localizedName)
                 .font(.subheadline)
                 .foregroundStyle(Color.mmTextPrimary)
                 .frame(minWidth: 80, alignment: .leading)

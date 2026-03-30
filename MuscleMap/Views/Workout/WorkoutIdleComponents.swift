@@ -13,8 +13,6 @@ struct WorkoutIdleView: View {
     @State private var selectedMuscle: Muscle?
     @State private var showingExerciseLibrary = false
     @State private var recentExercises: [ExerciseDefinition] = []
-    private var localization: LocalizationManager { LocalizationManager.shared }
-
     var body: some View {
         VStack(spacing: 0) {
             ScrollView {
@@ -111,14 +109,13 @@ struct WorkoutIdleView: View {
 struct RecentExercisesSection: View {
     let exercises: [ExerciseDefinition]
     let onSelect: (ExerciseDefinition) -> Void
-    private var localization: LocalizationManager { LocalizationManager.shared }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Image(systemName: "clock.arrow.circlepath")
                     .foregroundStyle(Color.mmAccentPrimary)
-                Text(localization.currentLanguage == .japanese ? "最近使った種目" : "Recent Exercises")
+                Text(L10n.recentExercisesTitle)
                     .font(.headline)
                     .foregroundStyle(Color.mmTextPrimary)
             }
@@ -127,7 +124,7 @@ struct RecentExercisesSection: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 10) {
                     ForEach(exercises) { exercise in
-                        let name = localization.currentLanguage == .japanese ? exercise.nameJA : exercise.nameEN
+                        let name = exercise.localizedName
                         Button {
                             HapticManager.lightTap()
                             onSelect(exercise)
@@ -196,7 +193,6 @@ struct MuscleExercisePickerSheet: View {
     @Environment(\.modelContext) private var modelContext
     @State private var selectedEquipment: String?
     @State private var lastRecords: [String: WorkoutSet] = [:]
-    private var localization: LocalizationManager { LocalizationManager.shared }
 
     private var relatedExercises: [ExerciseDefinition] {
         ExerciseStore.shared.exercises(targeting: muscle)
@@ -236,7 +232,7 @@ struct MuscleExercisePickerSheet: View {
                                 ScrollView(.horizontal, showsIndicators: false) {
                                     HStack(spacing: 8) {
                                         PickerFilterChip(
-                                            title: localization.currentLanguage == .japanese ? "すべて" : "All",
+                                            title: L10n.all,
                                             isSelected: selectedEquipment == nil
                                         ) {
                                             selectedEquipment = nil
@@ -289,7 +285,7 @@ struct MuscleExercisePickerSheet: View {
 
     @ViewBuilder
     private func musclePickerGridCard(_ exercise: ExerciseDefinition) -> some View {
-        let name = localization.currentLanguage == .japanese ? exercise.nameJA : exercise.nameEN
+        let name = exercise.localizedName
         let primary = exercise.primaryMuscle
 
         Button {

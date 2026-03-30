@@ -14,6 +14,14 @@ enum HistoryViewMode: String, CaseIterable {
         case .calendar: return "Calendar"
         }
     }
+
+    @MainActor
+    var localizedName: String {
+        switch self {
+        case .map: return L10n.historyMapTab
+        case .calendar: return L10n.historyCalendarTab
+        }
+    }
 }
 
 struct HistoryView: View {
@@ -23,7 +31,6 @@ struct HistoryView: View {
     @State private var selectedMuscle: SelectedMuscle?
     @State private var viewMode: HistoryViewMode = .map
     @State private var showingPaywall = false
-    private var localization: LocalizationManager { LocalizationManager.shared }
 
     /// シート表示用のラッパー（Identifiable対応）
     struct SelectedDate: Identifiable {
@@ -46,7 +53,7 @@ struct HistoryView: View {
                         // セグメントコントロール
                         Picker("View Mode", selection: $viewMode) {
                             ForEach(HistoryViewMode.allCases, id: \.self) { mode in
-                                Text(localization.currentLanguage == .japanese ? mode.rawValue : mode.englishName)
+                                Text(mode.localizedName)
                                     .tag(mode)
                             }
                         }
