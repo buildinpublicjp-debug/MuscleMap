@@ -217,6 +217,7 @@ struct FrequencySelectionPage: View {
                     )
                     .clipShape(RoundedRectangle(cornerRadius: 16))
             }
+            .contentShape(Rectangle())
             .buttonStyle(.plain)
             .disabled(selected == nil)
             .padding(.horizontal, 24)
@@ -485,6 +486,7 @@ private struct FrequencyCompactCard: View {
                     )
             )
         }
+        .contentShape(Rectangle())
         .buttonStyle(.plain)
     }
 }
@@ -557,6 +559,7 @@ private struct FrequencyMuscleExerciseSheet: View {
                             .aspectRatio(1, contentMode: .fit)
                             .clipShape(RoundedRectangle(cornerRadius: 10))
                         }
+                        .contentShape(Rectangle())
                         .buttonStyle(.plain)
                     }
                 }
@@ -569,7 +572,7 @@ private struct FrequencyMuscleExerciseSheet: View {
                 : "\(muscle.englishName) — \(exercises.count) exercises")
             .navigationBarTitleDisplayMode(.inline)
             .sheet(item: $selectedExercise) { exercise in
-                ExerciseDetailView(exercise: exercise)
+                ExerciseDetailView(exercise: exercise, hideStartWorkoutButton: true)
             }
         }
     }

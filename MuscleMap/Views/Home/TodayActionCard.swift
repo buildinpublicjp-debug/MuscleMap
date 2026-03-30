@@ -122,6 +122,7 @@ struct TodayActionCard: View {
                             .background(isSelected ? Color.mmAccentPrimary : Color.mmBgSecondary)
                             .clipShape(Capsule())
                     }
+                    .contentShape(Rectangle())
                     .buttonStyle(.plain)
                 }
             }
@@ -209,6 +210,7 @@ struct TodayActionCard: View {
                                         .foregroundStyle(.white.opacity(0.7))
                                         .background(Circle().fill(Color.black.opacity(0.3)).frame(width: 22, height: 22))
                                 }
+                                .contentShape(Rectangle())
                                 .buttonStyle(.plain)
                             }
                             .padding(5)
@@ -246,6 +248,7 @@ struct TodayActionCard: View {
                 )
                 .clipShape(RoundedRectangle(cornerRadius: 14))
         }
+        .contentShape(Rectangle())
         .buttonStyle(.plain)
     }
 
@@ -263,6 +266,7 @@ struct TodayActionCard: View {
                 .background(Color.white.opacity(0.1))
                 .clipShape(Circle())
         }
+        .contentShape(Rectangle())
         .buttonStyle(.plain)
     }
 
@@ -321,6 +325,7 @@ struct TodayActionCard: View {
                     .background(Color.mmAccentPrimary.opacity(0.1))
                     .clipShape(RoundedRectangle(cornerRadius: 10))
             }
+            .contentShape(Rectangle())
             .buttonStyle(.plain)
         }
         .padding(16)
@@ -383,6 +388,7 @@ struct TodayActionCard: View {
                     )
                     .clipShape(RoundedRectangle(cornerRadius: 14))
             }
+            .contentShape(Rectangle())
             .buttonStyle(.plain)
         }
         .padding(16)
@@ -442,6 +448,7 @@ struct TodayActionCard: View {
                     )
                     .clipShape(RoundedRectangle(cornerRadius: 14))
             }
+            .contentShape(Rectangle())
             .buttonStyle(.plain)
 
             Button {
@@ -452,6 +459,7 @@ struct TodayActionCard: View {
                     .font(.system(size: 14, weight: .semibold))
                     .foregroundStyle(Color.mmAccentPrimary)
             }
+            .contentShape(Rectangle())
             .buttonStyle(.plain)
             .frame(maxWidth: .infinity)
         }

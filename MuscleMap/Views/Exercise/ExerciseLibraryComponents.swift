@@ -154,6 +154,7 @@ struct LibraryGridCard: View {
             .background(Color.mmBgCard)
             .clipShape(RoundedRectangle(cornerRadius: 12))
         }
+        .contentShape(Rectangle())
         .buttonStyle(.plain)
     }
 }
@@ -221,6 +222,7 @@ struct ExerciseLibraryRow: View {
                     .foregroundStyle(favorites.isFavorite(exercise.id) ? Color.mmDestructive : Color.mmTextSecondary)
                     .frame(width: 32, height: 32)
             }
+            .contentShape(Rectangle())
             .buttonStyle(.plain)
 
             Image(systemName: "chevron.right")

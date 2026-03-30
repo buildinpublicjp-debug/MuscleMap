@@ -104,6 +104,7 @@ struct MapExplanationOverlay: View {
                     .background(Color.mmAccentPrimary)
                     .clipShape(Capsule())
             }
+            .contentShape(Rectangle())
             .buttonStyle(.plain)
         }
         .padding(20)
@@ -252,6 +253,7 @@ struct TodayRecommendationInline: View {
                                 )
                                 .clipShape(RoundedRectangle(cornerRadius: 10))
                             }
+                            .contentShape(Rectangle())
                             .buttonStyle(.plain)
                         }
                     }
@@ -322,6 +324,7 @@ struct TodayRecommendationInline: View {
                         .aspectRatio(1, contentMode: .fit)
                         .clipShape(RoundedRectangle(cornerRadius: 8))
                     }
+                    .contentShape(Rectangle())
                     .buttonStyle(.plain)
                     .contextMenu {
                         Button {
@@ -365,6 +368,7 @@ struct TodayRecommendationInline: View {
                         .background(Color.mmAccentPrimary)
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
+                .contentShape(Rectangle())
                 .buttonStyle(.plain)
 
                 // 無料ユーザー: 残回数テキスト
@@ -407,6 +411,7 @@ struct TodayRecommendationInline: View {
                                 .stroke(Color.mmTextSecondary.opacity(0.3), lineWidth: 1)
                         )
                     }
+                    .contentShape(Rectangle())
                     .buttonStyle(.plain)
 
                     HStack(spacing: 4) {
@@ -544,6 +549,7 @@ struct TodayRecommendationInline: View {
                     .background(Color.mmAccentPrimary)
                     .clipShape(RoundedRectangle(cornerRadius: 12))
             }
+            .contentShape(Rectangle())
             .buttonStyle(.plain)
         }
         .padding(16)
@@ -612,6 +618,7 @@ struct TodayRecommendationInline: View {
             .background(Color.mmBgCard)
             .clipShape(RoundedRectangle(cornerRadius: 16))
         }
+        .contentShape(Rectangle())
         .buttonStyle(.plain)
     }
 
@@ -658,6 +665,7 @@ struct TodayRecommendationInline: View {
             .background(Color.mmBgCard)
             .clipShape(RoundedRectangle(cornerRadius: 12))
         }
+        .contentShape(Rectangle())
         .buttonStyle(.plain)
     }
 
@@ -711,6 +719,7 @@ struct TodayRecommendationInline: View {
                     .background(Color.mmAccentPrimary)
                     .clipShape(RoundedRectangle(cornerRadius: 12))
             }
+            .contentShape(Rectangle())
             .buttonStyle(.plain)
         }
         .padding(16)
@@ -779,6 +788,7 @@ struct TodayRecommendationInline: View {
                     .background(Color.mmAccentPrimary.opacity(0.1))
                     .clipShape(RoundedRectangle(cornerRadius: 10))
             }
+            .contentShape(Rectangle())
             .buttonStyle(.plain)
         }
         .padding(16)
@@ -823,6 +833,7 @@ struct TodayRecommendationInline: View {
                     .background(Color.mmAccentPrimary)
                     .clipShape(RoundedRectangle(cornerRadius: 12))
             }
+            .contentShape(Rectangle())
             .buttonStyle(.plain)
 
             // ルーティンなしでトレーニング開始
@@ -834,6 +845,7 @@ struct TodayRecommendationInline: View {
                     .font(.system(size: 14, weight: .semibold))
                     .foregroundStyle(Color.mmAccentPrimary)
             }
+            .contentShape(Rectangle())
             .buttonStyle(.plain)
         }
         .padding(16)
@@ -963,6 +975,7 @@ struct StrengthMapPreviewBanner: View {
             .background(Color.mmBgCard)
             .clipShape(RoundedRectangle(cornerRadius: 12))
         }
+        .contentShape(Rectangle())
         .buttonStyle(.plain)
     }
 }

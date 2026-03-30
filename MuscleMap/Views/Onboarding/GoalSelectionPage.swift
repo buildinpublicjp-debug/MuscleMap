@@ -216,6 +216,7 @@ struct GoalSelectionPage: View {
                     .background(hasAnyGoal ? Color.mmOnboardingAccent : Color.mmOnboardingCard)
                     .clipShape(RoundedRectangle(cornerRadius: 16))
             }
+            .contentShape(Rectangle())
             .buttonStyle(.plain)
             .disabled(!hasAnyGoal)
             .padding(.horizontal, 24)
@@ -332,6 +333,7 @@ private struct GoalSliderCard: View {
                 .padding(.horizontal, 12)
                 .padding(.vertical, 10)
             }
+            .contentShape(Rectangle())
             .buttonStyle(.plain)
 
             // スライダー（選択時のみ展開）
@@ -426,6 +428,7 @@ private struct MuscleExerciseSheet: View {
                             .aspectRatio(1, contentMode: .fit)
                             .clipShape(RoundedRectangle(cornerRadius: 10))
                         }
+                        .contentShape(Rectangle())
                         .buttonStyle(.plain)
                     }
                 }
@@ -438,7 +441,7 @@ private struct MuscleExerciseSheet: View {
                 : "\(muscle.englishName) — \(exercises.count) exercises")
             .navigationBarTitleDisplayMode(.inline)
             .sheet(item: $selectedExercise) { exercise in
-                ExerciseDetailView(exercise: exercise)
+                ExerciseDetailView(exercise: exercise, hideStartWorkoutButton: true)
             }
         }
     }

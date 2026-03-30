@@ -59,6 +59,7 @@ struct RecordedSetsView: View {
                                 .font(.system(size: 16))
                                 .foregroundStyle(Color.mmTextSecondary)
                         }
+                        .contentShape(Rectangle())
                         .buttonStyle(.plain)
 
                         Spacer()

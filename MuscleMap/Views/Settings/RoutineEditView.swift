@@ -55,6 +55,7 @@ struct RoutineEditView: View {
                             .background(Color.mmAccentPrimary.opacity(0.08))
                             .clipShape(RoundedRectangle(cornerRadius: 12))
                         }
+                        .contentShape(Rectangle())
                         .buttonStyle(.plain)
                         .padding(.horizontal)
                         .padding(.bottom, 32)
@@ -359,6 +360,7 @@ private struct DayEditSheet: View {
                                 .background(Color.mmAccentPrimary.opacity(0.08))
                                 .clipShape(RoundedRectangle(cornerRadius: 12))
                             }
+                            .contentShape(Rectangle())
                             .buttonStyle(.plain)
                             .padding(.horizontal, 16)
                             .padding(.top, 12)
@@ -384,6 +386,7 @@ private struct DayEditSheet: View {
                                 .padding(.horizontal, 16)
                                 .padding(.vertical, 12)
                             }
+                            .contentShape(Rectangle())
                             .buttonStyle(.plain)
 
                             // このDayを削除
@@ -400,6 +403,7 @@ private struct DayEditSheet: View {
                                 .padding(.horizontal, 16)
                                 .padding(.vertical, 12)
                             }
+                            .contentShape(Rectangle())
                             .buttonStyle(.plain)
                         }
                         .padding(.bottom, 32)
@@ -514,6 +518,7 @@ private struct DayEditExerciseRow: View {
                         .font(.caption.bold())
                         .foregroundStyle(Color.mmAccentPrimary)
                 }
+                .contentShape(Rectangle())
                 .buttonStyle(.plain)
             }
             .padding(.horizontal, 16)
@@ -687,6 +692,7 @@ private struct RoutineEditExercisePickerSheet: View {
                                 .clipShape(RoundedRectangle(cornerRadius: 12))
                                 .opacity(isAdded ? 0.5 : 1.0)
                             }
+                            .contentShape(Rectangle())
                             .buttonStyle(.plain)
                             .disabled(isAdded)
                         }

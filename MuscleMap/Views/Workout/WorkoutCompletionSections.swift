@@ -137,6 +137,7 @@ struct NextRecommendedDaySection: View {
                         .fill(reminderScheduled ? Color.mmAccentPrimary.opacity(0.15) : Color.mmAccentPrimary)
                 )
             }
+            .contentShape(Rectangle())
             .buttonStyle(.plain)
             .disabled(reminderScheduled)
         }

@@ -361,6 +361,7 @@ private struct LibraryChip: View {
                 .foregroundStyle(isSelected ? Color.mmBgPrimary : Color.mmTextSecondary)
                 .clipShape(Capsule())
         }
+        .contentShape(Rectangle())
         .buttonStyle(.plain)
     }
 }

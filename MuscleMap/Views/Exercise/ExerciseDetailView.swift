@@ -133,6 +133,7 @@ struct ExerciseDetailView: View {
                                 .background(Color.mmAccentPrimary)
                                 .clipShape(RoundedRectangle(cornerRadius: 16))
                             }
+                            .contentShape(Rectangle())
                             .buttonStyle(.plain)
                         }
                     }

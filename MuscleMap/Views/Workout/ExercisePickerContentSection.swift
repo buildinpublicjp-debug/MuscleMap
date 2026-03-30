@@ -79,6 +79,7 @@ struct PickerContentSection: View {
                         .foregroundStyle(Color.mmAccentSecondary)
                         .frame(width: 44, height: 44)
                 }
+                .contentShape(Rectangle())
                 .buttonStyle(.plain)
             }
             .listRowBackground(Color.mmBgSecondary)
@@ -193,6 +194,7 @@ private struct PickerGridCard: View {
             .background(Color.mmBgCard)
             .clipShape(RoundedRectangle(cornerRadius: 12))
         }
+        .contentShape(Rectangle())
         .buttonStyle(.plain)
     }
 }

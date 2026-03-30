@@ -187,6 +187,7 @@ struct WorkoutCompletionView: View {
                             .background(Color.mmAccentPrimary)
                             .clipShape(RoundedRectangle(cornerRadius: 16))
                         }
+                        .contentShape(Rectangle())
                         .buttonStyle(.plain)
                     }
                     .padding(.horizontal)
@@ -423,6 +424,7 @@ struct WorkoutCompletionView: View {
             .background(photoSaved ? Color.mmAccentPrimary.opacity(0.15) : Color.mmBgSecondary)
             .clipShape(RoundedRectangle(cornerRadius: 16))
         }
+        .contentShape(Rectangle())
         .buttonStyle(.plain)
         .disabled(photoSaved)
     }

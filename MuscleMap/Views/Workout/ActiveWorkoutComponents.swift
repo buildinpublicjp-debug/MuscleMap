@@ -120,6 +120,7 @@ struct ActiveWorkoutView: View {
                     .frame(height: 56)
                     .background(Color.mmAccentPrimary)
             }
+            .contentShape(Rectangle())
             .buttonStyle(.plain)
             .confirmationDialog(L10n.endWorkoutConfirm, isPresented: $showingEndConfirm, titleVisibility: .visible) {
                 Button(L10n.saveAndEnd) {
@@ -413,6 +414,7 @@ struct RoutineProgressBar: View {
                             .opacity(isDone ? 0.7 : isCurrent ? 1.0 : 0.5)
                             .animation(.easeInOut(duration: 0.2), value: isCurrent)
                         }
+                        .contentShape(Rectangle())
                         .buttonStyle(.plain)
                     }
                 }

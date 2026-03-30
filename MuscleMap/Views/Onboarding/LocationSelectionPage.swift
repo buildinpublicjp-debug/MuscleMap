@@ -232,6 +232,7 @@ struct LocationSelectionPage: View {
                         )
                         .clipShape(RoundedRectangle(cornerRadius: 16))
                 }
+                .contentShape(Rectangle())
                 .buttonStyle(.plain)
                 .disabled(selected == nil)
                 .padding(.horizontal, 24)
@@ -250,7 +251,7 @@ struct LocationSelectionPage: View {
         }
         .sheet(item: $selectedExercise) { exercise in
             NavigationStack {
-                ExerciseDetailView(exercise: exercise)
+                ExerciseDetailView(exercise: exercise, hideStartWorkoutButton: true)
             }
             .presentationDetents([.large])
             .presentationDragIndicator(.visible)
@@ -316,6 +317,7 @@ private struct LocationMarqueeRow: View {
                             .frame(width: cardSize, height: cardSize)
                             .clipShape(RoundedRectangle(cornerRadius: 12))
                         }
+                        .contentShape(Rectangle())
                         .buttonStyle(.plain)
                         .id("\(batch)-\(index)")
                     }
@@ -392,6 +394,7 @@ private struct LocationCard: View {
                     )
             )
         }
+        .contentShape(Rectangle())
         .buttonStyle(.plain)
     }
 }

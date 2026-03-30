@@ -164,6 +164,7 @@ struct MenuPreviewSheet: View {
                     .background(Color.mmAccentPrimary)
                     .clipShape(RoundedRectangle(cornerRadius: 16))
             }
+            .contentShape(Rectangle())
             .buttonStyle(.plain)
             .padding(.horizontal, 16)
             .padding(.bottom, 32)

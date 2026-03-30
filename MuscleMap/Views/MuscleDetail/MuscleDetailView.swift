@@ -217,6 +217,7 @@ private struct DetailPeriodPicker: View {
                             .background(selected == period ? Color.mmAccentPrimary : Color.mmBgCard)
                             .clipShape(Capsule())
                     }
+                    .contentShape(Rectangle())
                     .buttonStyle(.plain)
                 }
             }
@@ -475,6 +476,7 @@ private struct DetailExerciseGrid: View {
                     } label: {
                         netflixCard(card)
                     }
+                    .contentShape(Rectangle())
                     .buttonStyle(.plain)
                 }
             }

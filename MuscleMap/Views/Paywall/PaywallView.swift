@@ -25,11 +25,6 @@ struct PaywallView: View {
         routine.days.reduce(0) { $0 + $1.exercises.count }
     }
 
-    private var goalSubtitle: String? {
-        let isJapanese = localization.currentLanguage == .japanese
-        return isJapanese ? "あなたの目標に最適化" : "Optimized for your goals"
-    }
-
     /// マーキー用の種目リスト（全種目、重複除去）
     private var marqueeExercises: [ExerciseDefinition] {
         var result: [ExerciseDefinition] = []
@@ -96,38 +91,18 @@ struct PaywallView: View {
             )
             .ignoresSafeArea()
 
-            VStack(spacing: 0) {
-                // スクロール可能エリア
-                ScrollView(showsIndicators: false) {
-                    VStack(spacing: 16) {
-                        // 上部マージン
-                        Color.clear.frame(height: isHardPaywall ? 16 : 40)
-
-                        // 1. ヘッドライン（自然サイズ）
-                        headlineSection
-
-                        // 2. マーキーGIF 2行（固定140ptカード）
-                        marqueeArea(cardSize: 140)
-                            .frame(height: 140 * 2 + 8)
-
-                        // 3. Free vs Pro 比較テーブル
-                        featureListSection
-                    }
-                }
-
-                // 固定下部エリア（スクロールしない）
-                VStack(spacing: 8) {
+            ScrollView(showsIndicators: false) {
+                VStack(spacing: 16) {
+                    Color.clear.frame(height: isHardPaywall ? 16 : 40)
+                    headlineSection
+                    marqueeArea(cardSize: 140)
+                        .frame(height: 140 * 2 + 8)
+                    valuePropsSection
+                    featureListSection
                     pricingSection
                     footerSection
+                    Color.clear.frame(height: 16)
                 }
-                .padding(.top, 8)
-                .background(
-                    LinearGradient(
-                        colors: [Color.clear, Color(red: 0.06, green: 0.12, blue: 0.08)],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
-                )
             }
 
             // 閉じるボタン（右上固定、ハードペイウォール時は非表示）
@@ -183,33 +158,75 @@ struct PaywallView: View {
         }
     }
 
-    // MARK: - ヘッドライン（感情訴求）
+    // MARK: - ヘッドライン（ミニマル洗練型）
 
     private var headlineSection: some View {
-        VStack(spacing: 6) {
+        VStack(spacing: 8) {
+            Text("MUSCLEMAP PRO")
+                .font(.system(size: 11, weight: .semibold))
+                .foregroundStyle(Color.mmAccentPrimary)
+                .tracking(3)
+
+            Text(isJapanese ? "制限なく、\n毎日記録する。" : "Record every\nworkout.")
+                .font(.system(size: 28, weight: .heavy))
+                .foregroundStyle(Color.mmTextPrimary)
+                .multilineTextAlignment(.center)
+                .lineSpacing(4)
+
             if !routine.days.isEmpty && totalExercises > 0 {
-                Text(L10n.pwHeadlineWithRoutine(routine.days.count, totalExercises))
-                    .font(.system(size: 24, weight: .heavy))
-                    .foregroundStyle(Color.mmTextPrimary)
-
-                Text(L10n.pwHeadlineExercises(totalExercises))
-                    .font(.system(size: 24, weight: .heavy))
-                    .foregroundStyle(Color.mmAccentPrimary.opacity(0.8))
-            } else {
-                Text(L10n.pwHeadlineFallback)
-                    .font(.system(size: 24, weight: .heavy))
-                    .foregroundStyle(Color.mmTextPrimary)
-                    .multilineTextAlignment(.center)
-            }
-
-            if let subtitle = goalSubtitle {
-                Text(subtitle)
+                Text(isJapanese
+                    ? "あなた専用 \(routine.days.count)日間・\(totalExercises)種目のメニュー"
+                    : "Your personal \(routine.days.count)-day, \(totalExercises)-exercise plan")
                     .font(.system(size: 13))
                     .foregroundStyle(Color.mmTextSecondary)
-                    .padding(.top, 2)
             }
         }
         .padding(.horizontal, 24)
+    }
+
+    // MARK: - バリュープロップストリップ
+
+    private var valuePropsSection: some View {
+        HStack(spacing: 0) {
+            valuePropItem(
+                value: "∞",
+                label: isJapanese ? "回数無制限" : "Unlimited"
+            )
+            valuePropItem(
+                value: "92",
+                label: isJapanese ? "種目GIF" : "Exercise GIFs"
+            )
+            valuePropItem(
+                value: "0",
+                label: isJapanese ? "広告表示" : "Ads"
+            )
+        }
+        .padding(.vertical, 14)
+        .padding(.horizontal, 24)
+        .overlay(alignment: .top) {
+            Rectangle()
+                .fill(Color.mmBorder.opacity(0.15))
+                .frame(height: 0.5)
+                .padding(.horizontal, 24)
+        }
+        .overlay(alignment: .bottom) {
+            Rectangle()
+                .fill(Color.mmBorder.opacity(0.15))
+                .frame(height: 0.5)
+                .padding(.horizontal, 24)
+        }
+    }
+
+    private func valuePropItem(value: String, label: String) -> some View {
+        VStack(spacing: 4) {
+            Text(value)
+                .font(.system(size: 22, weight: .heavy))
+                .foregroundStyle(Color.mmAccentPrimary)
+            Text(label)
+                .font(.system(size: 11))
+                .foregroundStyle(Color.mmTextSecondary)
+        }
+        .frame(maxWidth: .infinity)
     }
 
     // MARK: - マーキーセクション（2行、レスポンシブカードサイズ）
@@ -267,6 +284,12 @@ struct PaywallView: View {
                 feature: L10n.pwWorkoutLog,
                 freeValue: .limited(L10n.pwTwicePerWeek), proValue: .check
             )
+            comparisonSeparator
+            comparisonRow(
+                feature: isJapanese ? "広告" : "Ads",
+                freeValue: .muted("—"),
+                proValue: .custom(isJapanese ? "非表示" : "None")
+            )
             // 下部パディング
             Color.clear.frame(height: 4)
         }
@@ -287,7 +310,7 @@ struct PaywallView: View {
     }
 
     private enum ComparisonValue {
-        case check, cross, limited(String)
+        case check, cross, limited(String), custom(String), muted(String)
     }
 
     private func comparisonRow(feature: String, freeValue: ComparisonValue, proValue: ComparisonValue) -> some View {
@@ -322,6 +345,14 @@ struct PaywallView: View {
             Text(text)
                 .font(.system(size: 10, weight: .bold))
                 .foregroundStyle(Color.mmWarning)
+        case .custom(let text):
+            Text(text)
+                .font(.system(size: 10, weight: .bold))
+                .foregroundStyle(Color.mmAccentPrimary)
+        case .muted(let text):
+            Text(text)
+                .font(.system(size: 10, weight: .medium))
+                .foregroundStyle(Color.mmTextSecondary.opacity(0.5))
         }
     }
 
@@ -353,6 +384,7 @@ struct PaywallView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 16))
                     .shadow(color: Color.mmAccentPrimary.opacity(0.3), radius: 8, y: 4)
             }
+            .contentShape(Rectangle())
             .buttonStyle(.plain)
             .disabled(PurchaseManager.shared.isLoading)
 
@@ -387,6 +419,7 @@ struct PaywallView: View {
                 )
                 .shadow(color: Color.black.opacity(0.2), radius: 4, y: 2)
             }
+            .contentShape(Rectangle())
             .buttonStyle(.plain)
             .disabled(PurchaseManager.shared.isLoading)
 

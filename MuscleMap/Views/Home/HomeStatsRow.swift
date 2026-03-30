@@ -138,6 +138,7 @@ struct HistoryShortcutButton: View {
             .background(Color.mmBgSecondary)
             .clipShape(RoundedRectangle(cornerRadius: 12))
         }
+        .contentShape(Rectangle())
         .buttonStyle(.plain)
         .padding(.horizontal)
     }

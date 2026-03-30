@@ -141,6 +141,7 @@ struct FavoriteExercisesPage: View {
                         .font(.system(size: 15))
                         .foregroundStyle(Color.mmOnboardingTextSub)
                 }
+                .contentShape(Rectangle())
                 .buttonStyle(.plain)
 
                 // 次へボタン
@@ -155,6 +156,7 @@ struct FavoriteExercisesPage: View {
                         .background(selectedIds.isEmpty ? Color.mmOnboardingCard : Color.mmOnboardingAccent)
                         .clipShape(RoundedRectangle(cornerRadius: 16))
                 }
+                .contentShape(Rectangle())
                 .buttonStyle(.plain)
                 .disabled(selectedIds.isEmpty)
                 .animation(.easeInOut(duration: 0.2), value: selectedIds.isEmpty)
@@ -247,6 +249,7 @@ private struct ExerciseSelectRow: View {
             .background(isSelected ? Color.mmOnboardingAccent.opacity(0.06) : Color.mmOnboardingCard)
             .clipShape(RoundedRectangle(cornerRadius: 12))
         }
+        .contentShape(Rectangle())
         .buttonStyle(.plain)
     }
 

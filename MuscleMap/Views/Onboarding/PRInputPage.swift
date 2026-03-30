@@ -153,6 +153,7 @@ struct PRInputPage: View {
                             .background(Color.mmOnboardingCard)
                             .clipShape(RoundedRectangle(cornerRadius: 12))
                         }
+                        .contentShape(Rectangle())
                         .buttonStyle(.plain)
                     }
                 }
@@ -201,6 +202,7 @@ struct PRInputPage: View {
                         )
                         .clipShape(RoundedRectangle(cornerRadius: 16))
                 }
+                .contentShape(Rectangle())
                 .buttonStyle(.plain)
 
                 Button {
@@ -213,6 +215,7 @@ struct PRInputPage: View {
                         .font(.system(size: 13))
                         .foregroundStyle(Color.mmOnboardingTextSub.opacity(0.6))
                 }
+                .contentShape(Rectangle())
                 .buttonStyle(.plain)
             }
             .padding(.horizontal, 24)
@@ -362,6 +365,7 @@ private struct MuscleExerciseSheet: View {
                 .background(isSelected ? Color.mmOnboardingAccent : Color.mmOnboardingCard)
                 .clipShape(Capsule())
         }
+        .contentShape(Rectangle())
         .buttonStyle(.plain)
     }
 }
@@ -486,6 +490,7 @@ private struct WeightInputSheet: View {
                     .background(weight > 0 ? Color.mmOnboardingAccent : Color.mmOnboardingCard)
                     .clipShape(RoundedRectangle(cornerRadius: 12))
             }
+            .contentShape(Rectangle())
             .buttonStyle(.plain)
             .disabled(weight <= 0)
             .animation(.easeInOut(duration: 0.2), value: weight > 0)
@@ -583,6 +588,7 @@ private struct PRCompactGifCard: View {
             .frame(width: cardSize, height: cardSize)
             .clipShape(RoundedRectangle(cornerRadius: 12))
         }
+        .contentShape(Rectangle())
         .buttonStyle(.plain)
     }
 }
@@ -656,6 +662,7 @@ private struct PRExerciseGridCard: View {
             .aspectRatio(1, contentMode: .fit)
             .clipShape(RoundedRectangle(cornerRadius: 12))
         }
+        .contentShape(Rectangle())
         .buttonStyle(.plain)
     }
 }

@@ -203,6 +203,7 @@ struct ProfileInputPage: View {
                     )
             )
         }
+        .contentShape(Rectangle())
         .buttonStyle(.plain)
     }
 
@@ -238,6 +239,7 @@ struct ProfileInputPage: View {
                         .background(Color.mmOnboardingAccent.opacity(0.1))
                         .clipShape(Circle())
                 }
+                .contentShape(Rectangle())
                 .buttonStyle(.plain)
                 .onLongPressGesture(minimumDuration: 0.3) {
                     heightCm = max(140, heightCm - 5)
@@ -276,6 +278,7 @@ struct ProfileInputPage: View {
                         .background(Color.mmOnboardingAccent.opacity(0.1))
                         .clipShape(Circle())
                 }
+                .contentShape(Rectangle())
                 .buttonStyle(.plain)
                 .onLongPressGesture(minimumDuration: 0.3) {
                     heightCm = min(220, heightCm + 5)
@@ -330,6 +333,7 @@ struct ProfileInputPage: View {
                                 )
                                 .clipShape(RoundedRectangle(cornerRadius: 6))
                         }
+                        .contentShape(Rectangle())
                         .buttonStyle(.plain)
                     }
                 }
@@ -354,6 +358,7 @@ struct ProfileInputPage: View {
                         .background(Color.mmOnboardingAccent.opacity(0.1))
                         .clipShape(Circle())
                 }
+                .contentShape(Rectangle())
                 .buttonStyle(.plain)
 
                 Spacer()
@@ -387,6 +392,7 @@ struct ProfileInputPage: View {
                         .background(Color.mmOnboardingAccent.opacity(0.1))
                         .clipShape(Circle())
                 }
+                .contentShape(Rectangle())
                 .buttonStyle(.plain)
             }
             .padding(.vertical, 8)
@@ -440,6 +446,7 @@ struct ProfileInputPage: View {
                             .background(Color.mmOnboardingAccent.opacity(0.1))
                             .clipShape(Circle())
                     }
+                    .contentShape(Rectangle())
                     .buttonStyle(.plain)
 
                     Spacer()
@@ -471,6 +478,7 @@ struct ProfileInputPage: View {
                             .background(Color.mmOnboardingAccent.opacity(0.1))
                             .clipShape(Circle())
                     }
+                    .contentShape(Rectangle())
                     .buttonStyle(.plain)
                 }
                 .padding(.vertical, 8)
@@ -596,6 +604,7 @@ struct ProfileInputPage: View {
                 )
                 .clipShape(RoundedRectangle(cornerRadius: 16))
         }
+        .contentShape(Rectangle())
         .buttonStyle(.plain)
         .disabled(selectedExperience == nil)
         .padding(.horizontal, 24)

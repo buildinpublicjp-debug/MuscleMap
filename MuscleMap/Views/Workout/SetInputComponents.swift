@@ -60,6 +60,7 @@ struct SetInputCard: View {
                         .font(.system(size: 16))
                         .foregroundStyle(Color.mmTextSecondary)
                 }
+                .contentShape(Rectangle())
                 .buttonStyle(.plain)
 
                 Spacer()
@@ -266,6 +267,7 @@ struct SetInputCard: View {
                 .clipShape(RoundedRectangle(cornerRadius: 16))
             }
             .scaleEffect(recordButtonScale)
+            .contentShape(Rectangle())
             .buttonStyle(.plain)
 
         }
@@ -335,6 +337,7 @@ struct PreviousSessionReference: View {
                         .foregroundStyle(Color.mmTextSecondary.opacity(0.4))
                 }
             }
+            .contentShape(Rectangle())
             .buttonStyle(.plain)
 
             // セット一覧（展開時のみ）

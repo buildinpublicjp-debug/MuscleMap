@@ -392,6 +392,7 @@ struct RoutineCompletionPage: View {
                     radius: buttonGlow ? 6 : 2
                 )
             }
+            .contentShape(Rectangle())
             .buttonStyle(.plain)
 
             // 無料ではじめる
@@ -403,6 +404,7 @@ struct RoutineCompletionPage: View {
                     .font(.system(size: 13))
                     .foregroundStyle(Color.mmOnboardingTextSub)
             }
+            .contentShape(Rectangle())
             .buttonStyle(.plain)
 
             // 利用規約・プライバシーポリシー

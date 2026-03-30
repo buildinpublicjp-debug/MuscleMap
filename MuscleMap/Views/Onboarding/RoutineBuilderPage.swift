@@ -143,6 +143,7 @@ struct RoutineBuilderPage: View {
                         )
                         .clipShape(RoundedRectangle(cornerRadius: 16))
                     }
+                    .contentShape(Rectangle())
                     .buttonStyle(.plain)
                 } else {
                     // 次のDayへ進むボタン
@@ -175,6 +176,7 @@ struct RoutineBuilderPage: View {
                         )
                         .clipShape(RoundedRectangle(cornerRadius: 16))
                     }
+                    .contentShape(Rectangle())
                     .buttonStyle(.plain)
                 }
 
@@ -250,6 +252,7 @@ struct RoutineBuilderPage: View {
                         }
                     }
                 }
+                .contentShape(Rectangle())
                 .buttonStyle(.plain)
                 .disabled(!isAccessible)
             }
@@ -330,6 +333,7 @@ struct RoutineBuilderPage: View {
                                         .foregroundStyle(Color.mmOnboardingTextSub.opacity(0.3))
                                 )
                             }
+                            .contentShape(Rectangle())
                             .buttonStyle(.plain)
                         }
                     }
@@ -395,6 +399,7 @@ struct RoutineBuilderPage: View {
                         .padding(.bottom, 8)
                     }
                 }
+                .contentShape(Rectangle())
                 .buttonStyle(.plain)
 
                 // 削除ボタン（右上）
@@ -411,6 +416,7 @@ struct RoutineBuilderPage: View {
                                     .foregroundStyle(.white.opacity(0.8))
                                     .background(Circle().fill(Color.black.opacity(0.4)))
                             }
+                            .contentShape(Rectangle())
                             .buttonStyle(.plain)
                         }
                         .padding(4)
@@ -717,6 +723,7 @@ struct SetRepEditorSheet: View {
                     .background(Color.mmOnboardingAccent)
                     .clipShape(RoundedRectangle(cornerRadius: 12))
             }
+            .contentShape(Rectangle())
             .buttonStyle(.plain)
             .padding(.horizontal, 24)
             .padding(.bottom, 16)
@@ -878,6 +885,7 @@ struct RoutineExercisePickerSheet: View {
                                 .clipShape(RoundedRectangle(cornerRadius: 12))
                                 .opacity(isAdded ? 0.5 : 1.0)
                             }
+                            .contentShape(Rectangle())
                             .buttonStyle(.plain)
                             .disabled(isAdded)
                         }
