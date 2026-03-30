@@ -59,8 +59,8 @@ struct SetInputCard: View {
                     Image(systemName: "info.circle")
                         .font(.system(size: 16))
                         .foregroundStyle(Color.mmTextSecondary)
+                    .contentShape(Rectangle())
                 }
-                .contentShape(Rectangle())
                 .buttonStyle(.plain)
 
                 Spacer()
@@ -265,9 +265,9 @@ struct SetInputCard: View {
                 .frame(height: 60)
                 .background(Color.mmAccentPrimary)
                 .clipShape(RoundedRectangle(cornerRadius: 16))
+                .contentShape(Rectangle())
             }
             .scaleEffect(recordButtonScale)
-            .contentShape(Rectangle())
             .buttonStyle(.plain)
 
         }
@@ -336,8 +336,8 @@ struct PreviousSessionReference: View {
                         .font(.caption2)
                         .foregroundStyle(Color.mmTextSecondary.opacity(0.4))
                 }
+                .contentShape(Rectangle())
             }
-            .contentShape(Rectangle())
             .buttonStyle(.plain)
 
             // セット一覧（展開時のみ）

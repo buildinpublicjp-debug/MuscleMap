@@ -93,8 +93,8 @@ struct ActivityFeedView: View {
             )
             .padding(.horizontal, 16)
             .padding(.top, 12)
+            .contentShape(Rectangle())
         }
-        .contentShape(Rectangle())
         .buttonStyle(.plain)
     }
 

@@ -18,6 +18,10 @@
 	<string>1.0</string>
 	<key>CFBundleVersion</key>
 	<string>1</string>
+	<key>NSCameraUsageDescription</key>
+	<string>MuscleMap uses your camera to take progress photos of your physique.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>MuscleMap accesses your photo library to save and view progress photos.</string>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>instagram-stories</string>

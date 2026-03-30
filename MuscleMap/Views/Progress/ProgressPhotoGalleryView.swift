@@ -132,8 +132,8 @@ struct ProgressPhotoGalleryView: View {
             .padding(.vertical, 12)
             .background(Color.mmAccentPrimary.opacity(0.1))
             .clipShape(RoundedRectangle(cornerRadius: 12))
+            .contentShape(Rectangle())
         }
-        .contentShape(Rectangle())
         .buttonStyle(.plain)
     }
 
@@ -163,8 +163,8 @@ struct ProgressPhotoGalleryView: View {
                 }
             }
             .aspectRatio(1, contentMode: .fit)
+            .contentShape(Rectangle())
         }
-        .contentShape(Rectangle())
         .buttonStyle(.plain)
     }
 }

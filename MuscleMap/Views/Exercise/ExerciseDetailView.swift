@@ -132,8 +132,8 @@ struct ExerciseDetailView: View {
                                 .frame(height: 56)
                                 .background(Color.mmAccentPrimary)
                                 .clipShape(RoundedRectangle(cornerRadius: 16))
+                                .contentShape(Rectangle())
                             }
-                            .contentShape(Rectangle())
                             .buttonStyle(.plain)
                         }
                     }

@@ -121,36 +121,38 @@ struct NotificationPermissionView: View {
                     Button {
                         requestNotificationPermission()
                     } label: {
-                        if isRequesting {
-                            ProgressView()
-                                .tint(Color.mmOnboardingBg)
-                                .frame(maxWidth: .infinity)
-                                .frame(height: 56)
-                                .background(
-                                    LinearGradient(
-                                        colors: [.mmOnboardingAccent, .mmOnboardingAccentDark],
-                                        startPoint: .leading,
-                                        endPoint: .trailing
+                        Group {
+                            if isRequesting {
+                                ProgressView()
+                                    .tint(Color.mmOnboardingBg)
+                                    .frame(maxWidth: .infinity)
+                                    .frame(height: 56)
+                                    .background(
+                                        LinearGradient(
+                                            colors: [.mmOnboardingAccent, .mmOnboardingAccentDark],
+                                            startPoint: .leading,
+                                            endPoint: .trailing
+                                        )
                                     )
-                                )
-                                .clipShape(RoundedRectangle(cornerRadius: 16))
-                        } else {
-                            Text(L10n.notifEnableButton)
-                                .font(.system(size: 18, weight: .bold))
-                                .foregroundStyle(Color.mmOnboardingBg)
-                                .frame(maxWidth: .infinity)
-                                .frame(height: 56)
-                                .background(
-                                    LinearGradient(
-                                        colors: [.mmOnboardingAccent, .mmOnboardingAccentDark],
-                                        startPoint: .leading,
-                                        endPoint: .trailing
+                                    .clipShape(RoundedRectangle(cornerRadius: 16))
+                            } else {
+                                Text(L10n.notifEnableButton)
+                                    .font(.system(size: 18, weight: .bold))
+                                    .foregroundStyle(Color.mmOnboardingBg)
+                                    .frame(maxWidth: .infinity)
+                                    .frame(height: 56)
+                                    .background(
+                                        LinearGradient(
+                                            colors: [.mmOnboardingAccent, .mmOnboardingAccentDark],
+                                            startPoint: .leading,
+                                            endPoint: .trailing
+                                        )
                                     )
-                                )
-                                .clipShape(RoundedRectangle(cornerRadius: 16))
+                                    .clipShape(RoundedRectangle(cornerRadius: 16))
+                            }
                         }
+                        .contentShape(Rectangle())
                     }
-                    .contentShape(Rectangle())
                     .buttonStyle(.plain)
                     .disabled(isRequesting)
                     .padding(.horizontal, 24)

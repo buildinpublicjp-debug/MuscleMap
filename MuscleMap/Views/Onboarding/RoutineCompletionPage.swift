@@ -391,8 +391,8 @@ struct RoutineCompletionPage: View {
                     color: Color.mmOnboardingAccent.opacity(buttonGlow ? 0.35 : 0.15),
                     radius: buttonGlow ? 6 : 2
                 )
+                .contentShape(Rectangle())
             }
-            .contentShape(Rectangle())
             .buttonStyle(.plain)
 
             // 無料ではじめる
@@ -403,8 +403,8 @@ struct RoutineCompletionPage: View {
                 Text(L10n.ctaGetStartedFree)
                     .font(.system(size: 13))
                     .foregroundStyle(Color.mmOnboardingTextSub)
+                .contentShape(Rectangle())
             }
-            .contentShape(Rectangle())
             .buttonStyle(.plain)
 
             // 利用規約・プライバシーポリシー

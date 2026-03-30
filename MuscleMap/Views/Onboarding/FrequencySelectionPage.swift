@@ -216,8 +216,8 @@ struct FrequencySelectionPage: View {
                         }
                     )
                     .clipShape(RoundedRectangle(cornerRadius: 16))
+                .contentShape(Rectangle())
             }
-            .contentShape(Rectangle())
             .buttonStyle(.plain)
             .disabled(selected == nil)
             .padding(.horizontal, 24)
@@ -485,8 +485,8 @@ private struct FrequencyCompactCard: View {
                         lineWidth: 1
                     )
             )
+            .contentShape(Rectangle())
         }
-        .contentShape(Rectangle())
         .buttonStyle(.plain)
     }
 }
@@ -558,8 +558,8 @@ private struct FrequencyMuscleExerciseSheet: View {
                             }
                             .aspectRatio(1, contentMode: .fit)
                             .clipShape(RoundedRectangle(cornerRadius: 10))
+                            .contentShape(Rectangle())
                         }
-                        .contentShape(Rectangle())
                         .buttonStyle(.plain)
                     }
                 }

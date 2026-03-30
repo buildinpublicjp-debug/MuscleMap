@@ -136,8 +136,8 @@ struct NextRecommendedDaySection: View {
                     RoundedRectangle(cornerRadius: 12)
                         .fill(reminderScheduled ? Color.mmAccentPrimary.opacity(0.15) : Color.mmAccentPrimary)
                 )
+                .contentShape(Rectangle())
             }
-            .contentShape(Rectangle())
             .buttonStyle(.plain)
             .disabled(reminderScheduled)
         }

@@ -92,8 +92,8 @@ struct SplashView: View {
                                 color: Color.mmOnboardingAccent.opacity(glowOpacity),
                                 radius: 16, x: 0, y: 4
                             )
+                        .contentShape(Rectangle())
                     }
-                    .contentShape(Rectangle())
                     .buttonStyle(.plain)
                     .padding(.horizontal, 32)
                     .padding(.bottom, 48)

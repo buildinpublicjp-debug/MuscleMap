@@ -142,8 +142,8 @@ struct RoutineBuilderPage: View {
                             )
                         )
                         .clipShape(RoundedRectangle(cornerRadius: 16))
+                        .contentShape(Rectangle())
                     }
-                    .contentShape(Rectangle())
                     .buttonStyle(.plain)
                 } else {
                     // 次のDayへ進むボタン
@@ -175,8 +175,8 @@ struct RoutineBuilderPage: View {
                             )
                         )
                         .clipShape(RoundedRectangle(cornerRadius: 16))
+                        .contentShape(Rectangle())
                     }
-                    .contentShape(Rectangle())
                     .buttonStyle(.plain)
                 }
 
@@ -251,8 +251,8 @@ struct RoutineBuilderPage: View {
                                 .matchedGeometryEffect(id: "dayTab", in: tabNamespace)
                         }
                     }
+                    .contentShape(Rectangle())
                 }
-                .contentShape(Rectangle())
                 .buttonStyle(.plain)
                 .disabled(!isAccessible)
             }
@@ -332,8 +332,8 @@ struct RoutineBuilderPage: View {
                                         .strokeBorder(style: StrokeStyle(lineWidth: 1, dash: [5]))
                                         .foregroundStyle(Color.mmOnboardingTextSub.opacity(0.3))
                                 )
+                                .contentShape(Rectangle())
                             }
-                            .contentShape(Rectangle())
                             .buttonStyle(.plain)
                         }
                     }
@@ -398,8 +398,8 @@ struct RoutineBuilderPage: View {
                         }
                         .padding(.bottom, 8)
                     }
+                    .contentShape(Rectangle())
                 }
-                .contentShape(Rectangle())
                 .buttonStyle(.plain)
 
                 // 削除ボタン（右上）
@@ -415,8 +415,8 @@ struct RoutineBuilderPage: View {
                                     .font(.system(size: 20))
                                     .foregroundStyle(.white.opacity(0.8))
                                     .background(Circle().fill(Color.black.opacity(0.4)))
+                                .contentShape(Rectangle())
                             }
-                            .contentShape(Rectangle())
                             .buttonStyle(.plain)
                         }
                         .padding(4)
@@ -722,8 +722,8 @@ struct SetRepEditorSheet: View {
                     .frame(height: 48)
                     .background(Color.mmOnboardingAccent)
                     .clipShape(RoundedRectangle(cornerRadius: 12))
+                .contentShape(Rectangle())
             }
-            .contentShape(Rectangle())
             .buttonStyle(.plain)
             .padding(.horizontal, 24)
             .padding(.bottom, 16)
@@ -884,8 +884,8 @@ struct RoutineExercisePickerSheet: View {
                                 .frame(height: 170)
                                 .clipShape(RoundedRectangle(cornerRadius: 12))
                                 .opacity(isAdded ? 0.5 : 1.0)
+                                .contentShape(Rectangle())
                             }
-                            .contentShape(Rectangle())
                             .buttonStyle(.plain)
                             .disabled(isAdded)
                         }

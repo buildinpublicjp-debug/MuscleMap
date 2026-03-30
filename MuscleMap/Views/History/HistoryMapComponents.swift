@@ -122,8 +122,8 @@ struct ExerciseTrendSection: View {
                                     : Color.mmTextPrimary
                                 )
                                 .clipShape(Capsule())
+                                .contentShape(Rectangle())
                             }
-                            .contentShape(Rectangle())
                             .buttonStyle(.plain)
                         }
                     }
@@ -542,8 +542,8 @@ struct ExerciseTrendProBanner: View {
             .padding(.vertical, 12)
             .background(Color.mmBgCard)
             .clipShape(RoundedRectangle(cornerRadius: 12))
+            .contentShape(Rectangle())
         }
-        .contentShape(Rectangle())
         .buttonStyle(.plain)
     }
 }

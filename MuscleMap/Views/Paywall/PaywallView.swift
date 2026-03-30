@@ -196,10 +196,6 @@ struct PaywallView: View {
                 value: "92",
                 label: isJapanese ? "種目GIF" : "Exercise GIFs"
             )
-            valuePropItem(
-                value: "0",
-                label: isJapanese ? "広告表示" : "Ads"
-            )
         }
         .padding(.vertical, 14)
         .padding(.horizontal, 24)
@@ -283,12 +279,6 @@ struct PaywallView: View {
             comparisonRow(
                 feature: L10n.pwWorkoutLog,
                 freeValue: .limited(L10n.pwTwicePerWeek), proValue: .check
-            )
-            comparisonSeparator
-            comparisonRow(
-                feature: isJapanese ? "広告" : "Ads",
-                freeValue: .muted("—"),
-                proValue: .custom(isJapanese ? "非表示" : "None")
             )
             // 下部パディング
             Color.clear.frame(height: 4)
@@ -383,8 +373,8 @@ struct PaywallView: View {
                     )
                     .clipShape(RoundedRectangle(cornerRadius: 16))
                     .shadow(color: Color.mmAccentPrimary.opacity(0.3), radius: 8, y: 4)
+                .contentShape(Rectangle())
             }
-            .contentShape(Rectangle())
             .buttonStyle(.plain)
             .disabled(PurchaseManager.shared.isLoading)
 
@@ -418,8 +408,8 @@ struct PaywallView: View {
                         .stroke(Color.mmBorder, lineWidth: 1)
                 )
                 .shadow(color: Color.black.opacity(0.2), radius: 4, y: 2)
+                .contentShape(Rectangle())
             }
-            .contentShape(Rectangle())
             .buttonStyle(.plain)
             .disabled(PurchaseManager.shared.isLoading)
 

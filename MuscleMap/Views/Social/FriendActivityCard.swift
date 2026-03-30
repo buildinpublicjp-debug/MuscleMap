@@ -160,8 +160,8 @@ struct FriendActivityCard: View {
                 Capsule()
                     .fill(hasReacted ? Color.mmAccentPrimary.opacity(0.15) : Color.mmBgSecondary)
             )
+            .contentShape(Rectangle())
         }
-        .contentShape(Rectangle())
         .buttonStyle(.plain)
     }
 

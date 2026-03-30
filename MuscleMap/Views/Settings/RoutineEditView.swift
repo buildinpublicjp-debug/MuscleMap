@@ -54,8 +54,8 @@ struct RoutineEditView: View {
                             .frame(height: 48)
                             .background(Color.mmAccentPrimary.opacity(0.08))
                             .clipShape(RoundedRectangle(cornerRadius: 12))
+                            .contentShape(Rectangle())
                         }
-                        .contentShape(Rectangle())
                         .buttonStyle(.plain)
                         .padding(.horizontal)
                         .padding(.bottom, 32)
@@ -359,8 +359,8 @@ private struct DayEditSheet: View {
                                 .frame(height: 48)
                                 .background(Color.mmAccentPrimary.opacity(0.08))
                                 .clipShape(RoundedRectangle(cornerRadius: 12))
+                                .contentShape(Rectangle())
                             }
-                            .contentShape(Rectangle())
                             .buttonStyle(.plain)
                             .padding(.horizontal, 16)
                             .padding(.top, 12)
@@ -385,8 +385,8 @@ private struct DayEditSheet: View {
                                 .foregroundStyle(Color.mmTextPrimary)
                                 .padding(.horizontal, 16)
                                 .padding(.vertical, 12)
+                                .contentShape(Rectangle())
                             }
-                            .contentShape(Rectangle())
                             .buttonStyle(.plain)
 
                             // このDayを削除
@@ -402,8 +402,8 @@ private struct DayEditSheet: View {
                                 .foregroundStyle(Color.mmDestructive)
                                 .padding(.horizontal, 16)
                                 .padding(.vertical, 12)
+                                .contentShape(Rectangle())
                             }
-                            .contentShape(Rectangle())
                             .buttonStyle(.plain)
                         }
                         .padding(.bottom, 32)
@@ -517,8 +517,8 @@ private struct DayEditExerciseRow: View {
                     Text(isJapanese ? "入替え" : "Replace")
                         .font(.caption.bold())
                         .foregroundStyle(Color.mmAccentPrimary)
+                    .contentShape(Rectangle())
                 }
-                .contentShape(Rectangle())
                 .buttonStyle(.plain)
             }
             .padding(.horizontal, 16)
@@ -691,8 +691,8 @@ private struct RoutineEditExercisePickerSheet: View {
                                 .frame(height: 170)
                                 .clipShape(RoundedRectangle(cornerRadius: 12))
                                 .opacity(isAdded ? 0.5 : 1.0)
+                                .contentShape(Rectangle())
                             }
-                            .contentShape(Rectangle())
                             .buttonStyle(.plain)
                             .disabled(isAdded)
                         }

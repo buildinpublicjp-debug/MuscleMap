@@ -231,8 +231,8 @@ struct LocationSelectionPage: View {
                             }
                         )
                         .clipShape(RoundedRectangle(cornerRadius: 16))
+                    .contentShape(Rectangle())
                 }
-                .contentShape(Rectangle())
                 .buttonStyle(.plain)
                 .disabled(selected == nil)
                 .padding(.horizontal, 24)
@@ -316,8 +316,8 @@ private struct LocationMarqueeRow: View {
                             }
                             .frame(width: cardSize, height: cardSize)
                             .clipShape(RoundedRectangle(cornerRadius: 12))
+                            .contentShape(Rectangle())
                         }
-                        .contentShape(Rectangle())
                         .buttonStyle(.plain)
                         .id("\(batch)-\(index)")
                     }
@@ -393,8 +393,8 @@ private struct LocationCard: View {
                         lineWidth: 1
                     )
             )
+            .contentShape(Rectangle())
         }
-        .contentShape(Rectangle())
         .buttonStyle(.plain)
     }
 }

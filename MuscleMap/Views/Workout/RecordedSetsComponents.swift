@@ -58,8 +58,8 @@ struct RecordedSetsView: View {
                             Image(systemName: "info.circle")
                                 .font(.system(size: 16))
                                 .foregroundStyle(Color.mmTextSecondary)
+                            .contentShape(Rectangle())
                         }
-                        .contentShape(Rectangle())
                         .buttonStyle(.plain)
 
                         Spacer()

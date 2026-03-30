@@ -190,8 +190,8 @@ struct GoalMusclePreviewPage: View {
                         )
                     )
                     .clipShape(RoundedRectangle(cornerRadius: 16))
+                .contentShape(Rectangle())
             }
-            .contentShape(Rectangle())
             .buttonStyle(.plain)
             .padding(.horizontal, 24)
             .padding(.bottom, 20)

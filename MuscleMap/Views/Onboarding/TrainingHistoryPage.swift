@@ -202,8 +202,8 @@ struct ProfileInputPage: View {
                         lineWidth: 1.5
                     )
             )
+            .contentShape(Rectangle())
         }
-        .contentShape(Rectangle())
         .buttonStyle(.plain)
     }
 
@@ -238,8 +238,8 @@ struct ProfileInputPage: View {
                         .frame(width: 48, height: 48)
                         .background(Color.mmOnboardingAccent.opacity(0.1))
                         .clipShape(Circle())
+                    .contentShape(Rectangle())
                 }
-                .contentShape(Rectangle())
                 .buttonStyle(.plain)
                 .onLongPressGesture(minimumDuration: 0.3) {
                     heightCm = max(140, heightCm - 5)
@@ -277,8 +277,8 @@ struct ProfileInputPage: View {
                         .frame(width: 48, height: 48)
                         .background(Color.mmOnboardingAccent.opacity(0.1))
                         .clipShape(Circle())
+                    .contentShape(Rectangle())
                 }
-                .contentShape(Rectangle())
                 .buttonStyle(.plain)
                 .onLongPressGesture(minimumDuration: 0.3) {
                     heightCm = min(220, heightCm + 5)
@@ -332,8 +332,8 @@ struct ProfileInputPage: View {
                                         : Color.clear
                                 )
                                 .clipShape(RoundedRectangle(cornerRadius: 6))
+                            .contentShape(Rectangle())
                         }
-                        .contentShape(Rectangle())
                         .buttonStyle(.plain)
                     }
                 }
@@ -357,8 +357,8 @@ struct ProfileInputPage: View {
                         .frame(width: 48, height: 48)
                         .background(Color.mmOnboardingAccent.opacity(0.1))
                         .clipShape(Circle())
+                    .contentShape(Rectangle())
                 }
-                .contentShape(Rectangle())
                 .buttonStyle(.plain)
 
                 Spacer()
@@ -391,8 +391,8 @@ struct ProfileInputPage: View {
                         .frame(width: 48, height: 48)
                         .background(Color.mmOnboardingAccent.opacity(0.1))
                         .clipShape(Circle())
+                    .contentShape(Rectangle())
                 }
-                .contentShape(Rectangle())
                 .buttonStyle(.plain)
             }
             .padding(.vertical, 8)
@@ -445,8 +445,8 @@ struct ProfileInputPage: View {
                             .frame(width: 48, height: 48)
                             .background(Color.mmOnboardingAccent.opacity(0.1))
                             .clipShape(Circle())
+                        .contentShape(Rectangle())
                     }
-                    .contentShape(Rectangle())
                     .buttonStyle(.plain)
 
                     Spacer()
@@ -477,8 +477,8 @@ struct ProfileInputPage: View {
                             .frame(width: 48, height: 48)
                             .background(Color.mmOnboardingAccent.opacity(0.1))
                             .clipShape(Circle())
+                        .contentShape(Rectangle())
                     }
-                    .contentShape(Rectangle())
                     .buttonStyle(.plain)
                 }
                 .padding(.vertical, 8)
@@ -603,8 +603,8 @@ struct ProfileInputPage: View {
                     }
                 )
                 .clipShape(RoundedRectangle(cornerRadius: 16))
+            .contentShape(Rectangle())
         }
-        .contentShape(Rectangle())
         .buttonStyle(.plain)
         .disabled(selectedExperience == nil)
         .padding(.horizontal, 24)

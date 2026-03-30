@@ -61,8 +61,8 @@ struct WorkoutIdleView: View {
                 .frame(height: 56)
                 .background(Color.mmAccentPrimary)
                 .clipShape(RoundedRectangle(cornerRadius: 16))
+                .contentShape(Rectangle())
             }
-            .contentShape(Rectangle())
             .buttonStyle(.plain)
             .padding(.horizontal)
             .padding(.bottom, 8)
@@ -348,8 +348,8 @@ struct MuscleExercisePickerSheet: View {
             .frame(height: 160)
             .background(Color.mmBgCard)
             .clipShape(RoundedRectangle(cornerRadius: 12))
+            .contentShape(Rectangle())
         }
-        .contentShape(Rectangle())
         .buttonStyle(.plain)
     }
 

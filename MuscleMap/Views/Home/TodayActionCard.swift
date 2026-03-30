@@ -121,8 +121,8 @@ struct TodayActionCard: View {
                             .padding(.vertical, 6)
                             .background(isSelected ? Color.mmAccentPrimary : Color.mmBgSecondary)
                             .clipShape(Capsule())
+                        .contentShape(Rectangle())
                     }
-                    .contentShape(Rectangle())
                     .buttonStyle(.plain)
                 }
             }
@@ -209,8 +209,8 @@ struct TodayActionCard: View {
                                         .font(.system(size: 18))
                                         .foregroundStyle(.white.opacity(0.7))
                                         .background(Circle().fill(Color.black.opacity(0.3)).frame(width: 22, height: 22))
+                                    .contentShape(Rectangle())
                                 }
-                                .contentShape(Rectangle())
                                 .buttonStyle(.plain)
                             }
                             .padding(5)
@@ -247,8 +247,8 @@ struct TodayActionCard: View {
                     )
                 )
                 .clipShape(RoundedRectangle(cornerRadius: 14))
+            .contentShape(Rectangle())
         }
-        .contentShape(Rectangle())
         .buttonStyle(.plain)
     }
 
@@ -265,8 +265,8 @@ struct TodayActionCard: View {
                 .padding(6)
                 .background(Color.white.opacity(0.1))
                 .clipShape(Circle())
+            .contentShape(Rectangle())
         }
-        .contentShape(Rectangle())
         .buttonStyle(.plain)
     }
 
@@ -324,8 +324,8 @@ struct TodayActionCard: View {
                     .frame(height: 40)
                     .background(Color.mmAccentPrimary.opacity(0.1))
                     .clipShape(RoundedRectangle(cornerRadius: 10))
+                .contentShape(Rectangle())
             }
-            .contentShape(Rectangle())
             .buttonStyle(.plain)
         }
         .padding(16)
@@ -387,8 +387,8 @@ struct TodayActionCard: View {
                         )
                     )
                     .clipShape(RoundedRectangle(cornerRadius: 14))
+                .contentShape(Rectangle())
             }
-            .contentShape(Rectangle())
             .buttonStyle(.plain)
         }
         .padding(16)
@@ -447,8 +447,8 @@ struct TodayActionCard: View {
                         )
                     )
                     .clipShape(RoundedRectangle(cornerRadius: 14))
+                .contentShape(Rectangle())
             }
-            .contentShape(Rectangle())
             .buttonStyle(.plain)
 
             Button {
@@ -458,8 +458,8 @@ struct TodayActionCard: View {
                 Text(isJapanese ? "ルーティンなしで始める" : "Start Without Routine")
                     .font(.system(size: 14, weight: .semibold))
                     .foregroundStyle(Color.mmAccentPrimary)
+                .contentShape(Rectangle())
             }
-            .contentShape(Rectangle())
             .buttonStyle(.plain)
             .frame(maxWidth: .infinity)
         }

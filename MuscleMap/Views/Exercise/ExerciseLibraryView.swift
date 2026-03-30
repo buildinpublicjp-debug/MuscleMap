@@ -360,8 +360,8 @@ private struct LibraryChip: View {
                 .background(isSelected ? Color.mmAccentPrimary : Color.mmBgCard)
                 .foregroundStyle(isSelected ? Color.mmBgPrimary : Color.mmTextSecondary)
                 .clipShape(Capsule())
+            .contentShape(Rectangle())
         }
-        .contentShape(Rectangle())
         .buttonStyle(.plain)
     }
 }
