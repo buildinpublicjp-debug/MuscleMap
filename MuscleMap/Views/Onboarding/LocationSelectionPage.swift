@@ -9,10 +9,6 @@ enum TrainingLocation: String, CaseIterable, Codable {
     case bodyweight
     case both
 
-    private var isJapanese: Bool {
-        LocalizationManager.shared.currentLanguage == .japanese
-    }
-
     var title: String {
         switch self {
         case .gym: return L10n.locGym
@@ -40,12 +36,13 @@ enum TrainingLocation: String, CaseIterable, Codable {
         }
     }
 
+    /// exercises.json の equipment フィールドは常に日本語キー
     var equipmentFilter: [String] {
         switch self {
-        case .gym: return isJapanese ? ["バーベル", "マシン", "ダンベル", "ケーブル"] : ["Barbell", "Machine", "Dumbbell", "Cable"]
-        case .home: return isJapanese ? ["ダンベル", "自重"] : ["Dumbbell", "Bodyweight"]
-        case .bodyweight: return isJapanese ? ["自重"] : ["Bodyweight"]
-        case .both: return isJapanese ? ["バーベル", "ダンベル", "自重"] : ["Barbell", "Dumbbell", "Bodyweight"]
+        case .gym: return ["バーベル", "マシン", "ダンベル", "ケーブル"]
+        case .home: return ["ダンベル", "自重"]
+        case .bodyweight: return ["自重"]
+        case .both: return ["バーベル", "ダンベル", "自重"]
         }
     }
 }

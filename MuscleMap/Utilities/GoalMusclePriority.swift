@@ -65,76 +65,75 @@ struct GoalMusclePriority {
 
     @MainActor
     private static func baseData(for goal: OnboardingGoal) -> BaseData {
-        let isJa = LocalizationManager.shared.currentLanguage == .japanese
         switch goal {
         case .getBig:
             return BaseData(
                 muscles: [.chestUpper, .chestLower, .lats, .trapsMiddleLower, .quadriceps, .hamstrings, .glutes, .triceps],
-                headline: isJa ? "大きい筋肉から鍛えれば効率最大" : "Target big muscles for maximum efficiency",
+                headline: L10n.goalHeadlineBig,
                 reasons: [
-                    MuscleReason(muscle: isJa ? "大胸筋" : "Chest", reason: isJa ? "上半身のボリューム" : "Upper body volume"),
-                    MuscleReason(muscle: isJa ? "広背筋" : "Lats", reason: isJa ? "背中の広がり" : "Back width"),
-                    MuscleReason(muscle: isJa ? "脚" : "Legs", reason: isJa ? "体の60%の筋肉量" : "60% of total muscle mass"),
+                    MuscleReason(muscle: L10n.muscleChest, reason: L10n.reasonUpperVolume),
+                    MuscleReason(muscle: L10n.muscleLats, reason: L10n.reasonBackWidth),
+                    MuscleReason(muscle: L10n.muscleLegs, reason: L10n.reasonMuscleMass60),
                 ]
             )
         case .dontGetDisrespected:
             return BaseData(
                 muscles: [.deltoidAnterior, .deltoidLateral, .chestUpper, .trapsUpper, .triceps, .biceps, .forearms],
-                headline: isJa ? "存在感は上半身の幅で決まる" : "Presence comes from upper body width",
+                headline: L10n.goalHeadlinePresence,
                 reasons: [
-                    MuscleReason(muscle: isJa ? "三角筋" : "Delts", reason: isJa ? "肩幅を広げる" : "Widen your shoulders"),
-                    MuscleReason(muscle: isJa ? "大胸筋" : "Chest", reason: isJa ? "厚みを出す" : "Add thickness"),
-                    MuscleReason(muscle: isJa ? "僧帽筋" : "Traps", reason: isJa ? "首回りの迫力" : "Neck presence"),
+                    MuscleReason(muscle: L10n.muscleDelts, reason: L10n.reasonWidenShoulders),
+                    MuscleReason(muscle: L10n.muscleChest, reason: L10n.reasonAddThickness),
+                    MuscleReason(muscle: L10n.muscleTraps, reason: L10n.reasonNeckPresence),
                 ]
             )
         case .martialArts:
             return BaseData(
                 muscles: [.lats, .quadriceps, .hamstrings, .rectusAbdominis, .obliques, .deltoidPosterior, .forearms, .gastrocnemius, .glutes],
-                headline: isJa ? "打撃力は背中と脚から生まれる" : "Striking power comes from back & legs",
+                headline: L10n.goalHeadlineFight,
                 reasons: [
-                    MuscleReason(muscle: isJa ? "広背筋" : "Lats", reason: isJa ? "パンチの引き" : "Punch retraction"),
-                    MuscleReason(muscle: isJa ? "脚" : "Legs", reason: isJa ? "踏み込みの力" : "Drive-in power"),
-                    MuscleReason(muscle: isJa ? "体幹" : "Core", reason: isJa ? "打撃の安定性" : "Strike stability"),
+                    MuscleReason(muscle: L10n.muscleLats, reason: L10n.reasonPunchRetraction),
+                    MuscleReason(muscle: L10n.muscleLegs, reason: L10n.reasonDriveInPower),
+                    MuscleReason(muscle: L10n.muscleCore, reason: L10n.reasonStrikeStability),
                 ]
             )
         case .sports:
             return BaseData(
                 muscles: [.quadriceps, .hamstrings, .glutes, .rectusAbdominis, .deltoidAnterior, .gastrocnemius, .soleus, .adductors],
-                headline: isJa ? "パフォーマンスは下半身と体幹が土台" : "Performance starts with legs & core",
+                headline: L10n.goalHeadlineSports,
                 reasons: [
-                    MuscleReason(muscle: isJa ? "脚" : "Legs", reason: isJa ? "爆発的なパワー" : "Explosive power"),
-                    MuscleReason(muscle: isJa ? "体幹" : "Core", reason: isJa ? "動きの安定性" : "Movement stability"),
-                    MuscleReason(muscle: isJa ? "肩" : "Shoulders", reason: isJa ? "腕の振りの起点" : "Arm swing origin"),
+                    MuscleReason(muscle: L10n.muscleLegs, reason: L10n.reasonExplosivePower),
+                    MuscleReason(muscle: L10n.muscleCore, reason: L10n.reasonMovementStability),
+                    MuscleReason(muscle: L10n.muscleShoulders, reason: L10n.reasonArmSwing),
                 ]
             )
         case .getAttractive:
             return BaseData(
                 muscles: [.chestUpper, .deltoidAnterior, .deltoidLateral, .biceps, .rectusAbdominis, .obliques, .triceps],
-                headline: isJa ? "Tシャツ映えは胸と肩のシルエット" : "Great silhouette starts with chest & shoulders",
+                headline: L10n.goalHeadlineAttractive,
                 reasons: [
-                    MuscleReason(muscle: isJa ? "大胸筋" : "Chest", reason: isJa ? "胸板の厚み" : "Chest thickness"),
-                    MuscleReason(muscle: isJa ? "三角筋" : "Delts", reason: isJa ? "肩のライン" : "Shoulder line"),
-                    MuscleReason(muscle: isJa ? "腹直筋" : "Abs", reason: isJa ? "引き締まったウエスト" : "Tight waistline"),
+                    MuscleReason(muscle: L10n.muscleChest, reason: L10n.reasonChestThickness),
+                    MuscleReason(muscle: L10n.muscleDelts, reason: L10n.reasonShoulderLine),
+                    MuscleReason(muscle: L10n.muscleAbs, reason: L10n.reasonTightWaist),
                 ]
             )
         case .moveWell:
             return BaseData(
                 muscles: [.quadriceps, .glutes, .rectusAbdominis, .erectorSpinae, .lats, .hipFlexors, .soleus, .adductors],
-                headline: isJa ? "日常の動きは全部ここから" : "Everyday movement starts here",
+                headline: L10n.goalHeadlineMoveWell,
                 reasons: [
-                    MuscleReason(muscle: isJa ? "脚" : "Legs", reason: isJa ? "階段・歩行の基盤" : "Stairs & walking foundation"),
-                    MuscleReason(muscle: isJa ? "体幹" : "Core", reason: isJa ? "姿勢の維持" : "Posture support"),
-                    MuscleReason(muscle: isJa ? "背中" : "Back", reason: isJa ? "物を持つ力" : "Lifting strength"),
+                    MuscleReason(muscle: L10n.muscleLegs, reason: L10n.reasonStairsWalking),
+                    MuscleReason(muscle: L10n.muscleCore, reason: L10n.reasonPosture),
+                    MuscleReason(muscle: L10n.muscleBack, reason: L10n.reasonLifting),
                 ]
             )
         case .health:
             return BaseData(
                 muscles: [.quadriceps, .hamstrings, .glutes, .erectorSpinae, .rectusAbdominis, .hipFlexors, .gastrocnemius, .soleus],
-                headline: isJa ? "抗老化に最も効くのは大筋群" : "Large muscles are key to anti-aging",
+                headline: L10n.goalHeadlineHealth,
                 reasons: [
-                    MuscleReason(muscle: isJa ? "脚" : "Legs", reason: isJa ? "転倒予防・代謝維持" : "Fall prevention & metabolism"),
-                    MuscleReason(muscle: isJa ? "背中" : "Back", reason: isJa ? "姿勢と骨密度" : "Posture & bone density"),
-                    MuscleReason(muscle: isJa ? "体幹" : "Core", reason: isJa ? "腰痛予防" : "Lower back protection"),
+                    MuscleReason(muscle: L10n.muscleLegs, reason: L10n.reasonFallPrevention),
+                    MuscleReason(muscle: L10n.muscleBack, reason: L10n.reasonBoneDensity),
+                    MuscleReason(muscle: L10n.muscleCore, reason: L10n.reasonLowerBackProtection),
                 ]
             )
         }

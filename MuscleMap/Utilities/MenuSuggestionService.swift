@@ -192,13 +192,12 @@ struct MenuSuggestionService {
         neglected: Muscle?,
         stimulations: [Muscle: MuscleStimulation]
     ) -> String {
-        let localization = LocalizationManager.shared
-        let groupName = localization.currentLanguage == .japanese ? group.japaneseName : group.englishName
+        let groupName = group.localizedName
         var reason = L10n.groupMostRecovered(groupName)
 
         if let muscle = neglected, let stim = stimulations[muscle] {
             let days = RecoveryCalculator.daysSinceStimulation(stim.stimulationDate)
-            let muscleName = localization.currentLanguage == .japanese ? muscle.japaneseName : muscle.englishName
+            let muscleName = muscle.localizedName
             reason += L10n.muscleNeglectedDays(muscleName, days)
         }
         return reason

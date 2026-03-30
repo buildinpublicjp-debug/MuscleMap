@@ -8,10 +8,6 @@ final class NotificationManager {
 
     private init() {}
 
-    private var isJapanese: Bool {
-        LocalizationManager.shared.currentLanguage == .japanese
-    }
-
     // MARK: - 回復完了リマインダー（筋肉グループ別）
 
     /// ワークアウト完了時に、刺激した筋肉ごとに回復完了通知をスケジュール
@@ -43,7 +39,7 @@ final class NotificationManager {
         // 最大2通知
         for (index, group) in grouped.prefix(2).enumerated() {
             let muscleNames = group.muscles.prefix(3).map {
-                isJapanese ? $0.japaneseName : $0.englishName
+                $0.localizedName
             }.joined(separator: "・")
 
             let content = UNMutableNotificationContent()

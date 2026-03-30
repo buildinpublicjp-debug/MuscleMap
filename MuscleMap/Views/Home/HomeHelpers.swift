@@ -853,19 +853,19 @@ struct TodayRecommendationInline: View {
               let goal = OnboardingGoal(rawValue: goalRaw) else { return nil }
         switch goal {
         case .getBig:
-            return L10n.goalCopySizeUp(goal.localizedName, muscleGroup)
+            return L10n.goalCopySizeUp(muscleGroup)
         case .dontGetDisrespected:
             return L10n.goalCopyPresence(muscleGroup)
         case .martialArts:
-            return L10n.goalCopyPower(goal.localizedName, muscleGroup)
+            return L10n.goalCopyPower(muscleGroup)
         case .sports:
-            return L10n.goalCopyPerformance(goal.localizedName, muscleGroup)
+            return L10n.goalCopyPerformance(muscleGroup)
         case .getAttractive:
-            return L10n.goalCopyShape(goal.localizedName, muscleGroup)
+            return L10n.goalCopyShape(muscleGroup)
         case .moveWell:
-            return L10n.goalCopyMobility(goal.localizedName, muscleGroup)
+            return L10n.goalCopyMobility(muscleGroup)
         case .health:
-            return L10n.goalCopyFitness(goal.localizedName, muscleGroup)
+            return L10n.goalCopyFitness(muscleGroup)
         }
     }
 

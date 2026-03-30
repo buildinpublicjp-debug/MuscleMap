@@ -151,10 +151,6 @@ enum PurchaseError: LocalizedError {
     case noOffering
     case packageNotFound
 
-    private var isJapanese: Bool {
-        LocalizationManager.shared.currentLanguage == .japanese
-    }
-
     nonisolated var errorDescription: String? {
         // Locale基準でフォールバック（MainActor外からも安全にアクセス）
         let ja = Locale.current.language.languageCode?.identifier == "ja"

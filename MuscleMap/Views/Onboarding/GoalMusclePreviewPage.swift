@@ -20,9 +20,7 @@ struct GoalMusclePreviewPage: View {
         GridItem(.flexible(), spacing: 8),
     ]
 
-    private var isJapanese: Bool {
-        LocalizationManager.shared.currentLanguage == .japanese
-    }
+
 
     /// AppStateから主要目標を取得
     private var currentGoal: OnboardingGoal {
@@ -223,7 +221,7 @@ struct GoalMusclePreviewPage: View {
     // MARK: - Day別セクション（ヘッダー + GIFグリッド）
 
     private func daySectionView(index: Int, part: SplitPart) -> some View {
-        let partName = isJapanese ? part.name : splitPartEnglishName(part.name)
+        let partName = part.localizedName
         let exercises = exercisesForPart(part)
         let isActive = index == currentAnimDayIndex
 
@@ -370,23 +368,6 @@ struct GoalMusclePreviewPage: View {
         return -1
     }
 
-    // MARK: - ヘルパー
-
-    private func splitPartEnglishName(_ jaName: String) -> String {
-        let mapping: [String: String] = [
-            "上半身": "Upper Body",
-            "下半身": "Lower Body",
-            "胸・肩・三頭": "Chest / Shoulders / Triceps",
-            "背中・二頭": "Back / Biceps",
-            "脚": "Legs",
-            "肩・腕": "Shoulders / Arms",
-            "胸": "Chest",
-            "背中": "Back",
-            "肩": "Shoulders",
-            "腕": "Arms",
-        ]
-        return mapping[jaName] ?? jaName
-    }
 }
 
 #Preview {

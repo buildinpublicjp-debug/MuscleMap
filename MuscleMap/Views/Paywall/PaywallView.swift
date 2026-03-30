@@ -11,10 +11,6 @@ struct PaywallView: View {
 
     private var localization: LocalizationManager { LocalizationManager.shared }
 
-    private var isJapanese: Bool {
-        localization.currentLanguage == .japanese
-    }
-
     // MARK: - ルーティンデータ
 
     private var routine: UserRoutine {
@@ -167,16 +163,14 @@ struct PaywallView: View {
                 .foregroundStyle(Color.mmAccentPrimary)
                 .tracking(3)
 
-            Text(isJapanese ? "制限なく、\n毎日記録する。" : "Record every\nworkout.")
+            Text(L10n.pwHeadlineRecord)
                 .font(.system(size: 28, weight: .heavy))
                 .foregroundStyle(Color.mmTextPrimary)
                 .multilineTextAlignment(.center)
                 .lineSpacing(4)
 
             if !routine.days.isEmpty && totalExercises > 0 {
-                Text(isJapanese
-                    ? "あなた専用 \(routine.days.count)日間・\(totalExercises)種目のメニュー"
-                    : "Your personal \(routine.days.count)-day, \(totalExercises)-exercise plan")
+                Text(L10n.pwPersonalPlan(routine.days.count, totalExercises))
                     .font(.system(size: 13))
                     .foregroundStyle(Color.mmTextSecondary)
             }
@@ -190,11 +184,11 @@ struct PaywallView: View {
         HStack(spacing: 0) {
             valuePropItem(
                 value: "∞",
-                label: isJapanese ? "回数無制限" : "Unlimited"
+                label: L10n.pwUnlimited
             )
             valuePropItem(
                 value: "92",
-                label: isJapanese ? "種目GIF" : "Exercise GIFs"
+                label: L10n.pwExerciseGIFs
             )
         }
         .padding(.vertical, 14)
@@ -514,10 +508,6 @@ private struct PaywallMarqueeRow: View {
 
     @State private var offset: CGFloat = 0
 
-    private var isJapanese: Bool {
-        LocalizationManager.shared.currentLanguage == .japanese
-    }
-
     /// 1セット分の幅
     private var setWidth: CGFloat {
         CGFloat(exercises.count) * (cardSize + 8)
@@ -571,7 +561,7 @@ private struct PaywallMarqueeRow: View {
             }
 
             // 種目名（グラデーション付き）
-            Text(isJapanese ? exercise.nameJA : exercise.nameEN)
+            Text(exercise.localizedName)
                 .font(.system(size: 12, weight: .bold))
                 .foregroundStyle(.white)
                 .shadow(color: .black.opacity(0.5), radius: 2, y: 1)

@@ -15,15 +15,14 @@ struct ImportResult: Equatable {
 
     @MainActor
     var summary: String {
-        let isJa = LocalizationManager.shared.currentLanguage == .japanese
         var lines: [String] = []
-        lines.append(isJa ? "\(sessionsCreated)件のワークアウトをインポート" : "\(sessionsCreated) workouts imported")
-        lines.append(isJa ? "\(setsCreated)セットを追加" : "\(setsCreated) sets added")
+        lines.append(L10n.importWorkoutsCount(sessionsCreated))
+        lines.append(L10n.importSetsAdded(setsCreated))
         if !unmatchedExercises.isEmpty {
-            lines.append(isJa ? "未登録の種目: \(unmatchedExercises.joined(separator: ", "))" : "Unmatched exercises: \(unmatchedExercises.joined(separator: ", "))")
+            lines.append(L10n.importUnmatched(unmatchedExercises.joined(separator: ", ")))
         }
         if duplicatesSkipped > 0 {
-            lines.append(isJa ? "\(duplicatesSkipped)件の重複をスキップ" : "\(duplicatesSkipped) duplicates skipped")
+            lines.append(L10n.importDuplicatesSkipped(duplicatesSkipped))
         }
         return lines.joined(separator: "\n")
     }
@@ -156,8 +155,7 @@ class ImportDataConverter {
         do {
             try modelContext.save()
         } catch {
-            let isJa = LocalizationManager.shared.currentLanguage == .japanese
-            errors.append(isJa ? "保存エラー: \(error.localizedDescription)" : "Save error: \(error.localizedDescription)")
+            errors.append(L10n.importSaveError(error.localizedDescription))
         }
 
         return ImportResult(

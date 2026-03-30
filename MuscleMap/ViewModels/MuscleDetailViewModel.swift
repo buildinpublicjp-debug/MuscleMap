@@ -10,7 +10,7 @@ struct EquipmentFilter: Identifiable, Equatable {
     let labelEN: String
 
     var localizedLabel: String {
-        LocalizationManager.shared.currentLanguage == .japanese ? labelJA : labelEN
+        L10n.localizedEquipment(id)
     }
 
     static let allFilters: [EquipmentFilter] = [
@@ -36,14 +36,13 @@ enum DetailPeriod: String, CaseIterable, Identifiable {
 
     @MainActor
     var localizedLabel: String {
-        let isJapanese = LocalizationManager.shared.currentLanguage == .japanese
         switch self {
-        case .oneWeek: return isJapanese ? "1週" : "1W"
-        case .twoWeeks: return isJapanese ? "2週" : "2W"
-        case .oneMonth: return isJapanese ? "1月" : "1M"
-        case .twoMonths: return isJapanese ? "2月" : "2M"
-        case .threeMonths: return isJapanese ? "3月" : "3M"
-        case .all: return isJapanese ? "全期間" : "ALL"
+        case .oneWeek: return L10n.period1W
+        case .twoWeeks: return L10n.period2W
+        case .oneMonth: return L10n.period1M
+        case .twoMonths: return L10n.period2M
+        case .threeMonths: return L10n.period3M
+        case .all: return L10n.periodAll
         }
     }
 

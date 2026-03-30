@@ -45,7 +45,13 @@ enum StrengthLevel: String, CaseIterable {
     /// ローカライズ名
     @MainActor
     var localizedName: String {
-        LocalizationManager.shared.currentLanguage == .japanese ? japaneseName : englishName
+        switch self {
+        case .beginner:     return LocalizationManager.localized(ja: "初心者", en: "Beginner", zhHans: "初学者", ko: "초보자", es: "Principiante", fr: "Débutant", de: "Anfänger")
+        case .intermediate: return LocalizationManager.localized(ja: "中級者", en: "Intermediate", zhHans: "中级者", ko: "중급자", es: "Intermedio", fr: "Intermédiaire", de: "Fortgeschritten")
+        case .advanced:     return LocalizationManager.localized(ja: "上級者", en: "Advanced", zhHans: "高级者", ko: "상급자", es: "Avanzado", fr: "Avancé", de: "Erfahren")
+        case .elite:        return LocalizationManager.localized(ja: "エリート", en: "Elite", zhHans: "精英", ko: "엘리트", es: "Élite", fr: "Élite", de: "Elite")
+        case .freak:        return LocalizationManager.localized(ja: "怪物", en: "Freak", zhHans: "怪物", ko: "괴물", es: "Bestia", fr: "Monstre", de: "Monster")
+        }
     }
 
     /// レベルカラー

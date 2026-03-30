@@ -88,16 +88,12 @@ struct SettingsView: View {
             }
             #if DEBUG
             .alert(
-                LocalizationManager.shared.currentLanguage == .japanese
-                    ? "オンボーディングをリセットしました"
-                    : "Onboarding Reset",
+                L10n.onboardingResetDone,
                 isPresented: $showingResetAlert
             ) {
                 Button("OK") {}
             } message: {
-                Text(LocalizationManager.shared.currentLanguage == .japanese
-                    ? "アプリを再起動すると、オンボーディングが再表示されます。"
-                    : "Restart the app to see the onboarding again.")
+                Text(L10n.onboardingResetMessage)
             }
             #endif
         }
@@ -353,7 +349,7 @@ struct SettingsView: View {
                 HStack(spacing: 12) {
                     Image(systemName: "camera.fill")
                         .foregroundStyle(Color.mmAccentPrimary)
-                    Text(LocalizationManager.shared.currentLanguage == .japanese ? "体の記録" : "Progress Photos")
+                    Text(L10n.progressPhotos)
                         .font(.subheadline)
                         .foregroundStyle(Color.mmTextPrimary)
                     Spacer()
@@ -393,7 +389,7 @@ struct SettingsView: View {
                         .font(.subheadline)
                         .foregroundStyle(Color.mmTextPrimary)
                     Spacer()
-                    Text(LocalizationManager.shared.currentLanguage == .japanese ? "近日公開" : "Coming Soon")
+                    Text(L10n.comingSoon)
                         .font(.caption2.bold())
                         .foregroundStyle(Color.mmBgPrimary)
                         .padding(.horizontal, 8)
@@ -504,7 +500,7 @@ struct SettingsView: View {
                 HStack(spacing: 8) {
                     Image(systemName: "crown.fill")
                         .foregroundStyle(Color.mmPRGold)
-                    Text(LocalizationManager.shared.currentLanguage == .japanese ? "プレミアム（デバッグ）" : "Premium (Debug)")
+                    Text(L10n.premiumDebug)
                         .font(.subheadline)
                         .foregroundStyle(Color.mmTextPrimary)
                 }
@@ -522,7 +518,7 @@ struct SettingsView: View {
                 HStack(spacing: 12) {
                     Image(systemName: "arrow.counterclockwise")
                         .foregroundStyle(Color.mmDestructive)
-                    Text(LocalizationManager.shared.currentLanguage == .japanese ? "オンボーディングをリセット" : "Reset Onboarding")
+                    Text(L10n.resetOnboarding)
                         .font(.subheadline)
                         .foregroundStyle(Color.mmDestructive)
                 }
@@ -544,10 +540,6 @@ struct ProfileEditSheet: View {
     @State private var weightText: String = ""
     @State private var selectedExperience: TrainingExperience = .beginner
     @State private var showingSavedToast = false
-
-    private var isJapanese: Bool {
-        LocalizationManager.shared.currentLanguage == .japanese
-    }
 
     var body: some View {
         NavigationStack {

@@ -77,20 +77,15 @@ private struct MainTabView: View {
             }
         }
         .alert(
-            LocalizationManager.shared.currentLanguage == .japanese
-                ? "今週の無料ワークアウト" : "Free Workout Limit",
+            L10n.freeWorkoutLimitTitle,
             isPresented: $showWorkoutLimitAlert
         ) {
-            Button(LocalizationManager.shared.currentLanguage == .japanese
-                   ? "Proにアップグレード" : "Upgrade to Pro") {
+            Button(L10n.upgradeToProButton) {
                 showingPaywall = true
             }
-            Button(LocalizationManager.shared.currentLanguage == .japanese
-                   ? "閉じる" : "Close", role: .cancel) {}
+            Button(L10n.close, role: .cancel) {}
         } message: {
-            Text(LocalizationManager.shared.currentLanguage == .japanese
-                ? "今週\(PurchaseManager.weeklyFreeLimit)回のワークアウトを記録しました。Proにアップグレードすると無制限に記録でき、残りの部位も今週中にカバーできます。"
-                : "You've logged \(PurchaseManager.weeklyFreeLimit) workouts this week. Upgrade to Pro for unlimited tracking and cover all muscle groups.")
+            Text(L10n.freeWorkoutLimitMessage(PurchaseManager.weeklyFreeLimit))
         }
         .sheet(isPresented: $showingPaywall) {
             PaywallView(isHardPaywall: false)

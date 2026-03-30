@@ -11,7 +11,6 @@ struct MuscleDetailView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var viewModel: MuscleDetailViewModel?
     @State private var selectedExercise: ExerciseDefinition?
-    private var isJapanese: Bool { LocalizationManager.shared.currentLanguage == .japanese }
 
     var body: some View {
         NavigationStack {
@@ -56,7 +55,7 @@ struct MuscleDetailView: View {
                     }
                 }
             }
-            .navigationTitle(isJapanese ? muscle.japaneseName : muscle.englishName)
+            .navigationTitle(muscle.localizedName)
             .navigationBarTitleDisplayMode(.inline)
             .toolbarColorScheme(.dark, for: .navigationBar)
             .toolbar {
@@ -103,7 +102,6 @@ struct MuscleDetailView: View {
 
 private struct RecoveryBannerView: View {
     let viewModel: MuscleDetailViewModel
-    private var isJapanese: Bool { LocalizationManager.shared.currentLanguage == .japanese }
 
     var body: some View {
         HStack(spacing: 12) {
@@ -166,18 +164,18 @@ private struct RecoveryBannerView: View {
 
     private var statusText: String {
         if viewModel.lastStimulationDate == nil {
-            return isJapanese ? "記録なし" : "No Record"
+            return L10n.noRecordLabel
         }
         switch viewModel.recoveryStatus {
         case .recovering(let p):
             let pct = Int(p * 100)
-            return isJapanese ? "回復中 \(pct)%" : "Recovering \(pct)%"
+            return L10n.recoveringPercent(pct)
         case .fullyRecovered:
-            return isJapanese ? "回復済み" : "Recovered"
+            return L10n.recoveredLabel
         case .neglected:
-            return isJapanese ? "7日以上未トレーニング" : "7d+ No Training"
+            return L10n.noTraining7d
         case .neglectedSevere:
-            return isJapanese ? "14日以上未トレーニング" : "14d+ No Training"
+            return L10n.noTraining14d
         }
     }
 
@@ -188,11 +186,11 @@ private struct RecoveryBannerView: View {
         if let remaining = viewModel.remainingHours {
             let h = Int(remaining)
             if h >= 24 {
-                return isJapanese ? "残り\(h/24)日\(h%24)時間" : "\(h/24)d \(h%24)h left"
+                return L10n.remainingDaysHours(h/24, h%24)
             }
-            return isJapanese ? "残り\(h)時間" : "\(h)h left"
+            return L10n.remainingHoursLabel(h)
         }
-        return isJapanese ? "✅ 回復済み" : "✅ Recovered"
+        return L10n.recoveredCheck
     }
 }
 
@@ -229,7 +227,6 @@ private struct DetailPeriodPicker: View {
 
 private struct PeriodSummaryCards: View {
     let viewModel: MuscleDetailViewModel
-    private var isJapanese: Bool { LocalizationManager.shared.currentLanguage == .japanese }
 
     var body: some View {
         HStack(spacing: 8) {
@@ -237,7 +234,7 @@ private struct PeriodSummaryCards: View {
             summaryCard(
                 icon: "calendar",
                 iconColor: Color.mmAccentSecondary,
-                label: isJapanese ? "最終" : "Last",
+                label: L10n.lastLabel,
                 value: lastDateText,
                 sub: relativeDateText
             )
@@ -246,7 +243,7 @@ private struct PeriodSummaryCards: View {
             summaryCard(
                 icon: "trophy.fill",
                 iconColor: Color.mmPRGold,
-                label: isJapanese ? "ベスト" : "Best",
+                label: L10n.bestLabel,
                 value: bestText,
                 sub: growthText
             )
@@ -255,10 +252,10 @@ private struct PeriodSummaryCards: View {
             summaryCard(
                 icon: "number",
                 iconColor: Color.mmAccentPrimary,
-                label: isJapanese ? "セット" : "Sets",
+                label: L10n.setsLabel,
                 value: "\(viewModel.periodTotalSets)",
                 sub: viewModel.monthlyAverageSets > 0
-                    ? (isJapanese ? "月平均\(viewModel.monthlyAverageSets)" : "avg \(viewModel.monthlyAverageSets)/mo")
+                    ? L10n.monthlyAvgLabel(viewModel.monthlyAverageSets)
                     : nil
             )
         }
@@ -274,7 +271,7 @@ private struct PeriodSummaryCards: View {
     private var relativeDateText: String? {
         guard let date = viewModel.periodLastDate else { return nil }
         let fmt = RelativeDateTimeFormatter()
-        fmt.locale = isJapanese ? Locale(identifier: "ja_JP") : Locale(identifier: "en_US")
+        fmt.locale = Locale(identifier: LocalizationManager.shared.currentLanguage.rawValue)
         fmt.unitsStyle = .short
         return fmt.localizedString(for: date, relativeTo: Date())
     }
@@ -328,11 +325,10 @@ private struct PeriodSummaryCards: View {
 private struct DetailAreaChart: View {
     let entries: [DetailWeightEntry]
     let period: DetailPeriod
-    private var isJapanese: Bool { LocalizationManager.shared.currentLanguage == .japanese }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(isJapanese ? "重量推移" : "Weight Progress")
+            Text(L10n.weightProgress)
                 .font(.subheadline.bold())
                 .foregroundStyle(Color.mmTextPrimary)
 
@@ -414,15 +410,17 @@ private struct DetailAreaChart: View {
     // X軸ラベルフォーマット
     private func formatXLabel(_ date: Date) -> String {
         let fmt = DateFormatter()
+        let lang = LocalizationManager.shared.currentLanguage
+        let locale = Locale(identifier: lang.rawValue)
         switch period {
         case .oneWeek, .twoWeeks:
-            fmt.dateFormat = isJapanese ? "E" : "EEE"
-            fmt.locale = isJapanese ? Locale(identifier: "ja_JP") : Locale(identifier: "en_US")
+            fmt.dateFormat = lang == .japanese ? "E" : "EEE"
+            fmt.locale = locale
         case .oneMonth, .twoMonths:
             fmt.dateFormat = "M/d"
         case .threeMonths, .all:
-            fmt.dateFormat = isJapanese ? "M月" : "MMM"
-            fmt.locale = isJapanese ? Locale(identifier: "ja_JP") : Locale(identifier: "en_US")
+            fmt.dateFormat = lang == .japanese ? "M月" : "MMM"
+            fmt.locale = locale
         }
         return fmt.string(from: date)
     }
@@ -436,7 +434,7 @@ private struct DetailAreaChart: View {
                     Image(systemName: "chart.line.uptrend.xyaxis")
                         .font(.title2)
                         .foregroundStyle(Color.mmTextSecondary.opacity(0.4))
-                    Text(isJapanese ? "まだ記録がありません" : "No records yet")
+                    Text(L10n.noRecordsYet)
                         .font(.caption)
                         .foregroundStyle(Color.mmTextSecondary)
                 }
@@ -449,7 +447,6 @@ private struct DetailAreaChart: View {
 private struct DetailExerciseGrid: View {
     let cards: [ExerciseCardData]
     @Binding var selectedExercise: ExerciseDefinition?
-    private var isJapanese: Bool { LocalizationManager.shared.currentLanguage == .japanese }
 
     private let gridColumns = [
         GridItem(.flexible(), spacing: 12),
@@ -459,7 +456,7 @@ private struct DetailExerciseGrid: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                Text(isJapanese ? "この期間の種目" : "Exercises")
+                Text(L10n.exercisesInPeriod)
                     .font(.headline)
                     .foregroundStyle(Color.mmTextPrimary)
                 Spacer()

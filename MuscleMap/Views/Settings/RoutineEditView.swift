@@ -10,19 +10,15 @@ struct RoutineEditView: View {
     @State private var renderedImage: UIImage?
     @State private var showShareSheet = false
 
-    private var isJapanese: Bool {
-        LocalizationManager.shared.currentLanguage == .japanese
-    }
-
     var body: some View {
         ZStack {
             Color.mmBgPrimary.ignoresSafeArea()
 
             if days.isEmpty {
                 ContentUnavailableView(
-                    isJapanese ? "ルーティンがありません" : "No Routine",
+                    L10n.noRoutine,
                     systemImage: "list.bullet.clipboard",
-                    description: Text(isJapanese ? "オンボーディングでルーティンを作成してください" : "Create a routine in onboarding")
+                    description: Text(L10n.createRoutineInOnboarding)
                 )
             } else {
                 ScrollView(showsIndicators: false) {
@@ -46,7 +42,7 @@ struct RoutineEditView: View {
                         } label: {
                             HStack {
                                 Image(systemName: "plus.circle.fill")
-                                Text(isJapanese ? "Dayを追加" : "Add Day")
+                                Text(L10n.addDay)
                             }
                             .font(.subheadline.bold())
                             .foregroundStyle(Color.mmAccentPrimary)
@@ -64,7 +60,7 @@ struct RoutineEditView: View {
                 }
             }
         }
-        .navigationTitle(isJapanese ? "マイルーティン" : "My Routine")
+        .navigationTitle(L10n.myRoutine)
         .navigationBarTitleDisplayMode(.inline)
         .toolbarColorScheme(.dark, for: .navigationBar)
         .toolbar {
@@ -104,7 +100,7 @@ struct RoutineEditView: View {
         }
         .sheet(isPresented: $showShareSheet) {
             if let image = renderedImage {
-                ShareSheet(items: [image, isJapanese ? "MuscleMap で作成したマイルーティン" : "My routine created with MuscleMap"])
+                ShareSheet(items: [image, L10n.routineShareText])
             }
         }
     }
@@ -113,7 +109,7 @@ struct RoutineEditView: View {
 
     private func addDay() {
         let newDay = RoutineDay(
-            name: isJapanese ? "新しいDay" : "New Day",
+            name: L10n.newDay,
             muscleGroups: [],
             exercises: [],
             location: "gym"
@@ -151,14 +147,10 @@ private struct DayCatalogCard: View {
     let dayIndex: Int
     let modelContext: ModelContext
 
-    private var isJapanese: Bool {
-        LocalizationManager.shared.currentLanguage == .japanese
-    }
-
     private var muscleGroupNames: [String] {
         day.muscleGroups.compactMap { rawValue in
             guard let group = MuscleGroup(rawValue: rawValue) else { return nil }
-            return isJapanese ? group.japaneseName : group.englishName
+            return group.localizedName
         }
     }
 
@@ -212,15 +204,11 @@ private struct RoutineExerciseCard: View {
     let exercise: RoutineExercise
     let modelContext: ModelContext
 
-    private var isJapanese: Bool {
-        LocalizationManager.shared.currentLanguage == .japanese
-    }
-
     private var exerciseName: String {
         guard let def = ExerciseStore.shared.exercise(for: exercise.exerciseId) else {
             return exercise.exerciseId
         }
-        return isJapanese ? def.nameJA : def.nameEN
+        return def.localizedName
     }
 
     var body: some View {
@@ -287,14 +275,10 @@ private struct DayEditSheet: View {
 
     private let maxExercisesPerDay = 8
 
-    private var isJapanese: Bool {
-        LocalizationManager.shared.currentLanguage == .japanese
-    }
-
     private var muscleGroupNames: String {
         editedDay.muscleGroups.compactMap { rawValue in
             guard let group = MuscleGroup(rawValue: rawValue) else { return nil }
-            return isJapanese ? group.japaneseName : group.englishName
+            return group.localizedName
         }.joined(separator: " · ")
     }
 
@@ -378,7 +362,7 @@ private struct DayEditSheet: View {
                             } label: {
                                 HStack {
                                     Image(systemName: "pencil")
-                                    Text(isJapanese ? "Day名を変更" : "Rename Day")
+                                    Text(L10n.renameDay)
                                     Spacer()
                                 }
                                 .font(.subheadline)
@@ -395,7 +379,7 @@ private struct DayEditSheet: View {
                             } label: {
                                 HStack {
                                     Image(systemName: "trash")
-                                    Text(isJapanese ? "このDayを削除" : "Delete this Day")
+                                    Text(L10n.deleteThisDay)
                                     Spacer()
                                 }
                                 .font(.subheadline)
@@ -446,7 +430,7 @@ private struct DayEditSheet: View {
                 .presentationDragIndicator(.visible)
                 .presentationBackground(Color.mmBgSecondary)
             }
-            .alert(isJapanese ? "Day名を変更" : "Rename Day", isPresented: $showingRenameAlert) {
+            .alert(L10n.renameDay, isPresented: $showingRenameAlert) {
                 TextField("", text: $newDayName)
                 Button(L10n.save) {
                     editedDay.name = newDayName
@@ -454,7 +438,7 @@ private struct DayEditSheet: View {
                 }
                 Button(L10n.cancel, role: .cancel) {}
             }
-            .alert(isJapanese ? "このDayを削除しますか？" : "Delete this Day?", isPresented: $showingDeleteConfirm) {
+            .alert(L10n.deleteDayConfirm, isPresented: $showingDeleteConfirm) {
                 Button(L10n.delete, role: .destructive) {
                     onDelete()
                     dismiss()
@@ -471,10 +455,6 @@ private struct DayEditExerciseRow: View {
     let exercise: ExerciseDefinition
     let routineExercise: RoutineExercise
     let onReplace: () -> Void
-
-    private var isJapanese: Bool {
-        LocalizationManager.shared.currentLanguage == .japanese
-    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -514,7 +494,7 @@ private struct DayEditExerciseRow: View {
 
                 // 入替えボタン
                 Button(action: onReplace) {
-                    Text(isJapanese ? "入替え" : "Replace")
+                    Text(L10n.replaceExercise)
                         .font(.caption.bold())
                         .foregroundStyle(Color.mmAccentPrimary)
                     .contentShape(Rectangle())
@@ -722,10 +702,6 @@ private struct RoutineShareCardContent: View {
     let days: [RoutineDay]
     let modelContext: ModelContext
 
-    private var isJapanese: Bool {
-        LocalizationManager.shared.currentLanguage == .japanese
-    }
-
     private var dateString: String {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy.MM.dd"
@@ -787,7 +763,7 @@ private struct RoutineShareCardContent: View {
                     Text("\(totalExercises) exercises")
                         .font(.caption2.bold())
                         .foregroundStyle(.white)
-                    Text(isJapanese ? "全身カバレッジ" : "Full body coverage")
+                    Text(L10n.fullBodyCoverage)
                         .font(.system(size: 9))
                         .foregroundStyle(Color.mmAccentPrimary)
                 }
@@ -819,14 +795,10 @@ private struct ShareDayCard: View {
     let dayIndex: Int
     let modelContext: ModelContext
 
-    private var isJapanese: Bool {
-        LocalizationManager.shared.currentLanguage == .japanese
-    }
-
     private var muscleGroupNames: String {
         day.muscleGroups.compactMap { rawValue in
             guard let group = MuscleGroup(rawValue: rawValue) else { return nil }
-            return isJapanese ? group.japaneseName : group.englishName
+            return group.localizedName
         }.joined(separator: " · ")
     }
 
@@ -857,17 +829,13 @@ private struct ShareExerciseMiniCard: View {
     let exercise: RoutineExercise
     let modelContext: ModelContext
 
-    private var isJapanese: Bool {
-        LocalizationManager.shared.currentLanguage == .japanese
-    }
-
     private var exerciseDef: ExerciseDefinition? {
         ExerciseStore.shared.exercise(for: exercise.exerciseId)
     }
 
     private var shortenedName: String {
         guard let def = exerciseDef else { return "" }
-        let name = isJapanese ? def.nameJA : def.nameEN
+        let name = def.localizedName
         return name.count > 10 ? String(name.prefix(9)) + "…" : name
     }
 

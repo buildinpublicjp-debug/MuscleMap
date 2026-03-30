@@ -25,7 +25,11 @@ enum AppTheme: String, CaseIterable {
 
     @MainActor
     var displayName: String {
-        LocalizationManager.shared.currentLanguage == .japanese ? displayNameJA : displayNameEN
+        switch self {
+        case .system: return LocalizationManager.localized(ja: "システム", en: "System", zhHans: "系统", ko: "시스템", es: "Sistema", fr: "Système", de: "System")
+        case .light: return LocalizationManager.localized(ja: "ライト", en: "Light", zhHans: "浅色", ko: "라이트", es: "Claro", fr: "Clair", de: "Hell")
+        case .dark: return LocalizationManager.localized(ja: "ダーク", en: "Dark", zhHans: "深色", ko: "다크", es: "Oscuro", fr: "Sombre", de: "Dunkel")
+        }
     }
 
     var colorScheme: ColorScheme? {

@@ -1629,6 +1629,13 @@ enum L10n {
     static var notifWeeklySummary: String { loc("週間サマリー", "Weekly Summary", zhHans: "每周总结", ko: "주간 요약", es: "Resumen semanal", fr: "Résumé hebdomadaire", de: "Wochenzusammenfassung") }
     static func notifWeeklyBody(_ count: Int) -> String { loc("先週は\(count)回トレーニング。今週も頑張ろう！", "Last week: \(count) workouts. Keep it up!", zhHans: "上周训练了\(count)次。这周也加油！", ko: "지난주 \(count)회 트레이닝. 이번 주도 힘내자!", es: "Semana pasada: \(count) entrenamientos. ¡Sigue así!", fr: "Semaine dernière : \(count) entraînements. Continuez !", de: "Letzte Woche: \(count) Trainings. Weiter so!") }
 
+    // MARK: - ProgressPhotoGalleryView
+    static var deletePhoto: String { loc("写真を削除", "Delete Photo", zhHans: "删除照片", ko: "사진 삭제", es: "Eliminar foto", fr: "Supprimer la photo", de: "Foto löschen") }
+    static var deletePhotoConfirm: String { loc("この写真を削除しますか？元に戻せません。", "Delete this photo? This cannot be undone.", zhHans: "删除这张照片？此操作不可撤销。", ko: "이 사진을 삭제하시겠습니까? 되돌릴 수 없습니다.", es: "¿Eliminar esta foto? No se puede deshacer.", fr: "Supprimer cette photo ? Cette action est irréversible.", de: "Dieses Foto löschen? Dies kann nicht rückgängig gemacht werden.") }
+    static var noProgressPhotos: String { loc("まだ体の記録がありません", "No progress photos yet", zhHans: "还没有身体记录", ko: "아직 몸 기록이 없습니다", es: "Sin fotos de progreso aún", fr: "Pas encore de photos de progrès", de: "Noch keine Fortschrittsfotos") }
+    static var progressPhotosHint: String { loc("ワークアウト完了時に\n「体の記録を撮る」で撮影できます", "Take photos from the workout\ncompletion screen", zhHans: "训练完成后\n可以拍摄身体记录", ko: "운동 완료 시\n\"몸 기록 촬영\"으로 촬영할 수 있습니다", es: "Toma fotos desde la pantalla\nde finalización del entrenamiento", fr: "Prenez des photos depuis l'écran\nde fin d'entraînement", de: "Fotos können nach dem Training\naufgenommen werden") }
+    static var beforeAfterCompare: String { loc("Before / After 比較", "Before / After Compare", zhHans: "Before / After 对比", ko: "Before / After 비교", es: "Comparación Antes / Después", fr: "Comparaison Avant / Après", de: "Vorher / Nachher Vergleich") }
+
     // MARK: - SettingsView (追加)
     static var progressPhotos: String { loc("体の記録", "Progress Photos", zhHans: "身体记录", ko: "몸 기록", es: "Fotos de progreso", fr: "Photos de progrès", de: "Fortschrittsfotos") }
     static var onboardingResetDone: String { loc("オンボーディングをリセットしました", "Onboarding Reset", zhHans: "已重置引导流程", ko: "온보딩이 리셋되었습니다", es: "Onboarding restablecido", fr: "Accueil réinitialisé", de: "Onboarding zurückgesetzt") }

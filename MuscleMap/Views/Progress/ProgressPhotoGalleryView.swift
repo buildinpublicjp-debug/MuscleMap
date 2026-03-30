@@ -14,10 +14,6 @@ struct ProgressPhotoGalleryView: View {
     @State private var showingDeleteAlert = false
     @State private var photoToDelete: ProgressPhoto?
 
-    private var isJapanese: Bool {
-        LocalizationManager.shared.currentLanguage == .japanese
-    }
-
     private let columns = [
         GridItem(.flexible(), spacing: 2),
         GridItem(.flexible(), spacing: 2),
@@ -50,7 +46,7 @@ struct ProgressPhotoGalleryView: View {
                 }
             }
         }
-        .navigationTitle(isJapanese ? "体の記録" : "Progress Photos")
+        .navigationTitle(L10n.progressPhotos)
         .navigationBarTitleDisplayMode(.inline)
         .toolbarColorScheme(.dark, for: .navigationBar)
         .fullScreenCover(item: $selectedPhoto) { photo in
@@ -72,10 +68,10 @@ struct ProgressPhotoGalleryView: View {
             }
         }
         .alert(
-            isJapanese ? "写真を削除" : "Delete Photo",
+            L10n.deletePhoto,
             isPresented: $showingDeleteAlert
         ) {
-            Button(isJapanese ? "削除" : "Delete", role: .destructive) {
+            Button(L10n.delete, role: .destructive) {
                 if let photo = photoToDelete {
                     photo.deleteImageFile()
                     modelContext.delete(photo)
@@ -83,11 +79,11 @@ struct ProgressPhotoGalleryView: View {
                     photoToDelete = nil
                 }
             }
-            Button(isJapanese ? "キャンセル" : "Cancel", role: .cancel) {
+            Button(L10n.cancel, role: .cancel) {
                 photoToDelete = nil
             }
         } message: {
-            Text(isJapanese ? "この写真を削除しますか？元に戻せません。" : "Delete this photo? This cannot be undone.")
+            Text(L10n.deletePhotoConfirm)
         }
     }
 
@@ -98,12 +94,10 @@ struct ProgressPhotoGalleryView: View {
             Image(systemName: "camera.fill")
                 .font(.system(size: 48))
                 .foregroundStyle(Color.mmTextSecondary.opacity(0.4))
-            Text(isJapanese ? "まだ体の記録がありません" : "No progress photos yet")
+            Text(L10n.noProgressPhotos)
                 .font(.headline)
                 .foregroundStyle(Color.mmTextSecondary)
-            Text(isJapanese
-                 ? "ワークアウト完了時に\n「体の記録を撮る」で撮影できます"
-                 : "Take photos from the workout\ncompletion screen")
+            Text(L10n.progressPhotosHint)
                 .font(.caption)
                 .foregroundStyle(Color.mmTextSecondary.opacity(0.6))
                 .multilineTextAlignment(.center)
@@ -124,7 +118,7 @@ struct ProgressPhotoGalleryView: View {
         } label: {
             HStack(spacing: 8) {
                 Image(systemName: "square.split.2x1")
-                Text(isJapanese ? "Before / After 比較" : "Before / After Compare")
+                Text(L10n.beforeAfterCompare)
                     .font(.subheadline.bold())
             }
             .foregroundStyle(Color.mmAccentPrimary)
@@ -178,10 +172,6 @@ struct PhotoFullScreenView: View {
     let onDelete: (ProgressPhoto) -> Void
 
     @State private var currentIndex: Int = 0
-
-    private var isJapanese: Bool {
-        LocalizationManager.shared.currentLanguage == .japanese
-    }
 
     var body: some View {
         ZStack {
@@ -269,7 +259,7 @@ struct PhotoFullScreenView: View {
 
     private func dateString(_ date: Date) -> String {
         let fmt = DateFormatter()
-        fmt.dateFormat = isJapanese ? "yyyy年M月d日" : "MMM d, yyyy"
+        fmt.dateFormat = L10n.dateFormatYearMonthDay
         fmt.locale = LocalizationManager.shared.currentLanguage.locale
         return fmt.string(from: date)
     }
@@ -283,10 +273,6 @@ struct BeforeAfterCompareView: View {
     let after: ProgressPhoto
 
     @State private var sliderPosition: CGFloat = 0.5
-
-    private var isJapanese: Bool {
-        LocalizationManager.shared.currentLanguage == .japanese
-    }
 
     var body: some View {
         NavigationStack {
@@ -407,7 +393,7 @@ struct BeforeAfterCompareView: View {
 
     private func dateLabel(_ date: Date) -> some View {
         let fmt = DateFormatter()
-        fmt.dateFormat = isJapanese ? "M/d" : "M/d"
+        fmt.dateFormat = "M/d"
         let text = fmt.string(from: date)
         return Text(text)
             .font(.caption2.bold())

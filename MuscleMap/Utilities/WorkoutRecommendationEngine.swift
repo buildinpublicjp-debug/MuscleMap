@@ -37,11 +37,13 @@ struct SplitPart {
     let difficulty: String
 
     @MainActor var localizedName: String {
-        LocalizationManager.shared.currentLanguage == .japanese ? name : nameEN
+        let lang = LocalizationManager.shared.currentLanguage
+        return lang == .japanese ? name : nameEN
     }
 
     @MainActor var localizedDescription: String {
-        LocalizationManager.shared.currentLanguage == .japanese ? descriptionJA : descriptionEN
+        let lang = LocalizationManager.shared.currentLanguage
+        return lang == .japanese ? descriptionJA : descriptionEN
     }
 }
 
@@ -383,9 +385,8 @@ struct WorkoutRecommendationEngine {
             guard let leastGroup = counts.min(by: { $0.value < $1.value })?.key else {
                 return nil
             }
-            let isJa = LocalizationManager.shared.currentLanguage == .japanese
             return SplitPart(
-                name: isJa ? "\(leastGroup.japaneseName)強化" : "\(leastGroup.englishName) Focus",
+                name: L10n.focusGroupName(leastGroup.localizedName),
                 nameEN: "\(leastGroup.englishName) Focus",
                 muscleGroups: [leastGroup],
                 descriptionJA: "\(leastGroup.japaneseName)のボリュームを増やして弱点克服",
@@ -396,10 +397,7 @@ struct WorkoutRecommendationEngine {
 
         // 未カバーグループをまとめて1つのDayに
         let sortedUncovered = MuscleGroup.allCases.filter { uncovered.contains($0) }
-        let isJa = LocalizationManager.shared.currentLanguage == .japanese
-        let name = isJa
-            ? sortedUncovered.map { $0.japaneseName }.joined(separator: "・")
-            : sortedUncovered.map { $0.englishName }.joined(separator: " & ")
+        let name = sortedUncovered.map { $0.localizedName }.joined(separator: "・")
         let nameEN = sortedUncovered.map { $0.englishName }.joined(separator: " & ")
 
         return SplitPart(
@@ -417,33 +415,32 @@ struct WorkoutRecommendationEngine {
     /// 頻度に応じた曜日と部位の組み合わせを返す
     @MainActor
     static func splitDescription(for frequency: Int) -> [(day: String, part: String)] {
-        let isJa = LocalizationManager.shared.currentLanguage == .japanese
         switch frequency {
         case 2:
             return [
-                (isJa ? "月" : "Mon", isJa ? "上半身（胸・肩・腕）" : "Upper Body (Chest, Shoulders, Arms)"),
-                (isJa ? "木" : "Thu", isJa ? "下半身（脚・体幹）" : "Lower Body (Legs, Core)"),
+                (L10n.splitMonday, L10n.splitUpperBody),
+                (L10n.splitThursday, L10n.splitLowerBody),
             ]
         case 3:
             return [
-                (isJa ? "月" : "Mon", isJa ? "プッシュ（胸・肩・三頭）" : "Push (Chest, Shoulders, Triceps)"),
-                (isJa ? "水" : "Wed", isJa ? "プル（背中・二頭）" : "Pull (Back, Biceps)"),
-                (isJa ? "金" : "Fri", isJa ? "脚（脚・体幹）" : "Legs (Legs, Core)"),
+                (L10n.splitMonday, L10n.splitPush),
+                (L10n.splitWednesday, L10n.splitPull),
+                (L10n.splitFriday, L10n.splitLegs),
             ]
         case 4:
             return [
-                (isJa ? "月" : "Mon", isJa ? "胸・肩・三頭" : "Chest · Shoulders · Triceps"),
-                (isJa ? "火" : "Tue", isJa ? "背中・二頭" : "Back · Biceps"),
-                (isJa ? "木" : "Thu", isJa ? "脚" : "Legs"),
-                (isJa ? "金" : "Fri", isJa ? "肩・腕" : "Shoulders · Arms"),
+                (L10n.splitMonday, L10n.splitChestShouldersTri),
+                (L10n.splitTuesday, L10n.splitBackBiceps),
+                (L10n.splitThursday, L10n.splitLegsOnly),
+                (L10n.splitFriday, L10n.splitShouldersArms),
             ]
         default:
             return [
-                (isJa ? "月" : "Mon", isJa ? "胸" : "Chest"),
-                (isJa ? "火" : "Tue", isJa ? "背中" : "Back"),
-                (isJa ? "水" : "Wed", isJa ? "脚" : "Legs"),
-                (isJa ? "木" : "Thu", isJa ? "肩" : "Shoulders"),
-                (isJa ? "金" : "Fri", isJa ? "腕" : "Arms"),
+                (L10n.splitMonday, L10n.splitChest),
+                (L10n.splitTuesday, L10n.splitBack),
+                (L10n.splitWednesday, L10n.splitLegsOnly),
+                (L10n.splitThursday, L10n.splitShoulders),
+                (L10n.splitFriday, L10n.splitArms),
             ]
         }
     }
