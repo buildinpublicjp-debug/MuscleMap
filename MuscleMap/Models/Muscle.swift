@@ -141,6 +141,87 @@ enum Muscle: String, CaseIterable, Codable, Identifiable {
         }
     }
 
+    // スペイン語名
+    var spanishName: String {
+        switch self {
+        case .chestUpper: return "Pectoral superior"
+        case .chestLower: return "Pectoral inferior"
+        case .lats: return "Dorsal ancho"
+        case .trapsUpper: return "Trapecio superior"
+        case .trapsMiddleLower: return "Trapecio medio/inferior"
+        case .erectorSpinae: return "Erectores espinales"
+        case .deltoidAnterior: return "Deltoides anterior"
+        case .deltoidLateral: return "Deltoides lateral"
+        case .deltoidPosterior: return "Deltoides posterior"
+        case .biceps: return "Bíceps"
+        case .triceps: return "Tríceps"
+        case .forearms: return "Antebrazos"
+        case .rectusAbdominis: return "Recto abdominal"
+        case .obliques: return "Oblicuos"
+        case .glutes: return "Glúteos"
+        case .quadriceps: return "Cuádriceps"
+        case .hamstrings: return "Isquiotibiales"
+        case .adductors: return "Aductores"
+        case .hipFlexors: return "Flexores de cadera"
+        case .gastrocnemius: return "Gastrocnemio"
+        case .soleus: return "Sóleo"
+        }
+    }
+
+    // フランス語名
+    var frenchName: String {
+        switch self {
+        case .chestUpper: return "Pectoral supérieur"
+        case .chestLower: return "Pectoral inférieur"
+        case .lats: return "Grand dorsal"
+        case .trapsUpper: return "Trapèze supérieur"
+        case .trapsMiddleLower: return "Trapèze moyen/inférieur"
+        case .erectorSpinae: return "Érecteurs du rachis"
+        case .deltoidAnterior: return "Deltoïde antérieur"
+        case .deltoidLateral: return "Deltoïde latéral"
+        case .deltoidPosterior: return "Deltoïde postérieur"
+        case .biceps: return "Biceps"
+        case .triceps: return "Triceps"
+        case .forearms: return "Avant-bras"
+        case .rectusAbdominis: return "Grand droit"
+        case .obliques: return "Obliques"
+        case .glutes: return "Fessiers"
+        case .quadriceps: return "Quadriceps"
+        case .hamstrings: return "Ischio-jambiers"
+        case .adductors: return "Adducteurs"
+        case .hipFlexors: return "Fléchisseurs de hanche"
+        case .gastrocnemius: return "Gastrocnémien"
+        case .soleus: return "Soléaire"
+        }
+    }
+
+    // ドイツ語名
+    var germanName: String {
+        switch self {
+        case .chestUpper: return "Obere Brust"
+        case .chestLower: return "Untere Brust"
+        case .lats: return "Latissimus"
+        case .trapsUpper: return "Oberer Trapez"
+        case .trapsMiddleLower: return "Mittlerer/unterer Trapez"
+        case .erectorSpinae: return "Rückenstrecker"
+        case .deltoidAnterior: return "Vorderer Deltamuskel"
+        case .deltoidLateral: return "Seitlicher Deltamuskel"
+        case .deltoidPosterior: return "Hinterer Deltamuskel"
+        case .biceps: return "Bizeps"
+        case .triceps: return "Trizeps"
+        case .forearms: return "Unterarme"
+        case .rectusAbdominis: return "Gerader Bauchmuskel"
+        case .obliques: return "Schräge Bauchmuskeln"
+        case .glutes: return "Gesäßmuskeln"
+        case .quadriceps: return "Quadrizeps"
+        case .hamstrings: return "Beinbeuger"
+        case .adductors: return "Adduktoren"
+        case .hipFlexors: return "Hüftbeuger"
+        case .gastrocnemius: return "Zwillingswadenmuskel"
+        case .soleus: return "Schollenmuskel"
+        }
+    }
+
     /// ローカライズ名（現在の言語設定に応じて返す）
     #if os(watchOS)
     var localizedName: String { japaneseName }
@@ -149,9 +230,12 @@ enum Muscle: String, CaseIterable, Codable, Identifiable {
     var localizedName: String {
         switch LocalizationManager.shared.currentLanguage {
         case .japanese: return japaneseName
+        case .english: return englishName
         case .chineseSimplified: return chineseName
         case .korean: return koreanName
-        case .english, .spanish, .french, .german: return englishName
+        case .spanish: return spanishName
+        case .french: return frenchName
+        case .german: return germanName
         }
     }
     #endif
@@ -255,6 +339,42 @@ enum MuscleGroup: String, CaseIterable, Codable, Identifiable {
         }
     }
 
+    // スペイン語名
+    var spanishName: String {
+        switch self {
+        case .chest: return "Pecho"
+        case .back: return "Espalda"
+        case .shoulders: return "Hombros"
+        case .arms: return "Brazos"
+        case .core: return "Core"
+        case .lowerBody: return "Tren inferior"
+        }
+    }
+
+    // フランス語名
+    var frenchName: String {
+        switch self {
+        case .chest: return "Poitrine"
+        case .back: return "Dos"
+        case .shoulders: return "Épaules"
+        case .arms: return "Bras"
+        case .core: return "Tronc"
+        case .lowerBody: return "Bas du corps"
+        }
+    }
+
+    // ドイツ語名
+    var germanName: String {
+        switch self {
+        case .chest: return "Brust"
+        case .back: return "Rücken"
+        case .shoulders: return "Schultern"
+        case .arms: return "Arme"
+        case .core: return "Rumpf"
+        case .lowerBody: return "Unterkörper"
+        }
+    }
+
     /// 短縮英語名（タイムラインバー等の狭いスペース用）
     var shortEnglishName: String {
         switch self {
@@ -275,9 +395,12 @@ enum MuscleGroup: String, CaseIterable, Codable, Identifiable {
     var localizedName: String {
         switch LocalizationManager.shared.currentLanguage {
         case .japanese: return japaneseName
+        case .english: return englishName
         case .chineseSimplified: return chineseName
         case .korean: return koreanName
-        case .english, .spanish, .french, .german: return englishName
+        case .spanish: return spanishName
+        case .french: return frenchName
+        case .german: return germanName
         }
     }
     #endif
