@@ -338,7 +338,7 @@ struct RoutineProgressBar: View {
         VStack(alignment: .leading, spacing: 8) {
             // ヘッダー: Day名 + 進捗カウント
             HStack {
-                Text(day.name)
+                Text(day.localizedName)
                     .font(.system(size: 13, weight: .bold))
                     .foregroundStyle(Color.mmTextPrimary)
                     .lineLimit(1)

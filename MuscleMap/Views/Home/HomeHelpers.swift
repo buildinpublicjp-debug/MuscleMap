@@ -189,7 +189,7 @@ struct TodayRecommendationInline: View {
                     .font(.system(size: 16, weight: .bold))
                     .foregroundStyle(Color.mmTextPrimary)
 
-                Text(displayDay.name)
+                Text(displayDay.localizedName)
                     .font(.system(size: 14))
                     .foregroundStyle(Color.mmAccentPrimary)
 

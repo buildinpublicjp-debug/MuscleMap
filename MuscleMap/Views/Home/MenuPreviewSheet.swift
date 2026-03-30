@@ -28,14 +28,14 @@ struct MenuPreviewSheet: View {
             )
         }
         self.recommendation = RecommendedWorkout(
-            muscleGroup: routineDay.name,
+            muscleGroup: routineDay.localizedName,
             exercises: exercises
         )
         // RoutineDay経由の場合、SuggestedMenuはダミー
         let primaryGroup = MuscleGroup(rawValue: routineDay.muscleGroups.first ?? "") ?? .chest
         self.suggestedMenu = SuggestedMenu(
             primaryGroup: primaryGroup,
-            reason: routineDay.name,
+            reason: routineDay.localizedName,
             exercises: [],
             neglectedWarning: nil
         )

@@ -28,6 +28,18 @@ struct RoutineDay: Codable, Identifiable {
         self.location = location
     }
 
+    /// muscleGroupsから現在の言語に合わせたローカライズ名を生成
+    #if os(watchOS)
+    var localizedName: String { name }
+    #else
+    @MainActor
+    var localizedName: String {
+        let groups = muscleGroups.compactMap { MuscleGroup(rawValue: $0) }
+        if groups.isEmpty { return name }
+        return groups.map { $0.localizedName }.joined(separator: " · ")
+    }
+    #endif
+
     /// 後方互換: location が保存されていない旧データでもデコード可能
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)

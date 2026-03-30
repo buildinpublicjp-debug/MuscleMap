@@ -227,7 +227,7 @@ struct RoutineBuilderPage: View {
                     VStack(spacing: 3) {
                         Text("Day \(index + 1)")
                             .font(.system(size: 14, weight: .bold))
-                        Text(days[index].name)
+                        Text(days[index].localizedName)
                             .font(.system(size: 10))
                             .lineLimit(1)
                     }

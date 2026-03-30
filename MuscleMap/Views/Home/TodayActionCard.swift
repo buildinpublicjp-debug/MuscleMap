@@ -62,7 +62,7 @@ struct TodayActionCard: View {
                     Text("\(L10n.todayColon) \(groupNames)")
                         .font(.system(size: 18, weight: .heavy))
                         .foregroundStyle(.white)
-                    Text("\(displayDay.name) - \(L10n.exerciseCountLabel(displayDay.exercises.count))")
+                    Text("\(displayDay.localizedName) - \(L10n.exerciseCountLabel(displayDay.exercises.count))")
                         .font(.system(size: 12))
                         .foregroundStyle(.white.opacity(0.5))
                 }
