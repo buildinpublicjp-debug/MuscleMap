@@ -29,17 +29,6 @@ struct SetInputCard: View {
         PRManager.shared.getWeightPR(exerciseId: exercise.id, context: modelContext)
     }
 
-    /// 前回記録から値が変更されていないか（ゴースト表示判定用）
-    private var isWeightGhost: Bool {
-        guard let lastW = viewModel.lastWeight else { return false }
-        return viewModel.currentWeight == lastW
-    }
-
-    private var isRepsGhost: Bool {
-        guard let lastR = viewModel.lastReps else { return false }
-        return viewModel.currentReps == lastR
-    }
-
     var body: some View {
         ScrollView {
         VStack(spacing: 12) {
@@ -189,8 +178,7 @@ struct SetInputCard: View {
 
                     WeightInputView(
                         weight: $viewModel.currentWeight,
-                        label: isBodyweight ? L10n.kgAdditional : L10n.kg,
-                        isGhost: isWeightGhost
+                        label: isBodyweight ? L10n.kgAdditional : L10n.kg
                     )
                     .frame(minWidth: 100)
 
@@ -214,7 +202,7 @@ struct SetInputCard: View {
                 VStack(spacing: 2) {
                     Text("\(viewModel.currentReps)")
                         .font(.system(size: 36, weight: .bold, design: .monospaced))
-                        .foregroundStyle(isRepsGhost ? Color.mmTextSecondary.opacity(0.5) : Color.mmTextPrimary)
+                        .foregroundStyle(Color.mmTextPrimary)
                     Text(L10n.reps)
                         .font(.caption)
                         .foregroundStyle(Color.mmTextSecondary)
