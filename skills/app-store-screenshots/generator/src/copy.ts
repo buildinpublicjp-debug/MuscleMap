@@ -27,7 +27,7 @@ export const SHOTS: ShotDef[] = [
     nav: 'Recovery Map — Hero',
     copy: {
       ja: {
-        headline: '筋肉が、見える。',
+        headline: '筋肉回復状況が\n見える',
         sub: '21部位の回復をリアルタイムで',
         chips: [
           { label: '21', desc: '部位' },
