@@ -87,10 +87,10 @@ struct MuscleDetailView: View {
             .padding(.horizontal)
 
             VStack(spacing: 2) {
-                Text(muscle.japaneseName)
+                Text(muscle.localizedName)
                     .font(.system(size: 22, weight: .bold))
                     .foregroundStyle(Color.mmTextPrimary)
-                Text(muscle.englishName)
+                Text(LocalizationManager.shared.currentLanguage == .japanese ? muscle.englishName : muscle.japaneseName)
                     .font(.system(size: 14))
                     .foregroundStyle(Color.mmTextSecondary)
             }
