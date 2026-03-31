@@ -47,7 +47,7 @@ final class PurchaseManager {
             switch lang {
             case .japanese:
                 return "毎月 \(price) 開始"
-            case .chinese:
+            case .chineseSimplified:
                 return "每月 \(price) 开始"
             case .korean:
                 return "월 \(price) 시작"
@@ -71,7 +71,7 @@ final class PurchaseManager {
             switch lang {
             case .japanese:
                 return "年費 \(yearlyPrice) (月 \(perMonth))"
-            case .chinese:
+            case .chineseSimplified:
                 return "年费 \(yearlyPrice) (月 \(perMonth))"
             case .korean:
                 return "연간 \(yearlyPrice) (월 \(perMonth))"
