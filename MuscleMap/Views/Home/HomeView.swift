@@ -61,6 +61,8 @@ struct HomeView: View {
                                     latestStimulations: vm.latestStimulations,
                                     onMuscleTapped: { muscle in
                                         selectedMuscle = muscle
+                                        // レビュー要求（5回タップで発火）
+                                        ReviewManager.recordMuscleTap()
                                     },
                                     onDetailsTapped: {
                                         showingRecoveryDetail = true
