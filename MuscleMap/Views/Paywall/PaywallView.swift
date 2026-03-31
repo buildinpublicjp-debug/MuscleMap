@@ -10,6 +10,7 @@ struct PaywallView: View {
     @State private var showFreeOption = false
 
     private var localization: LocalizationManager { LocalizationManager.shared }
+    private var purchaseManager: PurchaseManager { PurchaseManager.shared }
 
     // MARK: - ルーティンデータ
 
@@ -111,7 +112,7 @@ struct PaywallView: View {
                                 .font(.system(size: 24))
                                 .foregroundStyle(Color.mmTextSecondary)
                         }
-                        .disabled(PurchaseManager.shared.isLoading)
+                        .disabled(purchaseManager.isLoading)
                         .padding(.trailing, 16)
                         .padding(.top, 12)
                     }
@@ -120,7 +121,7 @@ struct PaywallView: View {
             }
 
             // 購入中オーバーレイ
-            if PurchaseManager.shared.isLoading {
+            if purchaseManager.isLoading {
                 ZStack {
                     Color.mmBgPrimary.opacity(0.4).ignoresSafeArea()
                     VStack(spacing: 16) {
@@ -144,6 +145,9 @@ struct PaywallView: View {
         }
         .interactiveDismissDisabled(isHardPaywall)
         .onAppear {
+            // 動的価格を取得
+            Task { await purchaseManager.fetchOfferings() }
+
             if isHardPaywall {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
                     withAnimation(.easeIn(duration: 0.5)) {
@@ -340,7 +344,7 @@ struct PaywallView: View {
         }
     }
 
-    // MARK: - 価格セクション（月額メインCTA + 年額サブ）
+    // MARK: - 価格セクション（動的価格 — RevenueCatから取得）
 
     private var pricingSection: some View {
         VStack(spacing: 8) {
@@ -349,7 +353,7 @@ struct PaywallView: View {
                 HapticManager.lightTap()
                 purchase(productId: "monthly")
             } label: {
-                Text(L10n.pwMonthlyButton)
+                Text(purchaseManager.monthlyButtonText)
                     .font(.system(size: 18, weight: .heavy))
                     .foregroundStyle(Color.mmBgPrimary)
                     .frame(maxWidth: .infinity)
@@ -370,27 +374,29 @@ struct PaywallView: View {
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
-            .disabled(PurchaseManager.shared.isLoading)
+            .disabled(purchaseManager.isLoading)
 
-            // 年額ボタン（サブ — 31%OFFバッジ付き控えめデザイン）
+            // 年額ボタン（サブ — 割引バッジ付き控えめデザイン）
             Button {
                 HapticManager.lightTap()
                 purchase(productId: "yearly")
             } label: {
                 HStack(spacing: 8) {
-                    Text(L10n.pwYearlyPrice)
+                    Text(purchaseManager.yearlyPriceText)
                         .font(.system(size: 14, weight: .semibold))
                         .foregroundStyle(Color.mmTextPrimary)
 
                     Spacer()
 
-                    Text("31%OFF")
-                        .font(.system(size: 11, weight: .bold))
-                        .foregroundStyle(Color.mmAccentPrimary)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(Color.mmAccentPrimary.opacity(0.15))
-                        .clipShape(Capsule())
+                    if let discount = purchaseManager.yearlyDiscountPercent {
+                        Text(discount)
+                            .font(.system(size: 11, weight: .bold))
+                            .foregroundStyle(Color.mmAccentPrimary)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(Color.mmAccentPrimary.opacity(0.15))
+                            .clipShape(Capsule())
+                    }
                 }
                 .padding(.horizontal, 16)
                 .frame(maxWidth: .infinity)
@@ -405,7 +411,7 @@ struct PaywallView: View {
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
-            .disabled(PurchaseManager.shared.isLoading)
+            .disabled(purchaseManager.isLoading)
 
             Text(L10n.pwCancelAnytime)
                 .font(.system(size: 10))
@@ -441,7 +447,7 @@ struct PaywallView: View {
                         .font(.caption2)
                         .foregroundStyle(Color.mmTextSecondary)
                 }
-                .disabled(PurchaseManager.shared.isLoading)
+                .disabled(purchaseManager.isLoading)
 
                 if isHardPaywall && showFreeOption {
                     Button {

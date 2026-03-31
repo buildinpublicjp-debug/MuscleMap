@@ -29,10 +29,127 @@ final class PurchaseManager {
 
     var isLoading: Bool = false
 
+    // MARK: - 動的価格（RevenueCatから取得）
+
+    /// 月額のローカライズ済み価格文字列（例: "$4.99", "¥590"）
+    var monthlyPriceString: String?
+    /// 年額のローカライズ済み価格文字列（例: "$39.99", "¥4,900"）
+    var yearlyPriceString: String?
+    /// 年額を月換算した価格文字列（例: "$3.33", "¥408"）
+    var yearlyPerMonthString: String?
+    /// 年額の割引率（例: "31%"）
+    var yearlyDiscountPercent: String?
+
+    /// 月額のCTAボタンテキスト（ローカライズ済み）
+    var monthlyButtonText: String {
+        if let price = monthlyPriceString {
+            let lang = LocalizationManager.shared.currentLanguage
+            switch lang {
+            case .japanese:
+                return "毎月 \(price) 開始"
+            case .chinese:
+                return "每月 \(price) 开始"
+            case .korean:
+                return "월 \(price) 시작"
+            case .spanish:
+                return "\(price)/mes"
+            case .french:
+                return "\(price)/mois"
+            case .german:
+                return "\(price)/Monat"
+            default:
+                return "\(price)/mo"
+            }
+        }
+        return L10n.pwMonthlyButton
+    }
+
+    /// 年額の説明テキスト（ローカライズ済み）
+    var yearlyPriceText: String {
+        if let yearlyPrice = yearlyPriceString, let perMonth = yearlyPerMonthString {
+            let lang = LocalizationManager.shared.currentLanguage
+            switch lang {
+            case .japanese:
+                return "年費 \(yearlyPrice) (月 \(perMonth))"
+            case .chinese:
+                return "年费 \(yearlyPrice) (月 \(perMonth))"
+            case .korean:
+                return "연간 \(yearlyPrice) (월 \(perMonth))"
+            case .spanish:
+                return "Anual \(yearlyPrice) (\(perMonth)/mes)"
+            case .french:
+                return "Annuel \(yearlyPrice) (\(perMonth)/mois)"
+            case .german:
+                return "Jährlich \(yearlyPrice) (\(perMonth)/Mo.)"
+            default:
+                return "Yearly \(yearlyPrice) (\(perMonth)/mo)"
+            }
+        }
+        return L10n.pwYearlyPrice
+    }
+
+    /// Offeringsを取得して価格情報をキャッシュ
+    func fetchOfferings() async {
+        do {
+            let offerings = try await Purchases.shared.offerings()
+            guard let offering = offerings.current else { return }
+
+            // 月額パッケージ
+            let monthlyPkg = offering.monthly
+                ?? offering.availablePackages.first(where: {
+                    $0.storeProduct.productIdentifier.lowercased().contains("month")
+                    || $0.packageType == .monthly
+                })
+
+            // 年額パッケージ
+            let yearlyPkg = offering.annual
+                ?? offering.availablePackages.first(where: {
+                    $0.storeProduct.productIdentifier.lowercased().contains("year")
+                    || $0.storeProduct.productIdentifier.lowercased().contains("annual")
+                    || $0.packageType == .annual
+                })
+
+            if let monthly = monthlyPkg {
+                monthlyPriceString = monthly.storeProduct.localizedPriceString
+            }
+
+            if let yearly = yearlyPkg {
+                yearlyPriceString = yearly.storeProduct.localizedPriceString
+
+                // 月換算価格を計算
+                let yearlyDecimal = yearly.storeProduct.price
+                let perMonth = yearlyDecimal / 12
+                let formatter = NumberFormatter()
+                formatter.numberStyle = .currency
+                formatter.locale = yearly.storeProduct.priceFormatter?.locale ?? Locale.current
+                yearlyPerMonthString = formatter.string(from: perMonth as NSDecimalNumber)
+
+                // 割引率を計算
+                if let monthly = monthlyPkg {
+                    let monthlyAnnualized = monthly.storeProduct.price * 12
+                    if monthlyAnnualized > 0 {
+                        let discount = ((monthlyAnnualized - yearlyDecimal) / monthlyAnnualized * 100)
+                        let discountInt = Int(truncating: discount as NSDecimalNumber)
+                        if discountInt > 0 {
+                            yearlyDiscountPercent = "\(discountInt)%OFF"
+                        }
+                    }
+                }
+            }
+        } catch {
+            #if DEBUG
+            print("fetchOfferings error: \(error)")
+            #endif
+        }
+    }
+
     func configure() {
         Purchases.configure(withAPIKey: "appl_IzrrBdSVXMDZUylPnwcaJxvdlxb")
         Purchases.shared.delegate = PurchaseDelegate.shared
-        Task { await refreshPremiumStatus() }
+        Task {
+            await refreshPremiumStatus()
+            await fetchOfferings()
+        }
     }
 
     func refreshPremiumStatus() async {
