@@ -223,6 +223,8 @@ struct WorkoutCompletionView: View {
         .onAppear {
             markFirstWorkoutCompleted()
             daysSinceLastPhoto = ProgressPhoto.daysSinceLastPhoto(context: modelContext)
+            // レビュー要求（2回目の完了で発火）
+            ReviewManager.recordWorkoutCompletion()
             Task {
                 checkFullBodyConquest()
                 loadPRUpdates()
