@@ -90,9 +90,12 @@ struct MuscleDetailView: View {
                 Text(muscle.localizedName)
                     .font(.system(size: 22, weight: .bold))
                     .foregroundStyle(Color.mmTextPrimary)
-                Text(LocalizationManager.shared.currentLanguage == .japanese ? muscle.englishName : muscle.japaneseName)
-                    .font(.system(size: 14))
-                    .foregroundStyle(Color.mmTextSecondary)
+                // 日本語ユーザーのみ英語名を副題表示
+                if LocalizationManager.shared.currentLanguage == .japanese {
+                    Text(muscle.englishName)
+                        .font(.system(size: 14))
+                        .foregroundStyle(Color.mmTextSecondary)
+                }
             }
         }
     }
