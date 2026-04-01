@@ -155,7 +155,7 @@ final class PurchaseManager {
     /// CustomerInfoからエンタイトルメント状態を判定するヘルパー
     /// Sandbox環境では .isActive が遅延する場合があるため、
     /// activeInAnyEnvironment もフォールバックとしてチェックする
-    private func checkEntitlement(in info: CustomerInfo) -> Bool {
+    fileprivate func checkEntitlement(in info: CustomerInfo) -> Bool {
         // 1. 標準チェック
         if info.entitlements["MuscleMap Pro"]?.isActive == true {
             return true
