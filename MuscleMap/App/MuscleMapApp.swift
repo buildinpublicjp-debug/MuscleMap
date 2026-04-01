@@ -48,11 +48,12 @@ struct MuscleMapApp: App {
     }
 }
 
-// MARK: - ルートビュー（テーマ監視）
+// MARK: - ルートビュー（テーマ監視 + 課金ステータス更新）
 
 struct RootView: View {
     @State private var themeManager = ThemeManager.shared
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
         ContentView()
@@ -71,6 +72,15 @@ struct RootView: View {
             .onChange(of: themeManager.currentTheme) { _, _ in
                 // [Fix #5] テーマ変更時にUIKit外観を再設定
                 MuscleMapApp.configureAppearance()
+            }
+            .onChange(of: scenePhase) { _, newPhase in
+                if newPhase == .active {
+                    // アプリがフォアグラウンドに戻るたびに課金ステータスを更新
+                    // Sandbox購入後にアプリを開き直した場合の反映漏れを防ぐ
+                    Task {
+                        await PurchaseManager.shared.forceRefreshPremiumStatus()
+                    }
+                }
             }
     }
 

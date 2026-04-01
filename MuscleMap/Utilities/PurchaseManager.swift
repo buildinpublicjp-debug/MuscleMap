@@ -152,15 +152,36 @@ final class PurchaseManager {
         }
     }
 
+    /// CustomerInfoからエンタイトルメント状態を判定するヘルパー
+    /// Sandbox環境では .isActive が遅延する場合があるため、
+    /// activeInAnyEnvironment もフォールバックとしてチェックする
+    private func checkEntitlement(in info: CustomerInfo) -> Bool {
+        // 1. 標準チェック
+        if info.entitlements["MuscleMap Pro"]?.isActive == true {
+            return true
+        }
+        // 2. Sandbox環境フォールバック: activeInAnyEnvironment をチェック
+        if info.entitlements.activeInAnyEnvironment["MuscleMap Pro"] != nil {
+            return true
+        }
+        return false
+    }
+
     func refreshPremiumStatus() async {
         do {
             let info = try await Purchases.shared.customerInfo()
-            _isPremium = info.entitlements["MuscleMap Pro"]?.isActive == true
+            _isPremium = checkEntitlement(in: info)
         } catch {
             #if DEBUG
             print("RevenueCat customerInfo error: \(error)")
             #endif
         }
+    }
+
+    /// キャッシュを無効化してから最新のステータスを取得
+    func forceRefreshPremiumStatus() async {
+        Purchases.shared.invalidateCustomerInfoCache()
+        await refreshPremiumStatus()
     }
 
     /// 購入実行。成功時は true を返す。失敗時は PurchaseError を throw。
@@ -198,7 +219,24 @@ final class PurchaseManager {
 
         if result.userCancelled { return false }
 
-        _isPremium = result.customerInfo.entitlements["MuscleMap Pro"]?.isActive == true
+        // 購入結果から即座にチェック
+        _isPremium = checkEntitlement(in: result.customerInfo)
+
+        // Sandbox環境ではentitlementの反映が遅延する場合がある
+        // キャッシュを無効化してリトライ
+        if !_isPremium {
+            Purchases.shared.invalidateCustomerInfoCache()
+            try? await Task.sleep(nanoseconds: 500_000_000) // 0.5秒待機
+            await refreshPremiumStatus()
+        }
+
+        // それでもダメなら2回目のリトライ（1秒後）
+        if !_isPremium {
+            try? await Task.sleep(nanoseconds: 1_000_000_000)
+            Purchases.shared.invalidateCustomerInfoCache()
+            await refreshPremiumStatus()
+        }
+
         return isPremium
     }
 
@@ -208,7 +246,15 @@ final class PurchaseManager {
         isLoading = true
         defer { isLoading = false }
         let info = try await Purchases.shared.restorePurchases()
-        _isPremium = info.entitlements["MuscleMap Pro"]?.isActive == true
+        _isPremium = checkEntitlement(in: info)
+
+        // リストア後もフォールバック
+        if !_isPremium {
+            Purchases.shared.invalidateCustomerInfoCache()
+            try? await Task.sleep(nanoseconds: 500_000_000)
+            await refreshPremiumStatus()
+        }
+
         return isPremium
     }
 
@@ -290,7 +336,7 @@ final class PurchaseDelegate: NSObject, PurchasesDelegate {
     static let shared = PurchaseDelegate()
     func purchases(_ purchases: Purchases, receivedUpdated customerInfo: CustomerInfo) {
         Task { @MainActor in
-            PurchaseManager.shared._isPremium = customerInfo.entitlements["MuscleMap Pro"]?.isActive == true
+            PurchaseManager.shared._isPremium = PurchaseManager.shared.checkEntitlement(in: customerInfo)
         }
     }
 }
