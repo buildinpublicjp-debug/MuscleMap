@@ -6,14 +6,12 @@ import SwiftUI
 enum TrainingLocation: String, CaseIterable, Codable {
     case gym
     case home
-    case bodyweight
     case both
 
     var title: String {
         switch self {
         case .gym: return L10n.locGym
         case .home: return L10n.locHome
-        case .bodyweight: return L10n.locBodyweight
         case .both: return L10n.locBoth
         }
     }
@@ -22,7 +20,6 @@ enum TrainingLocation: String, CaseIterable, Codable {
         switch self {
         case .gym: return "dumbbell.fill"
         case .home: return "house.fill"
-        case .bodyweight: return "figure.walk"
         case .both: return "arrow.left.arrow.right"
         }
     }
@@ -31,7 +28,6 @@ enum TrainingLocation: String, CaseIterable, Codable {
         switch self {
         case .gym: return L10n.locGymSub
         case .home: return L10n.locHomeSub
-        case .bodyweight: return L10n.locBodyweightSub
         case .both: return L10n.locBothSub
         }
     }
@@ -41,46 +37,116 @@ enum TrainingLocation: String, CaseIterable, Codable {
         switch self {
         case .gym: return ["バーベル", "マシン", "ダンベル", "ケーブル"]
         case .home: return ["ダンベル", "自重"]
-        case .bodyweight: return ["自重"]
         case .both: return ["バーベル", "ダンベル", "自重"]
         }
+    }
+
+    /// 器具チップを表示するか
+    var showsEquipmentChips: Bool {
+        self == .home || self == .both
+    }
+}
+
+// MARK: - 自宅器具
+
+@MainActor
+enum HomeEquipment: String, CaseIterable, Identifiable {
+    case dumbbell
+    case pullUpBar = "pull_up_bar"
+    case bench
+
+    var id: String { rawValue }
+
+    var label: String {
+        switch self {
+        case .dumbbell: return L10n.homeEquipDumbbell
+        case .pullUpBar: return L10n.homeEquipPullUpBar
+        case .bench: return L10n.homeEquipBench
+        }
+    }
+
+    var sfSymbol: String {
+        switch self {
+        case .dumbbell: return "dumbbell.fill"
+        case .pullUpBar: return "figure.strengthtraining.traditional"
+        case .bench: return "rectangle.fill"
+        }
+    }
+}
+
+// MARK: - 器具ベースの種目フィルタリング
+
+/// 自宅/両方モードで器具選択に基づいて種目をフィルタリング
+@MainActor
+func filterExercisesByEquipment(
+    exercises: [ExerciseDefinition],
+    equipment: Set<HomeEquipment>
+) -> [ExerciseDefinition] {
+    // 懸垂バー必要な種目ID
+    let pullUpBarIds: Set<String> = ["pull_up", "chin_up", "muscle_up", "hanging_leg_raise"]
+    // ディップス台必要な種目ID
+    let dipIds: Set<String> = ["chest_dip", "tricep_dip"]
+
+    return exercises.filter { exercise in
+        let eq = exercise.equipment
+
+        // ダンベル種目
+        if eq == "ダンベル" || eq == "ケトルベル" {
+            return equipment.contains(.dumbbell)
+        }
+
+        // 自重種目: 器具が必要かどうかで分岐
+        if eq == "自重" || eq == "Bodyweight" {
+            let id = exercise.id.lowercased()
+            // 懸垂バーが必要な種目
+            if pullUpBarIds.contains(where: { id.contains($0) }) {
+                return equipment.contains(.pullUpBar)
+            }
+            // ディップス台が必要な種目
+            if dipIds.contains(where: { id.contains($0) }) {
+                return equipment.contains(.pullUpBar) // ディップスも懸垂バーに含む
+            }
+            // 純粋な自重種目（器具不要）→ 常に表示
+            return true
+        }
+
+        // その他（バーベル、マシン、ケーブル）→ bothモードでジム種目として表示
+        return true
     }
 }
 
 // MARK: - 場所選択画面
 
 struct LocationSelectionPage: View {
-    let onNext: (TrainingLocation) -> Void
+    let onNext: (TrainingLocation, Set<HomeEquipment>) -> Void
     var currentPage: Int = 0
 
     @State private var selected: TrainingLocation?
     @State private var appeared = false
     @State private var isProceeding = false
     @State private var selectedExercise: ExerciseDefinition?
+    @State private var selectedEquipment: Set<HomeEquipment> = []
 
-    private static let bodyweightExcludeIds: Set<String> = [
-        "dips", "chin_up", "pull_up", "muscle_up", "tricep_dip"
-    ]
     private static let gymExcludeIds: Set<String> = ["burpee"]
 
-    private func isTrueBodyweight(_ exercise: ExerciseDefinition) -> Bool {
-        let id = exercise.id.lowercased()
-        return !Self.bodyweightExcludeIds.contains(where: { id.contains($0) })
-    }
-
-    /// マーキー用: 選択に連動（切り替え時のアニメーションリセットは許容）
+    /// マーキー用: 選択 + 器具に連動
     private var filteredExercisesForMarquee: [ExerciseDefinition] {
         let store = ExerciseStore.shared
         store.loadIfNeeded()
         let exercises: [ExerciseDefinition]
         switch selected {
-        case .bodyweight:
-            let bwEquipment: Set<String> = ["自重", "Bodyweight"]
-            exercises = store.exercises.filter { bwEquipment.contains($0.equipment) && isTrueBodyweight($0) }
         case .home:
             let homeEquipment: Set<String> = ["自重", "ダンベル", "ケトルベル", "Bodyweight", "Dumbbell", "Kettlebell"]
-            exercises = store.exercises.filter { homeEquipment.contains($0.equipment) }
-        case .gym, .both, .none:
+            let homeExercises = store.exercises.filter { homeEquipment.contains($0.equipment) }
+            exercises = filterExercisesByEquipment(exercises: homeExercises, equipment: selectedEquipment)
+        case .both:
+            let bothEquipment: Set<String> = ["自重", "ダンベル", "ケトルベル", "バーベル", "Bodyweight", "Dumbbell", "Kettlebell", "Barbell"]
+            let bothExercises = store.exercises.filter { bothEquipment.contains($0.equipment) }
+            // bothモード: ジム種目はそのまま + 自宅種目は器具フィルタ
+            let gymOnly = store.exercises.filter { !bothEquipment.contains($0.equipment) && !Self.gymExcludeIds.contains($0.id) }
+            let homeFiltered = filterExercisesByEquipment(exercises: bothExercises, equipment: selectedEquipment)
+            exercises = homeFiltered + gymOnly
+        case .gym, .none:
             exercises = store.exercises.filter { !Self.gymExcludeIds.contains($0.id) }
         }
         return Array(exercises.filter { ExerciseGifView.hasGif(exerciseId: $0.id) }.prefix(20))
@@ -98,20 +164,29 @@ struct LocationSelectionPage: View {
         return Array(items.dropFirst(mid))
     }
 
-    /// バッジ用: 選択に連動
+    /// バッジ用: 選択 + 器具に連動
     private var totalFilteredCount: Int {
         let store = ExerciseStore.shared
         store.loadIfNeeded()
         switch selected {
-        case .bodyweight:
-            let bwEquipment: Set<String> = ["自重", "Bodyweight"]
-            return store.exercises.filter { bwEquipment.contains($0.equipment) && isTrueBodyweight($0) }.count
         case .home:
             let homeEquipment: Set<String> = ["自重", "ダンベル", "ケトルベル", "Bodyweight", "Dumbbell", "Kettlebell"]
-            return store.exercises.filter { homeEquipment.contains($0.equipment) }.count
-        case .gym, .both, .none:
+            let homeExercises = store.exercises.filter { homeEquipment.contains($0.equipment) }
+            return filterExercisesByEquipment(exercises: homeExercises, equipment: selectedEquipment).count
+        case .both:
+            let bothEquipment: Set<String> = ["自重", "ダンベル", "ケトルベル", "バーベル", "Bodyweight", "Dumbbell", "Kettlebell", "Barbell"]
+            let bothExercises = store.exercises.filter { bothEquipment.contains($0.equipment) }
+            let gymOnly = store.exercises.filter { !bothEquipment.contains($0.equipment) && !Self.gymExcludeIds.contains($0.id) }
+            let homeFiltered = filterExercisesByEquipment(exercises: bothExercises, equipment: selectedEquipment)
+            return homeFiltered.count + gymOnly.count
+        case .gym, .none:
             return store.exercises.filter { !Self.gymExcludeIds.contains($0.id) }.count
         }
+    }
+
+    /// 器具チップの表示キー（アニメーション用）
+    private var equipmentChipsKey: String {
+        "\(selected?.rawValue ?? "none")-\(selectedEquipment.map(\.rawValue).sorted().joined())"
     }
 
     var body: some View {
@@ -147,7 +222,7 @@ struct LocationSelectionPage: View {
                         .contentTransition(.numericText())
                         .animation(.easeInOut(duration: 0.3), value: totalFilteredCount)
 
-                    if selected == .home || selected == .bodyweight {
+                    if selected == .home {
                         Text(L10n.locationHomeExercises)
                             .font(.caption2)
                             .foregroundStyle(Color.mmOnboardingTextSub)
@@ -161,18 +236,18 @@ struct LocationSelectionPage: View {
 
                 Spacer().frame(height: 4)
 
-                // 2行マーキー（選択連動: 種目が切り替わる、アニメーションリセットOK）
+                // 2行マーキー（選択 + 器具連動）
                 VStack(spacing: 6) {
                     LocationMarqueeRow(exercises: topRowExercises, cardSize: cardSize, speed: 25, reversed: false) { exercise in
                         selectedExercise = exercise
                         HapticManager.lightTap()
                     }
-                    .id("top-\(selected?.rawValue ?? "none")")
+                    .id("top-\(equipmentChipsKey)")
                     LocationMarqueeRow(exercises: bottomRowExercises, cardSize: cardSize, speed: 20, reversed: false) { exercise in
                         selectedExercise = exercise
                         HapticManager.lightTap()
                     }
-                    .id("bottom-\(selected?.rawValue ?? "none")")
+                    .id("bottom-\(equipmentChipsKey)")
                 }
                 .frame(height: cardSize * 2 + 6)
                 .clipped()
@@ -180,6 +255,7 @@ struct LocationSelectionPage: View {
 
                 Spacer().frame(height: 14)
 
+                // 場所カード（3択: ジム / 自宅 / 両方）
                 VStack(spacing: 7) {
                     ForEach(Array(TrainingLocation.allCases.enumerated()), id: \.element) { index, location in
                         LocationCard(
@@ -191,6 +267,10 @@ struct LocationSelectionPage: View {
                                 withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
                                     selected = location
                                 }
+                                // 器具チップ非表示の場所に切り替え時はリセット
+                                if !location.showsEquipmentChips {
+                                    selectedEquipment = []
+                                }
                                 HapticManager.lightTap()
                             }
                         )
@@ -201,13 +281,21 @@ struct LocationSelectionPage: View {
                 }
                 .padding(.horizontal, 24)
 
+                // 器具チップ（自宅 or 両方 選択時のみ表示）
+                if let loc = selected, loc.showsEquipmentChips {
+                    EquipmentChipsView(selectedEquipment: $selectedEquipment)
+                        .padding(.horizontal, 24)
+                        .padding(.top, 10)
+                        .transition(.move(edge: .top).combined(with: .opacity))
+                }
+
                 Spacer().frame(height: 16)
 
                 Button {
                     guard !isProceeding, let loc = selected else { return }
                     isProceeding = true
                     HapticManager.mediumTap()
-                    onNext(loc)
+                    onNext(loc, selectedEquipment)
                 } label: {
                     Text(L10n.next)
                         .font(.system(size: 18, weight: .bold))
@@ -252,6 +340,53 @@ struct LocationSelectionPage: View {
             }
             .presentationDetents([.large])
             .presentationDragIndicator(.visible)
+        }
+    }
+}
+
+// MARK: - 器具チップビュー
+
+private struct EquipmentChipsView: View {
+    @Binding var selectedEquipment: Set<HomeEquipment>
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(L10n.homeEquipTitle)
+                .font(.system(size: 12, weight: .medium))
+                .foregroundStyle(Color.mmOnboardingTextSub)
+
+            HStack(spacing: 8) {
+                ForEach(HomeEquipment.allCases) { equip in
+                    let isOn = selectedEquipment.contains(equip)
+                    Button {
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                            if isOn {
+                                selectedEquipment.remove(equip)
+                            } else {
+                                selectedEquipment.insert(equip)
+                            }
+                        }
+                        HapticManager.lightTap()
+                    } label: {
+                        HStack(spacing: 5) {
+                            Image(systemName: equip.sfSymbol)
+                                .font(.system(size: 11, weight: .medium))
+                            Text(equip.label)
+                                .font(.system(size: 13, weight: .semibold))
+                        }
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 8)
+                        .background(isOn ? Color.mmOnboardingAccent.opacity(0.15) : Color.mmOnboardingCard)
+                        .foregroundStyle(isOn ? Color.mmOnboardingAccent : Color.mmOnboardingTextSub)
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(isOn ? Color.mmOnboardingAccent.opacity(0.4) : Color.clear, lineWidth: 1)
+                        )
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
         }
     }
 }
@@ -399,6 +534,6 @@ private struct LocationCard: View {
 #Preview {
     ZStack {
         Color.mmOnboardingBg.ignoresSafeArea()
-        LocationSelectionPage(onNext: { _ in })
+        LocationSelectionPage(onNext: { _, _ in })
     }
 }
