@@ -18,6 +18,12 @@ struct ExerciseDefinition: Codable, Identifiable, Hashable {
     let muscleMapping: [String: Int]
     /// 種目タイプ: "weighted" | "bodyweight" | "assisted"
     let exerciseType: String
+    /// コンパウンド種目か（複数関節を使う）
+    let isCompound: Bool
+    /// 動作パターン: "push" | "pull" | "hinge" | "squat" | "carry" | "core"
+    let movementPattern: String
+    /// 自重種目で追加器具が必要な場合: "pull_up_bar" | "dip_station" | null
+    let equipmentSub: String?
 
     // MARK: - メンバーワイズイニシャライザ（Preview/Test用）
 
@@ -26,7 +32,9 @@ struct ExerciseDefinition: Codable, Identifiable, Hashable {
         nameZH: String? = nil, nameKO: String? = nil,
         nameES: String? = nil, nameFR: String? = nil, nameDE: String? = nil,
         category: String, equipment: String, difficulty: String,
-        muscleMapping: [String: Int], exerciseType: String = "weighted"
+        muscleMapping: [String: Int], exerciseType: String = "weighted",
+        isCompound: Bool = false, movementPattern: String = "push",
+        equipmentSub: String? = nil
     ) {
         self.id = id; self.nameEN = nameEN; self.nameJA = nameJA
         self.nameZH = nameZH; self.nameKO = nameKO
@@ -34,6 +42,8 @@ struct ExerciseDefinition: Codable, Identifiable, Hashable {
         self.category = category; self.equipment = equipment
         self.difficulty = difficulty; self.muscleMapping = muscleMapping
         self.exerciseType = exerciseType
+        self.isCompound = isCompound; self.movementPattern = movementPattern
+        self.equipmentSub = equipmentSub
     }
 
     // MARK: - デコード（exerciseType後方互換）
@@ -41,6 +51,7 @@ struct ExerciseDefinition: Codable, Identifiable, Hashable {
     private enum CodingKeys: String, CodingKey {
         case id, nameEN, nameJA, nameZH, nameKO, nameES, nameFR, nameDE
         case category, equipment, difficulty, muscleMapping, exerciseType
+        case isCompound, movementPattern, equipmentSub
     }
 
     init(from decoder: Decoder) throws {
@@ -58,6 +69,9 @@ struct ExerciseDefinition: Codable, Identifiable, Hashable {
         difficulty = try c.decode(String.self, forKey: .difficulty)
         muscleMapping = try c.decode([String: Int].self, forKey: .muscleMapping)
         exerciseType = try c.decodeIfPresent(String.self, forKey: .exerciseType) ?? "weighted"
+        isCompound = try c.decodeIfPresent(Bool.self, forKey: .isCompound) ?? false
+        movementPattern = try c.decodeIfPresent(String.self, forKey: .movementPattern) ?? "push"
+        equipmentSub = try c.decodeIfPresent(String.self, forKey: .equipmentSub)
     }
 
     // MARK: - 種目タイプ判定

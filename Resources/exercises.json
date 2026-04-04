@@ -17,7 +17,10 @@
     "nameES": "Press de banca con barra",
     "nameFR": "Développé couché barre",
     "nameDE": "Langhantel-Bankdrücken",
-    "exerciseType": "weighted"
+    "exerciseType": "weighted",
+    "isCompound": true,
+    "movementPattern": "push",
+    "equipmentSub": null
   },
   {
     "id": "incline_barbell_bench_press",
@@ -37,7 +40,10 @@
     "nameES": "Press inclinado con barra",
     "nameFR": "Développé incliné barre",
     "nameDE": "Schrägbank-Langhanteldrücken",
-    "exerciseType": "weighted"
+    "exerciseType": "weighted",
+    "isCompound": true,
+    "movementPattern": "push",
+    "equipmentSub": null
   },
   {
     "id": "decline_barbell_bench_press",
@@ -56,7 +62,10 @@
     "nameES": "Press declinado con barra",
     "nameFR": "Développé décliné barre",
     "nameDE": "Negativ-Bankdrücken",
-    "exerciseType": "weighted"
+    "exerciseType": "weighted",
+    "isCompound": true,
+    "movementPattern": "push",
+    "equipmentSub": null
   },
   {
     "id": "dumbbell_bench_press",
@@ -76,7 +85,10 @@
     "nameES": "Press de banca con mancuernas",
     "nameFR": "Développé couché haltères",
     "nameDE": "Kurzhantel-Bankdrücken",
-    "exerciseType": "weighted"
+    "exerciseType": "weighted",
+    "isCompound": true,
+    "movementPattern": "push",
+    "equipmentSub": null
   },
   {
     "id": "incline_dumbbell_press",
@@ -96,7 +108,10 @@
     "nameES": "Press inclinado con mancuernas",
     "nameFR": "Développé incliné haltères",
     "nameDE": "Schrägbank-Kurzhanteldrücken",
-    "exerciseType": "weighted"
+    "exerciseType": "weighted",
+    "isCompound": true,
+    "movementPattern": "push",
+    "equipmentSub": null
   },
   {
     "id": "dumbbell_fly",
@@ -115,7 +130,10 @@
     "nameES": "Aperturas con mancuernas",
     "nameFR": "Écarté couché haltères",
     "nameDE": "Kurzhantel-Fliegende",
-    "exerciseType": "weighted"
+    "exerciseType": "weighted",
+    "isCompound": false,
+    "movementPattern": "push",
+    "equipmentSub": null
   },
   {
     "id": "cable_crossover",
@@ -134,7 +152,10 @@
     "nameES": "Cruce de cables",
     "nameFR": "Écarté à la poulie",
     "nameDE": "Kabelzug-Crossover",
-    "exerciseType": "weighted"
+    "exerciseType": "weighted",
+    "isCompound": false,
+    "movementPattern": "push",
+    "equipmentSub": null
   },
   {
     "id": "push_up",
@@ -155,7 +176,10 @@
     "nameES": "Flexiones",
     "nameFR": "Pompes",
     "nameDE": "Liegestütz",
-    "exerciseType": "bodyweight"
+    "exerciseType": "bodyweight",
+    "isCompound": true,
+    "movementPattern": "push",
+    "equipmentSub": null
   },
   {
     "id": "chest_dip",
@@ -174,7 +198,10 @@
     "nameES": "Fondos de pecho",
     "nameFR": "Dips pectoraux",
     "nameDE": "Brust-Dips",
-    "exerciseType": "bodyweight"
+    "exerciseType": "bodyweight",
+    "isCompound": true,
+    "movementPattern": "push",
+    "equipmentSub": "dip_station"
   },
   {
     "id": "pec_deck_machine",
@@ -192,7 +219,10 @@
     "nameES": "Máquina pec deck",
     "nameFR": "Pec deck machine",
     "nameDE": "Pec-Deck-Maschine",
-    "exerciseType": "weighted"
+    "exerciseType": "weighted",
+    "isCompound": false,
+    "movementPattern": "push",
+    "equipmentSub": null
   },
   {
     "id": "machine_chest_press",
@@ -212,7 +242,10 @@
     "nameES": "Press de pecho en máquina",
     "nameFR": "Presse pectorale",
     "nameDE": "Brustpresse-Maschine",
-    "exerciseType": "weighted"
+    "exerciseType": "weighted",
+    "isCompound": true,
+    "movementPattern": "push",
+    "equipmentSub": null
   },
   {
     "id": "machine_incline_press",
@@ -232,7 +265,10 @@
     "nameES": "Press inclinado en máquina",
     "nameFR": "Presse inclinée machine",
     "nameDE": "Schrägbank-Maschine",
-    "exerciseType": "weighted"
+    "exerciseType": "weighted",
+    "isCompound": true,
+    "movementPattern": "push",
+    "equipmentSub": null
   },
   {
     "id": "deadlift",
@@ -256,7 +292,10 @@
     "nameES": "Peso muerto",
     "nameFR": "Soulevé de terre",
     "nameDE": "Kreuzheben",
-    "exerciseType": "weighted"
+    "exerciseType": "weighted",
+    "isCompound": true,
+    "movementPattern": "hinge",
+    "equipmentSub": null
   },
   {
     "id": "barbell_bent_over_row",
@@ -278,7 +317,10 @@
     "nameES": "Remo inclinado con barra",
     "nameFR": "Rowing penché barre",
     "nameDE": "Vorgebeugtes Langhantel-Rudern",
-    "exerciseType": "weighted"
+    "exerciseType": "weighted",
+    "isCompound": true,
+    "movementPattern": "pull",
+    "equipmentSub": null
   },
   {
     "id": "dumbbell_row",
@@ -299,7 +341,10 @@
     "nameES": "Remo con mancuerna",
     "nameFR": "Rowing haltère",
     "nameDE": "Kurzhantel-Rudern",
-    "exerciseType": "weighted"
+    "exerciseType": "weighted",
+    "isCompound": true,
+    "movementPattern": "pull",
+    "equipmentSub": null
   },
   {
     "id": "lat_pulldown",
@@ -320,7 +365,10 @@
     "nameES": "Jalón al pecho",
     "nameFR": "Tirage vertical",
     "nameDE": "Latzug",
-    "exerciseType": "weighted"
+    "exerciseType": "weighted",
+    "isCompound": true,
+    "movementPattern": "pull",
+    "equipmentSub": null
   },
   {
     "id": "pull_up",
@@ -342,7 +390,10 @@
     "nameES": "Dominadas",
     "nameFR": "Tractions",
     "nameDE": "Klimmzüge",
-    "exerciseType": "bodyweight"
+    "exerciseType": "bodyweight",
+    "isCompound": true,
+    "movementPattern": "pull",
+    "equipmentSub": "pull_up_bar"
   },
   {
     "id": "chin_up",
@@ -362,7 +413,10 @@
     "nameES": "Dominadas supinas",
     "nameFR": "Tractions supination",
     "nameDE": "Klimmzüge Untergriff",
-    "exerciseType": "bodyweight"
+    "exerciseType": "bodyweight",
+    "isCompound": true,
+    "movementPattern": "pull",
+    "equipmentSub": "pull_up_bar"
   },
   {
     "id": "seated_cable_row",
@@ -383,7 +437,10 @@
     "nameES": "Remo en polea sentado",
     "nameFR": "Tirage horizontal assis",
     "nameDE": "Sitzend Kabelrudern",
-    "exerciseType": "weighted"
+    "exerciseType": "weighted",
+    "isCompound": true,
+    "movementPattern": "pull",
+    "equipmentSub": null
   },
   {
     "id": "t_bar_row",
@@ -405,7 +462,10 @@
     "nameES": "Remo T-bar",
     "nameFR": "Rowing T-bar",
     "nameDE": "T-Bar-Rudern",
-    "exerciseType": "weighted"
+    "exerciseType": "weighted",
+    "isCompound": true,
+    "movementPattern": "pull",
+    "equipmentSub": null
   },
   {
     "id": "face_pull",
@@ -424,7 +484,10 @@
     "nameES": "Face pull",
     "nameFR": "Face pull",
     "nameDE": "Face Pull",
-    "exerciseType": "weighted"
+    "exerciseType": "weighted",
+    "isCompound": false,
+    "movementPattern": "pull",
+    "equipmentSub": null
   },
   {
     "id": "hyperextension",
@@ -443,7 +506,10 @@
     "nameES": "Hiperextensión",
     "nameFR": "Hyperextension",
     "nameDE": "Hyperextension",
-    "exerciseType": "bodyweight"
+    "exerciseType": "bodyweight",
+    "isCompound": false,
+    "movementPattern": "hinge",
+    "equipmentSub": null
   },
   {
     "id": "barbell_shrug",
@@ -462,7 +528,10 @@
     "nameES": "Encogimientos con barra",
     "nameFR": "Haussements barre",
     "nameDE": "Langhantel-Schulterheben",
-    "exerciseType": "weighted"
+    "exerciseType": "weighted",
+    "isCompound": false,
+    "movementPattern": "pull",
+    "equipmentSub": null
   },
   {
     "id": "machine_row",
@@ -482,7 +551,10 @@
     "nameES": "Remo en máquina",
     "nameFR": "Rowing machine",
     "nameDE": "Maschinen-Rudern",
-    "exerciseType": "weighted"
+    "exerciseType": "weighted",
+    "isCompound": true,
+    "movementPattern": "pull",
+    "equipmentSub": null
   },
   {
     "id": "assisted_pull_up",
@@ -502,7 +574,10 @@
     "nameES": "Dominadas asistidas",
     "nameFR": "Tractions assistées",
     "nameDE": "Unterstützte Klimmzüge",
-    "exerciseType": "assisted"
+    "exerciseType": "assisted",
+    "isCompound": true,
+    "movementPattern": "pull",
+    "equipmentSub": null
   },
   {
     "id": "overhead_press_barbell",
@@ -522,7 +597,10 @@
     "nameES": "Press militar con barra",
     "nameFR": "Développé militaire barre",
     "nameDE": "Langhantel-Schulterdrücken",
-    "exerciseType": "weighted"
+    "exerciseType": "weighted",
+    "isCompound": true,
+    "movementPattern": "push",
+    "equipmentSub": null
   },
   {
     "id": "dumbbell_shoulder_press",
@@ -542,7 +620,10 @@
     "nameES": "Press de hombros con mancuernas",
     "nameFR": "Développé épaules haltères",
     "nameDE": "Kurzhantel-Schulterdrücken",
-    "exerciseType": "weighted"
+    "exerciseType": "weighted",
+    "isCompound": true,
+    "movementPattern": "push",
+    "equipmentSub": null
   },
   {
     "id": "lateral_raise",
@@ -560,7 +641,10 @@
     "nameES": "Elevaciones laterales",
     "nameFR": "Élévations latérales",
     "nameDE": "Seitheben",
-    "exerciseType": "weighted"
+    "exerciseType": "weighted",
+    "isCompound": false,
+    "movementPattern": "push",
+    "equipmentSub": null
   },
   {
     "id": "front_raise",
@@ -578,7 +662,10 @@
     "nameES": "Elevaciones frontales",
     "nameFR": "Élévations frontales",
     "nameDE": "Frontheben",
-    "exerciseType": "weighted"
+    "exerciseType": "weighted",
+    "isCompound": false,
+    "movementPattern": "push",
+    "equipmentSub": null
   },
   {
     "id": "rear_delt_fly",
@@ -596,7 +683,10 @@
     "nameES": "Aperturas posteriores",
     "nameFR": "Oiseau",
     "nameDE": "Hintere Schulter-Fliegende",
-    "exerciseType": "weighted"
+    "exerciseType": "weighted",
+    "isCompound": false,
+    "movementPattern": "pull",
+    "equipmentSub": null
   },
   {
     "id": "arnold_press",
@@ -616,7 +706,10 @@
     "nameES": "Press Arnold",
     "nameFR": "Arnold press",
     "nameDE": "Arnold-Presse",
-    "exerciseType": "weighted"
+    "exerciseType": "weighted",
+    "isCompound": true,
+    "movementPattern": "push",
+    "equipmentSub": null
   },
   {
     "id": "upright_row",
@@ -636,7 +729,10 @@
     "nameES": "Remo al mentón",
     "nameFR": "Rowing menton",
     "nameDE": "Aufrechtes Rudern",
-    "exerciseType": "weighted"
+    "exerciseType": "weighted",
+    "isCompound": true,
+    "movementPattern": "pull",
+    "equipmentSub": null
   },
   {
     "id": "cable_lateral_raise",
@@ -654,7 +750,10 @@
     "nameES": "Elevaciones laterales en polea",
     "nameFR": "Élévations latérales poulie",
     "nameDE": "Kabel-Seitheben",
-    "exerciseType": "weighted"
+    "exerciseType": "weighted",
+    "isCompound": false,
+    "movementPattern": "push",
+    "equipmentSub": null
   },
   {
     "id": "machine_shoulder_press",
@@ -673,7 +772,10 @@
     "nameES": "Press de hombros en máquina",
     "nameFR": "Presse épaules",
     "nameDE": "Schulterdrück-Maschine",
-    "exerciseType": "weighted"
+    "exerciseType": "weighted",
+    "isCompound": true,
+    "movementPattern": "push",
+    "equipmentSub": null
   },
   {
     "id": "machine_lateral_raise",
@@ -691,7 +793,10 @@
     "nameES": "Elevaciones laterales en máquina",
     "nameFR": "Élévations latérales machine",
     "nameDE": "Maschinen-Seitheben",
-    "exerciseType": "weighted"
+    "exerciseType": "weighted",
+    "isCompound": false,
+    "movementPattern": "push",
+    "equipmentSub": null
   },
   {
     "id": "machine_rear_delt",
@@ -709,7 +814,10 @@
     "nameES": "Aperturas posteriores en máquina",
     "nameFR": "Oiseau machine",
     "nameDE": "Maschinen-Hinterschulter",
-    "exerciseType": "weighted"
+    "exerciseType": "weighted",
+    "isCompound": false,
+    "movementPattern": "pull",
+    "equipmentSub": null
   },
   {
     "id": "barbell_curl",
@@ -727,7 +835,10 @@
     "nameES": "Curl con barra",
     "nameFR": "Curl barre",
     "nameDE": "Langhantel-Curl",
-    "exerciseType": "weighted"
+    "exerciseType": "weighted",
+    "isCompound": false,
+    "movementPattern": "pull",
+    "equipmentSub": null
   },
   {
     "id": "dumbbell_curl",
@@ -745,7 +856,10 @@
     "nameES": "Curl con mancuernas",
     "nameFR": "Curl haltères",
     "nameDE": "Kurzhantel-Curl",
-    "exerciseType": "weighted"
+    "exerciseType": "weighted",
+    "isCompound": false,
+    "movementPattern": "pull",
+    "equipmentSub": null
   },
   {
     "id": "hammer_curl",
@@ -763,7 +877,10 @@
     "nameES": "Curl martillo",
     "nameFR": "Curl marteau",
     "nameDE": "Hammer-Curl",
-    "exerciseType": "weighted"
+    "exerciseType": "weighted",
+    "isCompound": false,
+    "movementPattern": "pull",
+    "equipmentSub": null
   },
   {
     "id": "preacher_curl",
@@ -781,7 +898,10 @@
     "nameES": "Curl predicador",
     "nameFR": "Curl pupitre",
     "nameDE": "Scott-Curl",
-    "exerciseType": "weighted"
+    "exerciseType": "weighted",
+    "isCompound": false,
+    "movementPattern": "pull",
+    "equipmentSub": null
   },
   {
     "id": "concentration_curl",
@@ -799,7 +919,10 @@
     "nameES": "Curl concentrado",
     "nameFR": "Curl concentré",
     "nameDE": "Konzentrations-Curl",
-    "exerciseType": "weighted"
+    "exerciseType": "weighted",
+    "isCompound": false,
+    "movementPattern": "pull",
+    "equipmentSub": null
   },
   {
     "id": "cable_curl",
@@ -817,7 +940,10 @@
     "nameES": "Curl en polea",
     "nameFR": "Curl poulie",
     "nameDE": "Kabel-Curl",
-    "exerciseType": "weighted"
+    "exerciseType": "weighted",
+    "isCompound": false,
+    "movementPattern": "pull",
+    "equipmentSub": null
   },
   {
     "id": "incline_dumbbell_curl",
@@ -835,7 +961,10 @@
     "nameES": "Curl inclinado",
     "nameFR": "Curl incliné",
     "nameDE": "Schrägbank-Curl",
-    "exerciseType": "weighted"
+    "exerciseType": "weighted",
+    "isCompound": false,
+    "movementPattern": "pull",
+    "equipmentSub": null
   },
   {
     "id": "machine_bicep_curl",
@@ -853,7 +982,10 @@
     "nameES": "Curl de bíceps en máquina",
     "nameFR": "Curl biceps machine",
     "nameDE": "Bizeps-Maschine",
-    "exerciseType": "weighted"
+    "exerciseType": "weighted",
+    "isCompound": false,
+    "movementPattern": "pull",
+    "equipmentSub": null
   },
   {
     "id": "tricep_pushdown",
@@ -870,7 +1002,10 @@
     "nameES": "Empuje de tríceps",
     "nameFR": "Extension triceps poulie",
     "nameDE": "Trizeps-Drücken",
-    "exerciseType": "weighted"
+    "exerciseType": "weighted",
+    "isCompound": false,
+    "movementPattern": "push",
+    "equipmentSub": null
   },
   {
     "id": "overhead_tricep_extension",
@@ -887,7 +1022,10 @@
     "nameES": "Extensión de tríceps sobre la cabeza",
     "nameFR": "Extension triceps au-dessus de la tête",
     "nameDE": "Trizeps-Überkopfstrecken",
-    "exerciseType": "weighted"
+    "exerciseType": "weighted",
+    "isCompound": false,
+    "movementPattern": "push",
+    "equipmentSub": null
   },
   {
     "id": "skull_crusher",
@@ -905,7 +1043,10 @@
     "nameES": "Rompecráneos",
     "nameFR": "Barre au front",
     "nameDE": "Stirndrücken",
-    "exerciseType": "weighted"
+    "exerciseType": "weighted",
+    "isCompound": false,
+    "movementPattern": "push",
+    "equipmentSub": null
   },
   {
     "id": "close_grip_bench_press",
@@ -924,7 +1065,10 @@
     "nameES": "Press de banca agarre cerrado",
     "nameFR": "Développé couché serré",
     "nameDE": "Enges Bankdrücken",
-    "exerciseType": "weighted"
+    "exerciseType": "weighted",
+    "isCompound": true,
+    "movementPattern": "push",
+    "equipmentSub": null
   },
   {
     "id": "tricep_dip",
@@ -943,7 +1087,10 @@
     "nameES": "Fondos de tríceps",
     "nameFR": "Dips triceps",
     "nameDE": "Trizeps-Dips",
-    "exerciseType": "bodyweight"
+    "exerciseType": "bodyweight",
+    "isCompound": true,
+    "movementPattern": "push",
+    "equipmentSub": "dip_station"
   },
   {
     "id": "tricep_kickback",
@@ -960,7 +1107,10 @@
     "nameES": "Kickback de tríceps",
     "nameFR": "Kickback triceps",
     "nameDE": "Trizeps-Kickback",
-    "exerciseType": "weighted"
+    "exerciseType": "weighted",
+    "isCompound": false,
+    "movementPattern": "push",
+    "equipmentSub": null
   },
   {
     "id": "machine_tricep_extension",
@@ -977,7 +1127,10 @@
     "nameES": "Extensión de tríceps en máquina",
     "nameFR": "Extension triceps machine",
     "nameDE": "Trizeps-Maschine",
-    "exerciseType": "weighted"
+    "exerciseType": "weighted",
+    "isCompound": false,
+    "movementPattern": "push",
+    "equipmentSub": null
   },
   {
     "id": "wrist_curl",
@@ -994,7 +1147,10 @@
     "nameES": "Curl de muñeca",
     "nameFR": "Curl de poignet",
     "nameDE": "Handgelenk-Curl",
-    "exerciseType": "weighted"
+    "exerciseType": "weighted",
+    "isCompound": false,
+    "movementPattern": "pull",
+    "equipmentSub": null
   },
   {
     "id": "reverse_wrist_curl",
@@ -1011,7 +1167,10 @@
     "nameES": "Curl de muñeca inverso",
     "nameFR": "Curl de poignet inversé",
     "nameDE": "Reverse Handgelenk-Curl",
-    "exerciseType": "weighted"
+    "exerciseType": "weighted",
+    "isCompound": false,
+    "movementPattern": "pull",
+    "equipmentSub": null
   },
   {
     "id": "farmer's_walk",
@@ -1033,7 +1192,10 @@
     "nameES": "Paseo del granjero",
     "nameFR": "Marche du fermier",
     "nameDE": "Farmers Walk",
-    "exerciseType": "weighted"
+    "exerciseType": "weighted",
+    "isCompound": true,
+    "movementPattern": "carry",
+    "equipmentSub": null
   },
   {
     "id": "crunch",
@@ -1050,7 +1212,10 @@
     "nameES": "Crunch",
     "nameFR": "Crunch",
     "nameDE": "Crunch",
-    "exerciseType": "bodyweight"
+    "exerciseType": "bodyweight",
+    "isCompound": false,
+    "movementPattern": "core",
+    "equipmentSub": null
   },
   {
     "id": "sit_up",
@@ -1068,7 +1233,10 @@
     "nameES": "Sit up",
     "nameFR": "Sit up",
     "nameDE": "Sit-Up",
-    "exerciseType": "bodyweight"
+    "exerciseType": "bodyweight",
+    "isCompound": false,
+    "movementPattern": "core",
+    "equipmentSub": null
   },
   {
     "id": "hanging_leg_raise",
@@ -1088,7 +1256,10 @@
     "nameES": "Elevación de piernas colgado",
     "nameFR": "Relevé de jambes suspendu",
     "nameDE": "Hängendes Beinheben",
-    "exerciseType": "bodyweight"
+    "exerciseType": "bodyweight",
+    "isCompound": false,
+    "movementPattern": "core",
+    "equipmentSub": "pull_up_bar"
   },
   {
     "id": "plank",
@@ -1108,7 +1279,10 @@
     "nameES": "Plancha",
     "nameFR": "Planche",
     "nameDE": "Plank",
-    "exerciseType": "bodyweight"
+    "exerciseType": "bodyweight",
+    "isCompound": false,
+    "movementPattern": "core",
+    "equipmentSub": null
   },
   {
     "id": "side_plank",
@@ -1126,7 +1300,10 @@
     "nameES": "Plancha lateral",
     "nameFR": "Planche latérale",
     "nameDE": "Seitlicher Plank",
-    "exerciseType": "bodyweight"
+    "exerciseType": "bodyweight",
+    "isCompound": false,
+    "movementPattern": "core",
+    "equipmentSub": null
   },
   {
     "id": "russian_twist",
@@ -1145,7 +1322,10 @@
     "nameES": "Giro ruso",
     "nameFR": "Twist russe",
     "nameDE": "Russian Twist",
-    "exerciseType": "bodyweight"
+    "exerciseType": "bodyweight",
+    "isCompound": false,
+    "movementPattern": "core",
+    "equipmentSub": null
   },
   {
     "id": "cable_woodchop",
@@ -1164,7 +1344,10 @@
     "nameES": "Corte de leñador",
     "nameFR": "Bûcheron câble",
     "nameDE": "Kabel-Holzhacker",
-    "exerciseType": "weighted"
+    "exerciseType": "weighted",
+    "isCompound": false,
+    "movementPattern": "core",
+    "equipmentSub": null
   },
   {
     "id": "ab_roller",
@@ -1184,7 +1367,10 @@
     "nameES": "Rueda abdominal",
     "nameFR": "Roue abdominale",
     "nameDE": "Ab-Roller",
-    "exerciseType": "bodyweight"
+    "exerciseType": "bodyweight",
+    "isCompound": false,
+    "movementPattern": "core",
+    "equipmentSub": null
   },
   {
     "id": "mountain_climber",
@@ -1204,7 +1390,10 @@
     "nameES": "Escalador",
     "nameFR": "Mountain climber",
     "nameDE": "Mountain Climber",
-    "exerciseType": "bodyweight"
+    "exerciseType": "bodyweight",
+    "isCompound": true,
+    "movementPattern": "core",
+    "equipmentSub": null
   },
   {
     "id": "machine_crunch",
@@ -1222,7 +1411,10 @@
     "nameES": "Crunch en máquina",
     "nameFR": "Crunch machine",
     "nameDE": "Crunch-Maschine",
-    "exerciseType": "weighted"
+    "exerciseType": "weighted",
+    "isCompound": false,
+    "movementPattern": "core",
+    "equipmentSub": null
   },
   {
     "id": "torso_rotation",
@@ -1240,7 +1432,10 @@
     "nameES": "Máquina de rotación de torso",
     "nameFR": "Machine de rotation du tronc",
     "nameDE": "Rumpfrotations-Maschine",
-    "exerciseType": "weighted"
+    "exerciseType": "weighted",
+    "isCompound": false,
+    "movementPattern": "core",
+    "equipmentSub": null
   },
   {
     "id": "barbell_back_squat",
@@ -1263,7 +1458,10 @@
     "nameES": "Sentadilla trasera con barra",
     "nameFR": "Back squat barre",
     "nameDE": "Langhantel-Kniebeuge",
-    "exerciseType": "weighted"
+    "exerciseType": "weighted",
+    "isCompound": true,
+    "movementPattern": "squat",
+    "equipmentSub": null
   },
   {
     "id": "front_squat",
@@ -1284,7 +1482,10 @@
     "nameES": "Sentadilla frontal",
     "nameFR": "Front squat",
     "nameDE": "Frontkniebeuge",
-    "exerciseType": "weighted"
+    "exerciseType": "weighted",
+    "isCompound": true,
+    "movementPattern": "squat",
+    "equipmentSub": null
   },
   {
     "id": "goblet_squat",
@@ -1303,7 +1504,10 @@
     "nameES": "Sentadilla goblet",
     "nameFR": "Goblet squat",
     "nameDE": "Goblet-Kniebeuge",
-    "exerciseType": "weighted"
+    "exerciseType": "weighted",
+    "isCompound": true,
+    "movementPattern": "squat",
+    "equipmentSub": null
   },
   {
     "id": "leg_press",
@@ -1323,7 +1527,10 @@
     "nameES": "Prensa de piernas",
     "nameFR": "Presse à cuisses",
     "nameDE": "Beinpresse",
-    "exerciseType": "weighted"
+    "exerciseType": "weighted",
+    "isCompound": true,
+    "movementPattern": "squat",
+    "equipmentSub": null
   },
   {
     "id": "hack_squat",
@@ -1341,7 +1548,10 @@
     "nameES": "Sentadilla hack",
     "nameFR": "Hack squat",
     "nameDE": "Hackenschmidt-Kniebeuge",
-    "exerciseType": "weighted"
+    "exerciseType": "weighted",
+    "isCompound": true,
+    "movementPattern": "squat",
+    "equipmentSub": null
   },
   {
     "id": "leg_extension",
@@ -1358,7 +1568,10 @@
     "nameES": "Extensión de piernas",
     "nameFR": "Extension de jambes",
     "nameDE": "Beinstrecken",
-    "exerciseType": "weighted"
+    "exerciseType": "weighted",
+    "isCompound": false,
+    "movementPattern": "squat",
+    "equipmentSub": null
   },
   {
     "id": "bulgarian_split_squat",
@@ -1379,7 +1592,10 @@
     "nameES": "Sentadilla búlgara",
     "nameFR": "Squat bulgare",
     "nameDE": "Bulgarische Kniebeuge",
-    "exerciseType": "weighted"
+    "exerciseType": "weighted",
+    "isCompound": true,
+    "movementPattern": "squat",
+    "equipmentSub": null
   },
   {
     "id": "walking_lunge",
@@ -1400,7 +1616,10 @@
     "nameES": "Zancada caminando",
     "nameFR": "Fente marchée",
     "nameDE": "Walking Lunges",
-    "exerciseType": "weighted"
+    "exerciseType": "weighted",
+    "isCompound": true,
+    "movementPattern": "squat",
+    "equipmentSub": null
   },
   {
     "id": "step_up",
@@ -1419,7 +1638,10 @@
     "nameES": "Step up",
     "nameFR": "Step up",
     "nameDE": "Step-Up",
-    "exerciseType": "weighted"
+    "exerciseType": "weighted",
+    "isCompound": true,
+    "movementPattern": "squat",
+    "equipmentSub": null
   },
   {
     "id": "sumo_squat",
@@ -1438,7 +1660,10 @@
     "nameES": "Sentadilla sumo",
     "nameFR": "Squat sumo",
     "nameDE": "Sumo-Kniebeuge",
-    "exerciseType": "weighted"
+    "exerciseType": "weighted",
+    "isCompound": true,
+    "movementPattern": "squat",
+    "equipmentSub": null
   },
   {
     "id": "smith_squat",
@@ -1457,7 +1682,10 @@
     "nameES": "Sentadilla Smith",
     "nameFR": "Squat Smith",
     "nameDE": "Smith-Maschinen-Kniebeuge",
-    "exerciseType": "weighted"
+    "exerciseType": "weighted",
+    "isCompound": true,
+    "movementPattern": "squat",
+    "equipmentSub": null
   },
   {
     "id": "romanian_deadlift",
@@ -1477,7 +1705,10 @@
     "nameES": "Peso muerto rumano",
     "nameFR": "Soulevé de terre roumain",
     "nameDE": "Rumänisches Kreuzheben",
-    "exerciseType": "weighted"
+    "exerciseType": "weighted",
+    "isCompound": true,
+    "movementPattern": "hinge",
+    "equipmentSub": null
   },
   {
     "id": "stiff_leg_deadlift",
@@ -1496,7 +1727,10 @@
     "nameES": "Peso muerto piernas rígidas",
     "nameFR": "Soulevé jambes tendues",
     "nameDE": "Gestrecktes Kreuzheben",
-    "exerciseType": "weighted"
+    "exerciseType": "weighted",
+    "isCompound": true,
+    "movementPattern": "hinge",
+    "equipmentSub": null
   },
   {
     "id": "lying_leg_curl",
@@ -1514,7 +1748,10 @@
     "nameES": "Curl de piernas acostado",
     "nameFR": "Leg curl couché",
     "nameDE": "Liegend Beincurl",
-    "exerciseType": "weighted"
+    "exerciseType": "weighted",
+    "isCompound": false,
+    "movementPattern": "pull",
+    "equipmentSub": null
   },
   {
     "id": "seated_leg_curl",
@@ -1531,7 +1768,10 @@
     "nameES": "Curl de piernas sentado",
     "nameFR": "Leg curl assis",
     "nameDE": "Sitzend Beincurl",
-    "exerciseType": "weighted"
+    "exerciseType": "weighted",
+    "isCompound": false,
+    "movementPattern": "pull",
+    "equipmentSub": null
   },
   {
     "id": "hip_thrust",
@@ -1550,7 +1790,10 @@
     "nameES": "Empuje de cadera",
     "nameFR": "Hip thrust",
     "nameDE": "Hip Thrust",
-    "exerciseType": "weighted"
+    "exerciseType": "weighted",
+    "isCompound": true,
+    "movementPattern": "hinge",
+    "equipmentSub": null
   },
   {
     "id": "glute_bridge",
@@ -1568,7 +1811,10 @@
     "nameES": "Puente de glúteos",
     "nameFR": "Pont fessier",
     "nameDE": "Glute-Brücke",
-    "exerciseType": "bodyweight"
+    "exerciseType": "bodyweight",
+    "isCompound": false,
+    "movementPattern": "hinge",
+    "equipmentSub": null
   },
   {
     "id": "cable_kickback",
@@ -1586,7 +1832,10 @@
     "nameES": "Kickback en polea",
     "nameFR": "Kickback câble",
     "nameDE": "Kabel-Kickback",
-    "exerciseType": "weighted"
+    "exerciseType": "weighted",
+    "isCompound": false,
+    "movementPattern": "hinge",
+    "equipmentSub": null
   },
   {
     "id": "sumo_deadlift",
@@ -1609,7 +1858,10 @@
     "nameES": "Peso muerto sumo",
     "nameFR": "Soulevé de terre sumo",
     "nameDE": "Sumo-Kreuzheben",
-    "exerciseType": "weighted"
+    "exerciseType": "weighted",
+    "isCompound": true,
+    "movementPattern": "hinge",
+    "equipmentSub": null
   },
   {
     "id": "adductor_machine",
@@ -1626,7 +1878,10 @@
     "nameES": "Máquina de aductores",
     "nameFR": "Machine adducteurs",
     "nameDE": "Adduktoren-Maschine",
-    "exerciseType": "weighted"
+    "exerciseType": "weighted",
+    "isCompound": false,
+    "movementPattern": "squat",
+    "equipmentSub": null
   },
   {
     "id": "hip_abductor",
@@ -1643,7 +1898,10 @@
     "nameES": "Máquina abductora de cadera",
     "nameFR": "Machine abducteur de hanche",
     "nameDE": "Hüftabduktoren-Maschine",
-    "exerciseType": "weighted"
+    "exerciseType": "weighted",
+    "isCompound": false,
+    "movementPattern": "squat",
+    "equipmentSub": null
   },
   {
     "id": "glute_drive",
@@ -1661,7 +1919,10 @@
     "nameES": "Máquina de glúteos",
     "nameFR": "Machine glute drive",
     "nameDE": "Gesäß-Maschine",
-    "exerciseType": "weighted"
+    "exerciseType": "weighted",
+    "isCompound": false,
+    "movementPattern": "hinge",
+    "equipmentSub": null
   },
   {
     "id": "standing_calf_raise",
@@ -1679,7 +1940,10 @@
     "nameES": "Elevación de talones de pie",
     "nameFR": "Mollets debout",
     "nameDE": "Wadenheben stehend",
-    "exerciseType": "weighted"
+    "exerciseType": "weighted",
+    "isCompound": false,
+    "movementPattern": "squat",
+    "equipmentSub": null
   },
   {
     "id": "seated_calf_raise",
@@ -1697,7 +1961,10 @@
     "nameES": "Elevación de talones sentado",
     "nameFR": "Mollets assis",
     "nameDE": "Wadenheben sitzend",
-    "exerciseType": "weighted"
+    "exerciseType": "weighted",
+    "isCompound": false,
+    "movementPattern": "squat",
+    "equipmentSub": null
   },
   {
     "id": "kettlebell_swing",
@@ -1719,7 +1986,10 @@
     "nameES": "Balanceo de kettlebell",
     "nameFR": "Kettlebell swing",
     "nameDE": "Kettlebell-Swing",
-    "exerciseType": "weighted"
+    "exerciseType": "weighted",
+    "isCompound": true,
+    "movementPattern": "carry",
+    "equipmentSub": null
   },
   {
     "id": "burpee",
@@ -1747,7 +2017,10 @@
     "nameES": "Burpee",
     "nameFR": "Burpee",
     "nameDE": "Burpee",
-    "exerciseType": "bodyweight"
+    "exerciseType": "bodyweight",
+    "isCompound": true,
+    "movementPattern": "carry",
+    "equipmentSub": null
   },
   {
     "id": "bicycle_crunch",
@@ -1766,6 +2039,9 @@
     "nameES": "Crunch bicicleta",
     "nameFR": "Crunch vélo",
     "nameDE": "Fahrrad-Crunch",
-    "exerciseType": "bodyweight"
+    "exerciseType": "bodyweight",
+    "isCompound": false,
+    "movementPattern": "core",
+    "equipmentSub": null
   }
 ]
