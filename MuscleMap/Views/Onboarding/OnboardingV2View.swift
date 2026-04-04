@@ -105,8 +105,9 @@ struct OnboardingV2View: View {
                 currentPage = 2
             }
         case 2:
-            LocationSelectionPage(currentPage: currentPage) { location in
+            LocationSelectionPage(currentPage: currentPage) { location, equipment in
                 AppState.shared.userProfile.trainingLocation = location.rawValue
+                AppState.shared.userProfile.homeEquipment = equipment.map(\.rawValue)
                 navigatingForward = true
                 currentPage = 3
             }

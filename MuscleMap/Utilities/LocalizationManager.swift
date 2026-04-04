@@ -1387,6 +1387,12 @@ enum L10n {
     static var locBodyweightSub: String { loc("器具なし、体ひとつで", "No equipment needed", zhHans: "无需器械，徒手训练", ko: "기구 없이 몸 하나로", es: "Sin equipo necesario", fr: "Aucun équipement nécessaire", de: "Keine Geräte nötig") }
     static var locBothSub: String { loc("ジムと自宅を組み合わせ", "Mix gym and home", zhHans: "健身房和家里结合", ko: "헬스장과 자택을 조합", es: "Combina gimnasio y casa", fr: "Mix salle et domicile", de: "Kombination Studio & Zuhause") }
 
+    // MARK: - 器具チップ（LocationSelectionPage）
+    static var homeEquipTitle: String { loc("持っている器具", "Equipment you have", zhHans: "拥有的器械", ko: "보유한 기구", es: "Equipo que tienes", fr: "Équipement disponible", de: "Vorhandene Geräte") }
+    static var homeEquipDumbbell: String { loc("ダンベル", "Dumbbell", zhHans: "哑铃", ko: "덤벨", es: "Mancuernas", fr: "Haltères", de: "Hanteln") }
+    static var homeEquipPullUpBar: String { loc("懸垂バー", "Pull-up Bar", zhHans: "引体向上杆", ko: "철봉", es: "Barra de dominadas", fr: "Barre de traction", de: "Klimmzugstange") }
+    static var homeEquipBench: String { loc("ベンチ", "Bench", zhHans: "卧推凳", ko: "벤치", es: "Banco", fr: "Banc", de: "Bank") }
+
     // MARK: - TrainingHistoryPage (ProfileInputPage)
     static var expNewbie: String { loc("初心者", "Newbie", zhHans: "新手", ko: "초보자", es: "Novato", fr: "Débutant", de: "Anfänger") }
     static var expSixMonths: String { loc("半年", "6 Mo", zhHans: "半年", ko: "반년", es: "6 meses", fr: "6 mois", de: "6 Mon.") }

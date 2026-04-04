@@ -588,13 +588,18 @@ struct RoutineBuilderPage: View {
         location: String
     ) -> [ExerciseDefinition] {
         switch location {
-        case "home":
+        case "home", "both":
             let homeEquipment: Set<String> = ["自重", "ダンベル", "ケトルベル", "Bodyweight", "Dumbbell", "Kettlebell"]
-            let filtered = exercises.filter { homeEquipment.contains($0.equipment) }
-            return filtered.isEmpty ? exercises : filtered
-        case "bodyweight":
-            let bwEquipment: Set<String> = ["自重", "Bodyweight"]
-            let filtered = exercises.filter { bwEquipment.contains($0.equipment) }
+            let homeExercises = exercises.filter { homeEquipment.contains($0.equipment) }
+            // 器具フィルタ適用
+            let equipSet = Set(AppState.shared.userProfile.homeEquipment.compactMap { HomeEquipment(rawValue: $0) })
+            let filtered = filterExercisesByEquipment(exercises: homeExercises, equipment: equipSet)
+            if location == "both" {
+                // bothモード: ジム種目はそのまま通す
+                let gymExercises = exercises.filter { !homeEquipment.contains($0.equipment) }
+                let combined = filtered + gymExercises
+                return combined.isEmpty ? exercises : combined
+            }
             return filtered.isEmpty ? exercises : filtered
         default:
             return exercises
@@ -759,14 +764,18 @@ struct RoutineExercisePickerSheet: View {
             }
         }
 
-        if day.location == "home" {
+        if day.location == "home" || day.location == "both" {
             let homeEquipment: Set<String> = ["自重", "ダンベル", "ケトルベル", "Bodyweight", "Dumbbell", "Kettlebell"]
-            let filtered = result.filter { homeEquipment.contains($0.equipment) }
-            if !filtered.isEmpty { result = filtered }
-        } else if day.location == "bodyweight" {
-            let bwEquipment: Set<String> = ["自重", "Bodyweight"]
-            let filtered = result.filter { bwEquipment.contains($0.equipment) }
-            if !filtered.isEmpty { result = filtered }
+            let homeExercises = result.filter { homeEquipment.contains($0.equipment) }
+            let equipSet = Set(AppState.shared.userProfile.homeEquipment.compactMap { HomeEquipment(rawValue: $0) })
+            let filtered = filterExercisesByEquipment(exercises: homeExercises, equipment: equipSet)
+            if day.location == "both" {
+                let gymExercises = result.filter { !homeEquipment.contains($0.equipment) }
+                let combined = filtered + gymExercises
+                if !combined.isEmpty { result = combined }
+            } else {
+                if !filtered.isEmpty { result = filtered }
+            }
         }
 
         return result

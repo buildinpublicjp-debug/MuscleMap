@@ -20,6 +20,8 @@ struct UserProfile: Codable {
     var goalPriorityMuscles: [String]
     /// 目標ごとのスライダー重み（goalId: 0.0〜1.0）
     var goalWeights: [String: Double]
+    /// 自宅で持っている器具（"dumbbell", "pull_up_bar", "bench"）
+    var homeEquipment: [String]
     /// 体脂肪率（%）。nil = 未入力
     var bodyFatPercentage: Double?
 
@@ -32,7 +34,8 @@ struct UserProfile: Codable {
         weeklyFrequency: 3,
         trainingLocation: "gym",
         goalPriorityMuscles: [],
-        goalWeights: [:]
+        goalWeights: [:],
+        homeEquipment: []
     )
 
     /// 既存ユーザーのデータに新フィールドが存在しない場合に対応
@@ -49,6 +52,7 @@ struct UserProfile: Codable {
         trainingLocation = try container.decodeIfPresent(String.self, forKey: .trainingLocation) ?? "gym"
         goalPriorityMuscles = try container.decodeIfPresent([String].self, forKey: .goalPriorityMuscles) ?? []
         goalWeights = try container.decodeIfPresent([String: Double].self, forKey: .goalWeights) ?? [:]
+        homeEquipment = try container.decodeIfPresent([String].self, forKey: .homeEquipment) ?? []
         bodyFatPercentage = try container.decodeIfPresent(Double.self, forKey: .bodyFatPercentage)
     }
 
@@ -62,6 +66,7 @@ struct UserProfile: Codable {
         trainingLocation: String = "gym",
         goalPriorityMuscles: [String] = [],
         goalWeights: [String: Double] = [:],
+        homeEquipment: [String] = [],
         bodyFatPercentage: Double? = nil
     ) {
         self.nickname = nickname
@@ -73,6 +78,7 @@ struct UserProfile: Codable {
         self.trainingLocation = trainingLocation
         self.goalPriorityMuscles = goalPriorityMuscles
         self.goalWeights = goalWeights
+        self.homeEquipment = homeEquipment
         self.bodyFatPercentage = bodyFatPercentage
     }
 }
