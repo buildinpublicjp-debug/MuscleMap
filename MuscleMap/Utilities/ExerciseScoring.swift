@@ -11,7 +11,6 @@ struct ExerciseScore {
     let equipmentFilter: Double
     let goalFit: Double
     let focusBoost: Double
-    let randomFactor: Double
 }
 
 /// ユーザーの目標・経験・環境に基づいて種目をスコアリングし、最適な種目を選出する
@@ -44,9 +43,8 @@ struct ExerciseScoring {
             let equip = equipmentFilter(exercise: exercise, location: location)
             let goal = goalFit(exercise: exercise, goalWeights: goalWeights)
             let focus = focusBoost(exercise: exercise, priorityMuscles: prioritySet)
-            let rand = Double.random(in: 0.85...1.15)
 
-            let total = base * diff * equip * goal * focus * rand
+            let total = base * diff * equip * goal * focus
 
             // スコア0は完全除外（difficultyFit=0 or equipmentFilter=0）
             guard total > 0 else { return nil }
@@ -58,8 +56,7 @@ struct ExerciseScoring {
                 difficultyFit: diff,
                 equipmentFilter: equip,
                 goalFit: goal,
-                focusBoost: focus,
-                randomFactor: rand
+                focusBoost: focus
             )
         }
 
@@ -164,8 +161,7 @@ struct ExerciseScoring {
                     difficultyFit: item.difficultyFit,
                     equipmentFilter: item.equipmentFilter,
                     goalFit: item.goalFit,
-                    focusBoost: item.focusBoost,
-                    randomFactor: item.randomFactor
+                    focusBoost: item.focusBoost
                 )
                 result.append(penalized)
             } else {
