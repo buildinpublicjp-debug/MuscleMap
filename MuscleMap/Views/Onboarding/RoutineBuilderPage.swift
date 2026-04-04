@@ -506,10 +506,12 @@ struct RoutineBuilderPage: View {
             let names = day.exercises.compactMap { ExerciseStore.shared.exercise(for: $0.exerciseId)?.localizedName }
             print("[RoutineBuilder] \(day.name): \(names)")
         }
+        // スコアリングエンジンの3パターンテスト
+        testExerciseScoring()
         #endif
     }
 
-    /// 自動ピック共通ロジック
+    /// 自動ピック共通ロジック（ExerciseScoringエンジン使用）
     private func autoPickExercises(
         muscleGroups: [MuscleGroup],
         location: String,
@@ -538,23 +540,20 @@ struct RoutineBuilderPage: View {
             }
         }
 
-        // 場所フィルタ
-        candidateExercises = filterByLocation(
-            exercises: candidateExercises,
-            location: location
-        )
-
         // GIFあり種目のみ（カード表示品質を保つ）
         let withGif = candidateExercises.filter { ExerciseGifView.hasGif(exerciseId: $0.id) }
         if !withGif.isEmpty {
             candidateExercises = withGif
         }
 
-        // 重点筋肉 + お気に入り優先ソート
-        candidateExercises = sortByPriority(
-            exercises: candidateExercises,
-            priorityMuscles: priorityMuscles,
-            targetGroups: targetGroupSet
+        // スコアリングエンジンで種目を選出（場所フィルタ・難易度・目標適合を含む）
+        let profile = AppState.shared.userProfile
+        candidateExercises = ExerciseScoring.scoreExercises(
+            candidateExercises,
+            experience: experience,
+            location: location,
+            goalWeights: profile.goalWeights,
+            priorityMuscles: priorityMuscles
         )
 
         // 上位3〜4種目を自動選択

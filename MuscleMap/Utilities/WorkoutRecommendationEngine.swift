@@ -499,9 +499,9 @@ struct WorkoutRecommendationEngine {
         return filtered.isEmpty ? exercises : filtered
     }
 
-    // MARK: - 重点筋肉の優先順位付け
+    // MARK: - 重点筋肉の優先順位付け（ExerciseScoringエンジン使用）
 
-    /// お気に入り → グループ適合度 → 重点筋肉スコア の優先順位でソート
+    /// スコアリングエンジンで種目を優先順位付け（お気に入りは後処理で優先）
     @MainActor
     private static func sortByPriority(
         exercises: [ExerciseDefinition],
@@ -509,28 +509,23 @@ struct WorkoutRecommendationEngine {
         favoritesManager: FavoritesManager,
         targetGroups: Set<MuscleGroup>
     ) -> [ExerciseDefinition] {
-        let prioritySet = Set(priorityMuscles)
+        let profile = AppState.shared.userProfile
 
-        return exercises.sorted { a, b in
-            let aFav = favoritesManager.isFavorite(a.id)
-            let bFav = favoritesManager.isFavorite(b.id)
+        // スコアリングエンジンで種目を選出
+        var sorted = ExerciseScoring.scoreExercises(
+            exercises,
+            experience: profile.trainingExperience,
+            location: profile.trainingLocation,
+            goalWeights: profile.goalWeights,
+            priorityMuscles: priorityMuscles
+        )
 
-            // 1. お気に入り優先
-            if aFav != bFav { return aFav }
+        // お気に入り種目を先頭に移動（スコア順序を維持しつつ）
+        let favorites = sorted.filter { favoritesManager.isFavorite($0.id) }
+        let nonFavorites = sorted.filter { !favoritesManager.isFavorite($0.id) }
+        sorted = favorites + nonFavorites
 
-            // 2. 対象グループへの刺激合計スコア（pairedGroupsの筋肉へのmuscleMapping合計%）
-            let aGroupScore = groupRelevanceScore(exercise: a, targetGroups: targetGroups)
-            let bGroupScore = groupRelevanceScore(exercise: b, targetGroups: targetGroups)
-            if aGroupScore != bGroupScore { return aGroupScore > bGroupScore }
-
-            // 3. 重点筋肉にヒットする種目を優先
-            let aHits = priorityMuscleScore(exercise: a, prioritySet: prioritySet)
-            let bHits = priorityMuscleScore(exercise: b, prioritySet: prioritySet)
-            if aHits != bHits { return aHits > bHits }
-
-            // 4. 元の順序を維持（安定ソート）
-            return false
-        }
+        return sorted
     }
 
     /// 種目の対象グループ適合度（targetGroupsの筋肉へのmuscleMapping合計%）
