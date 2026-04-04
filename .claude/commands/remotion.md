@@ -1,11 +1,11 @@
 # Remotion操作
 
-Remotionリポジトリは ../MuscleMapContent にある。
+Remotionリポジトリは ~/Developer/MuscleMapContent にある。
 
 ## 参照方法
-- ファイル一覧: rg --files ../MuscleMapContent
-- ファイル読み: cat ../MuscleMapContent/path/to/file
-- 書き込み: 通常通り ../MuscleMapContent/path/to/file に書き込み
+- ファイル一覧: rg --files ~/Developer/MuscleMapContent
+- ファイル読み: cat ~/Developer/MuscleMapContent/path/to/file
+- 書き込み: 通常通り ~/Developer/MuscleMapContent/path/to/file に書き込み
 
 ## MuscleMapContentの概要
 Remotionベースの動画自動生成パイプライン。
@@ -20,7 +20,7 @@ Remotionベースの動画自動生成パイプライン。
 
 ## レンダリングコマンド
 ```bash
-cd ../MuscleMapContent && git pull origin main
+cd ~/Developer/MuscleMapContent && git pull origin main
 rm -rf /tmp/remotion-*
 rm -rf public/current_day && mkdir -p public/current_day
 cp ~/Videos/musclemap_content/day00X/* public/current_day/

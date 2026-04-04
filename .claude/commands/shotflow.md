@@ -1,11 +1,11 @@
 # ShotFlow操作
 
-ShotFlowリポジトリは ../ShotFlow にある。
+ShotFlowリポジトリは ~/Developer/ShotFlow にある。
 
 ## 参照方法
-- ファイル一覧: rg --files ../ShotFlow
-- ファイル読み: cat ../ShotFlow/path/to/file
-- 書き込み: 通常通り ../ShotFlow/path/to/file に書き込み
+- ファイル一覧: rg --files ~/Developer/ShotFlow
+- ファイル読み: cat ~/Developer/ShotFlow/path/to/file
+- 書き込み: 通常通り ~/Developer/ShotFlow/path/to/file に書き込み
 
 ## ShotFlowの概要
 ShotFlowはiOS撮影チェックリストアプリ。
