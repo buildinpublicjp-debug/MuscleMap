@@ -184,7 +184,7 @@ private struct SessionDetailCard: View {
                 VStack(alignment: .leading, spacing: 8) {
                     // GIF（全幅、大きく表示）
                     ZStack {
-                        Color.white
+                        Color.mmGifBackground
                         if ExerciseGifView.hasGif(exerciseId: entry.exercise.id) {
                             ExerciseGifView(exerciseId: entry.exercise.id, size: .card)
                                 .scaledToFit()

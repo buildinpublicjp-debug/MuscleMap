@@ -80,7 +80,7 @@ struct PaywallView: View {
             // プレミアム背景グラデーション（上部ダークグリーン→ダーク）
             LinearGradient(
                 colors: [
-                    Color(red: 0.06, green: 0.12, blue: 0.08),
+                    Color.mmPaywallGradientStart,
                     Color.mmBgSecondary
                 ],
                 startPoint: .top,
@@ -162,7 +162,7 @@ struct PaywallView: View {
 
     private var headlineSection: some View {
         VStack(spacing: 8) {
-            Text("MUSCLEMAP PRO")
+            Text(L10n.muscleMapProLabel)
                 .font(.system(size: 11, weight: .semibold))
                 .foregroundStyle(Color.mmAccentPrimary)
                 .tracking(3)
@@ -361,9 +361,9 @@ struct PaywallView: View {
                     .background(
                         LinearGradient(
                             colors: [
-                                Color(red: 0.2, green: 1.0, blue: 0.8),
+                                Color.mmCtaGradientStart,
                                 Color.mmAccentPrimary,
-                                Color(red: 0, green: 0.75, blue: 0.4)
+                                Color.mmCtaGradientEnd
                             ],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
@@ -569,7 +569,7 @@ private struct PaywallMarqueeRow: View {
             // 種目名（グラデーション付き）
             Text(exercise.localizedName)
                 .font(.system(size: 12, weight: .bold))
-                .foregroundStyle(.white)
+                .foregroundStyle(Color.mmTextOnDark)
                 .shadow(color: .black.opacity(0.5), radius: 2, y: 1)
                 .lineLimit(1)
                 .padding(.horizontal, 6)

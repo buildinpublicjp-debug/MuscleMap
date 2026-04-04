@@ -192,7 +192,7 @@ struct TopExercisesCard: View {
                     ExerciseGifView(exerciseId: item.exercise.id, size: .card)
                         .aspectRatio(contentMode: .fit)
                         .frame(width: 80, height: 70)
-                        .background(Color.white)
+                        .background(Color.mmGifBackground)
                         .clipShape(RoundedRectangle(cornerRadius: 8))
                         .clipped()
 

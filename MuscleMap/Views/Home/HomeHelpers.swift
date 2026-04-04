@@ -300,7 +300,7 @@ struct TodayRecommendationInline: View {
                             HStack(alignment: .bottom) {
                                 Text(name)
                                     .font(.system(size: 11, weight: .bold))
-                                    .foregroundStyle(.white)
+                                    .foregroundStyle(Color.mmTextOnDark)
                                     .lineLimit(1)
                                     .truncationMode(.tail)
 
@@ -308,7 +308,7 @@ struct TodayRecommendationInline: View {
 
                                 Text("\(exercise.suggestedSets) × \(exercise.suggestedReps)")
                                     .font(.system(size: 11, weight: .heavy).monospacedDigit())
-                                    .foregroundStyle(.white)
+                                    .foregroundStyle(Color.mmTextOnDark)
                                     .padding(.horizontal, 6)
                                     .padding(.vertical, 2)
                                     .background(Color.white.opacity(0.15))
@@ -915,7 +915,7 @@ struct StrengthMapPreviewBanner: View {
 
                 VStack(alignment: .leading, spacing: 2) {
                     HStack(spacing: 6) {
-                        Text("Strength Map")
+                        Text(L10n.strengthMapLabel)
                             .font(.subheadline.bold())
                             .foregroundStyle(Color.mmTextPrimary)
 

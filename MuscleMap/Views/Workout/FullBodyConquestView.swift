@@ -161,7 +161,7 @@ private struct FullBodyConquestShareCard: View {
 
                 // タイトル
                 VStack(spacing: 8) {
-                    Text("FULL BODY CONQUERED")
+                    Text(L10n.fullBodyConqueredLabel)
                         .font(.title2.bold())
                         .foregroundStyle(Color.mmAccentPrimary)
                     Text("💪")

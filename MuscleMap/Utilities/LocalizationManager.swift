@@ -1775,4 +1775,16 @@ enum L10n {
     }
     static var trainingFallback: String { loc("トレーニング", "Training", zhHans: "训练", ko: "트레이닝", es: "Entrenamiento", fr: "Entraînement", de: "Training") }
     static var shortDateFormat: String { loc("M月d日（E）", "MMM d (EEE)", zhHans: "M月d日（E）", ko: "M월 d일 (E)", es: "d MMM (EEE)", fr: "d MMM (EEE)", de: "d. MMM (EEE)") }
+
+    // MARK: - シェアカード・達成テキスト
+    static var workoutCompleteLabel: String { "WORKOUT COMPLETE" }
+    static var fullBodyConqueredLabel: String { "FULL BODY CONQUERED" }
+    static var muscleMapProLabel: String { "MUSCLEMAP PRO" }
+    static var myRoutineLabel: String { "MY ROUTINE" }
+    static var strengthMapLabel: String { loc("Strength Map", "Strength Map", zhHans: "Strength Map", ko: "Strength Map", es: "Strength Map", fr: "Strength Map", de: "Strength Map") }
+    static var shareCardTagline: String { "MuscleMap — Track Your Muscles" }
+    static var beforeLabel: String { "BEFORE" }
+    static var afterLabel: String { "AFTER" }
+    static func dayLabel(_ n: Int) -> String { "Day \(n)" }
+    static func dayLabelWithGroup(_ n: Int, _ group: String) -> String { "Day \(n): \(group)" }
 }

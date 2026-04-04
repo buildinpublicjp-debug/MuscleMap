@@ -219,7 +219,7 @@ private struct RoutineExerciseCard: View {
                     ExerciseGifView(exerciseId: exercise.exerciseId, size: .card)
                         .aspectRatio(contentMode: .fit)
                         .frame(width: 110, height: 100)
-                        .background(Color.white)
+                        .background(Color.mmGifBackground)
                         .clipped()
                 } else {
                     Color.mmBgCard
@@ -394,7 +394,7 @@ private struct DayEditSheet: View {
                     }
                 }
             }
-            .navigationTitle("Day \(dayIndex + 1): \(muscleGroupNames)")
+            .navigationTitle(L10n.dayLabelWithGroup(dayIndex + 1, muscleGroupNames))
             .navigationBarTitleDisplayMode(.inline)
             .toolbarColorScheme(.dark, for: .navigationBar)
             .toolbar {
@@ -464,7 +464,7 @@ private struct DayEditExerciseRow: View {
                     ExerciseGifView(exerciseId: exercise.id, size: .card)
                         .aspectRatio(contentMode: .fit)
                         .frame(width: 100, height: 80)
-                        .background(Color.white)
+                        .background(Color.mmGifBackground)
                         .clipped()
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                 } else {
@@ -615,7 +615,7 @@ private struct RoutineEditExercisePickerSheet: View {
                                             .aspectRatio(contentMode: .fit)
                                             .frame(maxWidth: .infinity)
                                             .frame(height: 170)
-                                            .background(Color.white)
+                                            .background(Color.mmGifBackground)
                                             .clipped()
                                     } else {
                                         ZStack {
@@ -731,9 +731,9 @@ private struct RoutineShareCardContent: View {
         VStack(spacing: 12) {
             // ヘッダー
             HStack {
-                Text("MY ROUTINE")
+                Text(L10n.myRoutineLabel)
                     .font(.system(size: 14, weight: .heavy))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(Color.mmTextOnDark)
                     .tracking(2)
                 Spacer()
                 Text(dateString)
@@ -780,7 +780,7 @@ private struct RoutineShareCardContent: View {
         .frame(width: 360, height: 640)
         .background(
             LinearGradient(
-                colors: [Color(red: 0.05, green: 0.05, blue: 0.05), Color(red: 0.1, green: 0.1, blue: 0.15)],
+                colors: [Color.mmShareCardBgStart, Color.mmShareCardBgEnd],
                 startPoint: .top,
                 endPoint: .bottom
             )
@@ -818,7 +818,7 @@ private struct ShareDayCard: View {
             }
         }
         .padding(10)
-        .background(Color(red: 0.16, green: 0.16, blue: 0.16))
+        .background(Color.mmShareCardInner)
         .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 }
@@ -850,10 +850,10 @@ private struct ShareExerciseMiniCard: View {
                     ExerciseGifView(exerciseId: exercise.exerciseId, size: .card)
                         .aspectRatio(contentMode: .fit)
                         .frame(width: 70, height: 60)
-                        .background(Color.white)
+                        .background(Color.mmGifBackground)
                         .clipped()
                 } else {
-                    Color(red: 0.2, green: 0.2, blue: 0.2)
+                    Color.mmShareCardInnerLight
                         .frame(width: 70, height: 60)
                         .overlay(
                             Image(systemName: "dumbbell.fill")

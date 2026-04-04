@@ -135,7 +135,7 @@ struct RecentExercisesSection: View {
                                     ExerciseGifView(exerciseId: exercise.id, size: .gridCard)
                                         .aspectRatio(contentMode: .fit)
                                         .frame(width: 140, height: 120)
-                                        .background(Color.white)
+                                        .background(Color.mmGifBackground)
                                         .clipped()
                                 } else {
                                     Image(systemName: "dumbbell.fill")
@@ -299,7 +299,7 @@ struct MuscleExercisePickerSheet: View {
                         .aspectRatio(contentMode: .fit)
                         .frame(maxWidth: .infinity)
                         .frame(height: 160)
-                        .background(Color.white)
+                        .background(Color.mmGifBackground)
                         .clipped()
                 } else {
                     MiniMuscleMapView(muscleMapping: exercise.muscleMapping)

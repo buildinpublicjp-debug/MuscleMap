@@ -1,6 +1,6 @@
 # MuscleMap - Claude Code Rules
 
-> **v8.0 | 2026-03-28**
+> **v9.0 | 2026-04-04**
 > 筋肉の回復状態と筋力レベルを可視化し、最適なトレーニングを導くiOSアプリ
 > **ステータス:** App Store提出準備完了（v1.0）
 
@@ -824,3 +824,74 @@ docs/
 | コーチマーク強化 | ホーム画面以外（履歴・種目辞典）にもコーチマーク追加 | P2 |
 | レビュー促進 | WorkoutSession 3回目以降で SKStoreReviewController 表示 | P1 |
 | ソーシャル機能 Phase 1 | モックからリアルデータへの移行（Hevy対抗） | P3 |
+
+---
+
+## 兄弟リポジトリ運用
+
+**MuscleMapをホームリポジトリとし、常にここからClaude Codeを起動する。**
+
+| リポジトリ | パス | 用途 |
+|:---|:---|:---|
+| MuscleMap（本体） | `~/MuscleMap` | iOSアプリ開発。CC起動はここから |
+| ShotFlow | `~/Developer/ShotFlow` | iOS撮影アプリ（Swift / SwiftUI） |
+| MuscleMapContent | `~/Developer/MuscleMapContent` | Remotion動画生成（TypeScript） |
+
+- `.claude/commands/shotflow.md` — ShotFlow操作用スキル（設定済み）
+- `.claude/commands/remotion.md` — Remotion操作用スキル（設定済み）
+- 各スキルから兄弟リポジトリのコードを直接読み書きする運用
+
+---
+
+## コンテンツパイプライン
+
+### フロー
+
+```
+ShotFlow（iPhone撮影）
+  → AirDrop で Mac へ
+    → MuscleMapContent（Remotion レンダリング）
+      → 3PF投稿（YouTube / TikTok / Instagram Reels）
+```
+
+### VO（ナレーション）対応
+
+- VOなしで先にレンダリング → iPhoneで英語VO録音 → AirDrop → 再レンダリング
+- VO音声は `current_day/dayXXX_vo.m4a` に配置。meta.jsonの `shots.vo.taken: true` で有効化
+- VOあり時はBGMを自動ducking（音量上限0.15）。VOなし時は従来通り
+
+### クリップカテゴリ
+
+| カテゴリ | 説明 | 特殊効果 |
+|:---|:---|:---|
+| `food` | 食事・買い物 | — |
+| `transit` | 移動シーン | アグレッシブスピードランプ（1.6x→0.4x→1.2x） |
+| `gym` | トレーニング | スピードランプ（1.3x→0.5x→1.0x） |
+| `weight` | 体重計測 | — |
+| `app` | アプリ操作画面 | — |
+| `other` | その他 | — |
+
+- meta.jsonの各shotに `"category": "transit"` 等を付与
+- デフォルトは時系列ソート。`"sort_by": "category"` でカテゴリ順（food→transit→gym→app→weight→other）
+
+---
+
+## 動画戦略（参考情報）
+
+| 項目 | 値 |
+|:---|:---|
+| チャンネル名 | OGfromJapan |
+| コンセプト | "Tokyo salaryman \| 85→75kg in 90 days \| Every yen documented" |
+| ベスト実績 | Day 005: 970再生 |
+| タイトルの勝ちパターン | 金額 + 食事 + 感情ワード（例: "I spent $26 eating Tokyo ramen & hit the gym"） |
+
+- 1日1本のデイリーvlog（9:16縦動画、60秒以内）
+- 支出・カロリー・トレーニングを全記録 → MuscleMap連携の差別化要素
+
+---
+
+## ShotFlow 最新機能
+
+- **クイック撮影がメイン運用** — テンプレート（ShotDefinition）は現在未使用。クイック撮影 → 即AirDrop が主フロー
+- **ファイル名任意化済み** — タイムスタンプベース自動命名。ShotFlowが `dayXXX_quick_NNN.mov` 形式で出力
+- **買い物モード実装中** — 仕入れ（ビジネス経費）と日常支出の分離。cost_jpy のカテゴリ分け対応予定

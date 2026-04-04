@@ -362,7 +362,7 @@ struct RoutineBuilderPage: View {
                                 .aspectRatio(contentMode: .fit)
                                 .frame(maxWidth: .infinity)
                                 .frame(height: cardHeight)
-                                .background(Color.white)
+                                .background(Color.mmGifBackground)
                                 .clipped()
                         } else {
                             ZStack {
@@ -409,7 +409,7 @@ struct RoutineBuilderPage: View {
                             } label: {
                                 Image(systemName: "xmark.circle.fill")
                                     .font(.system(size: 20))
-                                    .foregroundStyle(.white.opacity(0.8))
+                                    .foregroundStyle(Color.mmTextOnDark.opacity(0.8))
                                     .background(Circle().fill(Color.black.opacity(0.4)))
                                 .contentShape(Rectangle())
                             }
@@ -820,7 +820,7 @@ struct RoutineExercisePickerSheet: View {
                                             .aspectRatio(contentMode: .fit)
                                             .frame(maxWidth: .infinity)
                                             .frame(height: 170)
-                                            .background(Color.white)
+                                            .background(Color.mmGifBackground)
                                             .clipped()
                                     } else {
                                         ZStack {

@@ -61,10 +61,10 @@ struct TodayActionCard: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("\(L10n.todayColon) \(groupNames)")
                         .font(.system(size: 18, weight: .heavy))
-                        .foregroundStyle(.white)
+                        .foregroundStyle(Color.mmTextOnDark)
                     Text("\(displayDay.localizedName) - \(L10n.exerciseCountLabel(displayDay.exercises.count))")
                         .font(.system(size: 12))
-                        .foregroundStyle(.white.opacity(0.5))
+                        .foregroundStyle(Color.mmTextOnDark.opacity(0.5))
                 }
                 Spacer()
                 routineEditButton
@@ -81,7 +81,7 @@ struct TodayActionCard: View {
         .padding(16)
         .background(
             LinearGradient(
-                colors: [Color(red: 0.05, green: 0.16, blue: 0.09), Color.mmBgSecondary],
+                colors: [Color.mmCardGradientStart, Color.mmBgSecondary],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
@@ -154,7 +154,7 @@ struct TodayActionCard: View {
                             ExerciseGifView(exerciseId: exercise.exerciseId, size: .gridCard)
                                 .aspectRatio(contentMode: .fit)
                                 .frame(width: 140, height: 120)
-                                .background(Color.white)
+                                .background(Color.mmGifBackground)
                                 .clipped()
                         } else {
                             Image(systemName: "dumbbell.fill")
@@ -180,11 +180,11 @@ struct TodayActionCard: View {
                                 VStack(alignment: .leading, spacing: 1) {
                                     Text(name)
                                         .font(.system(size: 10, weight: .bold))
-                                        .foregroundStyle(.white)
+                                        .foregroundStyle(Color.mmTextOnDark)
                                         .lineLimit(1)
                                     Text("\(exercise.suggestedSets)×\(exercise.suggestedReps)")
                                         .font(.system(size: 9))
-                                        .foregroundStyle(.white.opacity(0.6))
+                                        .foregroundStyle(Color.mmTextOnDark.opacity(0.6))
                                 }
                                 Spacer()
                             }
@@ -203,7 +203,7 @@ struct TodayActionCard: View {
                                 } label: {
                                     Image(systemName: "info.circle.fill")
                                         .font(.system(size: 18))
-                                        .foregroundStyle(.white.opacity(0.7))
+                                        .foregroundStyle(Color.mmTextOnDark.opacity(0.7))
                                         .background(Circle().fill(Color.black.opacity(0.3)).frame(width: 22, height: 22))
                                     .contentShape(Rectangle())
                                 }
@@ -281,11 +281,11 @@ struct TodayActionCard: View {
                             .foregroundStyle(Color.mmAccentPrimary)
                         Text(L10n.restDay)
                             .font(.system(size: 18, weight: .heavy))
-                            .foregroundStyle(.white)
+                            .foregroundStyle(Color.mmTextOnDark)
                     }
                     Text(L10n.restDayDescription)
                         .font(.system(size: 12))
-                        .foregroundStyle(.white.opacity(0.5))
+                        .foregroundStyle(Color.mmTextOnDark.opacity(0.5))
                 }
                 Spacer()
                 routineEditButton
@@ -323,7 +323,7 @@ struct TodayActionCard: View {
         .padding(16)
         .background(
             LinearGradient(
-                colors: [Color(red: 0.05, green: 0.16, blue: 0.09), Color.mmBgSecondary],
+                colors: [Color.mmCardGradientStart, Color.mmBgSecondary],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
@@ -347,7 +347,7 @@ struct TodayActionCard: View {
                         .foregroundStyle(.white)
                     Text(L10n.exerciseCountLabel(recommendation.exercises.count))
                         .font(.system(size: 12))
-                        .foregroundStyle(.white.opacity(0.5))
+                        .foregroundStyle(Color.mmTextOnDark.opacity(0.5))
                 }
                 Spacer()
             }
@@ -386,7 +386,7 @@ struct TodayActionCard: View {
         .padding(16)
         .background(
             LinearGradient(
-                colors: [Color(red: 0.05, green: 0.16, blue: 0.09), Color.mmBgSecondary],
+                colors: [Color.mmCardGradientStart, Color.mmBgSecondary],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
@@ -415,7 +415,7 @@ struct TodayActionCard: View {
                     }
                     Text(L10n.setupRoutineHint)
                         .font(.system(size: 12))
-                        .foregroundStyle(.white.opacity(0.5))
+                        .foregroundStyle(Color.mmTextOnDark.opacity(0.5))
                 }
                 Spacer()
             }
@@ -456,7 +456,7 @@ struct TodayActionCard: View {
         .padding(16)
         .background(
             LinearGradient(
-                colors: [Color(red: 0.05, green: 0.16, blue: 0.09), Color.mmBgSecondary],
+                colors: [Color.mmCardGradientStart, Color.mmBgSecondary],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )

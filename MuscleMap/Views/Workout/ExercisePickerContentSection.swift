@@ -126,7 +126,7 @@ private struct PickerGridCard: View {
                             .aspectRatio(contentMode: .fit)
                             .frame(maxWidth: .infinity)
                             .frame(height: 160)
-                            .background(Color.white)
+                            .background(Color.mmGifBackground)
                             .clipped()
                     } else {
                         MiniMuscleMapView(muscleMapping: exercise.muscleMapping)

@@ -324,7 +324,7 @@ struct BeforeAfterCompareView: View {
                         VStack {
                             Spacer()
                             HStack {
-                                Text("BEFORE")
+                                Text(L10n.beforeLabel)
                                     .font(.caption.bold())
                                     .foregroundStyle(.white)
                                     .padding(.horizontal, 8)
@@ -335,7 +335,7 @@ struct BeforeAfterCompareView: View {
 
                                 Spacer()
 
-                                Text("AFTER")
+                                Text(L10n.afterLabel)
                                     .font(.caption.bold())
                                     .foregroundStyle(.white)
                                     .padding(.horizontal, 8)

@@ -103,6 +103,37 @@ extension Color {
     /// 警告・注意喚起（.orangeの代替）
     static let mmWarning = Color(hex: "#FF9F0A")
 
+    // MARK: - デザイントークン（カード背景・グラデーション）
+
+    /// アクションカード背景グラデーション始点（ダークグリーン）
+    static let mmCardGradientStart = Color(hex: "#0D2917")
+
+    /// Paywall背景グラデーション始点（ダークグリーン）
+    static let mmPaywallGradientStart = Color(hex: "#0F1E14")
+
+    /// Paywall CTAグラデーション始点（明るめシアングリーン）
+    static let mmCtaGradientStart = Color(hex: "#33FFCC")
+
+    /// Paywall CTAグラデーション終点（ダークグリーン）
+    static let mmCtaGradientEnd = Color(hex: "#00BF66")
+
+    /// シェアカード背景グラデーション始点（ほぼ黒）
+    static let mmShareCardBgStart = Color(hex: "#0D0D0D")
+
+    /// シェアカード背景グラデーション終点（ダークネイビー）
+    static let mmShareCardBgEnd = Color(hex: "#1A1A26")
+
+    /// シェアカード内カード背景
+    static let mmShareCardInner = Color(hex: "#292929")
+
+    /// シェアカード内小カード背景
+    static let mmShareCardInnerLight = Color(hex: "#333333")
+
+    // MARK: - オーバーレイ上テキスト（常に白）
+
+    /// ダーク背景・グラデーション上のテキスト（ライトモードでも白を維持）
+    static let mmTextOnDark = Color.white
+
     // MARK: - 旧名との互換エイリアス
 
     static let mmMuscleCoral = mmMuscleFatigued

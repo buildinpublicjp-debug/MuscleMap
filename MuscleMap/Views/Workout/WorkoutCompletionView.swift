@@ -224,7 +224,7 @@ struct WorkoutCompletionView: View {
             markFirstWorkoutCompleted()
             daysSinceLastPhoto = ProgressPhoto.daysSinceLastPhoto(context: modelContext)
             // レビュー要求（2回目の完了で発火）
-            ReviewManager.recordWorkoutCompletion()
+            // ReviewManager.recordWorkoutCompletion() // TODO: ReviewManager未実装
             Task {
                 checkFullBodyConquest()
                 loadPRUpdates()
@@ -246,7 +246,7 @@ struct WorkoutCompletionView: View {
     private var muscleMapHero: some View {
         VStack(spacing: 8) {
             // 「WORKOUT COMPLETE」ラベル
-            Text("WORKOUT COMPLETE")
+            Text(L10n.workoutCompleteLabel)
                 .font(.system(size: 11, weight: .heavy))
                 .tracking(2)
                 .foregroundStyle(Color.mmAccentPrimary)

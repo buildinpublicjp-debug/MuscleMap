@@ -394,7 +394,7 @@ private struct MuscleExerciseSheet: View {
                                     HStack {
                                         Text(exercise.localizedName)
                                             .font(.system(size: 11, weight: .bold))
-                                            .foregroundStyle(.white)
+                                            .foregroundStyle(Color.mmTextOnDark)
                                             .lineLimit(1)
                                             .padding(.horizontal, 6)
                                             .padding(.vertical, 3)
@@ -410,7 +410,7 @@ private struct MuscleExerciseSheet: View {
                                         Spacer()
                                         Text(exercise.localizedEquipment)
                                             .font(.system(size: 10))
-                                            .foregroundStyle(.white)
+                                            .foregroundStyle(Color.mmTextOnDark)
                                             .padding(.horizontal, 6)
                                             .padding(.vertical, 3)
                                             .background(Color.black.opacity(0.55))

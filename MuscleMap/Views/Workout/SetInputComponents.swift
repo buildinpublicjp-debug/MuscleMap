@@ -71,7 +71,7 @@ struct SetInputCard: View {
                             .aspectRatio(contentMode: .fit)
                             .frame(maxWidth: .infinity)
                             .frame(height: viewModel.currentSetNumber == 1 ? 150 : 120)
-                            .background(Color.white)
+                            .background(Color.mmGifBackground)
                             .clipped()
 
                         // PR表示（GIF右下にオーバーレイ）

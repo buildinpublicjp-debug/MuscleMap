@@ -60,7 +60,7 @@ struct WorkoutShareCard: View {
                     .padding(.top, 16)
 
                 // 2. タイトル
-                Text("WORKOUT COMPLETE")
+                Text(L10n.workoutCompleteLabel)
                     .font(.system(size: 11, weight: .heavy))
                     .tracking(3)
                     .foregroundStyle(Color.mmAccentPrimary)
@@ -216,7 +216,7 @@ struct WorkoutShareCard: View {
                 .frame(height: 0.5)
                 .padding(.horizontal, 20)
 
-            Text("MuscleMap — Track Your Muscles")
+            Text(L10n.shareCardTagline)
                 .font(.system(size: 8, weight: .medium))
                 .tracking(1)
                 .foregroundStyle(Color.mmBorder.opacity(0.5))

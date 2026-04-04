@@ -49,7 +49,7 @@ struct LibraryFavoritesRow: View {
                                     // テキスト
                                     Text(name)
                                         .font(.system(size: 10, weight: .bold))
-                                        .foregroundStyle(.white)
+                                        .foregroundStyle(Color.mmTextOnDark)
                                         .lineLimit(1)
                                         .padding(6)
                                 }
@@ -111,7 +111,7 @@ struct LibraryGridCard: View {
                             .aspectRatio(contentMode: .fit)
                             .frame(maxWidth: .infinity)
                             .frame(height: 160)
-                            .background(Color.white)
+                            .background(Color.mmGifBackground)
                             .clipped()
                     } else {
                         MiniMuscleMapView(muscleMapping: exercise.muscleMapping)
@@ -130,7 +130,7 @@ struct LibraryGridCard: View {
                     // 種目名のみ
                     Text(name)
                         .font(.caption.bold())
-                        .foregroundStyle(.white)
+                        .foregroundStyle(Color.mmTextOnDark)
                         .lineLimit(2)
                         .padding(8)
                 }
@@ -191,7 +191,7 @@ struct ExerciseLibraryRow: View {
                 ExerciseGifView(exerciseId: exercise.id, size: .card)
                     .aspectRatio(contentMode: .fit)
                     .frame(width: 120, height: 90)
-                    .background(Color.white)
+                    .background(Color.mmGifBackground)
                     .clipShape(RoundedRectangle(cornerRadius: 10))
             } else {
                 MiniMuscleMapView(muscleMapping: exercise.muscleMapping)
