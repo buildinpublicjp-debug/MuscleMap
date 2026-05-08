@@ -28,6 +28,7 @@ package-lock.json
 *.xcworkspace/xcuserdata/
 *.xcodeproj/xcuserdata/
 *.xcodeproj/project.xcworkspace/xcuserdata/
+*.xcodeproj/project.pbxproj.backup
 
 # Screenshots (optional - for CI)
 screenshots/
