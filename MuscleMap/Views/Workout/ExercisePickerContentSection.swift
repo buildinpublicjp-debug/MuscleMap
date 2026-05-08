@@ -118,73 +118,58 @@ private struct PickerGridCard: View {
         let muscleName: String? = primaryMuscle?.localizedName
 
         Button(action: onSelect) {
-            ZStack(alignment: .topTrailing) {
-                ZStack(alignment: .bottomLeading) {
-                    // GIF or ミニマップ（元の比率のまま）
-                    if ExerciseGifView.hasGif(exerciseId: exercise.id) {
-                        ExerciseGifView(exerciseId: exercise.id, size: .card)
-                            .aspectRatio(contentMode: .fit)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 160)
-                            .background(Color.mmGifBackground)
-                            .clipped()
-                    } else {
-                        MiniMuscleMapView(muscleMapping: exercise.muscleMapping)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 160)
-                    }
-
-                    // 下部グラデーションオーバーレイ
-                    LinearGradient(
-                        colors: [.clear, .black.opacity(0.85)],
-                        startPoint: .center,
-                        endPoint: .bottom
-                    )
-
-                    // テキスト（グラデーションの上）
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(name)
-                            .font(.caption.bold())
-                            .foregroundStyle(.white)
-                            .lineLimit(2)
-
-                        if let muscleName {
-                            HStack(spacing: 3) {
-                                Circle()
-                                    .fill(Color.mmAccentPrimary)
-                                    .frame(width: 5, height: 5)
-                                Text(muscleName)
-                                    .font(.caption2.bold())
-                                    .foregroundStyle(Color.mmAccentPrimary)
-                            }
-                        }
-
-                        // 適合性バッジ
-                        if let badge = compatibility.badge {
-                            Text(badge.text)
-                                .font(.system(size: 9, weight: .bold))
-                                .padding(.horizontal, 6)
-                                .padding(.vertical, 2)
-                                .background(badge.color.opacity(0.2))
-                                .foregroundStyle(badge.color)
-                                .clipShape(Capsule())
-                        }
-                    }
-                    .padding(8)
+            ZStack(alignment: .bottomLeading) {
+                // GIF or ミニマップ（元の比率のまま）
+                if ExerciseGifView.hasGif(exerciseId: exercise.id) {
+                    ExerciseGifView(exerciseId: exercise.id, size: .card)
+                        .aspectRatio(contentMode: .fit)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 160)
+                        .background(Color.mmGifBackground)
+                        .clipped()
+                } else {
+                    MiniMuscleMapView(muscleMapping: exercise.muscleMapping)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 160)
                 }
 
-                // 追加ボタン
-                Button {
-                    HapticManager.lightTap()
-                    onSelect()
-                } label: {
-                    Image(systemName: "plus.circle.fill")
-                        .font(.title3)
-                        .foregroundStyle(Color.mmAccentPrimary)
-                        .background(Color.mmBgPrimary.opacity(0.7))
-                        .clipShape(Circle())
+                // 下部グラデーションオーバーレイ
+                LinearGradient(
+                    colors: [.clear, .black.opacity(0.85)],
+                    startPoint: .center,
+                    endPoint: .bottom
+                )
+
+                // テキスト（グラデーションの上）
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(name)
+                        .font(.caption.bold())
+                        .foregroundStyle(.white)
+                        .lineLimit(2)
+
+                    if let muscleName {
+                        HStack(spacing: 3) {
+                            Circle()
+                                .fill(Color.mmAccentPrimary)
+                                .frame(width: 5, height: 5)
+                            Text(muscleName)
+                                .font(.caption2.bold())
+                                .foregroundStyle(Color.mmAccentPrimary)
+                        }
+                    }
+
+                    // 適合性バッジ
+                    if let badge = compatibility.badge {
+                        Text(badge.text)
+                            .font(.system(size: 9, weight: .bold))
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(badge.color.opacity(0.2))
+                            .foregroundStyle(badge.color)
+                            .clipShape(Capsule())
+                    }
                 }
-                .padding(6)
+                .padding(8)
             }
             .aspectRatio(0.85, contentMode: .fill)
             .background(Color.mmBgCard)

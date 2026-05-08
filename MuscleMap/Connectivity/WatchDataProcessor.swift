@@ -266,7 +266,7 @@ final class WatchDataProcessor {
 
         for muscle in Muscle.allCases {
             guard let stim = latestStimulations[muscle] else {
-                muscleStates[muscle] = .inactive
+                muscleStates[muscle] = .untrained
                 continue
             }
 

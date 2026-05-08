@@ -74,10 +74,13 @@ struct WorkoutStartView: View {
                 handlePendingRecommendation()
             }
             .sheet(isPresented: $showingExercisePicker) {
-                ExercisePickerView { exercise in
-                    viewModel?.selectExercise(exercise)
-                    showingExercisePicker = false
-                }
+                MuscleMapExerciseSelectorSheet(
+                    muscleStates: muscleStates,
+                    onSelect: { exercise in
+                        viewModel?.selectExercise(exercise)
+                        showingExercisePicker = false
+                    }
+                )
             }
             .toolbar {
                 ToolbarItemGroup(placement: .keyboard) {
@@ -176,7 +179,7 @@ struct WorkoutStartView: View {
                     states[muscle] = .neglected(fast: true)
                 }
             } else {
-                states[muscle] = .inactive
+                states[muscle] = .untrained
             }
         }
 

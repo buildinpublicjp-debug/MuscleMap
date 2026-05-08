@@ -125,7 +125,7 @@ private struct MusclePathView: View {
 
     private var isActive: Bool {
         switch state {
-        case .inactive:
+        case .inactive, .untrained:
             return false
         case .recovering, .neglected:
             return true

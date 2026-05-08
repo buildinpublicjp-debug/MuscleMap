@@ -92,8 +92,8 @@ class HomeViewModel {
                     neglectedInfos.append(NeglectedMuscleInfo(muscle: muscle, daysSinceStimulation: days))
                 }
             } else {
-                // 刺激記録なし → inactive
-                states[muscle] = .inactive
+                // 刺激記録なし → untrained（一度も鍛えてない、見た目はダーク紫グレー）
+                states[muscle] = .untrained
             }
         }
 

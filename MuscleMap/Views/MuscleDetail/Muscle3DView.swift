@@ -28,12 +28,12 @@ struct Muscle3DView: View {
         Set(Muscle.allCases.filter { $0.group == muscle.group && $0 != muscle })
     }
 
-    /// ハイライト色（回復状態ベース、inactiveならアクセント）
+    /// ハイライト色（回復状態ベース、inactive/untrainedならアクセント）
     private var highlightColor: Color {
         switch visualState {
-        case .inactive:
+        case .inactive, .untrained:
             return .mmAccentPrimary
-        default:
+        case .recovering, .neglected:
             return visualState.color
         }
     }

@@ -32,6 +32,12 @@ struct SetInputCard: View {
     var body: some View {
         ScrollView {
         VStack(spacing: 12) {
+            // PR達成バナー（達成時のみカード内に表示。スクショで写る位置）
+            if showPRCelebration {
+                PRCelebrationOverlay()
+                    .transition(.scale(scale: 0.85).combined(with: .opacity))
+            }
+
             // 種目名 + info + レベルアイコン + セット番号
             HStack {
                 Text(exercise.localizedName)
@@ -263,13 +269,6 @@ struct SetInputCard: View {
         .background(Color.mmBgCard)
         .clipShape(RoundedRectangle(cornerRadius: 16))
         .padding(.horizontal)
-        .overlay(alignment: .top) {
-            if showPRCelebration {
-                PRCelebrationOverlay()
-                    .transition(.move(edge: .top).combined(with: .opacity))
-                    .padding(.top, 8)
-            }
-        }
     }
 
     // MARK: - PR結果ハンドリング
@@ -360,45 +359,31 @@ struct PreviousSessionReference: View {
 // MARK: - PR達成祝福オーバーレイ
 
 struct PRCelebrationOverlay: View {
-    @State private var offset: CGFloat = -60
-    @State private var opacity: Double = 0
-
     var body: some View {
-        VStack {
-            HStack(spacing: 8) {
-                Image(systemName: "trophy.fill")
-                    .font(.system(size: 16))
-                    .foregroundStyle(Color.mmPRGold)
+        HStack(spacing: 8) {
+            Image(systemName: "trophy.fill")
+                .font(.system(size: 16))
+                .foregroundStyle(Color.mmPRGold)
 
-                Text(L10n.newPersonalRecord)
-                    .font(.system(size: 14, weight: .heavy))
-                    .foregroundStyle(Color.mmPRGold)
-            }
-            .padding(.horizontal, 20)
-            .padding(.vertical, 10)
-            .background(
-                LinearGradient(
-                    colors: [Color.mmPRGold.opacity(0.15), Color.mmPRGold.opacity(0.05)],
-                    startPoint: .leading,
-                    endPoint: .trailing
-                )
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 10)
-                    .stroke(Color.mmPRGold.opacity(0.3), lineWidth: 1)
-            )
-            .clipShape(RoundedRectangle(cornerRadius: 10))
-            .offset(y: offset)
-            .opacity(opacity)
-
-            Spacer()
+            Text(L10n.newPersonalRecord)
+                .font(.system(size: 14, weight: .heavy))
+                .foregroundStyle(Color.mmPRGold)
         }
-        .onAppear {
-            withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
-                offset = 0
-                opacity = 1.0
-            }
-        }
+        .padding(.horizontal, 20)
+        .padding(.vertical, 10)
+        .frame(maxWidth: .infinity)
+        .background(
+            LinearGradient(
+                colors: [Color.mmPRGold.opacity(0.15), Color.mmPRGold.opacity(0.05)],
+                startPoint: .leading,
+                endPoint: .trailing
+            )
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 10)
+                .stroke(Color.mmPRGold.opacity(0.3), lineWidth: 1)
+        )
+        .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 }
 

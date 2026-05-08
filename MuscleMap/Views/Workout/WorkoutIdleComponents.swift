@@ -4,6 +4,10 @@ import SwiftData
 // MARK: - セッション未開始時のコンポーネント
 
 /// ワークアウト未開始時のメインビュー
+///
+/// アーキテクチャ: 全てのワークアウト追加はマッスルマップ起点で統一。
+/// 「種目辞典直行」CTAは削除し、マップタップ → 筋肉指定 → 種目グリッドのフローに集約。
+/// 副入口（リスト/検索）は browseExercises リンク経由で後方互換。
 struct WorkoutIdleView: View {
     let muscleStates: [Muscle: MuscleVisualState]
     let onStart: () -> Void
@@ -11,63 +15,64 @@ struct WorkoutIdleView: View {
 
     @Environment(\.modelContext) private var modelContext
     @State private var selectedMuscle: Muscle?
-    @State private var showingExerciseLibrary = false
+    @State private var showingBrowseAll = false
     @State private var recentExercises: [ExerciseDefinition] = []
     var body: some View {
-        VStack(spacing: 0) {
-            ScrollView {
-                VStack(spacing: 16) {
-                    // 筋肉マップ（タップで種目選択）
-                    MuscleMapView(
-                        muscleStates: muscleStates,
-                        onMuscleTapped: { muscle in
-                            selectedMuscle = muscle
-                        }
-                    )
-                    .frame(height: UIScreen.main.bounds.height * 0.40)
-                    .padding(.horizontal)
+        ScrollView {
+            VStack(spacing: 16) {
+                // 筋肉マップ（タップで種目選択）
+                MuscleMapView(
+                    muscleStates: muscleStates,
+                    onMuscleTapped: { muscle in
+                        // TODO: v1.2 でセパレーション選択画面を中継させる
+                        selectedMuscle = muscle
+                    }
+                )
+                .frame(height: UIScreen.main.bounds.height * 0.40)
+                .padding(.horizontal)
 
-                    // ヒントテキスト
+                // ヒント + 副入口（中央にガイド文、右端に検索アイコン）
+                ZStack {
                     Text(L10n.tapMuscleHint)
                         .font(.caption)
                         .foregroundStyle(Color.mmTextSecondary)
                         .multilineTextAlignment(.center)
+                        .frame(maxWidth: .infinity)
+                        .padding(.horizontal, 56)
 
-                    // 最近使った種目
-                    if !recentExercises.isEmpty {
-                        RecentExercisesSection(
-                            exercises: recentExercises,
-                            onSelect: onSelectExercise
-                        )
+                    HStack {
+                        Spacer()
+                        Button {
+                            HapticManager.lightTap()
+                            showingBrowseAll = true
+                        } label: {
+                            Image(systemName: "magnifyingglass")
+                                .font(.subheadline.bold())
+                                .foregroundStyle(Color.mmAccentPrimary)
+                                .frame(width: 36, height: 36)
+                                .background(Color.mmBgCard)
+                                .clipShape(Circle())
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel(L10n.browseExercises)
                     }
+                    .padding(.horizontal)
                 }
-                .padding(.vertical)
-            }
 
-            // 種目を追加して始める（統合CTA）
-            Button {
-                HapticManager.lightTap()
-                showingExerciseLibrary = true
-            } label: {
-                HStack {
-                    Image(systemName: "plus.circle.fill")
-                    Text(L10n.addExerciseAndStart)
+                // 最近使った種目
+                if !recentExercises.isEmpty {
+                    RecentExercisesSection(
+                        exercises: recentExercises,
+                        onSelect: onSelectExercise
+                    )
                 }
-                .font(.headline)
-                .foregroundStyle(Color.mmBgPrimary)
-                .frame(maxWidth: .infinity)
-                .frame(height: 56)
-                .background(Color.mmAccentPrimary)
-                .clipShape(RoundedRectangle(cornerRadius: 16))
-                .contentShape(Rectangle())
             }
-            .buttonStyle(.plain)
-            .padding(.horizontal)
-            .padding(.bottom, 8)
+            .padding(.vertical)
         }
-        .sheet(isPresented: $showingExerciseLibrary) {
-            NavigationStack {
-                ExerciseLibraryView()
+        .sheet(isPresented: $showingBrowseAll) {
+            ExercisePickerView { exercise in
+                onSelectExercise(exercise)
+                showingBrowseAll = false
             }
         }
         .sheet(item: $selectedMuscle) { muscle in
@@ -109,6 +114,7 @@ struct WorkoutIdleView: View {
 struct RecentExercisesSection: View {
     let exercises: [ExerciseDefinition]
     let onSelect: (ExerciseDefinition) -> Void
+    @State private var detailExercise: ExerciseDefinition?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -124,62 +130,90 @@ struct RecentExercisesSection: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 10) {
                     ForEach(exercises) { exercise in
-                        let name = exercise.localizedName
-                        Button {
-                            HapticManager.lightTap()
-                            onSelect(exercise)
-                        } label: {
-                            ZStack(alignment: .bottomLeading) {
-                                // GIF（固定サイズ + fit）
-                                if ExerciseGifView.hasGif(exerciseId: exercise.id) {
-                                    ExerciseGifView(exerciseId: exercise.id, size: .gridCard)
-                                        .aspectRatio(contentMode: .fit)
-                                        .frame(width: 140, height: 120)
-                                        .background(Color.mmGifBackground)
-                                        .clipped()
-                                } else {
-                                    Image(systemName: "dumbbell.fill")
-                                        .font(.system(size: 22))
-                                        .foregroundStyle(Color.mmTextSecondary.opacity(0.4))
-                                        .frame(width: 140, height: 120)
-                                }
-
-                                // 下部グラデーション
-                                LinearGradient(
-                                    colors: [.clear, .black.opacity(0.8)],
-                                    startPoint: .center,
-                                    endPoint: .bottom
-                                )
-
-                                // テキスト
-                                VStack(alignment: .leading, spacing: 2) {
-                                    Text(name)
-                                        .font(.caption.bold())
-                                        .foregroundStyle(.white)
-                                        .lineLimit(1)
-
-                                    if let primary = exercise.primaryMuscle {
-                                        HStack(spacing: 3) {
-                                            Circle()
-                                                .fill(Color.mmAccentPrimary)
-                                                .frame(width: 5, height: 5)
-                                            Text(primary.localizedName)
-                                                .font(.caption2.bold())
-                                                .foregroundStyle(Color.mmAccentPrimary)
-                                        }
-                                    }
-                                }
-                                .padding(8)
-                            }
-                            .frame(width: 140, height: 120)
-                            .background(Color.mmBgCard)
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
-                        }
+                        recentCard(exercise)
                     }
                 }
                 .padding(.leading, 16)
                 .padding(.trailing, 20)
             }
+        }
+        .sheet(item: $detailExercise) { exercise in
+            ExerciseDetailView(exercise: exercise, hideStartWorkoutButton: true)
+        }
+    }
+
+    @ViewBuilder
+    private func recentCard(_ exercise: ExerciseDefinition) -> some View {
+        let name = exercise.localizedName
+        // 種目選択の主タップとインフォボタンを分離（ZStack兄弟で配置）
+        ZStack(alignment: .topTrailing) {
+            Button {
+                HapticManager.lightTap()
+                onSelect(exercise)
+            } label: {
+                ZStack(alignment: .bottomLeading) {
+                    // GIF（固定サイズ + fit）
+                    if ExerciseGifView.hasGif(exerciseId: exercise.id) {
+                        ExerciseGifView(exerciseId: exercise.id, size: .gridCard)
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: 140, height: 120)
+                            .background(Color.mmGifBackground)
+                            .clipped()
+                    } else {
+                        Image(systemName: "dumbbell.fill")
+                            .font(.system(size: 22))
+                            .foregroundStyle(Color.mmTextSecondary.opacity(0.4))
+                            .frame(width: 140, height: 120)
+                    }
+
+                    // 下部グラデーション
+                    LinearGradient(
+                        colors: [.clear, .black.opacity(0.8)],
+                        startPoint: .center,
+                        endPoint: .bottom
+                    )
+
+                    // テキスト
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(name)
+                            .font(.caption.bold())
+                            .foregroundStyle(.white)
+                            .lineLimit(1)
+
+                        if let primary = exercise.primaryMuscle {
+                            HStack(spacing: 3) {
+                                Circle()
+                                    .fill(Color.mmAccentPrimary)
+                                    .frame(width: 5, height: 5)
+                                Text(primary.localizedName)
+                                    .font(.caption2.bold())
+                                    .foregroundStyle(Color.mmAccentPrimary)
+                            }
+                        }
+                    }
+                    .padding(8)
+                }
+                .frame(width: 140, height: 120)
+                .background(Color.mmBgCard)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+            }
+            .buttonStyle(.plain)
+
+            // インフォボタン（種目詳細をシート表示）
+            // TodayActionCard の info ボタン実装をコピー流用（デザイン統一）
+            Button {
+                HapticManager.lightTap()
+                detailExercise = exercise
+            } label: {
+                Image(systemName: "info.circle.fill")
+                    .font(.system(size: 18))
+                    .foregroundStyle(Color.mmTextOnDark.opacity(0.7))
+                    .background(Circle().fill(Color.black.opacity(0.3)).frame(width: 22, height: 22))
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .padding(5)
+            .accessibilityLabel(L10n.exerciseInfo)
         }
     }
 }

@@ -430,7 +430,7 @@ class WorkoutViewModel {
                 )
                 states[muscle] = status.visualState
             } else {
-                states[muscle] = .inactive
+                states[muscle] = .untrained
             }
         }
 

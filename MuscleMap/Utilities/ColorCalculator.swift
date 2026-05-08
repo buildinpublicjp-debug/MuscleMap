@@ -3,8 +3,10 @@ import SwiftUI
 // MARK: - 筋肉の視覚状態
 
 enum MuscleVisualState: Equatable {
-    /// 背景に溶け込む（刺激なし or 完全回復）
+    /// 完全回復済み（刺激記録あり、ベースライン）
     case inactive
+    /// 一度も刺激されていない（記録ゼロ）
+    case untrained
     /// 回復中（色とパルスアニメーション有無）
     case recovering(progress: Double)
     /// 未刺激（7日以上。fast = 14日以上で高速点滅）
@@ -15,6 +17,8 @@ enum MuscleVisualState: Equatable {
         switch self {
         case .inactive:
             return .mmMuscleInactive
+        case .untrained:
+            return .mmMuscleUntrained
         case .recovering(let progress):
             return Self.recoveryColor(progress: progress)
         case .neglected:
@@ -29,7 +33,7 @@ enum MuscleVisualState: Equatable {
             return progress < 0.2
         case .neglected:
             return true
-        default:
+        case .inactive, .untrained:
             return false
         }
     }

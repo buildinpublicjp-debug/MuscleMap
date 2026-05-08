@@ -65,6 +65,12 @@ extension Color {
             ? UIColor(hex: "#3D3D42")
             : UIColor(hex: "#E5E5EA")
     })
+    /// 未トレーニング（記録ゼロ）— 微妙に見える紫味のあるダーク色
+    static let mmMuscleUntrained = Color(UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor(hex: "#4A3F55")    // ダーク紫グレー（背景 #121212 から見える程度）
+            : UIColor(hex: "#D5CCDD")    // ライト紫グレー（白背景用）
+    })
     static let mmMuscleNeglected = Color(hex: "#B388D4")  // 紫（7日+未刺激）
 
     // MARK: - 境界線（アダプティブ）

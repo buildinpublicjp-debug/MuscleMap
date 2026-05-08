@@ -41,15 +41,34 @@ struct ExerciseDetailView: View {
                             ExerciseGifView(exerciseId: exercise.id, size: .fullWidth)
                         }
 
-                        // 基本情報タグ（コンパクトに）
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 8) {
-                                DetailInfoTag(icon: "dumbbell", text: exercise.localizedEquipment)
-                                DetailInfoTag(icon: "chart.bar", text: exercise.localizedDifficulty)
-                                DetailInfoTag(icon: "tag", text: exercise.localizedCategory)
-                                if let pr = prWeight {
-                                    DetailInfoTag(icon: "trophy.fill", text: String(format: "%.1f kg", pr), highlight: true)
+                        // 基本情報タグ（コンパクトに）+ YouTubeボタン（右端）
+                        HStack(spacing: 8) {
+                            ScrollView(.horizontal, showsIndicators: false) {
+                                HStack(spacing: 8) {
+                                    DetailInfoTag(icon: "dumbbell", text: exercise.localizedEquipment)
+                                    DetailInfoTag(icon: "chart.bar", text: exercise.localizedDifficulty)
+                                    DetailInfoTag(icon: "tag", text: exercise.localizedCategory)
+                                    if let pr = prWeight {
+                                        DetailInfoTag(icon: "trophy.fill", text: String(format: "%.1f kg", pr), highlight: true)
+                                    }
                                 }
+                            }
+
+                            if let url = YouTubeSearchHelper.searchURL(for: exercise) {
+                                Button {
+                                    HapticManager.lightTap()
+                                    UIApplication.shared.open(url)
+                                } label: {
+                                    Image(systemName: "play.rectangle.fill")
+                                        .font(.system(size: 14))
+                                        .foregroundStyle(Color.mmDestructive)
+                                        .padding(.horizontal, 10)
+                                        .padding(.vertical, 6)
+                                        .background(Color.mmBgCard)
+                                        .clipShape(Capsule())
+                                }
+                                .buttonStyle(.plain)
+                                .accessibilityLabel(L10n.watchVideo)
                             }
                         }
 
@@ -89,29 +108,6 @@ struct ExerciseDetailView: View {
 
                         // 過去3回のパフォーマンス
                         ExercisePerformanceSection(exerciseId: exercise.id)
-
-                        // 動画で見る（YouTubeボタン）
-                        Button {
-                            HapticManager.lightTap()
-                            if let url = YouTubeSearchHelper.searchURL(for: exercise) {
-                                UIApplication.shared.open(url)
-                            }
-                        } label: {
-                            HStack {
-                                Image(systemName: "play.rectangle.fill")
-                                    .foregroundStyle(Color.mmDestructive)
-                                Text(L10n.watchVideo)
-                                    .font(.subheadline.bold())
-                                    .foregroundStyle(Color.mmTextPrimary)
-                                Spacer()
-                                Image(systemName: "arrow.up.right")
-                                    .font(.caption)
-                                    .foregroundStyle(Color.mmTextSecondary)
-                            }
-                            .padding()
-                            .background(Color.mmBgCard)
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
-                        }
 
                         // この種目でワークアウト開始ボタン（オンボーディング中は非表示）
                         if !hideStartWorkoutButton {

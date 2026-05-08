@@ -45,7 +45,8 @@ enum WidgetDataProvider {
         for (muscle, state) in muscleStates {
             let snapshot: WidgetMuscleData.MuscleSnapshot
             switch state {
-            case .inactive:
+            case .inactive, .untrained:
+                // Widget側は untrained を inactive 扱い（ステート種別を増やさない）
                 snapshot = .init(progress: 1.0, state: .inactive)
             case .recovering(let progress):
                 snapshot = .init(progress: progress, state: .recovering)
