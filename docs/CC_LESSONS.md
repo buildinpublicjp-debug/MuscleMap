@@ -43,6 +43,9 @@
 - カレンダーのミニ筋肉マップはSVGパスが重い。上半身/下半身ドット（6pt）で十分
 - 絵文字（🏆等）は全てSF Symbols（trophy.fill等）に置換。統一感とプロ感
 
+- RevenueCat package が "Missing package product 'RevenueCat'" で解決失敗するときは SwiftPM のキャッシュが壊れている。手順: ① Xcode を完全に閉じる ② `rm -rf ~/Library/Developer/Xcode/DerivedData/MuscleMap-*` ③ `rm -rf ~/Library/Caches/org.swift.swiftpm` ④ `rm -rf MuscleMap.xcodeproj/project.xcworkspace/xcshareddata/swiftpm` ⑤ `xcodebuild -resolvePackageDependencies` で再生成 ⑥ ビルド検証。pbxproj は触らなくていい（XCRemoteSwiftPackageReference / XCSwiftPackageProductDependency / PBXBuildFile が各1個ずつあれば構造的に正しい）。原因は DerivedData / project.xcworkspace 配下の swiftpm キャッシュ破損で、再現は環境依存。
+- xcodebuild の `-destination` で `OS=18.3` のような major.minor 指定は失敗する（実機 sim は 18.3.1 等の patch 番号を持つ）。`name=...,OS=...` で詰まったら `xcrun simctl list devices available` で確認した実 ID を `id=...` に渡す方が確実。
+
 ## デザインシステム参照
 
 全UI実装・修正時は必ず `docs/DESIGN_SYSTEM.md` を最初に読むこと。
