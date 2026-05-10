@@ -545,9 +545,14 @@ struct WorkoutCompletionView: View {
     }
 
     /// セット行 4列目の PR 差ラベル。histMax 0 の場合は nil (列空欄)。
+    /// 表示と整合させるため、過去最高 e1RM と現セット e1RM をそれぞれ %.1f 丸め
+    /// した後の値で差分計算する (例: 19.1 - 18.7 = 0.4 となり、ヘッダーやセット行の
+    /// 表示値から目視で計算した差と一致する)。
     private func prDiffLabel(currentE1RM: Double, histMax: Double) -> (text: String, color: Color)? {
         guard histMax > 0 else { return nil }
-        let diff = currentE1RM - histMax
+        let pastDisplayed = roundedToOneDecimal(histMax)
+        let currentDisplayed = roundedToOneDecimal(currentE1RM)
+        let diff = currentDisplayed - pastDisplayed
         if abs(diff) < 0.05 {
             return (L10n.completionPRTie, Color.mmAccentPrimary)
         }
@@ -556,6 +561,11 @@ struct WorkoutCompletionView: View {
             return (L10n.completionPRPlus(absStr), Color.mmAccentPrimary)
         }
         return (L10n.completionToPR(absStr), Color.mmTextSecondary)
+    }
+
+    /// 1桁丸め (表示と差分計算で同じ精度を使うためのヘルパー)
+    private func roundedToOneDecimal(_ value: Double) -> Double {
+        (value * 10).rounded() / 10
     }
 
     /// 数値を %.0f / %.1f に振り分け (整数なら .0 を省略)
@@ -592,10 +602,15 @@ struct WorkoutCompletionView: View {
     }
 
     /// セットが新 e1RM PR かどうか (歴代最高超え、かつ今セッション最高タイ以上)
+    /// PR 差ラベル (prDiffLabel) と一貫させるため、歴代最高との比較は表示丸め値で行う。
+    /// 例: 19.05 vs 19.0 (内部) → 表示 19.1 vs 19.0 → 王冠表示 (内部精度と一致)
+    /// 例: 19.04 vs 19.0 (内部) → 表示 19.0 vs 19.0 → 王冠なし (PRタイ扱いと整合)
     private func isPRSet(_ set: WorkoutSet, in sessionSets: [WorkoutSet], histMax: Double) -> Bool {
-        guard histMax > 0 else { return false }   // 過去記録ゼロの種目は王冠スパムを避ける
+        guard histMax > 0 else { return false }
         let setE1RM = estimatedE1RM(weight: set.weight, reps: set.reps)
-        guard setE1RM > histMax else { return false }
+        let setRounded = roundedToOneDecimal(setE1RM)
+        let histRounded = roundedToOneDecimal(histMax)
+        guard setRounded > histRounded else { return false }
         let sessionMax = sessionSets.map { estimatedE1RM(weight: $0.weight, reps: $0.reps) }.max() ?? 0
         return setE1RM >= sessionMax
     }
