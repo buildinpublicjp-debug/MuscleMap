@@ -22,12 +22,13 @@ struct WorkoutCompletionView: View {
     @State private var showingPaywall = false
     @State private var showingCamera = false
     @State private var photoSaved = false
-    @State private var daysSinceLastPhoto: Int?
     @State private var prUpdatesMap: [String: PRUpdate] = [:]
     // 過去写真比較カード用
     @State private var pastComparisonPhoto: ProgressPhoto?
     @State private var todayComparisonPhoto: ProgressPhoto?
     @State private var photoCardDismissed = false
+    // 末尾の体型記録リンク用 (最新エントリ)
+    @State private var latestProgressPhoto: ProgressPhoto?
     // exerciseCard 用 e1RM 進捗バー: exerciseId → 歴代最高 e1RM (現セッション除外)
     @State private var historicalMaxE1RM: [String: Double] = [:]
 
@@ -146,13 +147,10 @@ struct WorkoutCompletionView: View {
 
             VStack(spacing: 0) {
                 ScrollView {
-                    VStack(spacing: 24) {
-                        // 1+2. WORKOUT COMPLETE label + ヒーロー (3 / 9 / 33)
-                        heroSummary
+                    VStack(spacing: 16) {
+                        // 1+2+3. ヒーロー(左) + ミニマップ(右) を横並びで密度UP
+                        heroAndMapRow
                             .padding(.top, 8)
-
-                        // 3. 鍛えた部位 (mini map) — ヒーロー直下、横長コンパクト
-                        miniMuscleMap
 
                         // 4. 種目カードリスト (全セット展開 + e1RM 進捗バー + 王冠)
                         exerciseCardList
@@ -165,21 +163,10 @@ struct WorkoutCompletionView: View {
 
                         sectionDivider
 
-                        // 6. 体の記録を撮る
-                        progressPhotoButton
+                        // 6. 体の記録 控えめ導線 (HStack 1行、最新サムネ + 前回相対日)
+                        bodyRecordLink
 
-                        if let days = daysSinceLastPhoto, days >= 7, !photoSaved {
-                            photoReminderBanner(days: days)
-                        }
-
-                        // 7. 次回推奨日
-                        if !stimulatedMusclesWithSets.isEmpty {
-                            NextRecommendedDaySection(
-                                stimulatedMuscles: stimulatedMusclesWithSets
-                            )
-                        }
-
-                        // 8. シェアボタン
+                        // 7. シェアボタン
                         shareButton
                     }
                     .padding(.horizontal)
@@ -225,8 +212,8 @@ struct WorkoutCompletionView: View {
         }
         .onAppear {
             markFirstWorkoutCompleted()
-            daysSinceLastPhoto = ProgressPhoto.daysSinceLastPhoto(context: modelContext)
             loadComparisonPhotos()
+            loadLatestProgressPhoto()
             loadHistoricalE1RM()
             // レビュー要求（2回目の完了で発火）
             // ReviewManager.recordWorkoutCompletion() // TODO: ReviewManager未実装
@@ -247,15 +234,32 @@ struct WorkoutCompletionView: View {
         }
     }
 
-    // MARK: - 1+2. ヒーロー: WORKOUT COMPLETE + 3つの大きな数値
+    // MARK: - 1+2+3. ヒーロー(左): WORKOUT COMPLETE + 3数値 + ミニマップ(右)
+
+    private var heroAndMapRow: some View {
+        HStack(alignment: .center, spacing: 12) {
+            heroSummary
+                .frame(maxWidth: .infinity)
+
+            ShareMuscleMapView(
+                muscleMapping: stimulatedMuscleMapping,
+                mapHeight: 80,
+                glowEnabled: false
+            )
+            .frame(width: 140)
+        }
+        .padding(.vertical, 8)
+    }
 
     private var heroSummary: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: 8) {
             // 「WORKOUT COMPLETE」ラベル
             Text(L10n.workoutCompleteLabel)
-                .font(.system(size: 12, weight: .heavy))
-                .tracking(3)
+                .font(.system(size: 11, weight: .heavy))
+                .tracking(2.5)
                 .foregroundStyle(Color.mmAccentPrimary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
 
             // 大きな数値 3つ横並び
             HStack(spacing: 0) {
@@ -275,14 +279,13 @@ struct WorkoutCompletionView: View {
                 )
             }
         }
-        .padding(.vertical, 24)
         .frame(maxWidth: .infinity)
     }
 
     private func heroStatColumn(value: String, label: String) -> some View {
-        VStack(spacing: 6) {
+        VStack(spacing: 2) {
             Text(value)
-                .font(.system(size: 56, weight: .heavy))
+                .font(.system(size: 32, weight: .heavy))
                 .foregroundStyle(Color.mmTextPrimary)
                 .minimumScaleFactor(0.5)
                 .lineLimit(1)
@@ -296,25 +299,7 @@ struct WorkoutCompletionView: View {
     private var heroDivider: some View {
         Rectangle()
             .fill(Color.mmTextSecondary.opacity(0.15))
-            .frame(width: 1, height: 56)
-    }
-
-    // MARK: - 3. 鍛えた部位 (mini muscle map) — ヒーロー直下、横長コンパクト
-
-    private var miniMuscleMap: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(isJapanese ? "鍛えた部位" : "Trained Muscles")
-                .font(.system(size: 12, weight: .medium))
-                .foregroundStyle(Color.mmTextSecondary)
-                .tracking(0.5)
-
-            ShareMuscleMapView(
-                muscleMapping: stimulatedMuscleMapping,
-                mapHeight: 110,
-                glowEnabled: false
-            )
-            .frame(maxWidth: .infinity)
-        }
+            .frame(width: 1, height: 36)
     }
 
     // MARK: - 5. 過去写真比較カード
@@ -432,14 +417,14 @@ struct WorkoutCompletionView: View {
     // MARK: - 2. 種目カードリスト
 
     private var exerciseCardList: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: 4) {
             ForEach(exercisesDone) { exercise in
                 exerciseCard(exercise)
             }
         }
     }
 
-    /// 種目カード — 全セット展開版（種目名 + divider + 各セット行: weight×reps + 進捗バー + 王冠）
+    /// 種目カード — 全セット展開版（種目名 + 過去最高 e1RM + 各セット行 4列: set# / kg×回数 / e1RM / PR差）
     /// TODO(v1.2): セット数が5以上の場合のコンパクトモード（折り畳み or サマリー化）
     private func exerciseCard(_ exercise: ExerciseDefinition) -> some View {
         let name = exercise.localizedName
@@ -447,94 +432,156 @@ struct WorkoutCompletionView: View {
             .filter { $0.exerciseId == exercise.id }
             .sorted(by: { $0.setNumber < $1.setNumber })
         let histMax = historicalMaxE1RM[exercise.id] ?? 0
-        // 進捗バーの分母: 歴代最高 と 今セッション最高 の大きい方（過去なし種目でも比例表示できる）
         let sessionMaxE1RM = exerciseSets.map { estimatedE1RM(weight: $0.weight, reps: $0.reps) }.max() ?? 0
-        let denominator = max(histMax, sessionMaxE1RM)
         // 種目PR (e1RM ベース): 今セッション内のいずれかが歴代を超えたか
         let exerciseHasNewPR = histMax > 0 && sessionMaxE1RM > histMax
 
         return VStack(alignment: .leading, spacing: 0) {
             // 種目名 + (PR時) 王冠 PR
-            HStack(spacing: 8) {
+            HStack(spacing: 6) {
                 Text(name)
-                    .font(.system(size: 16, weight: .semibold))
+                    .font(.system(size: 14, weight: .semibold))
                     .foregroundStyle(Color.mmTextPrimary)
                     .lineLimit(1)
                 if exerciseHasNewPR {
-                    HStack(spacing: 4) {
+                    HStack(spacing: 3) {
                         Image(systemName: "crown.fill")
-                            .font(.system(size: 11))
+                            .font(.system(size: 10))
                         Text("PR")
-                            .font(.system(size: 11, weight: .heavy))
+                            .font(.system(size: 10, weight: .heavy))
                     }
                     .foregroundStyle(Color.mmPRGold)
                 }
                 Spacer(minLength: 0)
             }
-            .padding(.horizontal, 16)
-            .padding(.top, 14)
-            .padding(.bottom, 10)
+            .padding(.horizontal, 8)
+            .padding(.top, 8)
+            .padding(.bottom, histMax > 0 ? 2 : 4)
+
+            // 過去最高 e1RM (歴代記録あり時のみ表示。BW比は体重設定ありの時のみ)
+            if histMax > 0 {
+                Text(pastBestHeaderText(histMax: histMax))
+                    .font(.system(size: 11, weight: .regular))
+                    .foregroundStyle(Color.mmTextSecondary)
+                    .lineLimit(1)
+                    .padding(.horizontal, 8)
+                    .padding(.bottom, 3)
+            }
 
             // 区切り
             Rectangle()
                 .fill(Color.mmBorder.opacity(0.18))
                 .frame(height: 0.5)
-                .padding(.horizontal, 16)
+                .padding(.horizontal, 8)
 
-            // セット行リスト（全展開、各行に進捗バー）
-            VStack(spacing: 8) {
+            // セット行リスト (全展開、4列構造)
+            VStack(spacing: 2) {
                 ForEach(exerciseSets, id: \.id) { set in
-                    setRow(
-                        set: set,
-                        isPR: isPRSet(set, in: exerciseSets, histMax: histMax),
-                        ratio: ratioForSet(set, denominator: denominator)
-                    )
+                    setRow(set: set, exerciseSets: exerciseSets, histMax: histMax)
                 }
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 12)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 5)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color.mmBgSecondary)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 
-    /// セット詳細1行: weight × reps テキスト + 進捗バー + (PR時) 王冠
-    private func setRow(set: WorkoutSet, isPR: Bool, ratio: Double) -> some View {
-        HStack(spacing: 12) {
+    /// セット詳細1行 — 4列: セット番号 / kg×回数 / e1RM XX.X kg / PR差ラベル + (PR時) 王冠
+    /// 列幅: 1.5桁重量 (52.5 kg × 12 等) でも折り返さないよう 列2/3 を確保。
+    /// 列4 は flex で残り全部、trailing 揃え。狭い画面 (SE) では minimumScaleFactor で縮小フォールバック。
+    private func setRow(set: WorkoutSet, exerciseSets: [WorkoutSet], histMax: Double) -> some View {
+        let currentE1RM = estimatedE1RM(weight: set.weight, reps: set.reps)
+        let prDiff = prDiffLabel(currentE1RM: currentE1RM, histMax: histMax)
+        let isPR = isPRSet(set, in: exerciseSets, histMax: histMax)
+
+        return HStack(spacing: 8) {
+            // 列1: セット番号
+            Text("\(set.setNumber)")
+                .foregroundStyle(Color.mmTextSecondary)
+                .frame(width: 24, alignment: .leading)
+
+            // 列2: kg × 回数 (1.5桁重量含む "52.5 kg × 12" 11文字 ≈ 80pt が収まる 88pt 確保)
             Text(formatSetDisplay(weight: set.weight, reps: set.reps))
-                .font(.system(size: 14, weight: .medium, design: .monospaced))
                 .foregroundStyle(Color.mmTextPrimary)
-                .frame(width: 100, alignment: .leading)
+                .lineLimit(1)
+                .minimumScaleFactor(0.85)
+                .frame(width: 88, alignment: .leading)
 
-            progressBar(ratio: ratio)
-                .frame(maxWidth: .infinity)
+            // 列3: e1RM XX.X kg ("e1RM 100.0 kg" 13文字 ≈ 94pt が収まる 96pt)
+            Text("e1RM \(String(format: "%.1f", currentE1RM)) kg")
+                .foregroundStyle(Color.mmTextPrimary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.85)
+                .frame(width: 96, alignment: .leading)
 
-            // PR セットなら王冠表示、それ以外は同サイズ余白で揃える
+            // 列4: PR との差 (flex 残り、trailing 揃え。SE 狭幅では縮小可)
+            if let info = prDiff {
+                Text(info.text)
+                    .foregroundStyle(info.color)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+                    .frame(maxWidth: .infinity, alignment: .trailing)
+            } else {
+                Spacer(minLength: 0)
+            }
+
+            // PR セット王冠
             Image(systemName: "crown.fill")
-                .font(.system(size: 14))
                 .foregroundStyle(Color.mmPRGold)
                 .opacity(isPR ? 1 : 0)
-                .frame(width: 16, alignment: .trailing)
+                .frame(width: 12, alignment: .trailing)
         }
+        .font(.system(size: 12, weight: .regular, design: .monospaced))
     }
 
-    /// セット行右側の進捗バー (黄→緑グラデ、ratio で塗り長)
-    private func progressBar(ratio: Double) -> some View {
-        GeometryReader { geo in
-            ZStack(alignment: .leading) {
-                Capsule()
-                    .fill(Color.mmBgPrimary)
-                Capsule()
-                    .fill(LinearGradient(
-                        colors: [Color.mmMuscleModerate, Color.mmMuscleRecovered],
-                        startPoint: .leading,
-                        endPoint: .trailing
-                    ))
-                    .frame(width: max(0, min(1.0, ratio)) * geo.size.width)
-            }
+    /// 種目ヘッダー2行目 (過去最高 e1RM + 任意 BW比) を文字列化
+    private func pastBestHeaderText(histMax: Double) -> String {
+        let e1RMStr = formatFlexibleNumber(histMax)
+        let weight = bodyweightKg
+        if weight > 0 {
+            let bwStr = String(format: "%.2f", histMax / weight)
+            return L10n.completionPastBestE1RMWithBW(e1RM: e1RMStr, bwRatio: bwStr)
         }
-        .frame(height: 6)
+        return L10n.completionPastBestE1RMNoBW(e1RM: e1RMStr)
+    }
+
+    /// セット行 4列目の PR 差ラベル。histMax 0 の場合は nil (列空欄)。
+    /// 表示と整合させるため、過去最高 e1RM と現セット e1RM をそれぞれ %.1f 丸め
+    /// した後の値で差分計算する (例: 19.1 - 18.7 = 0.4 となり、ヘッダーやセット行の
+    /// 表示値から目視で計算した差と一致する)。
+    private func prDiffLabel(currentE1RM: Double, histMax: Double) -> (text: String, color: Color)? {
+        guard histMax > 0 else { return nil }
+        let pastDisplayed = roundedToOneDecimal(histMax)
+        let currentDisplayed = roundedToOneDecimal(currentE1RM)
+        let diff = currentDisplayed - pastDisplayed
+        if abs(diff) < 0.05 {
+            return (L10n.completionPRTie, Color.mmAccentPrimary)
+        }
+        let absStr = String(format: "%.1f", abs(diff))
+        if diff > 0 {
+            return (L10n.completionPRPlus(absStr), Color.mmAccentPrimary)
+        }
+        return (L10n.completionToPR(absStr), Color.mmTextSecondary)
+    }
+
+    /// 1桁丸め (表示と差分計算で同じ精度を使うためのヘルパー)
+    private func roundedToOneDecimal(_ value: Double) -> Double {
+        (value * 10).rounded() / 10
+    }
+
+    /// 数値を %.0f / %.1f に振り分け (整数なら .0 を省略)
+    private func formatFlexibleNumber(_ value: Double) -> String {
+        value.truncatingRemainder(dividingBy: 1) == 0
+            ? String(format: "%.0f", value)
+            : String(format: "%.1f", value)
+    }
+
+    /// 完了画面表示時のユーザー体重 (kg)。0 / 未設定なら 0 を返し BW 比を非表示にする。
+    private var bodyweightKg: Double {
+        let kg = UserProfile.load().weightKg
+        return kg > 0 ? kg : 0
     }
 
     /// セット表示文字列 — "30 kg × 10" / "自重 × 10"
@@ -557,18 +604,16 @@ struct WorkoutCompletionView: View {
         return weight * (1 + Double(reps) / 30.0)
     }
 
-    /// 進捗バーの ratio = セット e1RM ÷ 分母 (歴代最高 or 今日最高の大きい方)
-    private func ratioForSet(_ set: WorkoutSet, denominator: Double) -> Double {
-        guard denominator > 0 else { return 0 }
-        let e1rm = estimatedE1RM(weight: set.weight, reps: set.reps)
-        return e1rm / denominator
-    }
-
     /// セットが新 e1RM PR かどうか (歴代最高超え、かつ今セッション最高タイ以上)
+    /// PR 差ラベル (prDiffLabel) と一貫させるため、歴代最高との比較は表示丸め値で行う。
+    /// 例: 19.05 vs 19.0 (内部) → 表示 19.1 vs 19.0 → 王冠表示 (内部精度と一致)
+    /// 例: 19.04 vs 19.0 (内部) → 表示 19.0 vs 19.0 → 王冠なし (PRタイ扱いと整合)
     private func isPRSet(_ set: WorkoutSet, in sessionSets: [WorkoutSet], histMax: Double) -> Bool {
-        guard histMax > 0 else { return false }   // 過去記録ゼロの種目は王冠スパムを避ける
+        guard histMax > 0 else { return false }
         let setE1RM = estimatedE1RM(weight: set.weight, reps: set.reps)
-        guard setE1RM > histMax else { return false }
+        let setRounded = roundedToOneDecimal(setE1RM)
+        let histRounded = roundedToOneDecimal(histMax)
+        guard setRounded > histRounded else { return false }
         let sessionMax = sessionSets.map { estimatedE1RM(weight: $0.weight, reps: $0.reps) }.max() ?? 0
         return setE1RM >= sessionMax
     }
@@ -589,42 +634,57 @@ struct WorkoutCompletionView: View {
         historicalMaxE1RM = maxByExercise
     }
 
-    // MARK: - プログレスフォトボタン
+    // MARK: - 体型記録 控えめ導線（末尾）
 
-    private var progressPhotoButton: some View {
-        return Button {
+    /// 末尾の控えめな体型記録リンク。HStack 1行: サムネ + 「📷 体の記録を残す」+ 前回相対日 + chevron。
+    /// 過去写真があればサムネ表示、なければカメラアイコン。タップで既存の撮影フローへ遷移。
+    private var bodyRecordLink: some View {
+        Button {
             HapticManager.lightTap()
             showingCamera = true
         } label: {
-            HStack(spacing: 8) {
-                Image(systemName: photoSaved ? "checkmark.circle.fill" : "camera.fill")
-                Text(photoSaved ? L10n.photoSaved : L10n.takeProgressPhoto)
+            HStack(spacing: 12) {
+                // サムネ (32×32 円形)
+                Group {
+                    if let photo = latestProgressPhoto,
+                       let url = photo.fullImageURL,
+                       let img = UIImage(contentsOfFile: url.path) {
+                        Image(uiImage: img)
+                            .resizable()
+                            .scaledToFill()
+                    } else {
+                        Image(systemName: "camera.circle")
+                            .resizable()
+                            .scaledToFit()
+                            .foregroundStyle(Color.mmTextSecondary)
+                    }
+                }
+                .frame(width: 32, height: 32)
+                .clipShape(Circle())
+                .opacity(0.85)
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("📷 \(L10n.logBodyRecord)")
+                        .font(.system(size: 12, weight: .regular))
+                        .foregroundStyle(Color.mmTextOnDark)
+                    if let lastDate = latestProgressPhoto?.captureDate {
+                        Text(L10n.bodyRecordLastLabel(lastDate))
+                            .font(.system(size: 10, weight: .regular))
+                            .foregroundStyle(Color.mmTextSecondary)
+                    }
+                }
+
+                Spacer()
+
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundStyle(Color.mmTextSecondary)
             }
-            .font(.system(size: 16, weight: .bold))
-            .foregroundStyle(photoSaved ? Color.mmAccentPrimary : Color.mmTextPrimary)
-            .frame(maxWidth: .infinity)
-            .frame(height: 52)
-            .background(photoSaved ? Color.mmAccentPrimary.opacity(0.15) : Color.mmBgSecondary)
-            .clipShape(RoundedRectangle(cornerRadius: 16))
+            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .disabled(photoSaved)
-    }
-
-    private func photoReminderBanner(days: Int) -> some View {
-        return HStack(spacing: 8) {
-            Image(systemName: "photo.on.rectangle.angled")
-                .font(.subheadline)
-                .foregroundStyle(Color.mmWarning)
-            Text(L10n.photoReminderDays(days))
-                .font(.caption)
-                .foregroundStyle(Color.mmTextSecondary)
-        }
-        .padding(12)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color.mmWarning.opacity(0.1))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 
     // MARK: - ヘルパーメソッド
@@ -771,9 +831,19 @@ struct WorkoutCompletionView: View {
         withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
             photoSaved = true
         }
-        // 今日の写真が増えたので比較カード再ロード
+        // 今日の写真が増えたので比較カードと末尾リンク両方を再ロード
         loadComparisonPhotos()
+        loadLatestProgressPhoto()
         HapticManager.success()
+    }
+
+    /// 末尾リンクのサムネ用に最新 ProgressPhoto を1件取得
+    private func loadLatestProgressPhoto() {
+        var descriptor = FetchDescriptor<ProgressPhoto>(
+            sortBy: [SortDescriptor(\.captureDate, order: .reverse)]
+        )
+        descriptor.fetchLimit = 1
+        latestProgressPhoto = (try? modelContext.fetch(descriptor))?.first
     }
 
     /// 過去写真比較カード用に過去・今日の ProgressPhoto を読み込む

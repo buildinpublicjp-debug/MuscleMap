@@ -1809,6 +1809,84 @@ enum L10n {
     static var trainingFallback: String { loc("トレーニング", "Training", zhHans: "训练", ko: "트레이닝", es: "Entrenamiento", fr: "Entraînement", de: "Training") }
     static var shortDateFormat: String { loc("M月d日（E）", "MMM d (EEE)", zhHans: "M月d日（E）", ko: "M월 d일 (E)", es: "d MMM (EEE)", fr: "d MMM (EEE)", de: "d. MMM (EEE)") }
 
+    // MARK: - 完了画面 PR表示（v1.1.4）
+    static func completionPastBestE1RMWithBW(e1RM: String, bwRatio: String) -> String {
+        loc(
+            "過去最高 e1RM \(e1RM) kg / \(bwRatio)× BW",
+            "Best e1RM \(e1RM) kg / \(bwRatio)× BW",
+            zhHans: "历史最高 e1RM \(e1RM) kg / \(bwRatio)× BW",
+            ko: "역대 최고 e1RM \(e1RM) kg / \(bwRatio)× BW",
+            es: "Mejor e1RM \(e1RM) kg / \(bwRatio)× PC",
+            fr: "Meilleur e1RM \(e1RM) kg / \(bwRatio)× PC",
+            de: "Bestes e1RM \(e1RM) kg / \(bwRatio)× KG"
+        )
+    }
+    static func completionPastBestE1RMNoBW(e1RM: String) -> String {
+        loc(
+            "過去最高 e1RM \(e1RM) kg",
+            "Best e1RM \(e1RM) kg",
+            zhHans: "历史最高 e1RM \(e1RM) kg",
+            ko: "역대 최고 e1RM \(e1RM) kg",
+            es: "Mejor e1RM \(e1RM) kg",
+            fr: "Meilleur e1RM \(e1RM) kg",
+            de: "Bestes e1RM \(e1RM) kg"
+        )
+    }
+    static var completionPRTie: String {
+        loc("PRタイ", "PR Tie", zhHans: "平 PR", ko: "PR 동점", es: "Empate PR", fr: "Égalité PR", de: "PR-Gleichstand")
+    }
+    /// 「PR まで -X.X kg」表示用 (delta は絶対値、文字列フォーマット済み)
+    static func completionToPR(_ delta: String) -> String {
+        loc(
+            "PRまで -\(delta) kg",
+            "−\(delta) kg to PR",
+            zhHans: "距 PR 还差 \(delta) kg",
+            ko: "PR 까지 -\(delta) kg",
+            es: "−\(delta) kg para PR",
+            fr: "−\(delta) kg avant PR",
+            de: "−\(delta) kg bis PR"
+        )
+    }
+    /// 「+X.X kg」表示用 (PR 突破時、共通フォーマット)
+    static func completionPRPlus(_ delta: String) -> String {
+        "+\(delta) kg"
+    }
+
+    // MARK: - 完了画面 末尾の体型記録リンク (v1.1.4)
+    static var logBodyRecord: String {
+        loc("体の記録を残す", "Log body record", zhHans: "记录身体状态", ko: "체형 기록 남기기", es: "Registrar el cuerpo", fr: "Enregistrer le corps", de: "Körper aufzeichnen")
+    }
+    /// 末尾リンク内の「前回 5/3 (1週間前)」相対日表示
+    static func bodyRecordLastLabel(_ date: Date) -> String {
+        let calendar = Calendar.current
+        let now = Date()
+
+        if calendar.isDateInToday(date) {
+            return loc("前回 今日", "Last: Today", zhHans: "上次 今天", ko: "마지막 오늘", es: "Última: hoy", fr: "Dernière : aujourd'hui", de: "Letzte: heute")
+        }
+
+        let formatter = DateFormatter()
+        formatter.dateFormat = "M/d"
+        let dateStr = formatter.string(from: date)
+
+        let days = calendar.dateComponents([.day], from: date, to: now).day ?? 0
+        let relJa: String
+        let relEn: String
+        if days == 1 {
+            relJa = "昨日"; relEn = "yesterday"
+        } else if days < 7 {
+            relJa = "\(days)日前"; relEn = "\(days) days ago"
+        } else if days < 30 {
+            let w = days / 7
+            relJa = "\(w)週間前"; relEn = (w == 1 ? "1 week ago" : "\(w) weeks ago")
+        } else {
+            let m = days / 30
+            relJa = "\(m)ヶ月前"; relEn = (m == 1 ? "1 month ago" : "\(m) months ago")
+        }
+
+        return loc("前回 \(dateStr) (\(relJa))", "Last: \(dateStr) (\(relEn))")
+    }
+
     // MARK: - シェアカード・達成テキスト
     static var workoutCompleteLabel: String { "WORKOUT COMPLETE" }
     static var fullBodyConqueredLabel: String { "FULL BODY CONQUERED" }
