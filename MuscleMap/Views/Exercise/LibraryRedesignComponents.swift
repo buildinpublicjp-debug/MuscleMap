@@ -298,41 +298,9 @@ struct LibraryCountSortRow: View {
             Text(L10n.exerciseCountLong(viewModel.filteredExercises.count))
                 .font(.system(size: 13, weight: .regular))
                 .foregroundStyle(Color.mmTextSecondary)
-
             Spacer()
-
-            Menu {
-                ForEach(LibrarySortOption.allCases) { option in
-                    Button {
-                        viewModel.sortOption = option
-                    } label: {
-                        if viewModel.sortOption == option {
-                            Label(sortLabel(option), systemImage: "checkmark")
-                        } else {
-                            Text(sortLabel(option))
-                        }
-                    }
-                }
-            } label: {
-                HStack(spacing: 4) {
-                    Text("\(L10n.ordenarLabel): \(sortLabel(viewModel.sortOption))")
-                        .font(.system(size: 13, weight: .regular))
-                    Image(systemName: "chevron.down")
-                        .font(.system(size: 10, weight: .medium))
-                }
-                .foregroundStyle(Color.mmTextSecondary)
-            }
         }
         .padding(.horizontal, 16)
-    }
-
-    private func sortLabel(_ option: LibrarySortOption) -> String {
-        switch option {
-        case .relevancia:        return L10n.sortRelevancia
-        case .nombre:            return L10n.sortNombre
-        case .recientes:         return L10n.sortRecientes
-        case .favoritosPrimero:  return L10n.sortFavoritosPrimero
-        }
     }
 }
 
@@ -345,8 +313,8 @@ struct ExerciseGridCardV2: View {
 
     var body: some View {
         Button(action: onTap) {
-            VStack(alignment: .leading, spacing: 8) {
-                // サムネ (1:1 アスペクト、画像本来の白背景、軽い角丸 12pt)
+            VStack(alignment: .leading, spacing: 0) {
+                // サムネ (1:1、白背景、上端のみ角丸でカード上部に揃える)
                 ZStack(alignment: .topTrailing) {
                     Group {
                         if ExerciseGifView.hasGif(exerciseId: exercise.id) {
@@ -360,69 +328,45 @@ struct ExerciseGridCardV2: View {
                                 .frame(maxWidth: .infinity)
                         }
                     }
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .clipShape(UnevenRoundedRectangle(
+                        topLeadingRadius: 16,
+                        bottomLeadingRadius: 0,
+                        bottomTrailingRadius: 0,
+                        topTrailingRadius: 16
+                    ))
 
-                    // ❤️ お気に入りボタン (サムネ右上に重ね)
+                    // ❤️ お気に入り (黒半透明 32×32 円形、サムネ右上 12pt 内側)
                     Button {
                         HapticManager.lightTap()
                         favorites.toggle(exercise.id)
                     } label: {
                         Image(systemName: favorites.isFavorite(exercise.id) ? "heart.fill" : "heart")
-                            .font(.system(size: 13))
+                            .font(.system(size: 14))
                             .foregroundStyle(favorites.isFavorite(exercise.id) ? Color.mmDestructive : Color.white)
-                            .padding(7)
-                            .background(Color.mmBgPrimary.opacity(0.7))
+                            .frame(width: 32, height: 32)
+                            .background(Color.black.opacity(0.4))
                             .clipShape(Circle())
                     }
                     .buttonStyle(.plain)
-                    .padding(8)
+                    .padding(12)
                 }
 
-                // テキストブロック (枠 / 背景なし、画面背景上に直接配置)
+                // 種目名のみ (1行、truncate tail)
                 Text(exercise.localizedName)
                     .font(.system(size: 16, weight: .semibold))
                     .foregroundStyle(Color.mmTextPrimary)
-                    .lineLimit(2)
-                    .fixedSize(horizontal: false, vertical: true)
-
-                muscleTags
-
-                HStack(spacing: 6) {
-                    Image(systemName: "chart.bar")
-                        .font(.system(size: 10))
-                    Text(exercise.localizedDifficulty)
-                        .font(.system(size: 12, weight: .regular))
-                }
-                .foregroundStyle(Color.mmTextSecondary)
+                    .lineLimit(1)
+                    .truncationMode(.tail)
+                    .padding(.horizontal, 14)
+                    .padding(.top, 12)
+                    .padding(.bottom, 14)
+                    .frame(maxWidth: .infinity, alignment: .leading)
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Color.mmBgCard)
+            .clipShape(RoundedRectangle(cornerRadius: 16))
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-    }
-
-    /// 部位タグ (主動: 緑、補助: 灰)。最大3部位までドット区切り。
-    private var muscleTags: some View {
-        let sorted = exercise.muscleMapping.sorted { $0.value > $1.value }
-        let topMuscles = Array(sorted.prefix(3))
-
-        return HStack(spacing: 4) {
-            ForEach(Array(topMuscles.enumerated()), id: \.offset) { index, entry in
-                let (muscleId, percentage) = entry
-                if index > 0 {
-                    Text("·")
-                        .font(.system(size: 10))
-                        .foregroundStyle(Color.mmTextSecondary)
-                }
-                if let muscle = Muscle(rawValue: muscleId) ?? Muscle(snakeCase: muscleId) {
-                    Text(muscle.localizedName)
-                        .font(.system(size: 11, weight: .regular))
-                        .foregroundStyle(percentage >= 80 ? Color.mmAccentPrimary : Color.mmTextSecondary)
-                        .lineLimit(1)
-                }
-            }
-        }
-        .fixedSize(horizontal: false, vertical: true)
     }
 }
 

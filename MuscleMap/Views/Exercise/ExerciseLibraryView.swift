@@ -24,7 +24,7 @@ struct ExerciseLibraryView: View {
             Color.mmBgPrimary.ignoresSafeArea()
 
             ScrollView {
-                LazyVStack(alignment: .leading, spacing: 16, pinnedViews: []) {
+                LazyVStack(alignment: .leading, spacing: 12, pinnedViews: []) {
                     if isSearchActive {
                         searchBar
                     }
