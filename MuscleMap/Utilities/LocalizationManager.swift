@@ -1782,6 +1782,49 @@ enum L10n {
     static var trainingFallback: String { loc("トレーニング", "Training", zhHans: "训练", ko: "트레이닝", es: "Entrenamiento", fr: "Entraînement", de: "Training") }
     static var shortDateFormat: String { loc("M月d日（E）", "MMM d (EEE)", zhHans: "M月d日（E）", ko: "M월 d일 (E)", es: "d MMM (EEE)", fr: "d MMM (EEE)", de: "d. MMM (EEE)") }
 
+    // MARK: - 完了画面 PR表示（v1.1.4）
+    static func completionPastBestE1RMWithBW(e1RM: String, bwRatio: String) -> String {
+        loc(
+            "過去最高 e1RM \(e1RM) kg / \(bwRatio)× BW",
+            "Best e1RM \(e1RM) kg / \(bwRatio)× BW",
+            zhHans: "历史最高 e1RM \(e1RM) kg / \(bwRatio)× BW",
+            ko: "역대 최고 e1RM \(e1RM) kg / \(bwRatio)× BW",
+            es: "Mejor e1RM \(e1RM) kg / \(bwRatio)× PC",
+            fr: "Meilleur e1RM \(e1RM) kg / \(bwRatio)× PC",
+            de: "Bestes e1RM \(e1RM) kg / \(bwRatio)× KG"
+        )
+    }
+    static func completionPastBestE1RMNoBW(e1RM: String) -> String {
+        loc(
+            "過去最高 e1RM \(e1RM) kg",
+            "Best e1RM \(e1RM) kg",
+            zhHans: "历史最高 e1RM \(e1RM) kg",
+            ko: "역대 최고 e1RM \(e1RM) kg",
+            es: "Mejor e1RM \(e1RM) kg",
+            fr: "Meilleur e1RM \(e1RM) kg",
+            de: "Bestes e1RM \(e1RM) kg"
+        )
+    }
+    static var completionPRTie: String {
+        loc("PRタイ", "PR Tie", zhHans: "平 PR", ko: "PR 동점", es: "Empate PR", fr: "Égalité PR", de: "PR-Gleichstand")
+    }
+    /// 「PR まで -X.X kg」表示用 (delta は絶対値、文字列フォーマット済み)
+    static func completionToPR(_ delta: String) -> String {
+        loc(
+            "PRまで -\(delta) kg",
+            "−\(delta) kg to PR",
+            zhHans: "距 PR 还差 \(delta) kg",
+            ko: "PR 까지 -\(delta) kg",
+            es: "−\(delta) kg para PR",
+            fr: "−\(delta) kg avant PR",
+            de: "−\(delta) kg bis PR"
+        )
+    }
+    /// 「+X.X kg」表示用 (PR 突破時、共通フォーマット)
+    static func completionPRPlus(_ delta: String) -> String {
+        "+\(delta) kg"
+    }
+
     // MARK: - シェアカード・達成テキスト
     static var workoutCompleteLabel: String { "WORKOUT COMPLETE" }
     static var fullBodyConqueredLabel: String { "FULL BODY CONQUERED" }
