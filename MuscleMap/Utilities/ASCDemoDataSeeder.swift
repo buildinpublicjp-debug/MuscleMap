@@ -95,9 +95,9 @@ private struct DemoScenario {
 }
 
 private let scenarios: [DemoScenario] = [
-    // 胸 — 6h前 (赤、回復 ~10%)
+    // 胸 — 1日前 (オレンジ、回復 ~50-60%)
     DemoScenario(
-        hoursAgo: 6,
+        hoursAgo: 24,
         exercises: [
             ("barbell_bench_press", [80, 85, 90, 85], 8),
             ("incline_dumbbell_press", [30, 32.5, 35, 32.5], 10),
@@ -110,9 +110,22 @@ private let scenarios: [DemoScenario] = [
             ("triceps", 0.5, 7)
         ]
     ),
-    // 肩 — 18h前 (赤〜黄、回復 ~25%)
+    // 腕 — 1日前 (オレンジ、回復 ~50-60%)
     DemoScenario(
-        hoursAgo: 18,
+        hoursAgo: 24,
+        exercises: [
+            ("barbell_curl", [25, 27.5, 30], 10),
+            ("overhead_tricep_extension", [20, 22.5, 25], 12)
+        ],
+        stimulations: [
+            ("biceps", 1.0, 6),
+            ("triceps", 1.0, 6),
+            ("forearms", 0.4, 6)
+        ]
+    ),
+    // 肩 — 2日前 (黄、回復 ~70%)
+    DemoScenario(
+        hoursAgo: 48,
         exercises: [
             ("dumbbell_shoulder_press", [22.5, 25, 27.5], 10),
             ("lateral_raise", [10, 12, 14], 12)
@@ -124,35 +137,9 @@ private let scenarios: [DemoScenario] = [
             ("triceps", 0.4, 3)
         ]
     ),
-    // 腕 — 30h前 (黄、回復 ~45%)
+    // 背中 — 3日前 (黄緑、回復 ~85-90%)
     DemoScenario(
-        hoursAgo: 30,
-        exercises: [
-            ("barbell_curl", [25, 27.5, 30], 10),
-            ("overhead_tricep_extension", [20, 22.5, 25], 12)
-        ],
-        stimulations: [
-            ("biceps", 1.0, 6),
-            ("triceps", 1.0, 6),
-            ("forearms", 0.4, 6)
-        ]
-    ),
-    // 体幹 — 30h前 (黄、回復 ~45%)
-    DemoScenario(
-        hoursAgo: 30,
-        exercises: [
-            ("plank", [0, 0, 0], 60),
-            ("hanging_leg_raise", [0, 0, 0], 12)
-        ],
-        stimulations: [
-            ("rectus_abdominis", 1.0, 6),
-            ("obliques", 0.7, 6),
-            ("hip_flexors", 0.5, 3)
-        ]
-    ),
-    // 背中 — 44h前 (黄緑、回復 ~65%)
-    DemoScenario(
-        hoursAgo: 44,
+        hoursAgo: 72,
         exercises: [
             ("barbell_bent_over_row", [70, 75, 80, 75], 10),
             ("lat_pulldown", [55, 60, 65], 10),
@@ -168,9 +155,9 @@ private let scenarios: [DemoScenario] = [
             ("forearms", 0.5, 10)
         ]
     ),
-    // 下半身 — 60h前 (ほぼ緑、回復 ~85%)
+    // 下半身 — 5日前 (緑、100% Ready)
     DemoScenario(
-        hoursAgo: 60,
+        hoursAgo: 120,
         exercises: [
             ("barbell_back_squat", [80, 90, 100, 90], 8),
             ("lying_leg_curl", [35, 40, 45], 10),
@@ -184,6 +171,19 @@ private let scenarios: [DemoScenario] = [
             ("gastrocnemius", 1.0, 3),
             ("soleus", 0.7, 3),
             ("erector_spinae", 0.5, 4)
+        ]
+    ),
+    // 体幹 — 6日前 (緑、100% Ready)
+    DemoScenario(
+        hoursAgo: 144,
+        exercises: [
+            ("plank", [0, 0, 0], 60),
+            ("hanging_leg_raise", [0, 0, 0], 12)
+        ],
+        stimulations: [
+            ("rectus_abdominis", 1.0, 6),
+            ("obliques", 0.7, 6),
+            ("hip_flexors", 0.5, 3)
         ]
     )
 ]
