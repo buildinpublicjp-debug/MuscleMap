@@ -14,6 +14,8 @@ struct WorkoutCompletionView: View {
     @State private var renderedImage: UIImage?
     @State private var showingFullBodyConquest = false
     @State private var currentMuscleStates: [Muscle: MuscleVisualState] = [:]
+    @State private var conquestLastStimulations: [Muscle: Date] = [:]
+    @State private var conquestAchievedAt: Date = Date()
     @State private var isFirstConquest = false
     @State private var appState = AppState.shared
     @State private var hasPRUpdate = false
@@ -237,7 +239,8 @@ struct WorkoutCompletionView: View {
         }
         .fullScreenCover(isPresented: $showingFullBodyConquest) {
             FullBodyConquestView(
-                muscleStates: currentMuscleStates,
+                lastStimulations: conquestLastStimulations,
+                achievementDate: conquestAchievedAt,
                 onShare: {},
                 onDismiss: { showingFullBodyConquest = false }
             )
@@ -676,6 +679,14 @@ struct WorkoutCompletionView: View {
 
         let allMusclesStimulated = stimulations.count == Muscle.allCases.count
         if allMusclesStimulated {
+            // リデザイン版 FullBodyConquestView 用: 各部位の最終刺激日と達成日
+            var dates: [Muscle: Date] = [:]
+            for (muscle, stim) in stimulations {
+                dates[muscle] = stim.stimulationDate
+            }
+            conquestLastStimulations = dates
+            conquestAchievedAt = session.endDate ?? Date()
+
             isFirstConquest = !AppState.shared.hasAchievedFullBodyConquest
             if isFirstConquest {
                 AppState.shared.hasAchievedFullBodyConquest = true

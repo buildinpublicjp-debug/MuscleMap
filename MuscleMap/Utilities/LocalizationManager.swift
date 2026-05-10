@@ -917,6 +917,33 @@ enum L10n {
         loc("累計\(count)回達成", "\(count) times achieved", zhHans: "累计达成\(count)次", ko: "총 \(count)회 달성", es: "\(count) veces logrado", fr: "\(count) fois atteint", de: "\(count) mal erreicht")
     }
 
+    // 全身制覇画面 リデザイン v1.1.x (鏡哲学準拠)
+    static var fullBodyCoverageTitle: String { loc("全身制覇", "Full Body Coverage", zhHans: "全身征服", ko: "전신 정복", es: "Cuerpo completo", fr: "Corps entier", de: "Ganzkörper") }
+    static var fullBodyCoverageAchievementData: String { loc("達成データ", "Achievement Data", zhHans: "成就数据", ko: "달성 데이터", es: "Datos de logro", fr: "Données de réalisation", de: "Erfolgsdaten") }
+    static func fullBodyCoverageAchievedInDays(_ days: Int) -> String {
+        loc("\(days)日間で達成", "Achieved in \(days) days", zhHans: "\(days)天达成", ko: "\(days)일 만에 달성", es: "Logrado en \(days) días", fr: "Atteint en \(days) jours", de: "In \(days) Tagen erreicht")
+    }
+    /// 「N日間」+ 「で達成」を分割表示するための数値部 (32pt 強調用)
+    static func fullBodyCoverageDaysValue(_ days: Int) -> String {
+        loc("\(days)日間", "\(days) days", zhHans: "\(days)天", ko: "\(days)일", es: "\(days) días", fr: "\(days) jours", de: "\(days) Tage")
+    }
+    static var fullBodyCoverageAchievedSuffix: String { loc("で達成", "to achieve", zhHans: "达成", ko: "만에 달성", es: "para lograr", fr: "pour réaliser", de: "zum Erreichen") }
+    static var fullBodyCoverageLastStimulated: String { loc("最終刺激", "Last Stimulated", zhHans: "最近刺激", ko: "최근 자극", es: "Último estímulo", fr: "Dernier stimulus", de: "Zuletzt stimuliert") }
+    static var fullBodyCoverageToday: String { loc("今日", "Today", zhHans: "今天", ko: "오늘", es: "Hoy", fr: "Aujourd'hui", de: "Heute") }
+    static func fullBodyCoverageDaysAgo(_ days: Int) -> String {
+        loc("\(days)日前", "\(days) days ago", zhHans: "\(days)天前", ko: "\(days)일 전", es: "Hace \(days) días", fr: "Il y a \(days) jours", de: "Vor \(days) Tagen")
+    }
+    static var fullBodyCoverageFootnote: String {
+        loc("最終刺激日は、各部位に対して有効な負荷を与えた最終日を基準にしています。",
+            "Last stimulation date is based on the most recent day each muscle group received effective loading.",
+            zhHans: "最终刺激日基于每个肌肉群最近一次接受有效负荷的日期。",
+            ko: "최근 자극일은 각 부위에 유효한 부하가 가해진 가장 최근 날짜를 기준으로 합니다.",
+            es: "La fecha del último estímulo se basa en el día más reciente en que cada grupo muscular recibió una carga efectiva.",
+            fr: "La date du dernier stimulus est basée sur le jour le plus récent où chaque groupe musculaire a reçu une charge efficace.",
+            de: "Das Datum der letzten Stimulation basiert auf dem letzten Tag, an dem jede Muskelgruppe eine effektive Belastung erhalten hat.")
+    }
+    static var fullBodyCoverageDataPeriod: String { loc("データ期間", "Data Period", zhHans: "数据期间", ko: "데이터 기간", es: "Período de datos", fr: "Période des données", de: "Datenzeitraum") }
+
     // MARK: - 週間サマリー
     static var weeklySummary: String { loc("週間サマリー", "Weekly Summary", zhHans: "每周总结", ko: "주간 요약", es: "Resumen semanal", fr: "Résumé hebdomadaire", de: "Wochenzusammenfassung") }
     static var weeklyReport: String { loc("WEEKLY REPORT", "WEEKLY REPORT", zhHans: "每周报告", ko: "주간 리포트", es: "INFORME SEMANAL", fr: "RAPPORT HEBDOMADAIRE", de: "WOCHENBERICHT") }
