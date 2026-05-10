@@ -20,12 +20,13 @@ struct WorkoutCompletionView: View {
     @State private var showingPaywall = false
     @State private var showingCamera = false
     @State private var photoSaved = false
-    @State private var daysSinceLastPhoto: Int?
     @State private var prUpdatesMap: [String: PRUpdate] = [:]
     // 過去写真比較カード用
     @State private var pastComparisonPhoto: ProgressPhoto?
     @State private var todayComparisonPhoto: ProgressPhoto?
     @State private var photoCardDismissed = false
+    // 末尾の体型記録リンク用 (最新エントリ)
+    @State private var latestProgressPhoto: ProgressPhoto?
     // exerciseCard 用 e1RM 進捗バー: exerciseId → 歴代最高 e1RM (現セッション除外)
     @State private var historicalMaxE1RM: [String: Double] = [:]
 
@@ -160,21 +161,10 @@ struct WorkoutCompletionView: View {
 
                         sectionDivider
 
-                        // 6. 体の記録を撮る
-                        progressPhotoButton
+                        // 6. 体の記録 控えめ導線 (HStack 1行、最新サムネ + 前回相対日)
+                        bodyRecordLink
 
-                        if let days = daysSinceLastPhoto, days >= 7, !photoSaved {
-                            photoReminderBanner(days: days)
-                        }
-
-                        // 7. 次回推奨日
-                        if !stimulatedMusclesWithSets.isEmpty {
-                            NextRecommendedDaySection(
-                                stimulatedMuscles: stimulatedMusclesWithSets
-                            )
-                        }
-
-                        // 8. シェアボタン
+                        // 7. シェアボタン
                         shareButton
                     }
                     .padding(.horizontal)
@@ -220,8 +210,8 @@ struct WorkoutCompletionView: View {
         }
         .onAppear {
             markFirstWorkoutCompleted()
-            daysSinceLastPhoto = ProgressPhoto.daysSinceLastPhoto(context: modelContext)
             loadComparisonPhotos()
+            loadLatestProgressPhoto()
             loadHistoricalE1RM()
             // レビュー要求（2回目の完了で発火）
             // ReviewManager.recordWorkoutCompletion() // TODO: ReviewManager未実装
@@ -496,6 +486,8 @@ struct WorkoutCompletionView: View {
     }
 
     /// セット詳細1行 — 4列: セット番号 / kg×回数 / e1RM XX.X kg / PR差ラベル + (PR時) 王冠
+    /// 列幅: 1.5桁重量 (52.5 kg × 12 等) でも折り返さないよう 列2/3 を確保。
+    /// 列4 は flex で残り全部、trailing 揃え。狭い画面 (SE) では minimumScaleFactor で縮小フォールバック。
     private func setRow(set: WorkoutSet, exerciseSets: [WorkoutSet], histMax: Double) -> some View {
         let currentE1RM = estimatedE1RM(weight: set.weight, reps: set.reps)
         let prDiff = prDiffLabel(currentE1RM: currentE1RM, histMax: histMax)
@@ -505,25 +497,29 @@ struct WorkoutCompletionView: View {
             // 列1: セット番号
             Text("\(set.setNumber)")
                 .foregroundStyle(Color.mmTextSecondary)
-                .frame(width: 14, alignment: .leading)
+                .frame(width: 24, alignment: .leading)
 
-            // 列2: kg × 回数
+            // 列2: kg × 回数 (1.5桁重量含む "52.5 kg × 12" 11文字 ≈ 80pt が収まる 88pt 確保)
             Text(formatSetDisplay(weight: set.weight, reps: set.reps))
                 .foregroundStyle(Color.mmTextPrimary)
-                .frame(width: 78, alignment: .leading)
+                .lineLimit(1)
+                .minimumScaleFactor(0.85)
+                .frame(width: 88, alignment: .leading)
 
-            // 列3: e1RM XX.X kg (今セッション、常に小数点1桁)
+            // 列3: e1RM XX.X kg ("e1RM 100.0 kg" 13文字 ≈ 94pt が収まる 96pt)
             Text("e1RM \(String(format: "%.1f", currentE1RM)) kg")
                 .foregroundStyle(Color.mmTextPrimary)
-                .frame(width: 90, alignment: .leading)
+                .lineLimit(1)
+                .minimumScaleFactor(0.85)
+                .frame(width: 96, alignment: .leading)
 
-            // 列4: PR との差 (空欄 / PRタイ / +X.X kg / PRまで -X.X kg)
+            // 列4: PR との差 (flex 残り、trailing 揃え。SE 狭幅では縮小可)
             if let info = prDiff {
                 Text(info.text)
                     .foregroundStyle(info.color)
                     .lineLimit(1)
-                    .minimumScaleFactor(0.85)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .minimumScaleFactor(0.7)
+                    .frame(maxWidth: .infinity, alignment: .trailing)
             } else {
                 Spacer(minLength: 0)
             }
@@ -620,42 +616,57 @@ struct WorkoutCompletionView: View {
         historicalMaxE1RM = maxByExercise
     }
 
-    // MARK: - プログレスフォトボタン
+    // MARK: - 体型記録 控えめ導線（末尾）
 
-    private var progressPhotoButton: some View {
-        return Button {
+    /// 末尾の控えめな体型記録リンク。HStack 1行: サムネ + 「📷 体の記録を残す」+ 前回相対日 + chevron。
+    /// 過去写真があればサムネ表示、なければカメラアイコン。タップで既存の撮影フローへ遷移。
+    private var bodyRecordLink: some View {
+        Button {
             HapticManager.lightTap()
             showingCamera = true
         } label: {
-            HStack(spacing: 8) {
-                Image(systemName: photoSaved ? "checkmark.circle.fill" : "camera.fill")
-                Text(photoSaved ? L10n.photoSaved : L10n.takeProgressPhoto)
+            HStack(spacing: 12) {
+                // サムネ (32×32 円形)
+                Group {
+                    if let photo = latestProgressPhoto,
+                       let url = photo.fullImageURL,
+                       let img = UIImage(contentsOfFile: url.path) {
+                        Image(uiImage: img)
+                            .resizable()
+                            .scaledToFill()
+                    } else {
+                        Image(systemName: "camera.circle")
+                            .resizable()
+                            .scaledToFit()
+                            .foregroundStyle(Color.mmTextSecondary)
+                    }
+                }
+                .frame(width: 32, height: 32)
+                .clipShape(Circle())
+                .opacity(0.85)
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("📷 \(L10n.logBodyRecord)")
+                        .font(.system(size: 12, weight: .regular))
+                        .foregroundStyle(Color.mmTextOnDark)
+                    if let lastDate = latestProgressPhoto?.captureDate {
+                        Text(L10n.bodyRecordLastLabel(lastDate))
+                            .font(.system(size: 10, weight: .regular))
+                            .foregroundStyle(Color.mmTextSecondary)
+                    }
+                }
+
+                Spacer()
+
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundStyle(Color.mmTextSecondary)
             }
-            .font(.system(size: 16, weight: .bold))
-            .foregroundStyle(photoSaved ? Color.mmAccentPrimary : Color.mmTextPrimary)
-            .frame(maxWidth: .infinity)
-            .frame(height: 52)
-            .background(photoSaved ? Color.mmAccentPrimary.opacity(0.15) : Color.mmBgSecondary)
-            .clipShape(RoundedRectangle(cornerRadius: 16))
+            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .disabled(photoSaved)
-    }
-
-    private func photoReminderBanner(days: Int) -> some View {
-        return HStack(spacing: 8) {
-            Image(systemName: "photo.on.rectangle.angled")
-                .font(.subheadline)
-                .foregroundStyle(Color.mmWarning)
-            Text(L10n.photoReminderDays(days))
-                .font(.caption)
-                .foregroundStyle(Color.mmTextSecondary)
-        }
-        .padding(12)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color.mmWarning.opacity(0.1))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 
     // MARK: - ヘルパーメソッド
@@ -794,9 +805,19 @@ struct WorkoutCompletionView: View {
         withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
             photoSaved = true
         }
-        // 今日の写真が増えたので比較カード再ロード
+        // 今日の写真が増えたので比較カードと末尾リンク両方を再ロード
         loadComparisonPhotos()
+        loadLatestProgressPhoto()
         HapticManager.success()
+    }
+
+    /// 末尾リンクのサムネ用に最新 ProgressPhoto を1件取得
+    private func loadLatestProgressPhoto() {
+        var descriptor = FetchDescriptor<ProgressPhoto>(
+            sortBy: [SortDescriptor(\.captureDate, order: .reverse)]
+        )
+        descriptor.fetchLimit = 1
+        latestProgressPhoto = (try? modelContext.fetch(descriptor))?.first
     }
 
     /// 過去写真比較カード用に過去・今日の ProgressPhoto を読み込む

@@ -1825,6 +1825,41 @@ enum L10n {
         "+\(delta) kg"
     }
 
+    // MARK: - 完了画面 末尾の体型記録リンク (v1.1.4)
+    static var logBodyRecord: String {
+        loc("体の記録を残す", "Log body record", zhHans: "记录身体状态", ko: "체형 기록 남기기", es: "Registrar el cuerpo", fr: "Enregistrer le corps", de: "Körper aufzeichnen")
+    }
+    /// 末尾リンク内の「前回 5/3 (1週間前)」相対日表示
+    static func bodyRecordLastLabel(_ date: Date) -> String {
+        let calendar = Calendar.current
+        let now = Date()
+
+        if calendar.isDateInToday(date) {
+            return loc("前回 今日", "Last: Today", zhHans: "上次 今天", ko: "마지막 오늘", es: "Última: hoy", fr: "Dernière : aujourd'hui", de: "Letzte: heute")
+        }
+
+        let formatter = DateFormatter()
+        formatter.dateFormat = "M/d"
+        let dateStr = formatter.string(from: date)
+
+        let days = calendar.dateComponents([.day], from: date, to: now).day ?? 0
+        let relJa: String
+        let relEn: String
+        if days == 1 {
+            relJa = "昨日"; relEn = "yesterday"
+        } else if days < 7 {
+            relJa = "\(days)日前"; relEn = "\(days) days ago"
+        } else if days < 30 {
+            let w = days / 7
+            relJa = "\(w)週間前"; relEn = (w == 1 ? "1 week ago" : "\(w) weeks ago")
+        } else {
+            let m = days / 30
+            relJa = "\(m)ヶ月前"; relEn = (m == 1 ? "1 month ago" : "\(m) months ago")
+        }
+
+        return loc("前回 \(dateStr) (\(relJa))", "Last: \(dateStr) (\(relEn))")
+    }
+
     // MARK: - シェアカード・達成テキスト
     static var workoutCompleteLabel: String { "WORKOUT COMPLETE" }
     static var fullBodyConqueredLabel: String { "FULL BODY CONQUERED" }
