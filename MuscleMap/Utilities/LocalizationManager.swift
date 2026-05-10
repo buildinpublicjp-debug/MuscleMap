@@ -1889,6 +1889,10 @@ enum L10n {
 
     // MARK: - シェアカード・達成テキスト
     static var workoutCompleteLabel: String { "WORKOUT COMPLETE" }
+    /// シェアカード ヒーロー数値の "分" / "min" 短縮ラベル
+    static var shareCardMinLabel: String {
+        loc("分", "min", zhHans: "分", ko: "분", es: "min", fr: "min", de: "Min")
+    }
     static var fullBodyConqueredLabel: String { "FULL BODY CONQUERED" }
     static var muscleMapProLabel: String { "MUSCLEMAP PRO" }
     static var myRoutineLabel: String { "MY ROUTINE" }

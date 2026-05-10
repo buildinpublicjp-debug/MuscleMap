@@ -3,7 +3,7 @@ import UIKit
 
 // MARK: - シェア用データ
 
-/// PR更新情報（シェアカード表示用）
+/// PR更新情報（シェアカード表示用、現状は他画面互換のため残す）
 struct SharePRItem {
     let exerciseName: String
     let previousWeight: Double
@@ -11,251 +11,230 @@ struct SharePRItem {
     let increasePercent: Int
 }
 
-/// 種目エントリ（シェアカード表示用）
-struct ShareExerciseEntry {
-    let exerciseName: String
+/// シェアカード用 1セット表示エントリ
+struct ShareSetEntry: Identifiable {
+    let id = UUID()
+    let setNumber: Int
     let weight: Double
     let reps: Int
+    let isPR: Bool
 }
 
-// MARK: - シェア用ワークアウトカード（種目フォーカス版、360×360pt → @3x 1080×1080px）
+/// シェアカード用 種目グループ (種目名 + 全セット)
+struct ShareExerciseEntry: Identifiable {
+    let id = UUID()
+    let exerciseName: String
+    let sets: [ShareSetEntry]
+}
+
+// MARK: - シェア用ワークアウトカード（Stories 9:16、360×640pt → @3x 1080×1920px）
+//
+// 用途: Instagram Stories 等への投稿。完了画面 (in-app) と異なり技術指標は出さない。
+// 含める: マッスルマップ、ヒーロー数値 (種目/セット/分)、全種目全セットリスト、PR王冠。
+// 含めない: e1RM、過去最高、BW比、PR差分、編集/シェアボタン (画像内には出さない)。
 
 struct WorkoutShareCard: View {
     let exerciseEntries: [ShareExerciseEntry]
     let totalSets: Int
     let exerciseCount: Int
+    let durationMinutes: Int
     let date: Date
     let muscleMapping: [String: Int]
-    let prItems: [SharePRItem]
-    var durationMinutes: Int = 0
 
     private enum Layout {
-        static let cardSize: CGFloat = 360
+        static let cardWidth: CGFloat = 360
+        static let cardHeight: CGFloat = 640
         static let cornerRadius: CGFloat = 24
+        static let horizontalPadding: CGFloat = 24
     }
 
     private var dateString: String {
         let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy.MM.dd"
+        if LocalizationManager.shared.currentLanguage == .japanese {
+            formatter.dateFormat = "M/d (E)"
+            formatter.locale = Locale(identifier: "ja_JP")
+        } else {
+            formatter.dateFormat = "M/d (E)"
+            formatter.locale = Locale(identifier: "en_US")
+        }
         return formatter.string(from: date)
     }
 
     var body: some View {
         ZStack {
-            // ダークグラデーション背景
+            // 背景
             RoundedRectangle(cornerRadius: Layout.cornerRadius)
-                .fill(
-                    LinearGradient(
-                        colors: [Color.mmBgPrimary, Color.mmBgSecondary],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
-                )
-
-            gridOverlay
+                .fill(Color.mmBgCard)
 
             VStack(spacing: 0) {
-                // 1. ヘッダー: ロゴ + 日付
-                headerSection
-                    .padding(.top, 16)
+                Spacer().frame(height: 16)
 
-                // 2. タイトル
-                Text(L10n.workoutCompleteLabel)
-                    .font(.system(size: 11, weight: .heavy))
-                    .tracking(3)
-                    .foregroundStyle(Color.mmAccentPrimary)
-                    .padding(.top, 8)
+                // 1. マッスルマップ + FRONT/BACK ラベル
+                muscleMapSection
 
-                // 3. 筋肉マップ
-                ShareMuscleMapView(
-                    muscleMapping: muscleMapping,
-                    mapHeight: 130,
-                    glowEnabled: true
-                )
-                .padding(.horizontal, 40)
-                .padding(.top, 6)
+                Spacer().frame(height: 12)
 
-                // 4. 種目リスト（最大3種目）
+                // 2. ヒーロー数値: 6 / 17 / 110
+                heroNumbersSection
+
+                Spacer().frame(height: 12)
+
+                divider
+
+                // 3. 種目リスト (全種目全セット)
                 exerciseListSection
-                    .padding(.top, 10)
+                    .padding(.horizontal, Layout.horizontalPadding)
 
-                // 5. PR更新セクション
-                if !prItems.isEmpty {
-                    prSection
-                        .padding(.top, 8)
-                }
+                Spacer(minLength: 8)
 
-                // 6. サマリー1行
-                summaryLine
-                    .padding(.top, prItems.isEmpty ? 10 : 8)
+                divider
 
-                Spacer(minLength: 4)
+                Spacer().frame(height: 12)
 
-                // 7. フッター
+                // 4. フッター
                 footerSection
-                    .padding(.bottom, 14)
+
+                Spacer().frame(height: 16)
             }
         }
-        .frame(width: Layout.cardSize, height: Layout.cardSize)
+        .frame(width: Layout.cardWidth, height: Layout.cardHeight)
         .clipShape(RoundedRectangle(cornerRadius: Layout.cornerRadius))
         .environment(\.colorScheme, .dark)
     }
 
-    // MARK: - ヘッダー
+    // MARK: - マッスルマップ section
 
-    private var headerSection: some View {
-        HStack {
-            HStack(spacing: 4) {
-                ZStack {
-                    Circle()
-                        .fill(Color.mmAccentPrimary.opacity(0.15))
-                        .frame(width: 18, height: 18)
-                    Text("M")
-                        .font(.system(size: 10, weight: .heavy))
-                        .foregroundStyle(Color.mmAccentPrimary)
-                }
-                Text("MuscleMap")
-                    .font(.system(size: 12, weight: .heavy))
-                    .foregroundStyle(Color.mmAccentPrimary)
+    private var muscleMapSection: some View {
+        VStack(spacing: 6) {
+            ShareMuscleMapView(
+                muscleMapping: muscleMapping,
+                mapHeight: 130,
+                glowEnabled: false
+            )
+            HStack(spacing: 0) {
+                Text("FRONT")
+                    .frame(maxWidth: .infinity)
+                Text("BACK")
+                    .frame(maxWidth: .infinity)
             }
-
-            Spacer()
-
-            Text(dateString)
-                .font(.system(size: 11, weight: .medium))
-                .foregroundStyle(Color.mmBorder)
+            .font(.system(size: 10, weight: .regular))
+            .tracking(2)
+            .foregroundStyle(Color.mmTextSecondary)
+            .padding(.horizontal, 80)
         }
-        .padding(.horizontal, 20)
     }
 
-    // MARK: - 種目リスト
+    // MARK: - ヒーロー数値 section
 
-    private var exerciseListSection: some View {
-        VStack(spacing: 3) {
-            ForEach(Array(exerciseEntries.prefix(3).enumerated()), id: \.offset) { _, entry in
-                HStack(spacing: 0) {
-                    Text(entry.exerciseName)
-                        .font(.system(size: 12, weight: .semibold))
-                        .foregroundStyle(Color.mmTextPrimary)
-                        .lineLimit(1)
-
-                    Spacer(minLength: 8)
-
-                    Text("\(formatWeight(entry.weight))×\(entry.reps)")
-                        .font(.system(size: 12, weight: .bold).monospaced())
-                        .foregroundStyle(Color.mmAccentPrimary)
-                }
-            }
-        }
-        .padding(.horizontal, 24)
-    }
-
-    // MARK: - PRセクション
-
-    private var prSection: some View {
-        HStack(spacing: 6) {
-            Image(systemName: "trophy.fill")
-                .font(.system(size: 10))
-                .foregroundStyle(Color.mmPRGold)
-
-            ForEach(Array(prItems.prefix(2).enumerated()), id: \.offset) { index, item in
-                if index > 0 {
-                    Text("·")
-                        .font(.system(size: 10))
-                        .foregroundStyle(Color.mmPRGold.opacity(0.5))
-                }
-                Text("\(item.exerciseName) ↑\(item.increasePercent)%")
-                    .font(.system(size: 10, weight: .bold))
-                    .foregroundStyle(Color.mmPRGold)
-                    .lineLimit(1)
-            }
-        }
-        .padding(.horizontal, 20)
-    }
-
-    // MARK: - サマリー1行
-
-    private var summaryLine: some View {
+    private var heroNumbersSection: some View {
         HStack(spacing: 0) {
-            subStatItem(value: "\(exerciseCount)", label: "EXERCISES")
-            subStatDivider
-            subStatItem(value: "\(totalSets)", label: "SETS")
-            if durationMinutes > 0 {
-                subStatDivider
-                subStatItem(value: "\(durationMinutes)", label: "MIN")
-            }
+            heroColumn(value: "\(exerciseCount)", label: L10n.exercises)
+            heroDivider
+            heroColumn(value: "\(totalSets)", label: L10n.sets)
+            heroDivider
+            heroColumn(value: "\(durationMinutes)", label: L10n.shareCardMinLabel)
         }
-        .padding(.horizontal, 28)
+        .padding(.horizontal, Layout.horizontalPadding)
     }
 
-    private func subStatItem(value: String, label: String) -> some View {
-        VStack(spacing: 1) {
+    private func heroColumn(value: String, label: String) -> some View {
+        VStack(spacing: 2) {
             Text(value)
-                .font(.system(size: 18, weight: .bold))
-                .foregroundStyle(Color.mmTextPrimary)
+                .font(.system(size: 32, weight: .semibold))
+                .foregroundStyle(Color.mmAccentPrimary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.6)
             Text(label)
-                .font(.system(size: 8, weight: .semibold))
-                .tracking(1)
-                .foregroundStyle(Color.mmBorder)
+                .font(.system(size: 11, weight: .regular))
+                .foregroundStyle(Color.mmTextSecondary)
         }
         .frame(maxWidth: .infinity)
     }
 
-    private var subStatDivider: some View {
+    private var heroDivider: some View {
         Rectangle()
-            .fill(Color.mmBorder.opacity(0.3))
-            .frame(width: 0.5, height: 24)
+            .fill(Color.mmTextSecondary.opacity(0.2))
+            .frame(width: 0.5, height: 32)
+    }
+
+    // MARK: - 種目リスト section (全種目全セット)
+
+    private var exerciseListSection: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            ForEach(exerciseEntries) { exercise in
+                exerciseGroup(exercise)
+            }
+        }
+    }
+
+    private func exerciseGroup(_ exercise: ShareExerciseEntry) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(exercise.exerciseName)
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundStyle(Color.mmTextOnDark)
+                .lineLimit(1)
+            ForEach(exercise.sets) { set in
+                shareSetRow(set)
+            }
+        }
+    }
+
+    /// 1セット分の行 — 3列 (set# / 重量×回数 / 王冠)
+    private func shareSetRow(_ set: ShareSetEntry) -> some View {
+        HStack(spacing: 6) {
+            Text("\(set.setNumber)")
+                .frame(width: 14, alignment: .leading)
+                .foregroundStyle(Color.mmTextSecondary)
+
+            Text(formatWeightReps(weight: set.weight, reps: set.reps))
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .lineLimit(1)
+                .foregroundStyle(Color.mmTextOnDark)
+
+            Image(systemName: "crown.fill")
+                .font(.system(size: 10))
+                .foregroundStyle(Color.mmAccentPrimary)
+                .opacity(set.isPR ? 1 : 0)
+                .frame(width: 12, alignment: .trailing)
+        }
+        .font(.system(size: 11, weight: .regular, design: .monospaced))
+    }
+
+    private func formatWeightReps(weight: Double, reps: Int) -> String {
+        if weight > 0 {
+            let weightStr = weight.truncatingRemainder(dividingBy: 1) == 0
+                ? String(format: "%.0f", weight)
+                : String(format: "%.1f", weight)
+            return "\(weightStr) kg × \(reps)"
+        } else {
+            return LocalizationManager.shared.currentLanguage == .japanese
+                ? "自重 × \(reps)"
+                : "BW × \(reps)"
+        }
+    }
+
+    // MARK: - 区切り線
+
+    private var divider: some View {
+        Rectangle()
+            .fill(Color.mmTextSecondary.opacity(0.15))
+            .frame(height: 0.5)
+            .padding(.horizontal, Layout.horizontalPadding)
     }
 
     // MARK: - フッター
 
     private var footerSection: some View {
-        VStack(spacing: 4) {
-            Rectangle()
-                .fill(Color.mmAccentPrimary.opacity(0.1))
-                .frame(height: 0.5)
-                .padding(.horizontal, 20)
-
-            Text(L10n.shareCardTagline)
-                .font(.system(size: 8, weight: .medium))
-                .tracking(1)
-                .foregroundStyle(Color.mmBorder.opacity(0.5))
+        HStack {
+            Text("MuscleMap")
+                .font(.system(size: 11, weight: .regular))
+                .foregroundStyle(Color.mmTextSecondary)
+            Spacer()
+            Text(dateString)
+                .font(.system(size: 11, weight: .regular))
+                .foregroundStyle(Color.mmTextSecondary)
         }
-    }
-
-    // MARK: - グリッド装飾
-
-    private var gridOverlay: some View {
-        Canvas { context, size in
-            let lineColor = Color.white.opacity(0.02)
-            let spacing: CGFloat = 20
-            var x: CGFloat = 0
-            while x <= size.width {
-                var path = Path()
-                path.move(to: CGPoint(x: x, y: 0))
-                path.addLine(to: CGPoint(x: x, y: size.height))
-                context.stroke(path, with: .color(lineColor), lineWidth: 0.5)
-                x += spacing
-            }
-            var y: CGFloat = 0
-            while y <= size.height {
-                var path = Path()
-                path.move(to: CGPoint(x: 0, y: y))
-                path.addLine(to: CGPoint(x: size.width, y: y))
-                context.stroke(path, with: .color(lineColor), lineWidth: 0.5)
-                y += spacing
-            }
-        }
-        .clipShape(RoundedRectangle(cornerRadius: Layout.cornerRadius))
-    }
-
-    // MARK: - フォーマット
-
-    private func formatWeight(_ weight: Double) -> String {
-        if weight.truncatingRemainder(dividingBy: 1) == 0 {
-            return String(format: "%.0fkg", weight)
-        }
-        return String(format: "%.1fkg", weight)
+        .padding(.horizontal, Layout.horizontalPadding)
     }
 }
 
@@ -280,50 +259,55 @@ struct ShareSheet: UIViewControllerRepresentable {
 
 // MARK: - Preview
 
-#Preview("Workout Share Card - with PR") {
+#Preview("Workout Share Card - 6種目17セット") {
     ZStack {
         Color.mmBgPrimary.ignoresSafeArea()
         WorkoutShareCard(
             exerciseEntries: [
-                ShareExerciseEntry(exerciseName: "ベンチプレス", weight: 100, reps: 10),
-                ShareExerciseEntry(exerciseName: "インクラインDBプレス", weight: 67, reps: 10),
-                ShareExerciseEntry(exerciseName: "ケーブルクロス", weight: 30, reps: 12)
+                ShareExerciseEntry(exerciseName: "インクラインチェストプレス (マシン)", sets: [
+                    ShareSetEntry(setNumber: 1, weight: 70, reps: 11, isPR: false),
+                    ShareSetEntry(setNumber: 2, weight: 70, reps: 8, isPR: false),
+                    ShareSetEntry(setNumber: 3, weight: 70, reps: 5, isPR: false)
+                ]),
+                ShareExerciseEntry(exerciseName: "バーベルベンチプレス", sets: [
+                    ShareSetEntry(setNumber: 1, weight: 50, reps: 8, isPR: false),
+                    ShareSetEntry(setNumber: 2, weight: 50, reps: 4, isPR: false),
+                    ShareSetEntry(setNumber: 3, weight: 50, reps: 4, isPR: false)
+                ]),
+                ShareExerciseEntry(exerciseName: "リアデルトフライ", sets: [
+                    ShareSetEntry(setNumber: 1, weight: 14, reps: 10, isPR: false),
+                    ShareSetEntry(setNumber: 2, weight: 14, reps: 10, isPR: false),
+                    ShareSetEntry(setNumber: 3, weight: 14, reps: 10, isPR: false)
+                ]),
+                ShareExerciseEntry(exerciseName: "サイドレイズ", sets: [
+                    ShareSetEntry(setNumber: 1, weight: 14, reps: 13, isPR: true),
+                    ShareSetEntry(setNumber: 2, weight: 14, reps: 12, isPR: false),
+                    ShareSetEntry(setNumber: 3, weight: 14, reps: 12, isPR: false)
+                ]),
+                ShareExerciseEntry(exerciseName: "シーテッドケーブルロウ", sets: [
+                    ShareSetEntry(setNumber: 1, weight: 50, reps: 10, isPR: true),
+                    ShareSetEntry(setNumber: 2, weight: 50, reps: 8, isPR: false)
+                ]),
+                ShareExerciseEntry(exerciseName: "トライセプスプッシュダウン", sets: [
+                    ShareSetEntry(setNumber: 1, weight: 31.2, reps: 8, isPR: false),
+                    ShareSetEntry(setNumber: 2, weight: 31.2, reps: 6, isPR: false),
+                    ShareSetEntry(setNumber: 3, weight: 31.2, reps: 6, isPR: false)
+                ])
             ],
-            totalSets: 12,
-            exerciseCount: 3,
+            totalSets: 17,
+            exerciseCount: 6,
+            durationMinutes: 110,
             date: Date(),
             muscleMapping: [
                 "chest_upper": 100,
                 "chest_lower": 85,
                 "deltoid_anterior": 60,
-                "triceps": 45
-            ],
-            prItems: [
-                SharePRItem(exerciseName: "ベンチプレス", previousWeight: 90, newWeight: 100, increasePercent: 11)
-            ],
-            durationMinutes: 42
-        )
-    }
-}
-
-#Preview("Workout Share Card - no PR") {
-    ZStack {
-        Color.mmBgPrimary.ignoresSafeArea()
-        WorkoutShareCard(
-            exerciseEntries: [
-                ShareExerciseEntry(exerciseName: "ラットプルダウン", weight: 60, reps: 10),
-                ShareExerciseEntry(exerciseName: "バーベルロウ", weight: 70, reps: 8)
-            ],
-            totalSets: 18,
-            exerciseCount: 5,
-            date: Date(),
-            muscleMapping: [
-                "lats": 100,
-                "traps_upper": 70,
-                "biceps": 60
-            ],
-            prItems: [],
-            durationMinutes: 38
+                "deltoid_lateral": 80,
+                "deltoid_posterior": 70,
+                "triceps": 65,
+                "lats": 55,
+                "traps_middle_lower": 45
+            ]
         )
     }
 }
