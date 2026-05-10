@@ -198,6 +198,82 @@ enum L10n {
     static var home: String { loc("ホーム", "Home", zhHans: "首页", ko: "홈", es: "Inicio", fr: "Accueil", de: "Start") }
     static var workout: String { loc("ワークアウト", "Workout", zhHans: "训练", ko: "운동", es: "Entrenamiento", fr: "Entraînement", de: "Training") }
     static var exerciseLibrary: String { loc("種目辞典", "Exercise Library", zhHans: "动作库", ko: "운동 도감", es: "Biblioteca", fr: "Bibliothèque", de: "Übungsbibliothek") }
+
+    // MARK: - Biblioteca (v1.1.5 リデザイン)
+    static var exploreByLabel: String {
+        loc("探す軸", "Explore by", zhHans: "按...浏览", ko: "탐색 기준",
+            es: "Explorar por", fr: "Explorer par", de: "Erkunden nach")
+    }
+    static var axisMusculo: String {
+        loc("部位", "Muscle", zhHans: "肌肉", ko: "근육",
+            es: "Músculo", fr: "Muscle", de: "Muskel")
+    }
+    static var axisEquipo: String {
+        loc("器具", "Equipment", zhHans: "器械", ko: "장비",
+            es: "Equipo", fr: "Équipement", de: "Ausrüstung")
+    }
+    static var axisNivel: String {
+        loc("難易度", "Level", zhHans: "难度", ko: "난이도",
+            es: "Nivel", fr: "Niveau", de: "Niveau")
+    }
+    static var axisFavoritos: String {
+        loc("お気に入り", "Favorites", zhHans: "收藏", ko: "즐겨찾기",
+            es: "Favoritos", fr: "Favoris", de: "Favoriten")
+    }
+    static var filtrosLabel: String {
+        loc("フィルター", "Filters", zhHans: "筛选", ko: "필터",
+            es: "Filtros", fr: "Filtres", de: "Filter")
+    }
+    static func exerciseCountLong(_ count: Int) -> String {
+        loc("\(count)種目", "\(count) exercises",
+            zhHans: "\(count) 个动作", ko: "\(count) 운동",
+            es: "\(count) ejercicios", fr: "\(count) exercices", de: "\(count) Übungen")
+    }
+    static var ordenarLabel: String {
+        loc("並び替え", "Sort", zhHans: "排序", ko: "정렬",
+            es: "Ordenar", fr: "Trier", de: "Sortieren")
+    }
+    static var sortRelevancia: String {
+        loc("おすすめ", "Relevance", zhHans: "推荐", ko: "추천",
+            es: "Relevancia", fr: "Pertinence", de: "Relevanz")
+    }
+    static var sortNombre: String {
+        loc("名前順", "Name (A-Z)", zhHans: "名称", ko: "이름",
+            es: "Nombre (A-Z)", fr: "Nom (A-Z)", de: "Name (A-Z)")
+    }
+    static var sortRecientes: String {
+        loc("最近の使用", "Recent", zhHans: "最近", ko: "최근",
+            es: "Recientes", fr: "Récents", de: "Zuletzt")
+    }
+    static var sortFavoritosPrimero: String {
+        loc("お気に入り優先", "Favorites first", zhHans: "收藏优先", ko: "즐겨찾기 먼저",
+            es: "Favoritos primero", fr: "Favoris d'abord", de: "Favoriten zuerst")
+    }
+    static var noExercisesMatchTitle: String {
+        loc("該当する種目がありません", "No exercises match",
+            zhHans: "没有匹配的动作", ko: "일치하는 운동이 없습니다",
+            es: "Ningún ejercicio coincide", fr: "Aucun exercice ne correspond",
+            de: "Keine passenden Übungen")
+    }
+    static var adjustFiltersHint: String {
+        loc("フィルターを調整してみてください", "Try adjusting filters",
+            zhHans: "请调整筛选条件", ko: "필터를 조정해 보세요",
+            es: "Prueba ajustando filtros", fr: "Essayez d'ajuster les filtres",
+            de: "Filter anpassen")
+    }
+    static var diffPrincipiante: String {
+        loc("初級", "Beginner", zhHans: "初级", ko: "초급",
+            es: "Principiante", fr: "Débutant", de: "Anfänger")
+    }
+    static var diffIntermedio: String {
+        loc("中級", "Intermediate", zhHans: "中级", ko: "중급",
+            es: "Intermedio", fr: "Intermédiaire", de: "Mittel")
+    }
+    static var diffAvanzado: String {
+        loc("上級", "Advanced", zhHans: "高级", ko: "고급",
+            es: "Avanzado", fr: "Avancé", de: "Fortgeschritten")
+    }
+
     static var browseExercises: String { loc("種目を探す", "Browse Exercises", zhHans: "浏览动作", ko: "운동 찾기", es: "Buscar ejercicios", fr: "Parcourir les exercices", de: "Übungen durchsuchen") }
     static var favoritesSection: String { loc("お気に入り", "Favorites", zhHans: "收藏", ko: "즐겨찾기", es: "Favoritos", fr: "Favoris", de: "Favoriten") }
     static var recentSearches: String { loc("最近の検索", "Recent Searches", zhHans: "最近搜索", ko: "최근 검색", es: "Búsquedas recientes", fr: "Recherches récentes", de: "Letzte Suchen") }

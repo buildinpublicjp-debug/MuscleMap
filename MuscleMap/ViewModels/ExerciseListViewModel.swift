@@ -38,6 +38,25 @@ class ExerciseListViewModel {
         didSet { if !isBatchUpdating { applyFilters() } }
     }
 
+    /// v1.1.5: Biblioteca リデザインの主軸選択
+    var selectedAxis: ExploreAxis = .musculo {
+        didSet {
+            if !isBatchUpdating {
+                applyFilters()
+            }
+        }
+    }
+
+    /// v1.1.5: 難易度フィルター (Nivel 軸 + 副次フィルター両方で使用)
+    var selectedDifficulty: LibraryDifficulty? {
+        didSet { if !isBatchUpdating { applyFilters() } }
+    }
+
+    /// v1.1.5: グリッドのソート方式
+    var sortOption: LibrarySortOption = .relevancia {
+        didSet { if !isBatchUpdating { applyFilters() } }
+    }
+
     /// 最近の検索ワード（最大3件）
     var recentSearches: [String] {
         UserDefaults.standard.stringArray(forKey: recentSearchesKey) ?? []
@@ -88,6 +107,9 @@ class ExerciseListViewModel {
     func applyFilters() {
         var result = exercises
 
+        // v1.1.5: Favoritos 主軸選択時はお気に入り絞り込みを自動 ON
+        let effectiveFavoritesOnly = showFavoritesOnly || selectedAxis == .favoritos
+
         // 最近使った種目フィルター
         if showRecentOnly {
             let recentIds = RecentExercisesManager.shared.getRecentIds()
@@ -101,9 +123,15 @@ class ExerciseListViewModel {
         }
 
         // お気に入りフィルター
-        if showFavoritesOnly {
+        if effectiveFavoritesOnly {
             let favIds = FavoritesManager.shared.favoriteIds
             result = result.filter { favIds.contains($0.id) }
+        }
+
+        // v1.1.5: 難易度フィルター (Nivel 主軸 or 副次フィルター)
+        if let difficulty = selectedDifficulty {
+            let keys = Set(difficulty.matchKeys)
+            result = result.filter { keys.contains($0.difficulty) }
         }
 
         // カテゴリフィルター
@@ -160,7 +188,38 @@ class ExerciseListViewModel {
             }
         }
 
-        filteredExercises = result
+        filteredExercises = applySorting(result)
+    }
+
+    /// v1.1.5: ソート適用
+    private func applySorting(_ list: [ExerciseDefinition]) -> [ExerciseDefinition] {
+        switch sortOption {
+        case .relevancia:
+            // 検索クエリある時はマッチ度順 (現状は単純に既存 result 順)、無い時は元順
+            return list
+        case .nombre:
+            return list.sorted { $0.localizedName.localizedCaseInsensitiveCompare($1.localizedName) == .orderedAscending }
+        case .recientes:
+            // 最近実施順 (RecentExercisesManager の順序、未収録は末尾)
+            let recentIds = RecentExercisesManager.shared.getRecentIds()
+            let recentSet = Set(recentIds)
+            let recentRank = Dictionary(uniqueKeysWithValues: recentIds.enumerated().map { ($1, $0) })
+            return list.sorted { a, b in
+                let aIn = recentSet.contains(a.id)
+                let bIn = recentSet.contains(b.id)
+                if aIn && bIn { return (recentRank[a.id] ?? Int.max) < (recentRank[b.id] ?? Int.max) }
+                if aIn != bIn { return aIn }
+                return false
+            }
+        case .favoritosPrimero:
+            let favIds = FavoritesManager.shared.favoriteIds
+            return list.sorted { a, b in
+                let aFav = favIds.contains(a.id)
+                let bFav = favIds.contains(b.id)
+                if aFav != bFav { return aFav }
+                return a.localizedName.localizedCaseInsensitiveCompare(b.localizedName) == .orderedAscending
+            }
+        }
     }
 
     /// フィルターをすべてクリア（didSetの多重発火を回避）
@@ -171,6 +230,7 @@ class ExerciseListViewModel {
         selectedCategory = nil
         selectedEquipment = nil
         selectedMuscleGroup = nil
+        selectedDifficulty = nil
         searchText = ""
         isBatchUpdating = false
         applyFilters()
