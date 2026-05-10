@@ -14,21 +14,6 @@ struct ExerciseDetailView: View {
         PRManager.shared.getWeightPR(exerciseId: exercise.id, context: modelContext)
     }
 
-    /// 現在の種目の強さレベル情報
-    private var strengthLevelInfo: (level: StrengthLevel, kgToNext: Double?, nextLevel: StrengthLevel?)? {
-        let bodyweight = AppState.shared.userProfile.weightKg
-        guard let best1RM = PRManager.shared.getBestEffective1RM(
-            exerciseId: exercise.id, bodyweightKg: bodyweight, context: modelContext
-        ) else {
-            return nil
-        }
-        return StrengthScoreCalculator.exerciseStrengthLevel(
-            exerciseId: exercise.id,
-            estimated1RM: best1RM,
-            bodyweightKg: bodyweight
-        )
-    }
-
     var body: some View {
         NavigationStack {
             ZStack {
@@ -36,43 +21,30 @@ struct ExerciseDetailView: View {
 
                 ScrollView {
                     VStack(alignment: .leading, spacing: 16) {
-                        // ヒーローGIFアニメーション（フル幅300px）
+                        // 1. ヒーロー GIF アニメーション (フル幅 300px) — 現状維持
                         if ExerciseGifView.hasGif(exerciseId: exercise.id) {
                             ExerciseGifView(exerciseId: exercise.id, size: .fullWidth)
                         }
 
-                        // 基本情報タグ（コンパクトに）+ YouTubeボタン（右端）
-                        HStack(spacing: 8) {
-                            ScrollView(.horizontal, showsIndicators: false) {
-                                HStack(spacing: 8) {
-                                    DetailInfoTag(icon: "dumbbell", text: exercise.localizedEquipment)
-                                    DetailInfoTag(icon: "chart.bar", text: exercise.localizedDifficulty)
-                                    DetailInfoTag(icon: "tag", text: exercise.localizedCategory)
-                                    if let pr = prWeight {
-                                        DetailInfoTag(icon: "trophy.fill", text: String(format: "%.1f kg", pr), highlight: true)
-                                    }
-                                }
-                            }
+                        // 2. 「過去のあなた」セクション (履歴 0件は非表示、3+件で e1RM トレンドグラフ)
+                        ExerciseHistorySection(exerciseId: exercise.id)
 
-                            if let url = YouTubeSearchHelper.searchURL(for: exercise) {
-                                Button {
-                                    HapticManager.lightTap()
-                                    UIApplication.shared.open(url)
-                                } label: {
-                                    Image(systemName: "play.rectangle.fill")
-                                        .font(.system(size: 14))
-                                        .foregroundStyle(Color.mmDestructive)
-                                        .padding(.horizontal, 10)
-                                        .padding(.vertical, 6)
-                                        .background(Color.mmBgCard)
-                                        .clipShape(Capsule())
+                        // 3. YouTube 独立行ボタン
+                        YouTubeFormButton(exercise: exercise)
+
+                        // 4. タグ行 (器具/難易度/カテゴリ + PR、YouTube削除)
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 8) {
+                                DetailInfoTag(icon: "dumbbell", text: exercise.localizedEquipment)
+                                DetailInfoTag(icon: "chart.bar", text: exercise.localizedDifficulty)
+                                DetailInfoTag(icon: "tag", text: exercise.localizedCategory)
+                                if let pr = prWeight {
+                                    DetailInfoTag(icon: "trophy.fill", text: String(format: "%.1f kg", pr), highlight: true)
                                 }
-                                .buttonStyle(.plain)
-                                .accessibilityLabel(L10n.watchVideo)
                             }
                         }
 
-                        // ターゲット筋肉（マップ + 刺激度バー統合セクション）
+                        // 5. 「対象筋肉」セクション (マップ + 刺激度バー、現状維持)
                         VStack(alignment: .leading, spacing: 12) {
                             Text(L10n.targetMuscles)
                                 .font(.headline)
@@ -83,7 +55,6 @@ struct ExerciseDetailView: View {
                                 .background(Color.mmBgCard)
                                 .clipShape(RoundedRectangle(cornerRadius: 12))
 
-                            // 刺激度バー（マップ直下に配置）
                             let sorted = exercise.muscleMapping
                                 .sorted { $0.value > $1.value }
 
@@ -97,19 +68,7 @@ struct ExerciseDetailView: View {
                             }
                         }
 
-                        // 強さレベルプログレスバー
-                        if let info = strengthLevelInfo {
-                            DetailStrengthLevelProgressSection(
-                                currentLevel: info.level,
-                                kgToNext: info.kgToNext,
-                                nextLevel: info.nextLevel
-                            )
-                        }
-
-                        // 過去3回のパフォーマンス
-                        ExercisePerformanceSection(exerciseId: exercise.id)
-
-                        // この種目でワークアウト開始ボタン（オンボーディング中は非表示）
+                        // 6. この種目でワークアウト開始 (UX フロー維持のため保持、オンボーディング中は非表示)
                         if !hideStartWorkoutButton {
                             Button {
                                 AppState.shared.pendingExerciseId = exercise.id

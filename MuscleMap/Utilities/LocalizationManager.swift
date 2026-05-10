@@ -372,6 +372,36 @@ enum L10n {
     static var description: String { loc("説明", "Description", zhHans: "说明", ko: "설명", es: "Descripción", fr: "Description", de: "Beschreibung") }
     static var formTips: String { loc("フォームのポイント", "Form Tips", zhHans: "姿势要点", ko: "자세 팁", es: "Consejos de forma", fr: "Conseils de forme", de: "Formtipps") }
     static var watchVideo: String { loc("動画で見る", "Watch Video", zhHans: "观看视频", ko: "동영상 보기", es: "Ver video", fr: "Voir la vidéo", de: "Video ansehen") }
+    /// 種目詳細画面の「YouTubeでフォームを見る」独立行ボタン (v1.1.5)
+    static var watchFormOnYouTube: String {
+        loc("YouTubeでフォームを見る", "Watch form on YouTube",
+            zhHans: "在 YouTube 上观看动作", ko: "YouTube에서 자세 보기",
+            es: "Ver técnica en YouTube", fr: "Voir la forme sur YouTube",
+            de: "Form auf YouTube ansehen")
+    }
+    /// 種目詳細画面「過去のあなた」セクションのヘッダー (v1.1.5)
+    static var pastYouSection: String {
+        loc("過去のあなた", "Past You",
+            zhHans: "过去的你", ko: "과거의 당신",
+            es: "Tu pasado", fr: "Vous dans le passé", de: "Dein Verlauf")
+    }
+    /// 「前回」(過去のあなたカード左) ラベル
+    static var lastSessionLabel: String {
+        loc("前回", "Last", zhHans: "上次", ko: "지난번",
+            es: "Última", fr: "Dernière", de: "Zuletzt")
+    }
+    /// 「Best e1RM」(過去のあなたカード右) ラベル — 全言語共通の専門用語
+    static var bestE1RMLabel: String { "Best e1RM" }
+    /// 「達成日 4/15 (約1ヶ月前)」のサブテキスト (Best e1RMカード)
+    static func bestE1RMAchievedOn(_ date: String, _ relative: String) -> String {
+        loc("達成日 \(date) (\(relative))",
+            "On \(date) (\(relative))",
+            zhHans: "达成日 \(date) (\(relative))",
+            ko: "달성일 \(date) (\(relative))",
+            es: "Logrado el \(date) (\(relative))",
+            fr: "Atteint le \(date) (\(relative))",
+            de: "Erreicht am \(date) (\(relative))")
+    }
     static var targetMuscles: String { loc("対象筋肉", "Target Muscles", zhHans: "目标肌肉", ko: "대상 근육", es: "Músculos objetivo", fr: "Muscles ciblés", de: "Zielmuskeln") }
     static var stimulationLevel: String { loc("刺激度", "Stimulation Level", zhHans: "刺激度", ko: "자극도", es: "Nivel de estimulación", fr: "Niveau de stimulation", de: "Stimulationsstufe") }
     static var highStimulation: String { loc("高 (80%+)", "High (80%+)", zhHans: "高 (80%+)", ko: "높음 (80%+)", es: "Alto (80%+)", fr: "Élevé (80%+)", de: "Hoch (80%+)") }
