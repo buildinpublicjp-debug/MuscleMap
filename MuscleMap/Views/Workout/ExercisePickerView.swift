@@ -1,95 +1,87 @@
 import SwiftUI
 import SwiftData
 
-// MARK: - 種目選択ビュー（シート表示）
+// MARK: - 種目選択ビュー（シート表示）— v1.1.5 Biblioteca 統一版
+//
+// 構成は Biblioteca タブと完全一致:
+// [閉じる] / 種目を選択 / [★] → 部位行 → 器具行 → 件数 → 2列グリッド
+// 検索バー / グリッド⇔リスト切替 / FlowLayout 大量チップ / 最近検索 / お気に入り横スクロール は全廃。
 
 struct ExercisePickerView: View {
     let onSelect: (ExerciseDefinition) -> Void
 
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.modelContext) private var modelContext
     @State private var viewModel = ExerciseListViewModel()
     @ObservedObject private var favorites = FavoritesManager.shared
-    @ObservedObject private var recentManager = RecentExercisesManager.shared
-    @State private var searchText = ""
-    @State private var muscleStates: [Muscle: MuscleStimulation] = [:]
     @State private var previewExercise: ExerciseDefinition?
-    @AppStorage("exercisePickerGridView") private var isGridView = true
+
+    private let columns = [
+        GridItem(.flexible(), spacing: 12),
+        GridItem(.flexible(), spacing: 12)
+    ]
 
     var body: some View {
         NavigationStack {
             ZStack {
                 Color.mmBgPrimary.ignoresSafeArea()
 
-                VStack(spacing: 0) {
-                    // フィルターチップ（回復ステータスドット付き）
-                    PickerFilterChipsSection(
-                        viewModel: viewModel,
-                        muscleStates: muscleStates
-                    )
+                ScrollView {
+                    LazyVStack(alignment: .leading, spacing: 12, pinnedViews: []) {
+                        LibraryFilterRows(
+                            selectedMuscleGroup: $viewModel.selectedMuscleGroup,
+                            selectedEquipment: $viewModel.selectedEquipment
+                        )
 
-                    // お気に入り横スクロール行
-                    PickerFavoritesRow(
-                        exercises: viewModel.exercises,
-                        onSelect: { exercise in
-                            HapticManager.lightTap()
-                            onSelect(exercise)
+                        Text(L10n.exerciseCountLong(viewModel.filteredExercises.count))
+                            .font(.system(size: 13, weight: .regular))
+                            .foregroundStyle(Color.mmTextSecondary)
+                            .padding(.horizontal, 16)
+                            .padding(.top, 4)
+
+                        if viewModel.filteredExercises.isEmpty {
+                            LibraryEmptyState()
+                        } else {
+                            LazyVGrid(columns: columns, spacing: 12) {
+                                ForEach(viewModel.filteredExercises) { exercise in
+                                    LibraryGridCard(exercise: exercise) {
+                                        HapticManager.lightTap()
+                                        onSelect(exercise)
+                                    }
+                                }
+                            }
+                            .padding(.horizontal, 16)
                         }
-                    )
-
-                    // 最近の検索
-                    PickerRecentSearchesRow(
-                        searches: viewModel.recentSearches
-                    ) { query in
-                        searchText = query
-                        viewModel.searchText = query
                     }
-
-                    // 種目リスト/グリッド or EmptyState
-                    PickerContentSection(
-                        viewModel: viewModel,
-                        muscleStates: muscleStates,
-                        isGridView: isGridView,
-                        onSelect: { exercise in
-                            HapticManager.lightTap()
-                            onSelect(exercise)
-                        },
-                        onPreview: { exercise in
-                            HapticManager.lightTap()
-                            previewExercise = exercise
-                        }
-                    )
+                    .padding(.top, 8)
+                    .padding(.bottom, 16)
                 }
             }
             .navigationTitle(L10n.selectExercise)
             .navigationBarTitleDisplayMode(.inline)
             .toolbarColorScheme(.dark, for: .navigationBar)
-            .searchable(text: $searchText, prompt: L10n.searchExercises)
-            .onSubmit(of: .search) {
-                viewModel.recordSearch(searchText)
-            }
-            .onChange(of: searchText) { _, newValue in
-                viewModel.searchText = newValue
-            }
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    // グリッド/リスト切替
-                    Button {
-                        isGridView.toggle()
-                        HapticManager.lightTap()
-                    } label: {
-                        Image(systemName: isGridView ? "list.bullet" : "square.grid.2x2")
-                            .foregroundStyle(Color.mmAccentPrimary)
-                    }
-                }
-                ToolbarItem(placement: .topBarTrailing) {
                     Button(L10n.close) { dismiss() }
                         .foregroundStyle(Color.mmAccentPrimary)
+                }
+                ToolbarItem(placement: .principal) {
+                    Text(L10n.selectExercise)
+                        .font(.system(size: 20, weight: .semibold))
+                        .foregroundStyle(Color.mmTextPrimary)
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        HapticManager.lightTap()
+                        viewModel.showFavoritesOnly.toggle()
+                    } label: {
+                        Image(systemName: viewModel.showFavoritesOnly ? "star.fill" : "star")
+                            .foregroundStyle(viewModel.showFavoritesOnly ? Color.mmAccentPrimary : Color.mmTextSecondary)
+                    }
+                    .accessibilityLabel(L10n.axisFavoritos)
                 }
             }
             .onAppear {
                 viewModel.load()
-                loadMuscleStates()
             }
             .sheet(item: $previewExercise) { exercise in
                 ExercisePreviewSheet(exercise: exercise) {
@@ -97,48 +89,6 @@ struct ExercisePickerView: View {
                 }
             }
         }
-    }
-
-    private func loadMuscleStates() {
-        let repo = MuscleStateRepository(modelContext: modelContext)
-        muscleStates = repo.fetchLatestStimulations()
-    }
-}
-
-// MARK: - 種目行（シンプル版）
-
-struct ExerciseRow: View {
-    let exercise: ExerciseDefinition
-
-    var body: some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 4) {
-                Text(exercise.localizedName)
-                    .font(.subheadline)
-                    .foregroundStyle(Color.mmTextPrimary)
-
-                HStack(spacing: 8) {
-                    Label(exercise.localizedEquipment, systemImage: "dumbbell")
-                    Label(exercise.localizedDifficulty, systemImage: "chart.bar")
-                }
-                .font(.caption2)
-                .foregroundStyle(Color.mmTextSecondary)
-            }
-
-            Spacer()
-
-            // ターゲット筋肉タグ
-            if let primary = exercise.primaryMuscle {
-                Text(primary.localizedName)
-                    .font(.caption2)
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 2)
-                    .background(Color.mmAccentPrimary.opacity(0.15))
-                    .foregroundStyle(Color.mmAccentPrimary)
-                    .clipShape(Capsule())
-            }
-        }
-        .padding(.vertical, 4)
     }
 }
 
