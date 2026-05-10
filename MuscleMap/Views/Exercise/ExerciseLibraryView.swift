@@ -2,14 +2,13 @@ import SwiftUI
 
 // MARK: - 種目辞典 (Biblioteca) — v1.1.5 フラット構造
 //
-// 構成: 検索バー (常時表示) → 部位行 → 器具行 → 件数 → 2列グリッド
-// 探す軸セグメント / Filtros collapse / 難易度フィルター / 並び替え は全廃。
+// 構成: 部位行 → 器具行 → 件数 → 2列グリッド
+// 探す軸セグメント / Filtros collapse / 難易度フィルター / 並び替え / 検索バー は全廃。
 // お気に入り toggle は toolbar 右上の ★ で切替。
 
 struct ExerciseLibraryView: View {
     @State private var viewModel = ExerciseListViewModel()
     @ObservedObject private var favorites = FavoritesManager.shared
-    @State private var searchText = ""
     @State private var selectedExercise: ExerciseDefinition?
 
     private let columns = [
@@ -23,8 +22,6 @@ struct ExerciseLibraryView: View {
 
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 12, pinnedViews: []) {
-                    searchBar
-
                     chipRow(label: L10n.axisMusculo) {
                         ForEach(MuscleGroup.allCases) { group in
                             flatChip(
@@ -91,42 +88,12 @@ struct ExerciseLibraryView: View {
                 .accessibilityLabel(L10n.axisFavoritos)
             }
         }
-        .onChange(of: searchText) { _, newValue in
-            viewModel.searchText = newValue
-        }
         .onAppear {
             viewModel.load()
         }
         .sheet(item: $selectedExercise) { exercise in
             ExerciseDetailView(exercise: exercise)
         }
-    }
-
-    // MARK: - 常時表示の検索バー
-
-    private var searchBar: some View {
-        HStack(spacing: 8) {
-            Image(systemName: "magnifyingglass")
-                .foregroundStyle(Color.mmTextSecondary)
-            TextField(L10n.searchExercises, text: $searchText)
-                .textFieldStyle(.plain)
-                .foregroundStyle(Color.mmTextPrimary)
-                .submitLabel(.search)
-                .onSubmit { viewModel.recordSearch(searchText) }
-            if !searchText.isEmpty {
-                Button {
-                    searchText = ""
-                } label: {
-                    Image(systemName: "xmark.circle.fill")
-                        .foregroundStyle(Color.mmTextSecondary)
-                }
-            }
-        }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 10)
-        .background(Color.mmBgCard)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-        .padding(.horizontal, 16)
     }
 
     // MARK: - ラベル + 横スクロールチップ行
