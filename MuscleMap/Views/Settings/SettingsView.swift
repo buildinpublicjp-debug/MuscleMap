@@ -1,8 +1,10 @@
 import SwiftUI
+import SwiftData
 
 // MARK: - 設定画面
 
 struct SettingsView: View {
+    @Environment(\.modelContext) private var modelContext
     @State private var appState = AppState.shared
     @State private var localization = LocalizationManager.shared
     @State private var themeManager = ThemeManager.shared
@@ -519,6 +521,35 @@ struct SettingsView: View {
                     Image(systemName: "arrow.counterclockwise")
                         .foregroundStyle(Color.mmDestructive)
                     Text(L10n.resetOnboarding)
+                        .font(.subheadline)
+                        .foregroundStyle(Color.mmDestructive)
+                }
+            }
+            .listRowBackground(Color.mmBgCard)
+
+            // ASC スクショ用デモデータ注入 (DEBUG only)
+            Button {
+                ASCDemoDataSeeder.inject(context: modelContext)
+                HapticManager.success()
+            } label: {
+                HStack(spacing: 12) {
+                    Image(systemName: "camera.viewfinder")
+                        .foregroundStyle(Color.mmAccentSecondary)
+                    Text("ASC スクショ用デモデータを注入")
+                        .font(.subheadline)
+                        .foregroundStyle(Color.mmTextPrimary)
+                }
+            }
+            .listRowBackground(Color.mmBgCard)
+
+            Button(role: .destructive) {
+                ASCDemoDataSeeder.clear(context: modelContext)
+                HapticManager.success()
+            } label: {
+                HStack(spacing: 12) {
+                    Image(systemName: "trash")
+                        .foregroundStyle(Color.mmDestructive)
+                    Text("デモデータをクリア")
                         .font(.subheadline)
                         .foregroundStyle(Color.mmDestructive)
                 }
