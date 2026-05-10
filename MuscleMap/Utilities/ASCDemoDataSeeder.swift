@@ -95,9 +95,9 @@ private struct DemoScenario {
 }
 
 private let scenarios: [DemoScenario] = [
-    // 胸 — 1日前 (オレンジ、回復 ~50-60%)
+    // 胸 — 3h前 (赤 ~5%、刺激直後)
     DemoScenario(
-        hoursAgo: 24,
+        hoursAgo: 3,
         exercises: [
             ("barbell_bench_press", [80, 85, 90, 85], 8),
             ("incline_dumbbell_press", [30, 32.5, 35, 32.5], 10),
@@ -110,7 +110,7 @@ private let scenarios: [DemoScenario] = [
             ("triceps", 0.5, 7)
         ]
     ),
-    // 腕 — 1日前 (オレンジ、回復 ~50-60%)
+    // 腕 — 1日前 (橙〜黄 ~50%)
     DemoScenario(
         hoursAgo: 24,
         exercises: [
@@ -123,7 +123,7 @@ private let scenarios: [DemoScenario] = [
             ("forearms", 0.4, 6)
         ]
     ),
-    // 肩 — 2日前 (黄、回復 ~70%)
+    // 肩 — 2日前 (黄〜黄緑 ~70%)
     DemoScenario(
         hoursAgo: 48,
         exercises: [
@@ -137,7 +137,7 @@ private let scenarios: [DemoScenario] = [
             ("triceps", 0.4, 3)
         ]
     ),
-    // 背中 — 3日前 (黄緑、回復 ~85-90%)
+    // 背中 — 3日前 (黄緑〜緑 ~85%)
     DemoScenario(
         hoursAgo: 72,
         exercises: [
@@ -155,27 +155,24 @@ private let scenarios: [DemoScenario] = [
             ("forearms", 0.5, 10)
         ]
     ),
-    // 下半身 — 5日前 (緑、100% Ready)
+    // 下半身 (calf 除く) — 4日前 (緑 ~90%。完全回復するとグレーに戻るので緑維持の手前で止める)
     DemoScenario(
-        hoursAgo: 120,
+        hoursAgo: 96,
         exercises: [
             ("barbell_back_squat", [80, 90, 100, 90], 8),
-            ("lying_leg_curl", [35, 40, 45], 10),
-            ("standing_calf_raise", [60, 70, 80], 15)
+            ("lying_leg_curl", [35, 40, 45], 10)
         ],
         stimulations: [
             ("quadriceps", 1.0, 10),
             ("hamstrings", 0.9, 6),
             ("glutes", 0.8, 4),
             ("adductors", 0.6, 4),
-            ("gastrocnemius", 1.0, 3),
-            ("soleus", 0.7, 3),
             ("erector_spinae", 0.5, 4)
         ]
     ),
-    // 体幹 — 6日前 (緑、100% Ready)
+    // 体幹 — 4日前 (緑 ~90%)
     DemoScenario(
-        hoursAgo: 144,
+        hoursAgo: 96,
         exercises: [
             ("plank", [0, 0, 0], 60),
             ("hanging_leg_raise", [0, 0, 0], 12)
@@ -184,6 +181,17 @@ private let scenarios: [DemoScenario] = [
             ("rectus_abdominis", 1.0, 6),
             ("obliques", 0.7, 6),
             ("hip_flexors", 0.5, 3)
+        ]
+    ),
+    // ふくらはぎ — 8日前 (紫、neglected = 7日以上未刺激の警告色 + パルス点滅)
+    DemoScenario(
+        hoursAgo: 192,
+        exercises: [
+            ("standing_calf_raise", [60, 70, 80], 15)
+        ],
+        stimulations: [
+            ("gastrocnemius", 1.0, 3),
+            ("soleus", 0.7, 3)
         ]
     )
 ]
