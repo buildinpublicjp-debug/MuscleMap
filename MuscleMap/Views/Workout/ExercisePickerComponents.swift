@@ -1,79 +1,61 @@
 import SwiftUI
 import SwiftData
 
-// MARK: - フィルターチップセクション（回復ステータスドット付き）
+// MARK: - フィルターチップセクション（種目辞典と統一: FlowLayout で折り返し）
 
 struct PickerFilterChipsSection: View {
     @Bindable var viewModel: ExerciseListViewModel
     let muscleStates: [Muscle: MuscleStimulation]
 
     var body: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 8) {
-                // 最近使った種目フィルター
-                PickerFilterChip(
-                    title: "⏱ \(L10n.recent)",
-                    isSelected: viewModel.showRecentOnly
-                ) {
+        VStack(alignment: .leading, spacing: 8) {
+            // 器具フィルター（横一列、All + 5 equipment 固定順）
+            LibraryFlowLayout(spacing: 6) {
+                LibraryChip(title: L10n.all, isSelected: viewModel.selectedEquipment == nil) {
+                    viewModel.selectedEquipment = nil
+                }
+                ForEach(LibraryEquipmentFilter.allCases) { filter in
+                    LibraryChip(title: filter.localizedName, isSelected: viewModel.selectedEquipment == filter.rawValue) {
+                        viewModel.selectedEquipment = filter.rawValue
+                    }
+                }
+            }
+
+            // 部位/属性フィルター（最近 + お気に入り + 部位カテゴリ。回復ドット付き）
+            LibraryFlowLayout(spacing: 6) {
+                LibraryChip(title: "⏱\(L10n.recent)", isSelected: viewModel.showRecentOnly) {
                     viewModel.showRecentOnly.toggle()
                     if viewModel.showRecentOnly {
                         viewModel.showFavoritesOnly = false
                         viewModel.selectedCategory = nil
-                        viewModel.selectedEquipment = nil
                     }
                 }
-
-                // お気に入りフィルター
-                PickerFilterChip(
-                    title: "★ \(L10n.favorites)",
-                    isSelected: viewModel.showFavoritesOnly
-                ) {
+                LibraryChip(title: "★\(L10n.favorites)", isSelected: viewModel.showFavoritesOnly) {
                     viewModel.showFavoritesOnly.toggle()
                     if viewModel.showFavoritesOnly {
                         viewModel.showRecentOnly = false
                         viewModel.selectedCategory = nil
-                        viewModel.selectedEquipment = nil
                     }
                 }
-
-                // すべて
-                PickerFilterChip(
-                    title: L10n.all,
-                    isSelected: !viewModel.showRecentOnly && !viewModel.showFavoritesOnly && viewModel.selectedCategory == nil && viewModel.selectedEquipment == nil
-                ) {
-                    viewModel.clearAllFilters()
-                }
-
-                // カテゴリフィルター（回復ステータスドット付き）
                 ForEach(viewModel.categories, id: \.self) { category in
-                    PickerFilterChip(
+                    LibraryChip(
                         title: L10n.localizedCategory(category),
                         isSelected: viewModel.selectedCategory == category,
                         recoveryDot: recoveryDotColor(for: category)
                     ) {
                         viewModel.showRecentOnly = false
                         viewModel.showFavoritesOnly = false
-                        viewModel.selectedEquipment = nil
-                        viewModel.selectedCategory = category
-                    }
-                }
-
-                // 器具フィルター
-                ForEach(viewModel.equipmentList, id: \.self) { equipment in
-                    PickerFilterChip(
-                        title: L10n.localizedEquipment(equipment),
-                        isSelected: viewModel.selectedEquipment == equipment
-                    ) {
-                        viewModel.showRecentOnly = false
-                        viewModel.showFavoritesOnly = false
-                        viewModel.selectedCategory = nil
-                        viewModel.selectedEquipment = equipment
+                        if viewModel.selectedCategory == category {
+                            viewModel.selectedCategory = nil
+                        } else {
+                            viewModel.selectedCategory = category
+                        }
                     }
                 }
             }
-            .padding(.horizontal)
-            .padding(.vertical, 8)
         }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 8)
     }
 
     // カテゴリに対応する筋肉グループの回復状態ドット色
@@ -124,34 +106,6 @@ struct PickerFilterChipsSection: View {
         case "体幹", "腹筋": return .core
         case "脚", "下半身": return .lowerBody
         default: return nil
-        }
-    }
-}
-
-// MARK: - フィルターチップ（回復ドット付き）
-
-struct PickerFilterChip: View {
-    let title: String
-    let isSelected: Bool
-    var recoveryDot: Color? = nil
-    let action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            HStack(spacing: 4) {
-                if let dotColor = recoveryDot {
-                    Circle()
-                        .fill(dotColor)
-                        .frame(width: 6, height: 6)
-                }
-                Text(title)
-                    .font(.caption.bold())
-            }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 6)
-            .background(isSelected ? Color.mmAccentPrimary : Color.mmBgCard)
-            .foregroundStyle(isSelected ? Color.mmBgPrimary : Color.mmTextSecondary)
-            .clipShape(Capsule())
         }
     }
 }

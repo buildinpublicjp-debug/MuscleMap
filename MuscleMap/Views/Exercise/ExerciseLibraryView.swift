@@ -343,22 +343,30 @@ private struct LibraryMiniBodySide: View {
     }
 }
 
-// MARK: - コンパクトフィルターチップ（種目辞典用）
+// MARK: - コンパクトフィルターチップ（種目辞典 + 種目選択 共通）
 
-private struct LibraryChip: View {
+struct LibraryChip: View {
     let title: String
     let isSelected: Bool
+    var recoveryDot: Color? = nil
     let action: () -> Void
 
     var body: some View {
         Button(action: action) {
-            Text(title)
-                .font(.system(size: 12, weight: .medium))
-                .padding(.horizontal, 10)
-                .padding(.vertical, 5)
-                .background(isSelected ? Color.mmAccentPrimary : Color.mmBgCard)
-                .foregroundStyle(isSelected ? Color.mmBgPrimary : Color.mmTextSecondary)
-                .clipShape(Capsule())
+            HStack(spacing: 4) {
+                if let dotColor = recoveryDot {
+                    Circle()
+                        .fill(dotColor)
+                        .frame(width: 6, height: 6)
+                }
+                Text(title)
+                    .font(.system(size: 12, weight: .medium))
+            }
+            .padding(.horizontal, 10)
+            .padding(.vertical, 5)
+            .background(isSelected ? Color.mmAccentPrimary : Color.mmBgCard)
+            .foregroundStyle(isSelected ? Color.mmBgPrimary : Color.mmTextSecondary)
+            .clipShape(Capsule())
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -367,7 +375,7 @@ private struct LibraryChip: View {
 
 // MARK: - 折り返しレイアウト（FlowLayout）
 
-private struct LibraryFlowLayout: Layout {
+struct LibraryFlowLayout: Layout {
     var spacing: CGFloat = 6
 
     func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {

@@ -265,7 +265,7 @@ struct MuscleExercisePickerSheet: View {
                             if availableEquipment.count > 1 {
                                 ScrollView(.horizontal, showsIndicators: false) {
                                     HStack(spacing: 8) {
-                                        PickerFilterChip(
+                                        LibraryChip(
                                             title: L10n.all,
                                             isSelected: selectedEquipment == nil
                                         ) {
@@ -273,7 +273,7 @@ struct MuscleExercisePickerSheet: View {
                                         }
 
                                         ForEach(availableEquipment) { filter in
-                                            PickerFilterChip(
+                                            LibraryChip(
                                                 title: filter.localizedName,
                                                 isSelected: selectedEquipment == filter.rawValue
                                             ) {
