@@ -1,18 +1,16 @@
 import SwiftUI
 
-// MARK: - 種目辞典 (Biblioteca) — v1.1.5 リデザイン
+// MARK: - 種目辞典 (Biblioteca) — v1.1.5 フラット構造
 //
-// 構成: 検索バー → Explorar por 4軸 → 主軸チップ → Filtros 折りたたみ
-//        → 件数+ソート → 種目グリッド (2列)
-// 哲学: 鏡 — データを判断なしに反映、装飾最小
+// 構成: 検索バー (常時表示) → 部位行 → 器具行 → 件数 → 2列グリッド
+// 探す軸セグメント / Filtros collapse / 難易度フィルター / 並び替え は全廃。
+// お気に入り toggle は toolbar 右上の ★ で切替。
 
 struct ExerciseLibraryView: View {
     @State private var viewModel = ExerciseListViewModel()
     @ObservedObject private var favorites = FavoritesManager.shared
     @State private var searchText = ""
     @State private var selectedExercise: ExerciseDefinition?
-    @State private var isSearchActive = false
-    @FocusState private var searchFieldFocused: Bool
 
     private let columns = [
         GridItem(.flexible(), spacing: 16),
@@ -25,19 +23,35 @@ struct ExerciseLibraryView: View {
 
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 12, pinnedViews: []) {
-                    if isSearchActive {
-                        searchBar
+                    searchBar
+
+                    chipRow(label: L10n.axisMusculo) {
+                        ForEach(MuscleGroup.allCases) { group in
+                            flatChip(
+                                title: group.localizedName,
+                                isActive: viewModel.selectedMuscleGroup == group
+                            ) {
+                                viewModel.selectedMuscleGroup = (viewModel.selectedMuscleGroup == group) ? nil : group
+                            }
+                        }
                     }
 
-                    ExploreBySegment(selectedAxis: $viewModel.selectedAxis)
-
-                    if viewModel.selectedAxis != .favoritos {
-                        PrimaryFilterChips(viewModel: viewModel)
+                    chipRow(label: L10n.axisEquipo) {
+                        ForEach(LibraryEquipmentFilter.allCases) { filter in
+                            flatChip(
+                                title: filter.localizedName,
+                                isActive: viewModel.selectedEquipment == filter.rawValue
+                            ) {
+                                viewModel.selectedEquipment = (viewModel.selectedEquipment == filter.rawValue) ? nil : filter.rawValue
+                            }
+                        }
                     }
 
-                    FiltrosCollapsibleBar(viewModel: viewModel)
-
-                    LibraryCountSortRow(viewModel: viewModel)
+                    Text(L10n.exerciseCountLong(viewModel.filteredExercises.count))
+                        .font(.system(size: 13, weight: .regular))
+                        .foregroundStyle(Color.mmTextSecondary)
+                        .padding(.horizontal, 16)
+                        .padding(.top, 4)
 
                     if viewModel.filteredExercises.isEmpty {
                         LibraryEmptyState()
@@ -68,20 +82,13 @@ struct ExerciseLibraryView: View {
             }
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
-                    withAnimation(.easeInOut(duration: 0.25)) {
-                        isSearchActive.toggle()
-                        if !isSearchActive {
-                            searchText = ""
-                            viewModel.searchText = ""
-                        } else {
-                            searchFieldFocused = true
-                        }
-                    }
                     HapticManager.lightTap()
+                    viewModel.showFavoritesOnly.toggle()
                 } label: {
-                    Image(systemName: isSearchActive ? "xmark.circle.fill" : "magnifyingglass")
-                        .foregroundStyle(isSearchActive ? Color.mmTextSecondary : Color.mmAccentPrimary)
+                    Image(systemName: viewModel.showFavoritesOnly ? "star.fill" : "star")
+                        .foregroundStyle(viewModel.showFavoritesOnly ? Color.mmAccentPrimary : Color.mmTextSecondary)
                 }
+                .accessibilityLabel(L10n.axisFavoritos)
             }
         }
         .onChange(of: searchText) { _, newValue in
@@ -95,7 +102,7 @@ struct ExerciseLibraryView: View {
         }
     }
 
-    // MARK: - 検索バー
+    // MARK: - 常時表示の検索バー
 
     private var searchBar: some View {
         HStack(spacing: 8) {
@@ -105,7 +112,6 @@ struct ExerciseLibraryView: View {
                 .textFieldStyle(.plain)
                 .foregroundStyle(Color.mmTextPrimary)
                 .submitLabel(.search)
-                .focused($searchFieldFocused)
                 .onSubmit { viewModel.recordSearch(searchText) }
             if !searchText.isEmpty {
                 Button {
@@ -121,7 +127,43 @@ struct ExerciseLibraryView: View {
         .background(Color.mmBgCard)
         .clipShape(RoundedRectangle(cornerRadius: 12))
         .padding(.horizontal, 16)
-        .transition(.move(edge: .top).combined(with: .opacity))
+    }
+
+    // MARK: - ラベル + 横スクロールチップ行
+
+    @ViewBuilder
+    private func chipRow<Content: View>(label: String, @ViewBuilder _ content: () -> Content) -> some View {
+        HStack(alignment: .center, spacing: 12) {
+            Text(label)
+                .font(.system(size: 12, weight: .medium))
+                .foregroundStyle(Color.mmTextSecondary)
+                .frame(width: 36, alignment: .leading)
+
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    content()
+                }
+                .padding(.trailing, 16)
+            }
+        }
+        .padding(.leading, 16)
+    }
+
+    private func flatChip(title: String, isActive: Bool, action: @escaping () -> Void) -> some View {
+        Button {
+            HapticManager.lightTap()
+            action()
+        } label: {
+            Text(title)
+                .font(.system(size: 13, weight: .medium))
+                .padding(.horizontal, 14)
+                .padding(.vertical, 8)
+                .background(isActive ? Color.mmAccentPrimary : Color.mmBgCard)
+                .foregroundStyle(isActive ? Color.mmBgPrimary : Color.mmTextPrimary)
+                .clipShape(Capsule())
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
     }
 }
 
