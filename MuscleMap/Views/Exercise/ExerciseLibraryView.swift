@@ -13,8 +13,8 @@ struct ExerciseLibraryView: View {
     @State private var selectedExercise: ExerciseDefinition?
 
     private let columns = [
-        GridItem(.flexible(), spacing: 16),
-        GridItem(.flexible(), spacing: 16)
+        GridItem(.flexible(), spacing: 12),
+        GridItem(.flexible(), spacing: 12)
     ]
 
     var body: some View {
@@ -56,7 +56,7 @@ struct ExerciseLibraryView: View {
                     if viewModel.filteredExercises.isEmpty {
                         LibraryEmptyState()
                     } else {
-                        LazyVGrid(columns: columns, spacing: 24) {
+                        LazyVGrid(columns: columns, spacing: 12) {
                             ForEach(viewModel.filteredExercises) { exercise in
                                 LibraryGridCard(exercise: exercise) {
                                     HapticManager.lightTap()
