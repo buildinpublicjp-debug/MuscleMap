@@ -151,6 +151,7 @@ struct LibraryGridCard: View {
             }
             .background(Color.mmBgCard)
             .clipShape(RoundedRectangle(cornerRadius: 12))
+            .shadow(color: Color.black.opacity(0.4), radius: 12, x: 0, y: 4)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)

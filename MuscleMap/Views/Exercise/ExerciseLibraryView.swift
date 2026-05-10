@@ -58,7 +58,7 @@ struct ExerciseLibraryView: View {
                     } else {
                         LazyVGrid(columns: columns, spacing: 24) {
                             ForEach(viewModel.filteredExercises) { exercise in
-                                ExerciseGridCardV2(exercise: exercise) {
+                                LibraryGridCard(exercise: exercise) {
                                     HapticManager.lightTap()
                                     selectedExercise = exercise
                                 }
