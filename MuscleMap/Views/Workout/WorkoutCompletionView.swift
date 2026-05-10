@@ -763,32 +763,31 @@ struct WorkoutCompletionView: View {
 
     @MainActor
     private func prepareShareImage() {
-        let prItems: [SharePRItem] = prUpdatesMap.values.prefix(3).compactMap { update in
-            guard let exercise = ExerciseStore.shared.exercise(for: update.exerciseId) else { return nil }
-            let name = exercise.localizedName
-            return SharePRItem(
-                exerciseName: name,
-                previousWeight: update.previousWeight,
-                newWeight: update.newWeight,
-                increasePercent: update.increasePercent
-            )
-        }
-
-        // 種目ごとの最大重量×レップ（シェアカード用）
-        let exerciseEntries: [ShareExerciseEntry] = exercisesDone.prefix(3).compactMap { exercise in
-            guard let best = bestSet(for: exercise.id), best.weight > 0 else { return nil }
-            let name = exercise.localizedName
-            return ShareExerciseEntry(exerciseName: name, weight: best.weight, reps: best.reps)
+        // シェアカード用に全種目全セットを ShareExerciseEntry に展開し、PR フラグを付与
+        let exerciseEntries: [ShareExerciseEntry] = exercisesDone.compactMap { exercise in
+            let exerciseSets = session.sets
+                .filter { $0.exerciseId == exercise.id }
+                .sorted(by: { $0.setNumber < $1.setNumber })
+            guard !exerciseSets.isEmpty else { return nil }
+            let histMax = historicalMaxE1RM[exercise.id] ?? 0
+            let entries: [ShareSetEntry] = exerciseSets.map { ws in
+                ShareSetEntry(
+                    setNumber: ws.setNumber,
+                    weight: ws.weight,
+                    reps: ws.reps,
+                    isPR: isPRSet(ws, in: exerciseSets, histMax: histMax)
+                )
+            }
+            return ShareExerciseEntry(exerciseName: exercise.localizedName, sets: entries)
         }
 
         let shareView = WorkoutShareCard(
             exerciseEntries: exerciseEntries,
             totalSets: totalSets,
             exerciseCount: uniqueExercises,
+            durationMinutes: durationMinutes,
             date: session.startDate,
-            muscleMapping: stimulatedMuscleMapping,
-            prItems: prItems,
-            durationMinutes: durationMinutes
+            muscleMapping: stimulatedMuscleMapping
         )
         let renderer = ImageRenderer(content: shareView)
         renderer.scale = 3.0
