@@ -5,6 +5,7 @@ import SwiftUI
 // 構成: 部位行 → 器具行 → 件数 → 2列グリッド
 // 探す軸セグメント / Filtros collapse / 難易度フィルター / 並び替え / 検索バー は全廃。
 // お気に入り toggle は toolbar 右上の ★ で切替。
+// 部位/器具行は LibraryFilterRows に切り出し、種目選択モーダルと共有。
 
 struct ExerciseLibraryView: View {
     @State private var viewModel = ExerciseListViewModel()
@@ -22,27 +23,10 @@ struct ExerciseLibraryView: View {
 
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 12, pinnedViews: []) {
-                    chipRow(label: L10n.axisMusculo) {
-                        ForEach(MuscleGroup.allCases) { group in
-                            flatChip(
-                                title: group.localizedName,
-                                isActive: viewModel.selectedMuscleGroup == group
-                            ) {
-                                viewModel.selectedMuscleGroup = (viewModel.selectedMuscleGroup == group) ? nil : group
-                            }
-                        }
-                    }
-
-                    chipRow(label: L10n.axisEquipo) {
-                        ForEach(LibraryEquipmentFilter.allCases) { filter in
-                            flatChip(
-                                title: filter.localizedName,
-                                isActive: viewModel.selectedEquipment == filter.rawValue
-                            ) {
-                                viewModel.selectedEquipment = (viewModel.selectedEquipment == filter.rawValue) ? nil : filter.rawValue
-                            }
-                        }
-                    }
+                    LibraryFilterRows(
+                        selectedMuscleGroup: $viewModel.selectedMuscleGroup,
+                        selectedEquipment: $viewModel.selectedEquipment
+                    )
 
                     Text(L10n.exerciseCountLong(viewModel.filteredExercises.count))
                         .font(.system(size: 13, weight: .regular))
@@ -94,43 +78,6 @@ struct ExerciseLibraryView: View {
         .sheet(item: $selectedExercise) { exercise in
             ExerciseDetailView(exercise: exercise)
         }
-    }
-
-    // MARK: - ラベル + 横スクロールチップ行
-
-    @ViewBuilder
-    private func chipRow<Content: View>(label: String, @ViewBuilder _ content: () -> Content) -> some View {
-        HStack(alignment: .center, spacing: 12) {
-            Text(label)
-                .font(.system(size: 12, weight: .medium))
-                .foregroundStyle(Color.mmTextSecondary)
-                .frame(width: 36, alignment: .leading)
-
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 8) {
-                    content()
-                }
-                .padding(.trailing, 16)
-            }
-        }
-        .padding(.leading, 16)
-    }
-
-    private func flatChip(title: String, isActive: Bool, action: @escaping () -> Void) -> some View {
-        Button {
-            HapticManager.lightTap()
-            action()
-        } label: {
-            Text(title)
-                .font(.system(size: 13, weight: .medium))
-                .padding(.horizontal, 14)
-                .padding(.vertical, 8)
-                .background(isActive ? Color.mmAccentPrimary : Color.mmBgCard)
-                .foregroundStyle(isActive ? Color.mmBgPrimary : Color.mmTextPrimary)
-                .clipShape(Capsule())
-                .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
     }
 }
 
