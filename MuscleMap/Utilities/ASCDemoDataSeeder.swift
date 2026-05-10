@@ -178,9 +178,9 @@ private let scenarios: [DemoScenario] = [
             ("forearms", 0.5, 10)
         ]
     ),
-    // 下半身 (calf 除く) — 4日前 (緑 ~90%。完全回復するとグレーに戻るので緑維持の手前で止める)
+    // 下半身 (calf 除く) — 3日前 (黄緑 ~85%、Ready=グレーに落ちないよう手前で止める)
     DemoScenario(
-        hoursAgo: 96,
+        hoursAgo: 72,
         exercises: [
             ("barbell_back_squat", [80, 90, 100, 90], 8),
             ("lying_leg_curl", [35, 40, 45], 10)
@@ -193,9 +193,9 @@ private let scenarios: [DemoScenario] = [
             ("erector_spinae", 0.5, 4)
         ]
     ),
-    // 体幹 — 4日前 (緑 ~90%)
+    // 体幹 — 3日前 (黄緑 ~85%)
     DemoScenario(
-        hoursAgo: 96,
+        hoursAgo: 72,
         exercises: [
             ("plank", [0, 0, 0], 60),
             ("hanging_leg_raise", [0, 0, 0], 12)
