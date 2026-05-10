@@ -345,9 +345,9 @@ struct ExerciseGridCardV2: View {
 
     var body: some View {
         Button(action: onTap) {
-            VStack(alignment: .leading, spacing: 0) {
+            VStack(alignment: .leading, spacing: 8) {
+                // サムネ (1:1 アスペクト、画像本来の白背景、軽い角丸 12pt)
                 ZStack(alignment: .topTrailing) {
-                    // GIF or マッスルマップ (1:1 アスペクト)
                     Group {
                         if ExerciseGifView.hasGif(exerciseId: exercise.id) {
                             ExerciseGifView(exerciseId: exercise.id, size: .card)
@@ -360,9 +360,9 @@ struct ExerciseGridCardV2: View {
                                 .frame(maxWidth: .infinity)
                         }
                     }
-                    .clipped()
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
 
-                    // ❤️ お気に入りボタン (右上)
+                    // ❤️ お気に入りボタン (サムネ右上に重ね)
                     Button {
                         HapticManager.lightTap()
                         favorites.toggle(exercise.id)
@@ -378,28 +378,24 @@ struct ExerciseGridCardV2: View {
                     .padding(8)
                 }
 
-                VStack(alignment: .leading, spacing: 6) {
-                    Text(exercise.localizedName)
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundStyle(Color.mmTextPrimary)
-                        .lineLimit(2)
-                        .fixedSize(horizontal: false, vertical: true)
+                // テキストブロック (枠 / 背景なし、画面背景上に直接配置)
+                Text(exercise.localizedName)
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(Color.mmTextPrimary)
+                    .lineLimit(2)
+                    .fixedSize(horizontal: false, vertical: true)
 
-                    muscleTags
+                muscleTags
 
-                    HStack(spacing: 6) {
-                        Image(systemName: "chart.bar")
-                            .font(.system(size: 10))
-                        Text(exercise.localizedDifficulty)
-                            .font(.system(size: 11, weight: .regular))
-                    }
-                    .foregroundStyle(Color.mmTextSecondary)
+                HStack(spacing: 6) {
+                    Image(systemName: "chart.bar")
+                        .font(.system(size: 10))
+                    Text(exercise.localizedDifficulty)
+                        .font(.system(size: 12, weight: .regular))
                 }
-                .padding(10)
+                .foregroundStyle(Color.mmTextSecondary)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Color.mmBgCard)
-            .clipShape(RoundedRectangle(cornerRadius: 16))
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
