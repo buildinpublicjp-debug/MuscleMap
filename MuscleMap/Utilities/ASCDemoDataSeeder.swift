@@ -16,6 +16,11 @@ enum ASCDemoDataSeeder {
 
     @MainActor
     static func inject(context: ModelContext) {
+        // ASC スクショ用のクリーンな状態を作るため、既存の全 WorkoutSession /
+        // WorkoutSet / MuscleStimulation を削除してから demo データを入れる。
+        // DEBUG ビルドのスクショ撮影専用なので破壊許容。
+        wipeAllWorkoutData(context: context)
+
         let now = Date()
         func hoursAgo(_ h: Double) -> Date { now.addingTimeInterval(-h * 3600) }
 
@@ -83,6 +88,24 @@ enum ASCDemoDataSeeder {
 
         try? context.save()
     }
+
+    /// 全てのワークアウト関連レコードを削除する (inject 前に呼ぶ)。
+    /// MuscleMapApp の seedDemoDataIfNeeded で挿入される既存胸 6h などが
+    /// MuscleStateRepository.fetchLatestStimulations() で最新扱いになり demo
+    /// 値を上書きしてしまうのを防ぐ。
+    @MainActor
+    private static func wipeAllWorkoutData(context: ModelContext) {
+        if let allStims = try? context.fetch(FetchDescriptor<MuscleStimulation>()) {
+            for stim in allStims { context.delete(stim) }
+        }
+        if let allSessions = try? context.fetch(FetchDescriptor<WorkoutSession>()) {
+            for session in allSessions { context.delete(session) }
+        }
+        // WorkoutSet は session との cascade 削除で消えるが、念のため孤児を掃除。
+        if let orphanSets = try? context.fetch(FetchDescriptor<WorkoutSet>()) {
+            for ws in orphanSets { context.delete(ws) }
+        }
+    }
 }
 
 // MARK: - 注入シナリオ定義
@@ -95,9 +118,9 @@ private struct DemoScenario {
 }
 
 private let scenarios: [DemoScenario] = [
-    // 胸 — 3h前 (赤 ~5%、刺激直後)
+    // 胸 — 8日前 (紫 neglected、紫検証用に意図的に放置)
     DemoScenario(
-        hoursAgo: 3,
+        hoursAgo: 192,
         exercises: [
             ("barbell_bench_press", [80, 85, 90, 85], 8),
             ("incline_dumbbell_press", [30, 32.5, 35, 32.5], 10),
