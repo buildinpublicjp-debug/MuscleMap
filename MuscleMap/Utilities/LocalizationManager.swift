@@ -1957,6 +1957,10 @@ enum L10n {
     static func completionPRPlus(_ delta: String) -> String {
         "+\(delta) kg"
     }
+    /// 初回記録（過去履歴なし）の PR 表示
+    static var completionFirstTimePR: String {
+        loc("NEW", "NEW", zhHans: "首次", ko: "신규", es: "NUEVO", fr: "NOUVEAU", de: "NEU")
+    }
 
     // MARK: - 完了画面 末尾の体型記録リンク (v1.1.4)
     static var logBodyRecord: String {

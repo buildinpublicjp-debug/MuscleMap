@@ -433,8 +433,8 @@ struct WorkoutCompletionView: View {
             .sorted(by: { $0.setNumber < $1.setNumber })
         let histMax = historicalMaxE1RM[exercise.id] ?? 0
         let sessionMaxE1RM = exerciseSets.map { estimatedE1RM(weight: $0.weight, reps: $0.reps) }.max() ?? 0
-        // 種目PR (e1RM ベース): 今セッション内のいずれかが歴代を超えたか
-        let exerciseHasNewPR = histMax > 0 && sessionMaxE1RM > histMax
+        // 種目PR (e1RM ベース): 歴代超え or 初回記録 (sessionMaxE1RM > 0 で自重 reps のみは除外)
+        let exerciseHasNewPR = sessionMaxE1RM > 0 && (histMax == 0 || sessionMaxE1RM > histMax)
 
         return VStack(alignment: .leading, spacing: 0) {
             // 種目名 + (PR時) 王冠 PR
@@ -493,8 +493,14 @@ struct WorkoutCompletionView: View {
     /// 列4 は flex で残り全部、trailing 揃え。狭い画面 (SE) では minimumScaleFactor で縮小フォールバック。
     private func setRow(set: WorkoutSet, exerciseSets: [WorkoutSet], histMax: Double) -> some View {
         let currentE1RM = estimatedE1RM(weight: set.weight, reps: set.reps)
-        let prDiff = prDiffLabel(currentE1RM: currentE1RM, histMax: histMax)
         let isPR = isPRSet(set, in: exerciseSets, histMax: histMax)
+        // 初回記録の PR セットは「NEW」を列4に表示。歴代記録がある場合は既存 prDiffLabel 経由。
+        let prDiff: (text: String, color: Color)? = {
+            if histMax == 0 && isPR {
+                return (L10n.completionFirstTimePR, Color.mmAccentPrimary)
+            }
+            return prDiffLabel(currentE1RM: currentE1RM, histMax: histMax)
+        }()
 
         return HStack(spacing: 8) {
             // 列1: セット番号
@@ -510,11 +516,16 @@ struct WorkoutCompletionView: View {
                 .frame(width: 88, alignment: .leading)
 
             // 列3: e1RM XX.X kg ("e1RM 100.0 kg" 13文字 ≈ 94pt が収まる 96pt)
-            Text("e1RM \(String(format: "%.1f", currentE1RM)) kg")
-                .foregroundStyle(Color.mmTextPrimary)
-                .lineLimit(1)
-                .minimumScaleFactor(0.85)
-                .frame(width: 96, alignment: .leading)
+            // 自重 (weight=0) の場合は e1RM 0.0 が無意味なので空欄にする
+            if set.weight > 0 {
+                Text("e1RM \(String(format: "%.1f", currentE1RM)) kg")
+                    .foregroundStyle(Color.mmTextPrimary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.85)
+                    .frame(width: 96, alignment: .leading)
+            } else {
+                Color.clear.frame(width: 96)
+            }
 
             // 列4: PR との差 (flex 残り、trailing 揃え。SE 狭幅では縮小可)
             if let info = prDiff {
@@ -608,13 +619,21 @@ struct WorkoutCompletionView: View {
     /// PR 差ラベル (prDiffLabel) と一貫させるため、歴代最高との比較は表示丸め値で行う。
     /// 例: 19.05 vs 19.0 (内部) → 表示 19.1 vs 19.0 → 王冠表示 (内部精度と一致)
     /// 例: 19.04 vs 19.0 (内部) → 表示 19.0 vs 19.0 → 王冠なし (PRタイ扱いと整合)
+    /// 初回記録 (histMax == 0) の場合は、その種目を初めて記録したことになるため
+    /// セッション最高 e1RM のセットを PR として扱う (Strava 系の "初回 = PR" 慣行)
     private func isPRSet(_ set: WorkoutSet, in sessionSets: [WorkoutSet], histMax: Double) -> Bool {
-        guard histMax > 0 else { return false }
         let setE1RM = estimatedE1RM(weight: set.weight, reps: set.reps)
+        let sessionMax = sessionSets.map { estimatedE1RM(weight: $0.weight, reps: $0.reps) }.max() ?? 0
+        // e1RM が 0 (自重 reps のみで weight=0) は PR 対象外
+        guard setE1RM > 0 else { return false }
+        // 初回記録: セッション最高 e1RM のセットを PR とみなす
+        if histMax == 0 {
+            return setE1RM >= sessionMax
+        }
+        // 既存ロジック: 歴代最高を表示丸め値で超えていて、かつ今セッション最高
         let setRounded = roundedToOneDecimal(setE1RM)
         let histRounded = roundedToOneDecimal(histMax)
         guard setRounded > histRounded else { return false }
-        let sessionMax = sessionSets.map { estimatedE1RM(weight: $0.weight, reps: $0.reps) }.max() ?? 0
         return setE1RM >= sessionMax
     }
 

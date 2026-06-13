@@ -176,6 +176,9 @@ class WorkoutViewModel {
         selectedExercise = exercise
 
         let isBodyweight = exercise.isBodyweight
+        // ダンベル種目はDBに両手合計を保存している（SetInputComponents.swiftで× 2して保存）
+        // prefill時は片手UIに合わせて÷ 2して表示する
+        let isDumbbell = exercise.equipment == "ダンベル" && !isBodyweight
 
         // 使用履歴に記録
         RecentExercisesManager.shared.recordUsage(exercise.id)
@@ -193,12 +196,12 @@ class WorkoutViewModel {
         // 前回記録を取得（セッション内の直前セット → 過去セッションの順に優先）
         if let inSessionSet = sessionLastSet {
             // 同一セッション内で既に記録がある → その値を維持（値保持）
-            currentWeight = inSessionSet.weight
+            currentWeight = isDumbbell ? inSessionSet.weight / 2 : inSessionSet.weight
             currentReps = inSessionSet.reps
             lastWeight = inSessionSet.weight
             lastReps = inSessionSet.reps
         } else if let lastRecord = workoutRepo.fetchLastRecord(exerciseId: exercise.id) {
-            currentWeight = lastRecord.weight
+            currentWeight = isDumbbell ? lastRecord.weight / 2 : lastRecord.weight
             currentReps = lastRecord.reps
             lastWeight = lastRecord.weight
             lastReps = lastRecord.reps

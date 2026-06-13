@@ -124,7 +124,7 @@ struct MonthlyCalendarView: View {
                     }
                 } else {
                     Color.clear
-                        .frame(height: 44)
+                        .frame(height: 56)
                 }
             }
         }
@@ -223,38 +223,33 @@ private struct DayCell: View {
 
     var body: some View {
         Button(action: action) {
-            VStack(spacing: 4) {
+            VStack(spacing: 2) {
                 Text("\(calendar.component(.day, from: date))")
                     .font(.system(size: 10, weight: isToday ? .bold : .regular))
                     .foregroundStyle(textColor)
 
-                // 軽量ドットインジケーター（上半身/下半身）
+                // 刺激部位ミニ筋肉マップ (光らせて見せる)
+                // 旧: 上半身/下半身の小ドット。新: MiniMuscleMapView (drawingGroup 高速)
                 if hasWorkout && !muscleMapping.isEmpty {
-                    HStack(spacing: 3) {
-                        if hasUpper {
-                            Circle()
-                                .fill(Color.mmAccentPrimary)
-                                .frame(width: 6, height: 6)
-                        }
-                        if hasLower {
-                            Circle()
-                                .fill(Color.mmAccentSecondary)
-                                .frame(width: 6, height: 6)
-                        }
-                    }
-                    .frame(height: 10)
+                    MiniMuscleMapView(
+                        muscleMapping: muscleMapping,
+                        tintColor: bodyTintColor
+                    )
+                    .frame(height: 28)
+                    .shadow(color: glowColor, radius: isToday || isSelected ? 5 : 3)
                 } else if hasWorkout {
+                    // muscleMapping 取得失敗のフォールバック (ドット)
                     Circle()
                         .fill(Color.mmAccentPrimary.opacity(0.5))
                         .frame(width: 6, height: 6)
-                        .frame(height: 10)
+                        .frame(height: 28)
                 } else {
                     Color.clear
-                        .frame(height: 10)
+                        .frame(height: 28)
                 }
             }
             .frame(maxWidth: .infinity)
-            .frame(height: 44)
+            .frame(height: 56)
             .background(backgroundColor)
             .clipShape(RoundedRectangle(cornerRadius: 8))
         }
@@ -277,6 +272,31 @@ private struct DayCell: View {
             return Color.mmAccentPrimary.opacity(0.2)
         } else {
             return Color.clear
+        }
+    }
+
+    /// ボディ図の色 (背景とのコントラスト確保)
+    /// - 選択中 (= 濃い緑bg): 暗い背景色で抜く
+    /// - 今日 (= 薄い緑bg): 白で目立たせる
+    /// - 通常 (= 透明bg): アクセントグリーン
+    private var bodyTintColor: Color {
+        if isSelected {
+            return Color.mmBgPrimary
+        } else if isToday {
+            return Color.white
+        } else {
+            return Color.mmAccentPrimary
+        }
+    }
+
+    /// ボディ図のグロー色 (今日と通常では強さを変える)
+    private var glowColor: Color {
+        if isSelected {
+            return Color.clear
+        } else if isToday {
+            return Color.white.opacity(0.55)
+        } else {
+            return Color.mmAccentPrimary.opacity(0.45)
         }
     }
 }

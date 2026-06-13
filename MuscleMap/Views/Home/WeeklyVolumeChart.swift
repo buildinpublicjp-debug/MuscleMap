@@ -7,6 +7,8 @@ struct WeeklyVolumeChart: View {
     @Environment(\.modelContext) private var modelContext
     @State private var dailyVolumes: [WeeklyDayVolume] = []
     @State private var lastWeekTotal: Double = 0
+    // 今週のセッション数（記録のあるWorkoutSession数を直接カウント。日数ではない）
+    @State private var weekSessionCount: Int = 0
 
     /// 今週の合計
     private var thisWeekTotal: Double {
@@ -94,9 +96,8 @@ struct WeeklyVolumeChart: View {
 
                 Spacer()
 
-                let sessionCount = dailyVolumes.filter { $0.volume > 0 }.count
-                if sessionCount > 0 {
-                    Text(L10n.sessionCount(sessionCount))
+                if weekSessionCount > 0 {
+                    Text(L10n.sessionCount(weekSessionCount))
                         .font(.system(size: 9))
                         .foregroundStyle(Color.mmTextSecondary.opacity(0.4))
                 }
@@ -190,6 +191,21 @@ struct WeeklyVolumeChart: View {
         }
         lastWeekTotal = lastWeekSets.reduce(0.0) { total, set in
             total + (set.weight * Double(set.reps))
+        }
+
+        // 今週のセッション数（記録のあるWorkoutSessionを直接カウント）
+        // 旧実装は dailyVolumes.filter { $0.volume > 0 }.count で「日数」を返していたため
+        // 同日に複数セッションを記録しても増えないセマンティック・バグだった
+        let sessionDescriptor = FetchDescriptor<WorkoutSession>()
+        if let allSessions = try? modelContext.fetch(sessionDescriptor),
+           let nextWeekStart = calendar.date(byAdding: .day, value: 7, to: mondayThisWeek) {
+            weekSessionCount = allSessions.filter { session in
+                session.startDate >= mondayThisWeek
+                    && session.startDate < nextWeekStart
+                    && !session.sets.isEmpty
+            }.count
+        } else {
+            weekSessionCount = 0
         }
     }
 }

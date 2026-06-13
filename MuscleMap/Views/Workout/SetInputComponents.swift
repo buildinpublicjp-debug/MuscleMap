@@ -125,6 +125,7 @@ struct SetInputCard: View {
                 PreviousSessionReference(
                     sets: viewModel.previousSessionSets,
                     isBodyweight: isBodyweight,
+                    isDumbbell: isDumbbell,
                     isExpanded: $showPreviousSession
                 )
             }
@@ -296,6 +297,8 @@ struct SetInputCard: View {
 struct PreviousSessionReference: View {
     let sets: [WorkoutSet]
     let isBodyweight: Bool
+    // ダンベル種目はDBに両手合計を保存しているため、表示時に÷ 2して片手値を見せる
+    let isDumbbell: Bool
     @Binding var isExpanded: Bool
 
     var body: some View {
@@ -339,7 +342,9 @@ struct PreviousSessionReference: View {
                                 .font(.caption2.monospaced())
                                 .foregroundStyle(Color.mmTextSecondary.opacity(0.5))
                         } else {
-                            Text(L10n.weightReps(set.weight, set.reps))
+                            // ダンベル種目はDBに両手合計を保存しているため÷ 2して片手値で表示
+                            let displayWeight = isDumbbell && set.weight > 0 ? set.weight / 2 : set.weight
+                            Text(L10n.weightReps(displayWeight, set.reps))
                                 .font(.caption2.monospaced())
                                 .foregroundStyle(Color.mmTextSecondary.opacity(0.5))
                         }
